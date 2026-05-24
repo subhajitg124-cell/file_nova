@@ -16,7 +16,7 @@ export interface ProcessingSavings {
   percent: number;
 }
 
-export type OperationType = 'merge' | 'compress' | 'enhance' | 'edit' | 'convert' | 'split';
+export type OperationType = 'merge' | 'compress' | 'enhance' | 'edit' | 'convert' | 'split' | 'resize';
 
 interface FileState {
   selectedSection: 'pdf' | 'image' | 'office' | 'video' | null;
@@ -87,7 +87,10 @@ export const useFileStore = create<FileState>((set) => ({
         suggestedOptions = { operation: suggestedOp };
       } else if (type.startsWith('image/')) {
         suggestedOp = 'compress';
-        suggestedOptions = { operation: 'compress', quality: 80, resize_pct: 1.0 };
+        suggestedOptions = { operation: 'compress', quality: 82, resize_pct: 1.0 };
+      } else if (type === 'image/svg+xml') {
+        suggestedOp = 'convert';
+        suggestedOptions = { operation: 'svg_to_png' };
       } else if (type.startsWith('video/')) {
         suggestedOp = 'compress';
         suggestedOptions = { operation: 'compress', crf: 28, preset: 'medium' };
@@ -117,7 +120,7 @@ export const useFileStore = create<FileState>((set) => ({
     const firstFileType = state.files[0]?.type || '';
     let defaults: Record<string, any> = {};
     if (operation === 'compress') {
-      if (firstFileType.startsWith('image/')) defaults = { quality: 80, resize_pct: 1.0 };
+      if (firstFileType.startsWith('image/')) defaults = { quality: 82, resize_pct: 1.0, compress_preset: 'balanced' };
       else if (firstFileType.startsWith('video/')) defaults = { crf: 28, preset: 'medium' };
       else if (firstFileType.startsWith('audio/')) defaults = { audio_bitrate: 128, audio_format: 'mp3' };
       else if (firstFileType.includes('officedocument') || firstFileType.includes('word') || firstFileType.includes('sheet') || firstFileType.includes('presentation')) {
@@ -126,10 +129,13 @@ export const useFileStore = create<FileState>((set) => ({
     } else if (operation === 'split') {
       defaults = { split_mode: 'all', split_every: 1, split_range: '1-1' };
     } else if (operation === 'enhance') {
-      if (firstFileType.startsWith('image/')) defaults = { brightness: 1.0, contrast: 1.0, sharpness: 1.0, denoise: false };
+      if (firstFileType.startsWith('image/')) defaults = { brightness: 1.0, contrast: 1.0, sharpness: 1.2, denoise: false, enhance_preset: 'custom' };
+    } else if (operation === 'resize') {
+      defaults = { resize_width: 800, resize_height: 600, resize_lock_aspect: true, resize_format: 'png' };
     } else if (operation === 'convert') {
       if (firstFileType === 'application/pdf') defaults = { operation: 'pdf_to_docx' };
-      else if (firstFileType.startsWith('image/')) defaults = { target_format: 'webp' };
+      else if (firstFileType === 'image/svg+xml') defaults = { operation: 'svg_to_png', svg_width: 512, svg_height: 512 };
+      else if (firstFileType.startsWith('image/')) defaults = { target_format: 'webp', operation: 'convert_format' };
       else if (firstFileType.includes('wordprocessing') || firstFileType.endsWith('docx')) defaults = { operation: 'docx_to_pdf' };
       else if (firstFileType.includes('presentation') || firstFileType.endsWith('pptx')) defaults = { operation: 'pptx_to_pdf' };
       else if (firstFileType.includes('spreadsheet') || firstFileType.endsWith('xlsx')) defaults = { operation: 'xlsx_to_csv' };

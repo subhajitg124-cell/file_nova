@@ -18,6 +18,15 @@ export async function detectFileType(file: File): Promise<FileTypeResult> {
     if (hex.startsWith('ffd8ff')) return { extension: 'jpg', mime: 'image/jpeg', confidence: 'high' };
     if (hex.startsWith('52494646') && hex.substring(16, 24) === '57454250') return { extension: 'webp', mime: 'image/webp', confidence: 'high' };
     if (hex.startsWith('47494638')) return { extension: 'gif', mime: 'image/gif', confidence: 'high' };
+    // ICO
+    if (hex.startsWith('00000100')) return { extension: 'ico', mime: 'image/x-icon', confidence: 'high' };
+    // BMP
+    if (hex.startsWith('424d')) return { extension: 'bmp', mime: 'image/bmp', confidence: 'high' };
+    // TIFF (little-endian & big-endian)
+    if (hex.startsWith('49492a00') || hex.startsWith('4d4d002a')) return { extension: 'tiff', mime: 'image/tiff', confidence: 'high' };
+    // SVG (text-based — check for '<svg' in first bytes)
+    const textPreview = new TextDecoder().decode(arr.slice(0, 200)).toLowerCase().trim();
+    if (textPreview.includes('<svg')) return { extension: 'svg', mime: 'image/svg+xml', confidence: 'high' };
     // MP3 ID3 / MPEG audio
     if (hex.startsWith('494433') || hex.startsWith('fffb') || hex.startsWith('fff3') || hex.startsWith('fff2')) return { extension: 'mp3', mime: 'audio/mpeg', confidence: 'high' };
     // AAC / M4A
@@ -53,6 +62,11 @@ export async function detectFileType(file: File): Promise<FileTypeResult> {
     htm: 'text/html',
     csv: 'text/csv',
     txt: 'text/plain',
+    svg: 'image/svg+xml',
+    ico: 'image/x-icon',
+    bmp: 'image/bmp',
+    tiff: 'image/tiff',
+    tif: 'image/tiff',
     mp3: 'audio/mpeg',
     aac: 'audio/aac',
     ogg: 'audio/ogg',
@@ -71,7 +85,7 @@ export async function detectFileType(file: File): Promise<FileTypeResult> {
 
 export function getWorkspaceCategory(mime: string, ext: string): 'pdf' | 'image' | 'office' | 'video' | null {
   if (mime === 'application/pdf' || ext === 'pdf') return 'pdf';
-  if (mime.startsWith('image/') || ['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'tiff'].includes(ext)) return 'image';
+  if (mime.startsWith('image/') || ['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'tiff', 'tif', 'svg', 'ico'].includes(ext)) return 'image';
   if (mime.startsWith('video/') || ['mp4', 'webm', 'mov', 'avi', 'mkv'].includes(ext)) return 'video';
   if (mime.startsWith('audio/') || ['mp3', 'aac', 'ogg', 'flac', 'wav', 'm4a'].includes(ext)) return 'video';
   if (
