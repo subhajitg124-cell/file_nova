@@ -20,6 +20,14 @@ function canvasToBlob(canvas: HTMLCanvasElement, mime: string, quality = 0.92): 
   });
 }
 
+function outputMime(file: File, format?: string): string {
+  if (format) return `image/${format}`;
+  const t = file.type;
+  if (t === 'image/jpeg' || t === 'image/jpg') return 'image/jpeg';
+  if (t === 'image/webp') return 'image/webp';
+  return 'image/png';
+}
+
 // ── Compress / resize ──────────────────────────────────────────────────────
 export async function compressImage(
   file: File,
@@ -63,6 +71,139 @@ export async function resizeImage(
   return canvasToBlob(canvas, `image/${outputFormat}`, quality);
 }
 
+// ── Crop image ─────────────────────────────────────────────────────────────
+export async function cropImage(
+  file: File,
+  x: number, y: number,
+  cropWidth: number, cropHeight: number,
+  format?: string
+): Promise<Blob> {
+  const img = await loadImage(file);
+  const canvas = document.createElement('canvas');
+  canvas.width  = cropWidth;
+  canvas.height = cropHeight;
+  const ctx = canvas.getContext('2d')!;
+  ctx.drawImage(img, x, y, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
+  return canvasToBlob(canvas, outputMime(file, format), 0.93);
+}
+
+// ── Rotate & Flip ──────────────────────────────────────────────────────────
+export async function rotateFlipImage(
+  file: File,
+  rotateDeg: number,   // 0, 90, 180, 270
+  flipH = false,
+  flipV = false,
+  format?: string
+): Promise<Blob> {
+  const img = await loadImage(file);
+  const rad = (rotateDeg * Math.PI) / 180;
+  const absRad = Math.abs(rad);
+  const sin = Math.abs(Math.sin(absRad));
+  const cos = Math.abs(Math.cos(absRad));
+  const ow = img.naturalWidth;
+  const oh = img.naturalHeight;
+  const nw = Math.round(ow * cos + oh * sin);
+  const nh = Math.round(ow * sin + oh * cos);
+
+  const canvas = document.createElement('canvas');
+  canvas.width  = nw;
+  canvas.height = nh;
+  const ctx = canvas.getContext('2d')!;
+  ctx.translate(nw / 2, nh / 2);
+  ctx.rotate(rad);
+  if (flipH) ctx.scale(-1, 1);
+  if (flipV) ctx.scale(1, -1);
+  ctx.drawImage(img, -ow / 2, -oh / 2);
+  return canvasToBlob(canvas, outputMime(file, format), 0.93);
+}
+
+// ── Add watermark / text overlay ───────────────────────────────────────────
+export async function addImageWatermark(
+  file: File,
+  text: string,
+  options: {
+    fontSize?: number;
+    color?: string;
+    opacity?: number;
+    position?: 'diagonal' | 'center' | 'bottom-right' | 'bottom-left' | 'top-right' | 'bottom-center';
+    fontFamily?: string;
+    bold?: boolean;
+    shadow?: boolean;
+    tileRepeat?: boolean;
+  }
+): Promise<Blob> {
+  const img = await loadImage(file);
+  const canvas = document.createElement('canvas');
+  canvas.width  = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+  const ctx = canvas.getContext('2d')!;
+  ctx.drawImage(img, 0, 0);
+
+  const {
+    fontSize = Math.max(20, Math.round(Math.min(canvas.width, canvas.height) * 0.06)),
+    color = '#ffffff',
+    opacity = 0.45,
+    position = 'diagonal',
+    fontFamily = 'sans-serif',
+    bold = true,
+    shadow = true,
+    tileRepeat = false,
+  } = options;
+
+  ctx.globalAlpha = opacity;
+  ctx.font = `${bold ? 'bold ' : ''}${fontSize}px ${fontFamily}`;
+  ctx.fillStyle = color;
+  ctx.textBaseline = 'middle';
+
+  if (shadow) {
+    ctx.shadowColor = 'rgba(0,0,0,0.6)';
+    ctx.shadowBlur = 4;
+    ctx.shadowOffsetX = 1;
+    ctx.shadowOffsetY = 1;
+  }
+
+  const tw = ctx.measureText(text).width;
+  const th = fontSize;
+  const W = canvas.width;
+  const H = canvas.height;
+  const PAD = 24;
+
+  if (tileRepeat) {
+    // Tile watermark across entire image diagonally
+    ctx.save();
+    ctx.translate(W / 2, H / 2);
+    ctx.rotate(-Math.PI / 6);
+    const stepX = tw * 2.5;
+    const stepY = th * 3.5;
+    for (let x = -W; x < W * 1.5; x += stepX) {
+      for (let y = -H; y < H * 1.5; y += stepY) {
+        ctx.fillText(text, x - tw / 2, y);
+      }
+    }
+    ctx.restore();
+  } else if (position === 'diagonal') {
+    ctx.save();
+    ctx.translate(W / 2, H / 2);
+    ctx.rotate(-Math.PI / 4);
+    ctx.fillText(text, -tw / 2, 0);
+    ctx.restore();
+  } else if (position === 'center') {
+    ctx.fillText(text, (W - tw) / 2, H / 2);
+  } else if (position === 'bottom-right') {
+    ctx.fillText(text, W - tw - PAD, H - PAD - th / 2);
+  } else if (position === 'bottom-left') {
+    ctx.fillText(text, PAD, H - PAD - th / 2);
+  } else if (position === 'top-right') {
+    ctx.fillText(text, W - tw - PAD, PAD + th / 2);
+  } else if (position === 'bottom-center') {
+    ctx.fillText(text, (W - tw) / 2, H - PAD - th / 2);
+  }
+
+  ctx.globalAlpha = 1;
+  ctx.shadowColor = 'transparent';
+  return canvasToBlob(canvas, outputMime(file), 0.93);
+}
+
 // ── Convert to ICO (multi-size, embedded PNG) ──────────────────────────────
 export async function convertToIco(
   file: File,
@@ -84,35 +225,30 @@ export async function convertToIco(
   }
 
   const iconCount = sizes.length;
-  const headerSize   = 6;
-  const dirEntrySize = 16;
-
-  // ICONDIR: reserved(2), type=1(2), count(2)
   const header = new DataView(new ArrayBuffer(6));
   header.setUint16(0, 0, true);
   header.setUint16(2, 1, true);
   header.setUint16(4, iconCount, true);
 
-  let dataOffset = headerSize + dirEntrySize * iconCount;
+  let dataOffset = 6 + 16 * iconCount;
   const entries: ArrayBuffer[] = [];
 
   for (let i = 0; i < iconCount; i++) {
     const s   = sizes[i];
     const ent = new DataView(new ArrayBuffer(16));
-    ent.setUint8(0, s >= 256 ? 0 : s);   // width  (0 = 256)
-    ent.setUint8(1, s >= 256 ? 0 : s);   // height
-    ent.setUint8(2, 0);                   // color count
-    ent.setUint8(3, 0);                   // reserved
-    ent.setUint16(4, 1, true);            // color planes
-    ent.setUint16(6, 32, true);           // bits-per-pixel
-    ent.setUint32(8, pngArrays[i].byteLength, true);  // data size
-    ent.setUint32(12, dataOffset, true);               // data offset
+    ent.setUint8(0, s >= 256 ? 0 : s);
+    ent.setUint8(1, s >= 256 ? 0 : s);
+    ent.setUint8(2, 0);
+    ent.setUint8(3, 0);
+    ent.setUint16(4, 1, true);
+    ent.setUint16(6, 32, true);
+    ent.setUint32(8, pngArrays[i].byteLength, true);
+    ent.setUint32(12, dataOffset, true);
     dataOffset += pngArrays[i].byteLength;
     entries.push(ent.buffer);
   }
 
-  const parts: BlobPart[] = [header.buffer, ...entries, ...pngArrays.map(p => p.buffer)];
-  return new Blob(parts, { type: 'image/x-icon' });
+  return new Blob([header.buffer, ...entries, ...pngArrays.map(p => p.buffer)], { type: 'image/x-icon' });
 }
 
 // ── SVG → PNG ─────────────────────────────────────────────────────────────
@@ -142,7 +278,7 @@ export async function convertSvgToPng(
   });
 }
 
-// ── Convert format (PNG ↔ JPEG ↔ WEBP ↔ BMP) ─────────────────────────────
+// ── Convert format (PNG ↔ JPEG ↔ WEBP) ────────────────────────────────────
 export async function convertImageFormat(
   file: File,
   targetFormat: 'png' | 'jpeg' | 'webp',
@@ -154,7 +290,6 @@ export async function convertImageFormat(
   canvas.height = img.naturalHeight;
   const ctx = canvas.getContext('2d')!;
   if (targetFormat !== 'png') {
-    // Fill white background for JPEG (no alpha)
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
@@ -162,7 +297,7 @@ export async function convertImageFormat(
   return canvasToBlob(canvas, `image/${targetFormat}`, quality);
 }
 
-// ── Get natural image dimensions ──────────────────────────────────────────
+// ── Get natural image dimensions ───────────────────────────────────────────
 export async function getImageDimensions(file: File): Promise<{ width: number; height: number }> {
   const img = await loadImage(file);
   return { width: img.naturalWidth, height: img.naturalHeight };

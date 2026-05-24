@@ -52,3 +52,68 @@ export async function runClientSideImagesToPdf(files: File[]): Promise<Blob> {
   worker.terminate();
   return new Blob([pdfUint8], { type: 'application/pdf' });
 }
+
+// ── PDF Editor operations ───────────────────────────────────────────────────
+
+export async function runClientSidePdfRotate(
+  file: File,
+  rotation: number,
+  mode: 'all' | 'specific' | 'odd' | 'even',
+  pageList: number[]
+): Promise<Blob> {
+  const worker = createWorker();
+  const api = wrap<any>(worker);
+  const fileData = { name: file.name, buffer: await file.arrayBuffer() };
+  const result: Uint8Array = await api.rotatePdfPages(fileData, rotation, mode, pageList);
+  worker.terminate();
+  return new Blob([result], { type: 'application/pdf' });
+}
+
+export async function runClientSidePdfDeletePages(
+  file: File,
+  pageList: number[]
+): Promise<Blob> {
+  const worker = createWorker();
+  const api = wrap<any>(worker);
+  const fileData = { name: file.name, buffer: await file.arrayBuffer() };
+  const result: Uint8Array = await api.deletePdfPages(fileData, pageList);
+  worker.terminate();
+  return new Blob([result], { type: 'application/pdf' });
+}
+
+export async function runClientSidePdfWatermark(
+  file: File,
+  text: string,
+  options: { fontSize?: number; opacity?: number; rotation?: number; position?: string; colorHex?: string }
+): Promise<Blob> {
+  const worker = createWorker();
+  const api = wrap<any>(worker);
+  const fileData = { name: file.name, buffer: await file.arrayBuffer() };
+  const result: Uint8Array = await api.addPdfWatermark(fileData, text, options);
+  worker.terminate();
+  return new Blob([result], { type: 'application/pdf' });
+}
+
+export async function runClientSidePdfPageNumbers(
+  file: File,
+  options: { position?: string; startFrom?: number; fontSize?: number; prefix?: string; suffix?: string; colorHex?: string }
+): Promise<Blob> {
+  const worker = createWorker();
+  const api = wrap<any>(worker);
+  const fileData = { name: file.name, buffer: await file.arrayBuffer() };
+  const result: Uint8Array = await api.addPdfPageNumbers(fileData, options);
+  worker.terminate();
+  return new Blob([result], { type: 'application/pdf' });
+}
+
+export async function runClientSidePdfReorder(
+  file: File,
+  newOrder: number[]
+): Promise<Blob> {
+  const worker = createWorker();
+  const api = wrap<any>(worker);
+  const fileData = { name: file.name, buffer: await file.arrayBuffer() };
+  const result: Uint8Array = await api.reorderPdfPages(fileData, newOrder);
+  worker.terminate();
+  return new Blob([result], { type: 'application/pdf' });
+}
