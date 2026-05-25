@@ -4,8 +4,10 @@ import {
   FileArchive, Sparkles, FileEdit, RefreshCw, Search, Video, FileText,
   FileSpreadsheet, Loader2, Scissors, Image, Music, Globe, FileCode,
   ArrowLeftRight, Maximize2, MonitorSmartphone, ImageIcon, RotateCw,
-  Trash2, Stamp, Hash, AlignJustify, Crop, FlipHorizontal, Type, PenTool,
-  Eraser, ScanLine, ScanText
+  Trash2, Stamp, Hash, AlignJustify, Crop, FlipHorizontal, PenTool,
+  Eraser, ScanLine, ScanText, Lock, Unlock, ShieldCheck, FileSearch2,
+  GitCompareArrows, BrainCircuit, Languages, PenLine, Camera, BookOpen,
+  FileWarning, FileCheck2
 } from 'lucide-react';
 import { useFileStore, OperationType } from '@/store/useFileStore';
 import { apiClient, apiMock } from '@/lib/api';
@@ -24,56 +26,70 @@ interface ToolItem {
 
 const TOOLS: ToolItem[] = [
   // ── PDF ────────────────────────────────────────────────────────────────────
-  { id: 'merge',    title: 'Merge PDFs',       description: 'Combine multiple PDF files into one document.',              category: 'pdf', icon: FileText,       gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',  actionName: 'merge' },
-  { id: 'compress', title: 'Compress PDF',     description: 'Reduce file size while preserving fonts and structure.',     category: 'pdf', icon: FileArchive,    gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',  actionName: 'compress' },
-  { id: 'split',    title: 'Split PDF',        description: 'Extract individual pages or ranges into separate PDFs.',     category: 'pdf', icon: Scissors,       gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',  actionName: 'split',           badge: 'Client-side', badgeColor: 'emerald' },
-  { id: 'edit',     title: 'Crop Pages',       description: 'Trim the visible area of PDF pages with a custom crop box.', category: 'pdf', icon: Crop,           gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',  actionName: 'pdf_crop',        badge: 'Client-side', badgeColor: 'emerald' },
-  { id: 'edit',     title: 'Edit PDF',         description: 'Add text, cover content, or replace text on any page.',      category: 'pdf', icon: ScanText,       gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',  actionName: 'pdf_annotate',    badge: 'Client-side', badgeColor: 'emerald' },
-  { id: 'edit',     title: 'Rotate Pages',     description: 'Rotate all or specific pages by 90°, 180°, or 270°.',       category: 'pdf', icon: RotateCw,       gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',  actionName: 'pdf_rotate',      badge: 'Client-side', badgeColor: 'emerald' },
-  { id: 'edit',     title: 'Delete Pages',     description: 'Remove specific pages from the PDF document.',              category: 'pdf', icon: Trash2,         gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',  actionName: 'pdf_delete',      badge: 'Client-side', badgeColor: 'emerald' },
-  { id: 'edit',     title: 'Add Watermark',    description: 'Stamp text on every page — diagonal, center, or footer.',   category: 'pdf', icon: Stamp,          gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',  actionName: 'pdf_watermark',   badge: 'Client-side', badgeColor: 'emerald' },
-  { id: 'edit',     title: 'Add Page Numbers', description: 'Insert page numbers at header or footer positions.',        category: 'pdf', icon: Hash,           gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',  actionName: 'pdf_page_numbers',badge: 'Client-side', badgeColor: 'emerald' },
-  { id: 'edit',     title: 'Reorder Pages',    description: 'Rearrange pages into any custom order.',                    category: 'pdf', icon: AlignJustify,   gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',  actionName: 'pdf_reorder',     badge: 'Client-side', badgeColor: 'emerald' },
-  { id: 'convert',  title: 'PDF → DOCX',      description: 'Convert PDF back into an editable Word document.',           category: 'pdf', icon: ArrowLeftRight, gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',  actionName: 'pdf_to_docx' },
-  { id: 'convert',  title: 'PDF → PPTX',      description: 'Convert PDF pages into a PowerPoint presentation.',          category: 'pdf', icon: ArrowLeftRight, gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',  actionName: 'pdf_to_pptx' },
-  { id: 'convert',  title: 'PDF → Images',    description: 'Extract every page as a PNG image file.',                    category: 'pdf', icon: ImageIcon,      gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',  actionName: 'pdf_to_images' },
-  { id: 'convert',  title: 'Images → PDF',    description: 'Pack multiple images into a single PDF document.',           category: 'pdf', icon: Image,          gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',  actionName: 'images_to_pdf',   badge: 'Client-side', badgeColor: 'emerald' },
+  { id: 'merge',    title: 'Merge PDFs',        description: 'Combine multiple PDF files into one document.',                  category: 'pdf', icon: FileText,         gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',     actionName: 'merge' },
+  { id: 'compress', title: 'Compress PDF',       description: 'Reduce file size while preserving fonts and structure.',         category: 'pdf', icon: FileArchive,      gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',     actionName: 'compress' },
+  { id: 'split',    title: 'Split PDF',          description: 'Extract individual pages or ranges into separate PDFs.',         category: 'pdf', icon: Scissors,         gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',     actionName: 'split',            badge: 'Client-side', badgeColor: 'emerald' },
+  { id: 'edit',     title: 'Edit PDF',           description: 'Add text, cover content, or replace text on any page.',          category: 'pdf', icon: ScanText,         gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',     actionName: 'pdf_annotate',     badge: 'Client-side', badgeColor: 'emerald' },
+  { id: 'edit',     title: 'Redact PDF',         description: 'Black out or color over sensitive content permanently.',         category: 'pdf', icon: Eraser,           gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',     actionName: 'pdf_redact',       badge: 'Client-side', badgeColor: 'emerald' },
+  { id: 'edit',     title: 'Sign PDF',           description: 'Place a handwritten-style signature on any page.',              category: 'pdf', icon: PenLine,          gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',     actionName: 'pdf_sign',         badge: 'Client-side', badgeColor: 'emerald' },
+  { id: 'edit',     title: 'Protect PDF',        description: 'Add a password to restrict opening or editing the file.',        category: 'pdf', icon: ShieldCheck,      gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',     actionName: 'pdf_protect' },
+  { id: 'edit',     title: 'Unlock PDF',         description: 'Remove password from a protected PDF document.',                category: 'pdf', icon: Unlock,           gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',     actionName: 'pdf_unlock',       badge: 'Client-side', badgeColor: 'emerald' },
+  { id: 'edit',     title: 'Crop Pages',         description: 'Trim the visible area of PDF pages with a custom crop box.',    category: 'pdf', icon: Crop,             gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',     actionName: 'pdf_crop',         badge: 'Client-side', badgeColor: 'emerald' },
+  { id: 'edit',     title: 'Rotate Pages',       description: 'Rotate all or specific pages by 90°, 180°, or 270°.',           category: 'pdf', icon: RotateCw,         gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',     actionName: 'pdf_rotate',       badge: 'Client-side', badgeColor: 'emerald' },
+  { id: 'edit',     title: 'Delete Pages',       description: 'Remove specific pages from the PDF document.',                  category: 'pdf', icon: Trash2,           gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',     actionName: 'pdf_delete',       badge: 'Client-side', badgeColor: 'emerald' },
+  { id: 'edit',     title: 'Reorder Pages',      description: 'Rearrange pages into any custom order.',                        category: 'pdf', icon: AlignJustify,     gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',     actionName: 'pdf_reorder',      badge: 'Client-side', badgeColor: 'emerald' },
+  { id: 'edit',     title: 'Add Watermark',      description: 'Stamp text on every page — diagonal, center, or footer.',       category: 'pdf', icon: Stamp,            gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',     actionName: 'pdf_watermark',    badge: 'Client-side', badgeColor: 'emerald' },
+  { id: 'edit',     title: 'Add Page Numbers',   description: 'Insert page numbers at header or footer positions.',            category: 'pdf', icon: Hash,             gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',     actionName: 'pdf_page_numbers', badge: 'Client-side', badgeColor: 'emerald' },
+  { id: 'edit',     title: 'PDF Forms',          description: 'Fill and flatten interactive form fields in a PDF.',            category: 'pdf', icon: BookOpen,         gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',     actionName: 'pdf_forms',        badge: 'Client-side', badgeColor: 'emerald' },
+  { id: 'edit',     title: 'OCR PDF',            description: 'Extract text from scanned PDFs and image-based documents.',     category: 'pdf', icon: ScanLine,         gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',     actionName: 'pdf_ocr' },
+  { id: 'edit',     title: 'Compare PDFs',       description: 'Show differences between two PDF versions side by side.',       category: 'pdf', icon: GitCompareArrows, gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',     actionName: 'pdf_compare' },
+  { id: 'edit',     title: 'AI Summarize',       description: 'Generate a concise AI summary of any PDF document.',           category: 'pdf', icon: BrainCircuit,     gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',     actionName: 'pdf_summarize',    badge: 'AI', badgeColor: 'violet' },
+  { id: 'convert',  title: 'Translate PDF',      description: 'Translate PDF content to another language with AI.',            category: 'pdf', icon: Languages,        gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',     actionName: 'pdf_translate',    badge: 'AI', badgeColor: 'violet' },
+  { id: 'convert',  title: 'PDF → DOCX',         description: 'Convert PDF back into an editable Word document.',             category: 'pdf', icon: ArrowLeftRight,   gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',     actionName: 'pdf_to_docx' },
+  { id: 'convert',  title: 'PDF → PPTX',         description: 'Convert PDF pages into a PowerPoint presentation.',            category: 'pdf', icon: ArrowLeftRight,   gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',     actionName: 'pdf_to_pptx' },
+  { id: 'convert',  title: 'PDF → Excel',        description: 'Extract tables and data from PDF into a spreadsheet.',         category: 'pdf', icon: FileSpreadsheet,  gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',     actionName: 'pdf_to_excel' },
+  { id: 'convert',  title: 'PDF → Images',       description: 'Export every page as a PNG or JPEG image file.',               category: 'pdf', icon: ImageIcon,        gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',     actionName: 'pdf_to_images' },
+  { id: 'convert',  title: 'PDF to PDF/A',       description: 'Convert to ISO-standard archival format (PDF/A-1b).',          category: 'pdf', icon: FileCheck2,       gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',     actionName: 'pdf_to_pdfa' },
+  { id: 'convert',  title: 'Images → PDF',       description: 'Pack multiple images into a single PDF document.',             category: 'pdf', icon: Image,            gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',     actionName: 'images_to_pdf',    badge: 'Client-side', badgeColor: 'emerald' },
+  { id: 'convert',  title: 'Scan to PDF',        description: 'Capture a photo with your camera and convert to PDF.',         category: 'pdf', icon: Camera,           gradient: 'from-red-500/20 to-rose-500/10 border-red-500/25',     actionName: 'scan_to_pdf',      badge: 'Client-side', badgeColor: 'emerald' },
 
   // ── IMAGE ──────────────────────────────────────────────────────────────────
-  { id: 'compress', title: 'Compress Image',   description: 'Reduce PNG/JPEG/WEBP size with quality presets.',           category: 'image', icon: FileArchive,      gradient: 'from-blue-500/20 to-cyan-500/10 border-blue-500/25',    actionName: 'compress',        badge: 'Client-side', badgeColor: 'emerald' },
-  { id: 'enhance',  title: 'Enhance Image',    description: 'Adjust brightness, contrast, sharpness & denoise.',        category: 'image', icon: Sparkles,         gradient: 'from-blue-500/20 to-cyan-500/10 border-blue-500/25',    actionName: 'enhance' },
-  { id: 'resize',   title: 'Resize Image',     description: 'Set exact pixel dimensions or scale by percentage.',        category: 'image', icon: Maximize2,        gradient: 'from-blue-500/20 to-cyan-500/10 border-blue-500/25',    actionName: 'resize',          badge: 'Client-side', badgeColor: 'emerald' },
-  { id: 'edit',     title: 'Remove Background',description: 'AI-powered background removal, outputs transparent PNG.',   category: 'image', icon: Eraser,           gradient: 'from-blue-500/20 to-cyan-500/10 border-blue-500/25',    actionName: 'remove_bg',       badge: 'Client-side', badgeColor: 'emerald' },
-  { id: 'edit',     title: 'Crop Image',       description: 'Trim to exact coordinates or common aspect ratios.',        category: 'image', icon: Crop,             gradient: 'from-blue-500/20 to-cyan-500/10 border-blue-500/25',    actionName: 'image_crop',      badge: 'Client-side', badgeColor: 'emerald' },
-  { id: 'edit',     title: 'Rotate & Flip',    description: 'Rotate 90°/180°/270° or flip horizontally/vertically.',     category: 'image', icon: FlipHorizontal,   gradient: 'from-blue-500/20 to-cyan-500/10 border-blue-500/25',    actionName: 'image_rotate',    badge: 'Client-side', badgeColor: 'emerald' },
-  { id: 'edit',     title: 'Add Watermark',    description: 'Stamp text or logo over any image — tiled or single.',      category: 'image', icon: PenTool,          gradient: 'from-blue-500/20 to-cyan-500/10 border-blue-500/25',    actionName: 'image_watermark', badge: 'Client-side', badgeColor: 'emerald' },
-  { id: 'convert',  title: 'Convert Format',   description: 'Convert between PNG, JPEG, WEBP, GIF, BMP.',               category: 'image', icon: RefreshCw,        gradient: 'from-blue-500/20 to-cyan-500/10 border-blue-500/25',    actionName: 'convert_format',  badge: 'Client-side', badgeColor: 'emerald' },
-  { id: 'convert',  title: 'Image → ICO',      description: 'Create a multi-size .ico favicon (16–256 px).',             category: 'image', icon: MonitorSmartphone,gradient: 'from-blue-500/20 to-cyan-500/10 border-blue-500/25',    actionName: 'to_ico',          badge: 'Client-side', badgeColor: 'emerald' },
-  { id: 'convert',  title: 'SVG → PNG',        description: 'Render vector SVG as a raster PNG at any resolution.',      category: 'image', icon: Globe,            gradient: 'from-blue-500/20 to-cyan-500/10 border-blue-500/25',    actionName: 'svg_to_png',      badge: 'Client-side', badgeColor: 'emerald' },
-  { id: 'convert',  title: 'Images → PDF',     description: 'Combine images into a single PDF document.',                category: 'image', icon: FileText,         gradient: 'from-blue-500/20 to-cyan-500/10 border-blue-500/25',    actionName: 'images_to_pdf',   badge: 'Client-side', badgeColor: 'emerald' },
+  { id: 'compress', title: 'Compress Image',     description: 'Reduce PNG/JPEG/WEBP size with quality presets.',              category: 'image', icon: FileArchive,       gradient: 'from-blue-500/20 to-cyan-500/10 border-blue-500/25',   actionName: 'compress',         badge: 'Client-side', badgeColor: 'emerald' },
+  { id: 'enhance',  title: 'Enhance Image',      description: 'Adjust brightness, contrast, sharpness & denoise.',           category: 'image', icon: Sparkles,          gradient: 'from-blue-500/20 to-cyan-500/10 border-blue-500/25',   actionName: 'enhance' },
+  { id: 'resize',   title: 'Resize Image',       description: 'Set exact pixel dimensions or scale by percentage.',           category: 'image', icon: Maximize2,         gradient: 'from-blue-500/20 to-cyan-500/10 border-blue-500/25',   actionName: 'resize',           badge: 'Client-side', badgeColor: 'emerald' },
+  { id: 'edit',     title: 'Remove Background',  description: 'AI-powered background removal, outputs transparent PNG.',     category: 'image', icon: Eraser,            gradient: 'from-blue-500/20 to-cyan-500/10 border-blue-500/25',   actionName: 'remove_bg',        badge: 'Client-side', badgeColor: 'emerald' },
+  { id: 'edit',     title: 'Crop Image',         description: 'Trim to exact coordinates or common aspect ratios.',           category: 'image', icon: Crop,              gradient: 'from-blue-500/20 to-cyan-500/10 border-blue-500/25',   actionName: 'image_crop',       badge: 'Client-side', badgeColor: 'emerald' },
+  { id: 'edit',     title: 'Rotate & Flip',      description: 'Rotate 90°/180°/270° or flip horizontally/vertically.',        category: 'image', icon: FlipHorizontal,    gradient: 'from-blue-500/20 to-cyan-500/10 border-blue-500/25',   actionName: 'image_rotate',     badge: 'Client-side', badgeColor: 'emerald' },
+  { id: 'edit',     title: 'Add Watermark',      description: 'Stamp text or logo over any image — tiled or single.',         category: 'image', icon: PenTool,           gradient: 'from-blue-500/20 to-cyan-500/10 border-blue-500/25',   actionName: 'image_watermark',  badge: 'Client-side', badgeColor: 'emerald' },
+  { id: 'convert',  title: 'Convert Format',     description: 'Convert between PNG, JPEG, WEBP, GIF, BMP.',                  category: 'image', icon: RefreshCw,         gradient: 'from-blue-500/20 to-cyan-500/10 border-blue-500/25',   actionName: 'convert_format',   badge: 'Client-side', badgeColor: 'emerald' },
+  { id: 'convert',  title: 'Image → ICO',        description: 'Create a multi-size .ico favicon (16–256 px).',                category: 'image', icon: MonitorSmartphone, gradient: 'from-blue-500/20 to-cyan-500/10 border-blue-500/25',   actionName: 'to_ico',           badge: 'Client-side', badgeColor: 'emerald' },
+  { id: 'convert',  title: 'SVG → PNG',          description: 'Render vector SVG as a raster PNG at any resolution.',         category: 'image', icon: Globe,             gradient: 'from-blue-500/20 to-cyan-500/10 border-blue-500/25',   actionName: 'svg_to_png',       badge: 'Client-side', badgeColor: 'emerald' },
+  { id: 'convert',  title: 'Images → PDF',       description: 'Combine images into a single PDF document.',                  category: 'image', icon: FileText,          gradient: 'from-blue-500/20 to-cyan-500/10 border-blue-500/25',   actionName: 'images_to_pdf',    badge: 'Client-side', badgeColor: 'emerald' },
 
   // ── OFFICE ─────────────────────────────────────────────────────────────────
-  { id: 'convert',  title: 'DOCX → PDF',       description: 'Convert Word documents to standard PDF layout.',            category: 'office', icon: FileText,        gradient: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/25',  actionName: 'docx_to_pdf' },
-  { id: 'convert',  title: 'PDF → DOCX',       description: 'Convert PDF back into an editable Word document.',          category: 'office', icon: ArrowLeftRight,  gradient: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/25',  actionName: 'pdf_to_docx' },
-  { id: 'convert',  title: 'PPTX → PDF',       description: 'Convert PowerPoint slides into standard PDFs.',             category: 'office', icon: FileText,        gradient: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/25',  actionName: 'pptx_to_pdf' },
-  { id: 'convert',  title: 'PDF → PPTX',       description: 'Convert PDF pages into a PowerPoint presentation.',         category: 'office', icon: ArrowLeftRight,  gradient: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/25',  actionName: 'pdf_to_pptx' },
-  { id: 'convert',  title: 'XLSX → CSV',       description: 'Export Excel spreadsheet cells to comma-separated file.',   category: 'office', icon: FileSpreadsheet, gradient: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/25',  actionName: 'xlsx_to_csv' },
-  { id: 'convert',  title: 'CSV → XLSX',       description: 'Import a CSV file into a formatted Excel workbook.',        category: 'office', icon: ArrowLeftRight,  gradient: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/25',  actionName: 'csv_to_xlsx' },
-  { id: 'convert',  title: 'Markdown → HTML',  description: 'Render .md files into styled HTML pages.',                  category: 'office', icon: FileCode,        gradient: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/25',  actionName: 'md_to_html' },
-  { id: 'convert',  title: 'HTML → Markdown',  description: 'Convert HTML files back into clean Markdown.',              category: 'office', icon: ArrowLeftRight,  gradient: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/25',  actionName: 'html_to_md' },
-  { id: 'compress', title: 'Compress Document',description: 'Strip unused data from DOCX/PPTX/XLSX.',                    category: 'office', icon: FileArchive,     gradient: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/25',  actionName: 'compress' },
-  { id: 'edit',     title: 'Clean Word Layout',description: 'Normalize margins, remove empty paragraphs, fix fonts.',    category: 'office', icon: FileEdit,        gradient: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/25',  actionName: 'docx_cleanup' },
+  { id: 'convert',  title: 'DOCX → PDF',         description: 'Convert Word documents to standard PDF layout.',              category: 'office', icon: FileText,         gradient: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/25', actionName: 'docx_to_pdf' },
+  { id: 'convert',  title: 'PDF → DOCX',         description: 'Convert PDF back into an editable Word document.',            category: 'office', icon: ArrowLeftRight,   gradient: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/25', actionName: 'pdf_to_docx' },
+  { id: 'convert',  title: 'PPTX → PDF',         description: 'Convert PowerPoint slides into standard PDFs.',               category: 'office', icon: FileText,         gradient: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/25', actionName: 'pptx_to_pdf' },
+  { id: 'convert',  title: 'PDF → PPTX',         description: 'Convert PDF pages into a PowerPoint presentation.',           category: 'office', icon: ArrowLeftRight,   gradient: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/25', actionName: 'pdf_to_pptx' },
+  { id: 'convert',  title: 'XLSX → CSV',         description: 'Export Excel spreadsheet cells to comma-separated file.',    category: 'office', icon: FileSpreadsheet,  gradient: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/25', actionName: 'xlsx_to_csv' },
+  { id: 'convert',  title: 'CSV → XLSX',         description: 'Import a CSV file into a formatted Excel workbook.',          category: 'office', icon: ArrowLeftRight,   gradient: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/25', actionName: 'csv_to_xlsx' },
+  { id: 'convert',  title: 'PDF → Excel',        description: 'Extract tables and data from PDF into a spreadsheet.',        category: 'office', icon: FileSpreadsheet,  gradient: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/25', actionName: 'pdf_to_excel' },
+  { id: 'convert',  title: 'Markdown → HTML',    description: 'Render .md files into styled HTML pages.',                   category: 'office', icon: FileCode,         gradient: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/25', actionName: 'md_to_html' },
+  { id: 'convert',  title: 'HTML → Markdown',    description: 'Convert HTML files back into clean Markdown.',               category: 'office', icon: ArrowLeftRight,   gradient: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/25', actionName: 'html_to_md' },
+  { id: 'compress', title: 'Compress Document',  description: 'Strip unused data from DOCX/PPTX/XLSX.',                    category: 'office', icon: FileArchive,      gradient: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/25', actionName: 'compress' },
+  { id: 'edit',     title: 'Clean Word Layout',  description: 'Normalize margins, remove empty paragraphs, fix fonts.',    category: 'office', icon: FileEdit,         gradient: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/25', actionName: 'docx_cleanup' },
 
   // ── VIDEO ──────────────────────────────────────────────────────────────────
-  { id: 'edit',     title: 'Trim & Cut Video', description: 'Extract a clip with start/end time markers.',               category: 'video', icon: Scissors,    gradient: 'from-violet-500/20 to-purple-500/10 border-violet-500/25',  actionName: 'trim' },
-  { id: 'compress', title: 'Compress Video',   description: 'Re-encode MP4 to smaller size with H264 CRF control.',     category: 'video', icon: FileArchive, gradient: 'from-violet-500/20 to-purple-500/10 border-violet-500/25',  actionName: 'compress' },
-  { id: 'convert',  title: 'Extract Audio',    description: 'Strip audio track from a video file as MP3.',               category: 'video', icon: Music,       gradient: 'from-violet-500/20 to-purple-500/10 border-violet-500/25',  actionName: 'video_to_audio' },
-  { id: 'convert',  title: 'Video → GIF',      description: 'Convert a short video clip into an animated GIF.',          category: 'video', icon: RefreshCw,   gradient: 'from-violet-500/20 to-purple-500/10 border-violet-500/25',  actionName: 'video_to_gif' },
-  { id: 'compress', title: 'Compress Audio',   description: 'Reduce audio file size by adjusting bitrate and format.',   category: 'video', icon: Music,       gradient: 'from-violet-500/20 to-purple-500/10 border-violet-500/25',  actionName: 'compress_audio' },
+  { id: 'edit',     title: 'Trim & Cut Video',   description: 'Extract a clip with start/end time markers.',                category: 'video', icon: Scissors,    gradient: 'from-violet-500/20 to-purple-500/10 border-violet-500/25',  actionName: 'trim' },
+  { id: 'compress', title: 'Compress Video',     description: 'Re-encode MP4 to smaller size with H264 CRF control.',      category: 'video', icon: FileArchive, gradient: 'from-violet-500/20 to-purple-500/10 border-violet-500/25',  actionName: 'compress' },
+  { id: 'convert',  title: 'Extract Audio',      description: 'Strip audio track from a video file as MP3.',               category: 'video', icon: Music,       gradient: 'from-violet-500/20 to-purple-500/10 border-violet-500/25',  actionName: 'video_to_audio' },
+  { id: 'convert',  title: 'Video → GIF',        description: 'Convert a short video clip into an animated GIF.',          category: 'video', icon: RefreshCw,   gradient: 'from-violet-500/20 to-purple-500/10 border-violet-500/25',  actionName: 'video_to_gif' },
+  { id: 'compress', title: 'Compress Audio',     description: 'Reduce audio file size by adjusting bitrate and format.',   category: 'video', icon: Music,       gradient: 'from-violet-500/20 to-purple-500/10 border-violet-500/25',  actionName: 'compress_audio' },
 ];
 
 const BADGE_COLORS: Record<string, string> = {
   emerald: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25',
+  violet:  'bg-violet-500/10 text-violet-400 border-violet-500/25',
   primary: 'bg-primary/10 text-primary border-primary/25',
 };
 
@@ -107,38 +123,44 @@ export const ToolGrid: React.FC = () => {
   };
 
   const getAcceptForTool = (tool: ToolItem): string => {
-    const imageTypes = 'image/png,image/jpeg,image/webp,image/gif,image/bmp,image/tiff,.png,.jpg,.jpeg,.webp,.gif,.bmp,.tiff';
+    const imageTypes = 'image/png,image/jpeg,image/webp,image/gif,image/bmp,.png,.jpg,.jpeg,.webp,.gif,.bmp';
+    if (tool.actionName === 'scan_to_pdf') return 'image/*,.pdf';
     if (tool.category === 'image') {
       if (tool.actionName === 'svg_to_png') return 'image/svg+xml,.svg';
       return imageTypes;
     }
     if (tool.category === 'pdf') {
       if (tool.actionName === 'images_to_pdf') return imageTypes;
+      if (tool.actionName === 'pdf_compare') return 'application/pdf';
       return 'application/pdf';
     }
     if (tool.category === 'video') {
       if (tool.actionName === 'compress_audio') return 'audio/*';
       return 'video/mp4,video/webm,video/*';
     }
-    if (tool.actionName === 'docx_to_pdf' || tool.actionName === 'pdf_to_docx' || tool.actionName === 'docx_cleanup') return '.docx';
-    if (tool.actionName === 'pptx_to_pdf' || tool.actionName === 'pdf_to_pptx') return '.pptx,application/pdf';
-    if (tool.actionName === 'xlsx_to_csv') return '.xlsx';
+    if (tool.actionName === 'docx_to_pdf' || tool.actionName === 'docx_cleanup') return '.docx';
+    if (tool.actionName === 'pptx_to_pdf') return '.pptx';
+    if (tool.actionName === 'xlsx_to_csv' || tool.actionName === 'pdf_to_excel') return '.xlsx,application/pdf';
     if (tool.actionName === 'csv_to_xlsx') return '.csv,text/csv';
     if (tool.actionName === 'md_to_html') return '.md,text/markdown';
     if (tool.actionName === 'html_to_md') return '.html,text/html';
-    return '.docx,.pptx,.xlsx,.csv,.md,.html';
+    return '.docx,.pptx,.xlsx,.csv,.md,.html,application/pdf';
   };
 
   const triggerDirectUpload = (tool: ToolItem) => {
+    if (tool.actionName === 'scan_to_pdf') {
+      setOperation(tool.id);
+      updateOptions({ operation: tool.actionName });
+      return;
+    }
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = getAcceptForTool(tool);
-    if (tool.actionName === 'merge' || tool.actionName === 'images_to_pdf') input.multiple = true;
+    if (tool.actionName === 'merge' || tool.actionName === 'images_to_pdf' || tool.actionName === 'pdf_compare') input.multiple = true;
     input.onchange = async (e: Event) => {
       const filesList = (e.target as HTMLInputElement).files;
       if (filesList && filesList.length > 0) {
-        setIsUploading(true);
-        setError(null);
+        setIsUploading(true); setError(null);
         const filesArr = Array.from(filesList);
         const activeJobId = jobId || Math.random().toString(36).substring(2, 15);
         setJobId(activeJobId);
@@ -150,11 +172,8 @@ export const ToolGrid: React.FC = () => {
           addFiles(uploaded);
           setOperation(tool.id);
           updateOptions({ operation: tool.actionName });
-        } catch (err: any) {
-          setError(err.message || 'Upload failed.');
-        } finally {
-          setIsUploading(false);
-        }
+        } catch (err: any) { setError(err.message || 'Upload failed.'); }
+        finally { setIsUploading(false); }
       }
     };
     input.click();
@@ -171,10 +190,7 @@ export const ToolGrid: React.FC = () => {
   const displayed = shouldLimit && !showAll ? filteredTools.slice(0, 8) : filteredTools;
 
   const iconColorMap: Record<string, string> = {
-    pdf:    'text-red-400',
-    image:  'text-blue-400',
-    office: 'text-emerald-400',
-    video:  'text-violet-400',
+    pdf: 'text-red-400', image: 'text-blue-400', office: 'text-emerald-400', video: 'text-violet-400',
   };
 
   return (
@@ -192,11 +208,9 @@ export const ToolGrid: React.FC = () => {
       {files.length > 0 && (
         <div className="relative max-w-sm">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground h-3.5 w-3.5" />
-          <input
-            type="text" placeholder="Search tools…" value={searchQuery}
+          <input type="text" placeholder="Search tools…" value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-          />
+            className="w-full pl-10 pr-4 py-2 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" />
         </div>
       )}
 
@@ -207,18 +221,14 @@ export const ToolGrid: React.FC = () => {
             const ToolIcon = tool.icon;
             const iconColor = iconColorMap[tool.category];
             return (
-              <motion.button
-                key={`${tool.actionName}-${idx}`}
-                layout
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
+              <motion.button key={`${tool.actionName}-${idx}`} layout
+                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.2, delay: Math.min(idx * 0.025, 0.25) }}
                 onClick={() => handleSelectTool(tool)}
                 className={`group relative text-left rounded-2xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50 overflow-hidden bg-card hover:shadow-premium ${
                   isSuggested ? 'border-primary/40 shadow-glow' : 'border-border hover:border-border/60'
-                }`}
-              >
+                }`}>
                 <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br ${tool.gradient}`} />
                 <div className="relative p-4 space-y-3">
                   <div className="flex items-start justify-between gap-1 min-h-[20px]">
@@ -226,9 +236,7 @@ export const ToolGrid: React.FC = () => {
                       <ToolIcon className={`h-4 w-4 ${iconColor}`} />
                     </div>
                     <div className="flex flex-col items-end gap-1">
-                      {isSuggested && (
-                        <span className="text-[9px] bg-primary/10 text-primary border border-primary/25 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wide">Suggested</span>
-                      )}
+                      {isSuggested && <span className="text-[9px] bg-primary/10 text-primary border border-primary/25 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wide">Suggested</span>}
                       {tool.badge && !isSuggested && (
                         <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wide border ${BADGE_COLORS[tool.badgeColor || 'emerald']}`}>
                           {tool.badge}
@@ -257,10 +265,8 @@ export const ToolGrid: React.FC = () => {
 
       {shouldLimit && (
         <div className="text-center pt-1">
-          <button
-            onClick={() => setShowAll(!showAll)}
-            className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors px-4 py-1.5 rounded-full border border-primary/20 hover:border-primary/40 bg-primary/5 hover:bg-primary/10"
-          >
+          <button onClick={() => setShowAll(!showAll)}
+            className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors px-4 py-1.5 rounded-full border border-primary/20 hover:border-primary/40 bg-primary/5 hover:bg-primary/10">
             {showAll ? 'Show less' : `Show all ${filteredTools.length} tools`}
           </button>
         </div>
