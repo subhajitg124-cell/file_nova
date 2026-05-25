@@ -49,10 +49,10 @@ const SUITES = [
   {
     id: 'office' as const,
     title: 'Office Suite',
-    subtitle: 'Convert & Clean',
-    description: 'Convert DOCX, PPTX, XLSX — with full bi-directional PDF support and document cleanup.',
+    subtitle: 'Merge, Convert & Clean',
+    description: 'Merge DOCX files with drag-to-reorder, convert DOCX/PPTX/XLSX, bi-directional PDF support.',
     icon: FileSpreadsheet,
-    toolCount: 10,
+    toolCount: 11,
     accentFrom: 'from-emerald-500',
     accentTo: 'to-teal-500',
     cardBg: 'bg-gradient-to-br from-emerald-500/8 to-teal-500/4',
@@ -60,7 +60,7 @@ const SUITES = [
     glowClass: 'hover:shadow-glow-green',
     iconBg: 'bg-gradient-to-br from-emerald-500/20 to-teal-500/10',
     iconColor: 'text-emerald-400',
-    tools: ['DOCX↔PDF', 'PPTX↔PDF', 'XLSX→CSV', 'CSV→XLSX', 'MD↔HTML', 'Compress', 'Clean'],
+    tools: ['Merge Docs', 'DOCX↔PDF', 'PPTX↔PDF', 'XLSX→CSV', 'CSV→XLSX', 'MD↔HTML', 'Compress', 'Clean'],
   },
   {
     id: 'video' as const,

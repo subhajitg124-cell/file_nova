@@ -591,6 +591,16 @@ export const OptionsPanel: React.FC = () => {
         return;
       }
 
+      // ── Merge Documents (DOCX) ─────────────────────────────────────────
+      if (actionName === 'merge_docs') {
+        const outputFormat = operationOptions.merge_docs_format || 'docx';
+        const mime = outputFormat === 'pdf'
+          ? 'application/pdf'
+          : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        doSimulate(mime);
+        return;
+      }
+
       // ── Backend/mock fallback ──────────────────────────────────────────
       const outputMimeMap: Record<string, string> = {
         pdf_to_docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -1447,6 +1457,62 @@ export const OptionsPanel: React.FC = () => {
     );
   };
 
+  const renderMergeDocsOptions = () => (
+    <div className="space-y-5">
+      <div className="p-4 rounded-xl bg-emerald-500/8 border border-emerald-500/20">
+        <div className="flex items-start gap-3">
+          <div className="h-9 w-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+            <FileText className="h-4 w-4 text-emerald-400" />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-foreground">Merge Documents</p>
+            <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+              Combines all uploaded DOCX files into a single document, in the order shown above. Drag files to reorder before processing.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Output format</span>
+        <div className="grid grid-cols-2 gap-2.5">
+          {[
+            { value: 'docx', label: 'Word Document', sub: '.docx — stay editable', icon: '📄' },
+            { value: 'pdf',  label: 'PDF',            sub: '.pdf — universal format', icon: '📕' },
+          ].map(({ value, label, sub, icon }) => (
+            <button
+              key={value}
+              onClick={() => updateOptions({ merge_docs_format: value })}
+              className={`flex items-start gap-3 p-3.5 rounded-xl border text-left transition-all duration-150 ${
+                (operationOptions.merge_docs_format || 'docx') === value
+                  ? 'border-primary bg-primary/8 shadow-glow'
+                  : 'border-border bg-card hover:border-primary/40 hover:bg-muted/30'
+              }`}
+            >
+              <span className="text-xl leading-none mt-0.5">{icon}</span>
+              <div>
+                <p className="text-sm font-bold text-foreground">{label}</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{sub}</p>
+              </div>
+              {(operationOptions.merge_docs_format || 'docx') === value && (
+                <span className="ml-auto mt-0.5 h-4 w-4 rounded-full bg-primary flex items-center justify-center shrink-0">
+                  <span className="text-[9px] text-white font-black">✓</span>
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {files.length < 2 && (
+        <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-500/8 border border-amber-500/20 text-xs text-amber-500">
+          <span className="shrink-0 mt-0.5">⚠</span>
+          <span>Upload at least 2 DOCX files to merge. Use the upload zone or drag files in.</span>
+        </div>
+      )}
+    </div>
+  );
+
   const renderEditOptions = () => {
     switch (actionName) {
       case 'pdf_crop':         return renderPdfCropOptions();
@@ -1494,7 +1560,9 @@ export const OptionsPanel: React.FC = () => {
       case 'edit':     return renderEditOptions();
       case 'split':    return renderSplitOptions();
       case 'resize':   return renderResizeOptions();
-      case 'merge':    return <InfoBox icon={<FileText className="h-4 w-4 text-primary" />} text="Files will be merged in upload order. Drag to reorder before processing." color="bg-primary/5 border-primary/15" />;
+      case 'merge':
+        if (actionName === 'merge_docs') return renderMergeDocsOptions();
+        return <InfoBox icon={<FileText className="h-4 w-4 text-primary" />} text="Files will be merged in the order shown above. Drag any file to reorder before processing." color="bg-primary/5 border-primary/15" />;
       default: return null;
     }
   };
@@ -1509,6 +1577,7 @@ export const OptionsPanel: React.FC = () => {
     pdf_to_excel: 'PDF → Excel', pdf_to_pdfa: 'PDF to PDF/A', scan_to_pdf: 'Scan to PDF',
     pdf_insert_link: 'Insert Link', pdf_insert_image: 'Insert Image', pdf_insert_shape: 'Draw Shapes',
     html_to_zip: 'HTML → ZIP',
+    merge_docs: 'Merge Documents',
     remove_bg: 'Remove Background', image_crop: 'Crop Image', image_rotate: 'Rotate & Flip', image_watermark: 'Add Watermark',
   };
   const operationLabels: Record<string, string> = {

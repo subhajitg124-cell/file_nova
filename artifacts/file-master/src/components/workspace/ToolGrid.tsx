@@ -70,6 +70,7 @@ const TOOLS: ToolItem[] = [
   { id: 'convert',  title: 'Images → PDF',       description: 'Combine images into a single PDF document.',                  category: 'image', icon: FileText,          gradient: 'from-blue-500/20 to-cyan-500/10 border-blue-500/25',   actionName: 'images_to_pdf',    badge: 'Client-side', badgeColor: 'emerald' },
 
   // ── OFFICE ─────────────────────────────────────────────────────────────────
+  { id: 'merge',    title: 'Merge Documents',    description: 'Combine multiple DOCX files into one. Choose DOCX or PDF output.',  category: 'office', icon: FileText, gradient: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/25', actionName: 'merge_docs', badge: 'New', badgeColor: 'violet' },
   { id: 'convert',  title: 'DOCX → PDF',         description: 'Convert Word documents to standard PDF layout.',              category: 'office', icon: FileText,         gradient: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/25', actionName: 'docx_to_pdf' },
   { id: 'convert',  title: 'PDF → DOCX',         description: 'Convert PDF back into an editable Word document.',            category: 'office', icon: ArrowLeftRight,   gradient: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/25', actionName: 'pdf_to_docx' },
   { id: 'convert',  title: 'PPTX → PDF',         description: 'Convert PowerPoint slides into standard PDFs.',               category: 'office', icon: FileText,         gradient: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/25', actionName: 'pptx_to_pdf' },
@@ -142,6 +143,7 @@ export const ToolGrid: React.FC = () => {
       if (tool.actionName === 'compress_audio') return 'audio/*';
       return 'video/mp4,video/webm,video/*';
     }
+    if (tool.actionName === 'merge_docs') return '.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document';
     if (tool.actionName === 'docx_to_pdf' || tool.actionName === 'docx_cleanup') return '.docx';
     if (tool.actionName === 'pptx_to_pdf') return '.pptx';
     if (tool.actionName === 'xlsx_to_csv' || tool.actionName === 'pdf_to_excel') return '.xlsx,application/pdf';
@@ -161,7 +163,7 @@ export const ToolGrid: React.FC = () => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = getAcceptForTool(tool);
-    if (tool.actionName === 'merge' || tool.actionName === 'images_to_pdf' || tool.actionName === 'pdf_compare' || tool.actionName === 'html_to_zip') input.multiple = true;
+    if (tool.actionName === 'merge' || tool.actionName === 'merge_docs' || tool.actionName === 'images_to_pdf' || tool.actionName === 'pdf_compare' || tool.actionName === 'html_to_zip') input.multiple = true;
     input.onchange = async (e: Event) => {
       const filesList = (e.target as HTMLInputElement).files;
       if (filesList && filesList.length > 0) {
