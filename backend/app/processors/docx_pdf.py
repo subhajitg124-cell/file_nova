@@ -16,7 +16,7 @@ class DocumentProcessor(BaseProcessor):
         operation = options.get("operation")
         if not operation:
             raise ValueError("Missing 'operation' in options.")
-        if operation not in ["docx_to_pdf", "pptx_to_pdf", "xlsx_to_csv", "docx_cleanup", "md_to_html"]:
+        if operation not in ["docx_to_pdf", "pptx_to_pdf", "xlsx_to_csv", "docx_cleanup", "md_to_html", "docx_merge"]:
             raise ValueError(f"Unsupported Document operation: {operation}")
 
     def process(
@@ -50,6 +50,10 @@ class DocumentProcessor(BaseProcessor):
             output_path = self._docx_cleanup(input_path, progress_callback)
         elif operation == "md_to_html":
             output_path = self._md_to_html(input_path, progress_callback)
+        elif operation == "docx_merge":
+            if not file_paths or len(file_paths) < 2:
+                raise ValueError("Merging requires at least 2 files.")
+            output_path = self._merge_docx(file_paths, progress_callback)
             
         if progress_callback:
             progress_callback(100.0)
@@ -270,5 +274,53 @@ class DocumentProcessor(BaseProcessor):
             
         if progress_callback:
             progress_callback(80.0)
+            
+        return output_file_path
+
+    def _merge_docx(
+        self, 
+        file_paths: List[str], 
+        progress_callback: Optional[Callable[[float], None]]
+    ) -> Path:
+        output_filename = f"merged_{Path(file_paths[0]).name}"
+        output_file_path = settings.output_dir / output_filename
+        
+        base_doc = Document(file_paths[0])
+        total_files = len(file_paths)
+        
+        for idx, file_path in enumerate(file_paths[1:]):
+            if not os.path.exists(file_path):
+                raise FileNotFoundError(f"Input DOCX file not found: {file_path}")
+                
+            # Add page break before appending content from next document
+            base_doc.add_page_break()
+            
+            doc_to_append = Document(file_path)
+            body = base_doc.element.body
+            sectPr = body.sectPr
+            
+            if sectPr is not None:
+                sectPr_index = body.index(sectPr)
+            else:
+                sectPr_index = len(body)
+                
+            for element in doc_to_append.element.body:
+                if element.tag.endswith('sectPr'):
+                    continue
+                if sectPr is not None:
+                    body.insert(sectPr_index, element)
+                    sectPr_index += 1
+                else:
+                    body.append(element)
+                    
+            if progress_callback:
+                # scale progress from 10% to 90%
+                current_prog = 10.0 + ((idx + 1) / (total_files - 1)) * 80.0
+                progress_callback(min(current_prog, 90.0))
+                
+        base_doc.save(str(output_file_path))
+        
+        if progress_callback:
+            progress_callback(95.0)
             
         return output_file_path

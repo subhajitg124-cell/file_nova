@@ -4,53 +4,53 @@
 
 @layer base {
   :root {
-    --background: #f8fafc; /* Slate 50 */
-    --foreground: #0f172a; /* Slate 900 */
+    --background: #fafafa; /* Pure neutral light zinc */
+    --foreground: #09090b; /* Zinc 950 */
     
     --card: #ffffff;
-    --card-foreground: #0f172a;
+    --card-foreground: #09090b;
     
-    --primary: #4f46e5; /* Indigo 600 */
+    --primary: #4f46e5; /* Premium Indigo */
     --primary-foreground: #ffffff;
     
-    --secondary: #e2e8f0; /* Slate 200 */
-    --secondary-foreground: #0f172a;
+    --secondary: #f4f4f5; /* Zinc 100 */
+    --secondary-foreground: #09090b;
     
-    --muted: #f1f5f9; /* Slate 100 */
-    --muted-foreground: #64748b; /* Slate 500 */
+    --muted: #f4f4f5;
+    --muted-foreground: #71717a; /* Zinc 500 */
     
-    --accent: #f5f3ff; /* Violet 50 */
+    --accent: #f4f4f5;
     --accent-foreground: #4f46e5;
     
-    --border: #e2e8f0; /* Slate 200 */
-    --input: #e2e8f0;
-    --ring: #6366f1; /* Indigo 500 */
+    --border: #e4e4e7; /* Zinc 200 */
+    --input: #e4e4e7;
+    --ring: #4f46e5;
     
-    --radius: 12px;
+    --radius: 8px; /* Clean, modern crisp corners */
   }
 
   .dark {
-    --background: #090d16; /* Deep dark space */
-    --foreground: #f8fafc;
+    --background: #09090b; /* Deep slate dark zinc */
+    --foreground: #fafafa;
     
-    --card: #111827; /* Gray 900 */
-    --card-foreground: #f8fafc;
+    --card: #09090b;
+    --card-foreground: #fafafa;
     
-    --primary: #6366f1; /* Indigo 500 */
+    --primary: #6366f1; /* Premium Dark Indigo */
     --primary-foreground: #ffffff;
     
-    --secondary: #1f2937; /* Gray 800 */
-    --secondary-foreground: #f8fafc;
+    --secondary: #18181b; /* Zinc 900 */
+    --secondary-foreground: #fafafa;
     
-    --muted: #1f2937;
-    --muted-foreground: #9ca3af; /* Gray 400 */
+    --muted: #18181b;
+    --muted-foreground: #a1a1aa; /* Zinc 400 */
     
-    --accent: #1e1b4b; /* Indigo 950 */
-    --accent-foreground: #c7d2fe;
+    --accent: #18181b;
+    --accent-foreground: #6366f1;
     
-    --border: #374151; /* Gray 700 */
-    --input: #374151;
-    --ring: #818cf8; /* Indigo 400 */
+    --border: #27272a; /* Zinc 800 - extremely clean, thin border */
+    --input: #27272a;
+    --ring: #6366f1;
   }
 }
 
@@ -59,7 +59,7 @@
     background-color: var(--background);
     color: var(--foreground);
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
   /* Focus outlines for accessibility */
@@ -71,16 +71,16 @@
 
 /* Glassmorphism utility classes */
 .glass {
-  background: rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .dark .glass {
-  background: rgba(17, 24, 39, 0.45);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(9, 9, 11, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -95,6 +95,5 @@
 
 /* Premium gradient backgrounds */
 .bg-gradient-premium {
-  background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.08), transparent 400px),
-              radial-gradient(circle at bottom left, rgba(139, 92, 246, 0.05), transparent 400px);
+  background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.03), transparent 600px);
 }

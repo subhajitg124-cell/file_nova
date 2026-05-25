@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 from typing import List, Dict, Any, Callable, Optional
-from pypdf import PdfReader, PdfWriter, PdfMerger
+from pypdf import PdfReader, PdfWriter
 from app.processors.base import BaseProcessor
 from app.config import settings
 
@@ -48,7 +48,7 @@ class PDFProcessor(BaseProcessor):
         output_path: Path, 
         progress_callback: Optional[Callable[[float], None]]
     ) -> None:
-        merger = PdfMerger()
+        merger = PdfWriter()
         total_files = len(file_paths)
         
         for idx, file_path in enumerate(file_paths):

@@ -119,9 +119,9 @@ export const useFileStore = create<FileState>((set) => ({
       } else if (type.startsWith('video/')) {
         suggestedOp = 'compress';
         suggestedOptions = { operation: 'compress', crf: 28, preset: 'medium' };
-      } else if (type.includes('word') || type.includes('officedocument')) {
-        suggestedOp = 'convert';
-        suggestedOptions = { operation: 'docx_to_pdf' };
+      } else if (type.includes('word') || type.includes('officedocument') || type.endsWith('docx')) {
+        suggestedOp = updatedFiles.length > 1 ? 'merge' : 'convert';
+        suggestedOptions = { operation: updatedFiles.length > 1 ? 'docx_merge' : 'docx_to_pdf' };
       }
     }
 
@@ -187,6 +187,12 @@ export const useFileStore = create<FileState>((set) => ({
         defaults = { start_time: 0, end_time: 10 };
       } else if (firstFileType.includes('word') || firstFileType.endsWith('docx')) {
         defaults = { operation: 'docx_cleanup' };
+      }
+    } else if (operation === 'merge') {
+      if (firstFileType.includes('word') || firstFileType.includes('officedocument') || firstFileType.endsWith('docx')) {
+        defaults = { operation: 'docx_merge' };
+      } else {
+        defaults = { operation: 'merge' };
       }
     }
 

@@ -149,10 +149,10 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
     <div className="w-full max-w-2xl mx-auto">
       <div
         {...getRootProps()}
-        className={`relative group flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-10 cursor-pointer transition-all duration-300 ${
+        className={`relative group flex flex-col items-center justify-center border border-dashed rounded-xl p-12 cursor-pointer transition-all duration-200 ${
           isDragActive
-            ? 'border-primary bg-accent/40 shadow-premium scale-[1.01]'
-            : 'border-border bg-card hover:border-primary/50 hover:bg-muted/50'
+            ? 'border-primary bg-accent/20'
+            : 'border-border bg-card hover:border-zinc-400 dark:hover:border-zinc-700'
         } focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2`}
         role="button"
         tabIndex={0}
@@ -168,26 +168,26 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
 
         {isUploading ? (
           <div className="flex flex-col items-center justify-center space-y-4">
-            <Loader2 className="h-10 w-10 text-primary animate-spin" />
+            <Loader2 className="h-8 w-8 text-primary animate-spin" />
             <div className="text-center">
-              <p className="font-semibold text-lg">Uploading files...</p>
-              <p className="text-sm text-muted-foreground">Checking file integrity & generating previews</p>
+              <p className="font-semibold text-base">Uploading files...</p>
+              <p className="text-xs text-muted-foreground">Checking file integrity & generating previews</p>
             </div>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
-            <div className={`p-4 rounded-full transition-transform duration-300 group-hover:scale-110 ${
-              isDragActive ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'
+            <div className={`p-3 rounded-lg border transition-all duration-200 ${
+              isDragActive ? 'bg-primary/10 text-primary border-primary/20' : 'bg-muted text-muted-foreground border-border'
             }`}>
-              <Upload className="h-8 w-8" />
+              <Upload className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-lg font-semibold">{getPromptText()}</p>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-sm font-semibold">{getPromptText()}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
                 or <span className="text-primary font-medium group-hover:underline">browse your device</span>
               </p>
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[10px] text-muted-foreground">
               {getAcceptLabel()}
             </p>
           </div>

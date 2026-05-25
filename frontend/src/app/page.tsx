@@ -108,8 +108,7 @@ export default function Home() {
       subtitle: 'Merge & Compress',
       description: 'Combine multiple PDF files or shrink sizes while retaining font schemas and file integrity.',
       icon: FileText,
-      color: 'text-red-500 border-red-500/20 hover:border-red-500/50 bg-red-500/5 dark:bg-red-500/10 hover:bg-red-500/10 dark:hover:bg-red-500/20',
-      glow: 'shadow-[0_0_20px_rgba(239,68,68,0.03)] hover:shadow-[0_0_30px_rgba(239,68,68,0.08)]',
+      iconColor: 'text-red-500 bg-red-500/5 dark:bg-red-500/10 border-red-500/10 dark:border-red-500/20',
       tools: 'Merge PDFs • Compress PDF'
     },
     {
@@ -118,8 +117,7 @@ export default function Home() {
       subtitle: 'Enhance & Convert',
       description: 'Optimize image dimensions and format constraints. Sharpen, denoise, or convert formats losslessly.',
       icon: Sparkles,
-      color: 'text-blue-500 border-blue-500/20 hover:border-blue-500/50 bg-blue-500/5 dark:bg-blue-500/10 hover:bg-blue-500/10 dark:hover:bg-blue-500/20',
-      glow: 'shadow-[0_0_20px_rgba(59,130,246,0.03)] hover:shadow-[0_0_30px_rgba(59,130,246,0.08)]',
+      iconColor: 'text-blue-500 bg-blue-500/5 dark:bg-blue-500/10 border-blue-500/10 dark:border-blue-500/20',
       tools: 'Compress • Enhance Details • Format Converter'
     },
     {
@@ -128,8 +126,7 @@ export default function Home() {
       subtitle: 'Convert & Clean',
       description: 'Convert DOCX, PPTX, or XLSX formats into standardized layouts. Render Markdown to HTML files.',
       icon: FileSpreadsheet,
-      color: 'text-emerald-500 border-emerald-500/20 hover:border-emerald-500/50 bg-emerald-500/5 dark:bg-emerald-500/10 hover:bg-emerald-500/10 dark:hover:bg-emerald-500/20',
-      glow: 'shadow-[0_0_20px_rgba(16,185,129,0.03)] hover:shadow-[0_0_30px_rgba(16,185,129,0.08)]',
+      iconColor: 'text-emerald-500 bg-emerald-500/5 dark:bg-emerald-500/10 border-emerald-500/10 dark:border-emerald-500/20',
       tools: 'DOCX/PPTX to PDF • XLSX to CSV • Layout Standardizer • Markdown to HTML'
     },
     {
@@ -138,8 +135,7 @@ export default function Home() {
       subtitle: 'Trim & Compress',
       description: 'Cut parts of video clips with precise timeline markers or encode to optimized space-saving sizes.',
       icon: Video,
-      color: 'text-violet-500 border-violet-500/20 hover:border-violet-500/50 bg-violet-500/5 dark:bg-violet-500/10 hover:bg-violet-500/10 dark:hover:bg-violet-500/20',
-      glow: 'shadow-[0_0_20px_rgba(139,92,246,0.03)] hover:shadow-[0_0_30px_rgba(139,92,246,0.08)]',
+      iconColor: 'text-violet-500 bg-violet-500/5 dark:bg-violet-500/10 border-violet-500/10 dark:border-violet-500/20',
       tools: 'Timeline Trimmer • MP4 Compression'
     }
   ];
@@ -240,42 +236,42 @@ export default function Home() {
         
         {/* Step Indicator Wizard */}
         {files.length > 0 && (
-          <div className="w-full max-w-2xl mx-auto flex items-center justify-between text-center relative px-2">
+          <div className="w-full max-w-xl mx-auto flex items-center justify-between text-center relative px-2">
             {/* Connector Line */}
-            <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-border -translate-y-1/2 -z-10" />
+            <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-border -translate-y-1/2 -z-10" />
             <div 
-              className="absolute top-1/2 left-0 h-0.5 bg-primary -translate-y-1/2 -z-10 transition-all duration-300"
+              className="absolute top-1/2 left-0 h-[1px] bg-foreground -translate-y-1/2 -z-10 transition-all duration-300"
               style={{ width: step === 1 ? '0%' : step === 2 ? '50%' : '100%' }}
             />
             
             {/* Step 1 */}
             <div className="flex flex-col items-center bg-background px-4">
-              <span className={`h-8 w-8 rounded-full border-2 flex items-center justify-center font-bold text-sm transition-all ${
-                step >= 1 ? 'border-primary bg-primary text-primary-foreground shadow-premium' : 'border-border bg-card text-muted-foreground'
+              <span className={`h-7 w-7 rounded-full border flex items-center justify-center font-semibold text-xs transition-all ${
+                step >= 1 ? 'border-foreground bg-foreground text-background font-bold' : 'border-border bg-card text-muted-foreground'
               }`}>
                 1
               </span>
-              <span className={`text-[10px] uppercase font-bold mt-2 tracking-wider ${step >= 1 ? 'text-primary' : 'text-muted-foreground'}`}>Upload</span>
+              <span className={`text-[10px] uppercase font-semibold mt-1.5 tracking-wider ${step >= 1 ? 'text-foreground' : 'text-muted-foreground'}`}>Upload</span>
             </div>
-
+ 
             {/* Step 2 */}
             <div className="flex flex-col items-center bg-background px-4">
-              <span className={`h-8 w-8 rounded-full border-2 flex items-center justify-center font-bold text-sm transition-all ${
-                step >= 2 ? 'border-primary bg-primary text-primary-foreground shadow-premium' : 'border-border bg-card text-muted-foreground'
+              <span className={`h-7 w-7 rounded-full border flex items-center justify-center font-semibold text-xs transition-all ${
+                step >= 2 ? 'border-foreground bg-foreground text-background font-bold' : 'border-border bg-card text-muted-foreground'
               }`}>
                 2
               </span>
-              <span className={`text-[10px] uppercase font-bold mt-2 tracking-wider ${step >= 2 ? 'text-primary' : 'text-muted-foreground'}`}>Configure</span>
+              <span className={`text-[10px] uppercase font-semibold mt-1.5 tracking-wider ${step >= 2 ? 'text-foreground' : 'text-muted-foreground'}`}>Configure</span>
             </div>
-
+ 
             {/* Step 3 */}
             <div className="flex flex-col items-center bg-background px-4">
-              <span className={`h-8 w-8 rounded-full border-2 flex items-center justify-center font-bold text-sm transition-all ${
-                step >= 3 ? 'border-primary bg-primary text-primary-foreground shadow-premium' : 'border-border bg-card text-muted-foreground'
+              <span className={`h-7 w-7 rounded-full border flex items-center justify-center font-semibold text-xs transition-all ${
+                step >= 3 ? 'border-foreground bg-foreground text-background font-bold' : 'border-border bg-card text-muted-foreground'
               }`}>
                 3
               </span>
-              <span className={`text-[10px] uppercase font-bold mt-2 tracking-wider ${step >= 3 ? 'text-primary' : 'text-muted-foreground'}`}>Export</span>
+              <span className={`text-[10px] uppercase font-semibold mt-1.5 tracking-wider ${step >= 3 ? 'text-foreground' : 'text-muted-foreground'}`}>Export</span>
             </div>
           </div>
         )}
@@ -290,9 +286,9 @@ export default function Home() {
               transition={{ duration: 0.3 }}
               className="space-y-10"
             >
-              <div className="text-center space-y-3 max-w-lg mx-auto">
-                <h2 className="text-3xl font-black text-foreground sm:text-4xl tracking-tight">Secure, Instant File Processing</h2>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+              <div className="text-center space-y-2 max-w-lg mx-auto">
+                <h2 className="text-3xl font-bold text-foreground tracking-tight sm:text-4xl">Secure, Instant File Processing</h2>
+                <p className="text-xs text-muted-foreground leading-relaxed">
                   All work happens client-side or in sandboxed execution environments. Select a specialized workspace or drop files directly to begin.
                 </p>
               </div>
@@ -318,7 +314,7 @@ export default function Home() {
                     <div
                       key={suite.id}
                       onClick={() => setSelectedSection(suite.id)}
-                      className={`group border rounded-2xl p-6 transition-all duration-300 cursor-pointer flex flex-col justify-between ${suite.color} ${suite.glow} hover:-translate-y-0.5`}
+                      className="group bg-card border border-border rounded-xl p-6 hover:border-zinc-400 dark:hover:border-zinc-700 transition-all duration-200 cursor-pointer flex flex-col justify-between shadow-sm"
                       role="button"
                       tabIndex={0}
                       aria-label={`Enter ${suite.title}. ${suite.description}`}
@@ -328,24 +324,24 @@ export default function Home() {
                     >
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                          <div className="p-3 bg-card border border-border rounded-xl group-hover:scale-105 transition-all">
-                            <suite.icon className="h-7 w-7" />
+                          <div className={`p-3 border rounded-lg group-hover:scale-102 transition-all ${suite.iconColor}`}>
+                            <suite.icon className="h-6 w-6" />
                           </div>
-                          <span className="text-[10px] uppercase tracking-wider font-extrabold text-muted-foreground">
+                          <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
                             {suite.subtitle}
                           </span>
                         </div>
-                        <div className="space-y-2">
-                          <h3 className="text-lg font-black text-foreground">{suite.title}</h3>
+                        <div className="space-y-1.5">
+                          <h3 className="text-base font-bold text-foreground group-hover:text-primary transition-colors">{suite.title}</h3>
                           <p className="text-xs text-muted-foreground leading-relaxed">{suite.description}</p>
                         </div>
                       </div>
-                      <div className="border-t border-border/60 mt-6 pt-4 flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-muted-foreground uppercase truncate pr-2">
+                      <div className="border-t border-border mt-5 pt-4 flex items-center justify-between">
+                        <span className="text-[10px] font-medium text-muted-foreground uppercase truncate pr-2">
                           {suite.tools}
                         </span>
-                        <span className="text-xs font-black text-primary group-hover:translate-x-1 transition-transform">
-                          Enter Workspace &rarr;
+                        <span className="text-xs font-bold text-foreground flex items-center gap-1 group-hover:text-primary transition-colors">
+                          Enter Workspace <span className="translate-x-0 group-hover:translate-x-0.5 transition-transform">&rarr;</span>
                         </span>
                       </div>
                     </div>

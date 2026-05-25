@@ -4,6 +4,8 @@ import { useFileStore } from '@/store/useFileStore';
 
 export const DownloadHub: React.FC = () => {
   const {
+    files,
+    selectedOperation,
     downloadUrl,
     savings,
     clearStore,
@@ -13,6 +15,10 @@ export const DownloadHub: React.FC = () => {
 
   const [copied, setCopied] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
+  const [downloadFormat, setDownloadFormat] = useState<'docx' | 'pdf'>('docx');
+
+  const isDocxMerge = selectedOperation === 'merge' && files.length > 0 && 
+    (files[0].type.includes('word') || files[0].type.includes('officedocument') || files[0].name.endsWith('.docx'));
 
   useEffect(() => {
     if (ttlRemaining !== null) {
@@ -41,10 +47,21 @@ export const DownloadHub: React.FC = () => {
   if (!downloadUrl) return null;
 
   const handleDownload = () => {
+    let url = downloadUrl;
+    if (isDocxMerge) {
+      if (downloadUrl.startsWith('blob:')) {
+        // Mock mode: generate appropriate blob based on selection
+        const mimeType = downloadFormat === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        const mockBlob = new Blob(["Simulated File Master Output"], { type: mimeType });
+        url = URL.createObjectURL(mockBlob);
+      } else {
+        url = `${downloadUrl}?format=${downloadFormat}`;
+      }
+    }
     // Open in a new tab or trigger directly
     const a = document.createElement('a');
-    a.href = downloadUrl;
-    a.download = '';
+    a.href = url;
+    a.download = isDocxMerge ? `merged_document.${downloadFormat}` : '';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -55,7 +72,11 @@ export const DownloadHub: React.FC = () => {
   };
 
   const handleCopyLink = () => {
-    const fullUrl = `${window.location.origin}${downloadUrl}`;
+    let url = downloadUrl;
+    if (isDocxMerge && !downloadUrl.startsWith('blob:')) {
+      url = `${downloadUrl}?format=${downloadFormat}`;
+    }
+    const fullUrl = `${window.location.origin}${url}`;
     navigator.clipboard.writeText(fullUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -117,6 +138,39 @@ export const DownloadHub: React.FC = () => {
               <div className="text-right space-y-0.5">
                 <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider block">Savings</span>
                 <span className="font-bold text-emerald-500">-{savings.percent}%</span>
+              </div>
+            </div>
+          )}
+
+          {/* Download Format Selector (DOCX/PDF) for Word Merge */}
+          {isDocxMerge && (
+            <div className="space-y-2 p-4 bg-muted/40 border border-border rounded-lg text-left">
+              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">
+                Choose Download Format
+              </label>
+              <div className="grid grid-cols-2 gap-2 mt-1.5">
+                <button
+                  type="button"
+                  onClick={() => setDownloadFormat('docx')}
+                  className={`py-2 text-sm font-semibold rounded-lg border transition-all ${
+                    downloadFormat === 'docx'
+                      ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30 shadow-sm'
+                      : 'bg-card text-muted-foreground border-border hover:bg-muted/50'
+                  }`}
+                >
+                  Word (.docx)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDownloadFormat('pdf')}
+                  className={`py-2 text-sm font-semibold rounded-lg border transition-all ${
+                    downloadFormat === 'pdf'
+                      ? 'bg-red-500/10 text-red-500 border-red-500/30 shadow-sm'
+                      : 'bg-card text-muted-foreground border-border hover:bg-muted/50'
+                  }`}
+                >
+                  PDF (.pdf)
+                </button>
               </div>
             </div>
           )}

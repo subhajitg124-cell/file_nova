@@ -268,7 +268,7 @@ def get_job_status(job_id: str):
 
 # 9. File Downloader
 @app.get("/api/v1/download/{job_id}")
-def download_processed_file(job_id: str):
+def download_processed_file(job_id: str, format: str = None):
     """
     Serves the output file and triggers the 5-minute deletion grace period.
     """
@@ -286,6 +286,21 @@ def download_processed_file(job_id: str):
     # Determine filename
     out_metadata = meta.get("metadata") or {}
     friendly_name = out_metadata.get("output_name") or output_path.name
+
+    if format == "pdf" and output_path.suffix.lower() == ".docx":
+        # Dynamic PDF conversion
+        pdf_path = output_path.with_suffix(".pdf")
+        if not pdf_path.exists():
+            from app.processors.docx_pdf import DocumentProcessor
+            proc = DocumentProcessor()
+            proc._convert_to_pdf_libreoffice_or_fallback(str(output_path), None)
+            
+        if pdf_path.exists():
+            output_path = pdf_path
+            if friendly_name.lower().endswith(".docx"):
+                friendly_name = friendly_name[:-5] + ".pdf"
+            else:
+                friendly_name = f"{friendly_name}.pdf"
     
     # Trigger 5-minute grace period
     mark_job_downloaded(job_id)

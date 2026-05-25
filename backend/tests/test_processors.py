@@ -77,3 +77,48 @@ def test_image_enhance_processor(temp_image_file):
     
     assert out_path.exists()
     assert out_path.suffix.lower() == ".png"
+
+
+def test_docx_merge_processor(tmp_path):
+    """Tests that DocumentProcessor can merge multiple DOCX files successfully."""
+    from docx import Document
+    from app.processors.docx_pdf import DocumentProcessor
+    
+    settings.output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Create two dummy docx files
+    doc1_path = tmp_path / "doc1.docx"
+    doc2_path = tmp_path / "doc2.docx"
+    
+    doc1 = Document()
+    doc1.add_heading("Doc 1 Heading", level=1)
+    doc1.add_paragraph("This is the first document text.")
+    doc1.save(doc1_path)
+    
+    doc2 = Document()
+    doc2.add_heading("Doc 2 Heading", level=1)
+    doc2.add_paragraph("This is the second document text.")
+    doc2.save(doc2_path)
+    
+    # Run processor
+    proc = DocumentProcessor()
+    options = {
+        "operation": "docx_merge"
+    }
+    
+    out_path_str = proc.process([str(doc1_path), str(doc2_path)], options)
+    out_path = Path(out_path_str)
+    
+    assert out_path.exists()
+    assert out_path.name.startswith("merged_")
+    assert out_path.suffix.lower() == ".docx"
+    
+    # Load and verify merged content
+    merged_doc = Document(out_path)
+    all_text = [p.text for p in merged_doc.paragraphs]
+    
+    assert "Doc 1 Heading" in all_text
+    assert "This is the first document text." in all_text
+    assert "Doc 2 Heading" in all_text
+    assert "This is the second document text." in all_text
+

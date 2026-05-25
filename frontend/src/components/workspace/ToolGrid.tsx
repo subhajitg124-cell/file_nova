@@ -80,6 +80,15 @@ const TOOLS: ToolItem[] = [
     actionName: 'docx_to_pdf'
   },
   {
+    id: 'merge',
+    title: 'Merge DOCX Documents',
+    description: 'Combine multiple Word documents into a single document.',
+    category: 'office',
+    icon: FileText,
+    color: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/20',
+    actionName: 'docx_merge'
+  },
+  {
     id: 'convert',
     title: 'PPTX to PDF',
     description: 'Convert PowerPoint slides into standard PDFs.',
@@ -182,6 +191,9 @@ export const ToolGrid: React.FC = () => {
   const triggerDirectUpload = (tool: ToolItem) => {
     const input = document.createElement('input');
     input.type = 'file';
+    if (tool.id === 'merge') {
+      input.multiple = true;
+    }
     
     // Set format restrictions
     if (tool.category === 'pdf') {
@@ -210,17 +222,17 @@ export const ToolGrid: React.FC = () => {
         setIsUploading(true);
         setError(null);
         
-        const file = filesList[0];
+        const filesArray = Array.from(filesList);
         const activeJobId = jobId || Math.random().toString(36).substring(2, 15);
         setJobId(activeJobId);
 
         try {
-          useFileStore.getState().addRawFiles([file]);
+          useFileStore.getState().addRawFiles(filesArray);
           let uploadedRecords = [];
           if (isMockMode) {
-            uploadedRecords = await apiMock.uploadFiles([file], activeJobId);
+            uploadedRecords = await apiMock.uploadFiles(filesArray, activeJobId);
           } else {
-            uploadedRecords = await apiClient.uploadFiles([file], activeJobId);
+            uploadedRecords = await apiClient.uploadFiles(filesArray, activeJobId);
           }
           addFiles(uploadedRecords);
           // Set operation after upload success to transition to configuration step
@@ -283,9 +295,9 @@ export const ToolGrid: React.FC = () => {
             <button
               key={idx}
               onClick={() => handleSelectTool(tool)}
-              className={`relative text-left p-5 bg-card border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary ${
-                isSuggested ? 'border-primary/50 shadow-premium' : 'border-border'
-              } hover:-translate-y-0.5 hover:shadow-premium`}
+              className={`relative text-left p-5 bg-card border rounded-xl transition-all duration-150 focus:outline-none focus:ring-1 focus:ring-primary ${
+                isSuggested ? 'border-primary/55 ring-1 ring-primary/10' : 'border-border'
+              } hover:border-zinc-400 dark:hover:border-zinc-700 hover:shadow-sm`}
               role="button"
               tabIndex={0}
               aria-label={`${tool.title}: ${tool.description}`}
@@ -296,13 +308,13 @@ export const ToolGrid: React.FC = () => {
               }}
             >
               {isSuggested && (
-                <span className="absolute top-3 right-3 text-[10px] bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full font-semibold">
+                <span className="absolute top-3 right-3 text-[9px] uppercase tracking-wider bg-primary/10 text-primary border border-primary/20 px-2 py-0.25 rounded-full font-bold">
                   Suggested
                 </span>
               )}
               <div className="flex items-start space-x-4">
-                <div className={`p-3 rounded-lg border ${tool.color}`}>
-                  <tool.icon className="h-6 w-6" />
+                <div className={`p-2.5 rounded-lg border ${tool.color}`}>
+                  <tool.icon className="h-5 w-5" />
                 </div>
                 <div className="space-y-1 pr-2">
                   <h3 className="font-semibold text-foreground text-sm sm:text-base leading-snug">{tool.title}</h3>
