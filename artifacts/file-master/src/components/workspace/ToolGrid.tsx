@@ -124,7 +124,7 @@ const TOOLS: ToolItem[] = [
   { id: 'convert', title: 'Images → PDF',     description: 'Combine images into a single PDF document.',           category: 'image', subcategory: 'img_convert', icon: FileText,        actionName: 'images_to_pdf',  badge: 'Client-side', badgeColor: 'emerald' },
 
   // ── OFFICE / Merge ───────────────────────────────────────────────────────────
-  { id: 'merge',   title: 'Merge Documents',  description: 'Combine multiple DOCX files — choose DOCX or PDF output.', category: 'office', subcategory: 'off_merge', icon: GitMerge, actionName: 'merge_docs', badge: 'New', badgeColor: 'violet' },
+  { id: 'merge',   title: 'Merge Documents',  description: 'Combine multiple DOCX or PDF files into one document.', category: 'office', subcategory: 'off_merge', icon: GitMerge, actionName: 'merge_docs', badge: 'New', badgeColor: 'violet' },
 
   // ── OFFICE / Convert Docs ────────────────────────────────────────────────────
   { id: 'convert', title: 'DOCX → PDF',       description: 'Convert Word documents to standard PDF layout.',           category: 'office', subcategory: 'off_convert', icon: FileText,       actionName: 'docx_to_pdf' },
@@ -204,7 +204,7 @@ export const ToolGrid: React.FC = () => {
     if (tool.category === 'image') return tool.actionName === 'svg_to_png' ? 'image/svg+xml,.svg' : imageTypes;
     if (tool.category === 'pdf') return tool.actionName === 'images_to_pdf' ? imageTypes : 'application/pdf';
     if (tool.category === 'video') return tool.actionName === 'compress_audio' ? 'audio/*' : 'video/mp4,video/webm,video/*';
-    if (tool.actionName === 'merge_docs') return '.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    if (tool.actionName === 'merge_docs') return '.docx,.pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf';
     if (tool.actionName === 'docx_to_pdf' || tool.actionName === 'docx_cleanup') return '.docx';
     if (tool.actionName === 'pptx_to_pdf') return '.pptx';
     if (tool.actionName === 'xlsx_to_csv') return '.xlsx';
