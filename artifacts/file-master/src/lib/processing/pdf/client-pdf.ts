@@ -122,3 +122,49 @@ export async function runClientSidePdfFlattenForm(file: File): Promise<Blob> {
   const result = await api.flattenPdfForm({ name: file.name, buffer: await file.arrayBuffer() }); worker.terminate();
   return new Blob([result], { type: 'application/pdf' });
 }
+
+// ── Insert link / image / shape ─────────────────────────────────────────────
+
+export interface PdfLink {
+  page: number; x: number; y: number; width: number; height: number;
+  url: string; borderWidth?: number; borderColorHex?: string;
+  showHighlight?: boolean; highlightColorHex?: string;
+  labelText?: string; fontSize?: number;
+}
+
+export async function runClientSidePdfInsertLinks(file: File, links: PdfLink[]): Promise<Blob> {
+  const worker = createWorker(); const api = wrap<any>(worker);
+  const result = await api.insertPdfLinks({ name: file.name, buffer: await file.arrayBuffer() }, links);
+  worker.terminate();
+  return new Blob([result], { type: 'application/pdf' });
+}
+
+export interface PdfImageInsert {
+  page: number; x: number; y: number; width: number; height: number;
+  mimeType: string; buffer: ArrayBuffer; opacity?: number;
+  borderColorHex?: string; borderWidth?: number;
+}
+
+export async function runClientSidePdfInsertImages(file: File, images: PdfImageInsert[]): Promise<Blob> {
+  const worker = createWorker(); const api = wrap<any>(worker);
+  const result = await api.insertPdfImages({ name: file.name, buffer: await file.arrayBuffer() }, images);
+  worker.terminate();
+  return new Blob([result], { type: 'application/pdf' });
+}
+
+export interface PdfShape {
+  page: number; type: 'rectangle' | 'ellipse' | 'line' | 'arrow';
+  x: number; y: number;
+  width?: number; height?: number;
+  x2?: number; y2?: number;
+  fillColorHex?: string; fillOpacity?: number; noFill?: boolean;
+  strokeColorHex?: string; strokeWidth?: number;
+  labelText?: string; fontSize?: number; labelColorHex?: string;
+}
+
+export async function runClientSidePdfInsertShapes(file: File, shapes: PdfShape[]): Promise<Blob> {
+  const worker = createWorker(); const api = wrap<any>(worker);
+  const result = await api.insertPdfShapes({ name: file.name, buffer: await file.arrayBuffer() }, shapes);
+  worker.terminate();
+  return new Blob([result], { type: 'application/pdf' });
+}

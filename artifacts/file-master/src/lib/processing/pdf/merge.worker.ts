@@ -1,4 +1,4 @@
-import { PDFDocument, degrees, rgb, StandardFonts } from 'pdf-lib';
+import { PDFDocument, degrees, rgb, StandardFonts, PDFString, PDFName, PDFArray } from 'pdf-lib';
 import { expose } from 'comlink';
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -342,9 +342,211 @@ async function flattenPdfForm(
   return await pdfDoc.save();
 }
 
+// ── Insert hyperlinks ──────────────────────────────────────────────────────
+// Adds clickable URI link annotations. Optionally draws a visible highlight box.
+async function insertPdfLinks(
+  fileData: { name: string; buffer: ArrayBuffer },
+  links: Array<{
+    page: number; x: number; y: number; width: number; height: number;
+    url: string; borderWidth?: number; borderColorHex?: string;
+    showHighlight?: boolean; highlightColorHex?: string;
+    labelText?: string; fontSize?: number;
+  }>
+): Promise<Uint8Array> {
+  const pdfDoc   = await PDFDocument.load(fileData.buffer);
+  const allPages = pdfDoc.getPages();
+  const total    = allPages.length;
+  const font     = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+  for (const link of links) {
+    const page    = allPages[Math.max(0, Math.min(link.page - 1, total - 1))];
+    const { height } = page.getSize();
+    const pdfY    = height - link.y - link.height;
+    const bw      = link.borderWidth ?? 1;
+    const { r: br, g: bg, b: bb } = hexToRgb(link.borderColorHex || '#1a56db');
+
+    // Draw visible highlight/border
+    if (link.showHighlight !== false) {
+      const { r: hr, g: hg, b: hb } = hexToRgb(link.highlightColorHex || '#dbeafe');
+      page.drawRectangle({
+        x: link.x, y: pdfY, width: link.width, height: link.height,
+        color: rgb(hr, hg, hb), opacity: 0.35,
+        borderColor: rgb(br, bg, bb), borderWidth: bw,
+      });
+    }
+
+    // Draw label text inside the box if provided
+    if (link.labelText) {
+      const fs = link.fontSize || 10;
+      page.drawText(link.labelText, {
+        x: link.x + 4, y: pdfY + (link.height - fs) / 2 + 1,
+        size: fs, font, color: rgb(br, bg, bb),
+        maxWidth: link.width - 8,
+      });
+    }
+
+    // Register URI annotation
+    const annotRef = pdfDoc.context.register(
+      pdfDoc.context.obj({
+        Type: 'Annot', Subtype: 'Link',
+        Rect: [link.x, pdfY, link.x + link.width, pdfY + link.height],
+        A: { S: 'URI', URI: PDFString.of(link.url) },
+        Border: [0, 0, bw],
+        C: [br, bg, bb],
+      })
+    );
+
+    const existing = page.node.lookup(PDFName.of('Annots'));
+    if (existing instanceof PDFArray) {
+      existing.push(annotRef);
+    } else {
+      page.node.set(PDFName.of('Annots'), pdfDoc.context.obj([annotRef]));
+    }
+  }
+  return await pdfDoc.save();
+}
+
+// ── Insert images ──────────────────────────────────────────────────────────
+// Embeds PNG/JPEG images at exact positions on any page.
+async function insertPdfImages(
+  fileData: { name: string; buffer: ArrayBuffer },
+  images: Array<{
+    page: number; x: number; y: number; width: number; height: number;
+    mimeType: string; buffer: ArrayBuffer; opacity?: number;
+    borderColorHex?: string; borderWidth?: number;
+  }>
+): Promise<Uint8Array> {
+  const pdfDoc   = await PDFDocument.load(fileData.buffer);
+  const allPages = pdfDoc.getPages();
+  const total    = allPages.length;
+
+  for (const img of images) {
+    const page = allPages[Math.max(0, Math.min(img.page - 1, total - 1))];
+    const { height } = page.getSize();
+    const pdfY = height - img.y - img.height;
+
+    const embedded = (img.mimeType === 'image/jpeg' || img.mimeType === 'image/jpg')
+      ? await pdfDoc.embedJpg(img.buffer)
+      : await pdfDoc.embedPng(img.buffer);
+
+    page.drawImage(embedded, {
+      x: img.x, y: pdfY, width: img.width, height: img.height,
+      opacity: img.opacity ?? 1.0,
+    });
+
+    // Optional border around the image
+    if (img.borderWidth && img.borderWidth > 0) {
+      const { r, g, b } = hexToRgb(img.borderColorHex || '#000000');
+      page.drawRectangle({
+        x: img.x, y: pdfY, width: img.width, height: img.height,
+        borderColor: rgb(r, g, b), borderWidth: img.borderWidth,
+        color: undefined, opacity: 0,
+      });
+    }
+  }
+  return await pdfDoc.save();
+}
+
+// ── Draw shapes ────────────────────────────────────────────────────────────
+// Draws rectangles, ellipses, lines, and arrows on any page.
+async function insertPdfShapes(
+  fileData: { name: string; buffer: ArrayBuffer },
+  shapes: Array<{
+    page: number; type: 'rectangle' | 'ellipse' | 'line' | 'arrow';
+    x: number; y: number;
+    width?: number; height?: number;
+    x2?: number; y2?: number;
+    fillColorHex?: string; fillOpacity?: number; noFill?: boolean;
+    strokeColorHex?: string; strokeWidth?: number;
+    labelText?: string; fontSize?: number; labelColorHex?: string;
+  }>
+): Promise<Uint8Array> {
+  const pdfDoc   = await PDFDocument.load(fileData.buffer);
+  const allPages = pdfDoc.getPages();
+  const total    = allPages.length;
+  const font     = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+
+  for (const shape of shapes) {
+    const page = allPages[Math.max(0, Math.min(shape.page - 1, total - 1))];
+    const { height: pageH } = page.getSize();
+
+    const sw   = shape.strokeWidth ?? 2;
+    const fill = hexToRgb(shape.fillColorHex   || '#4f46e5');
+    const strk = hexToRgb(shape.strokeColorHex || '#4f46e5');
+    const fo   = shape.fillOpacity ?? 0.15;
+
+    if (shape.type === 'rectangle') {
+      const w  = shape.width  || 100;
+      const h  = shape.height || 50;
+      const pdfY = pageH - shape.y - h;
+      page.drawRectangle({
+        x: shape.x, y: pdfY, width: w, height: h,
+        color:       shape.noFill ? undefined : rgb(fill.r, fill.g, fill.b),
+        opacity:     shape.noFill ? 0 : fo,
+        borderColor: rgb(strk.r, strk.g, strk.b),
+        borderWidth: sw,
+        borderOpacity: 1,
+      });
+      if (shape.labelText) {
+        const fs = shape.fontSize || 11;
+        const { r: lr, g: lg, b: lb } = hexToRgb(shape.labelColorHex || shape.strokeColorHex || '#000000');
+        page.drawText(shape.labelText, {
+          x: shape.x + 6, y: pdfY + (h - fs) / 2 + 1,
+          size: fs, font, color: rgb(lr, lg, lb), maxWidth: w - 12,
+        });
+      }
+    } else if (shape.type === 'ellipse') {
+      const w = shape.width  || 100;
+      const h = shape.height || 50;
+      const cx = shape.x + w / 2;
+      const cy = pageH - shape.y - h / 2;
+      page.drawEllipse({
+        x: cx, y: cy, xScale: w / 2, yScale: h / 2,
+        color:       shape.noFill ? undefined : rgb(fill.r, fill.g, fill.b),
+        opacity:     shape.noFill ? 0 : fo,
+        borderColor: rgb(strk.r, strk.g, strk.b),
+        borderWidth: sw,
+        borderOpacity: 1,
+      });
+      if (shape.labelText) {
+        const fs = shape.fontSize || 11;
+        const { r: lr, g: lg, b: lb } = hexToRgb(shape.labelColorHex || shape.strokeColorHex || '#000000');
+        const tw = font.widthOfTextAtSize(shape.labelText, fs);
+        page.drawText(shape.labelText, {
+          x: cx - tw / 2, y: cy - fs / 2,
+          size: fs, font, color: rgb(lr, lg, lb),
+        });
+      }
+    } else if (shape.type === 'line' || shape.type === 'arrow') {
+      const x2 = shape.x2 ?? shape.x + 100;
+      const y2 = shape.y2 ?? shape.y;
+      page.drawLine({
+        start: { x: shape.x, y: pageH - shape.y },
+        end:   { x: x2,      y: pageH - y2      },
+        thickness: sw, color: rgb(strk.r, strk.g, strk.b), opacity: 1,
+      });
+      if (shape.type === 'arrow') {
+        // Draw arrowhead triangle at the end point
+        const dx = x2 - shape.x, dy = (pageH - y2) - (pageH - shape.y);
+        const len = Math.sqrt(dx * dx + dy * dy) || 1;
+        const ux = dx / len, uy = dy / len;
+        const headLen = Math.max(10, sw * 4);
+        const headW   = Math.max(6,  sw * 2.5);
+        const tipX = x2, tipY = pageH - y2;
+        const baseX = tipX - ux * headLen, baseY = tipY - uy * headLen;
+        const perpX = -uy * headW, perpY =  ux * headW;
+        page.drawLine({ start: { x: tipX, y: tipY }, end: { x: baseX + perpX, y: baseY + perpY }, thickness: sw, color: rgb(strk.r, strk.g, strk.b) });
+        page.drawLine({ start: { x: tipX, y: tipY }, end: { x: baseX - perpX, y: baseY - perpY }, thickness: sw, color: rgb(strk.r, strk.g, strk.b) });
+      }
+    }
+  }
+  return await pdfDoc.save();
+}
+
 expose({
   mergePdfs, compressPdf, splitPdf, imagesToPdf,
   rotatePdfPages, deletePdfPages, addPdfWatermark, addPdfPageNumbers, reorderPdfPages,
   cropPdfPages, annotatePdf,
   unlockPdf, redactPdfAreas, signPdfVisual, flattenPdfForm,
+  insertPdfLinks, insertPdfImages, insertPdfShapes,
 });

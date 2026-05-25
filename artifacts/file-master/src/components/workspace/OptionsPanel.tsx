@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
   Sliders, RefreshCw, Play, Loader2, Sparkles, FileText,
-  Scissors, Music, FileArchive, Image, ArrowLeftRight, FileCode, Maximize2,
+  Scissors, Music, FileArchive, Image, ImageIcon, ArrowLeftRight, FileCode, Maximize2,
   MonitorSmartphone, Globe, Lock, Unlock, RotateCw, Trash2, Stamp, Hash,
   AlignJustify, Crop, FlipHorizontal, PenTool, FlipVertical, Eraser,
   Plus, Minus, ChevronDown, ChevronUp, ScanText, Type, Camera, X,
@@ -17,7 +17,8 @@ import {
   runClientSidePdfWatermark, runClientSidePdfPageNumbers, runClientSidePdfReorder,
   runClientSidePdfCrop, runClientSidePdfAnnotate, runClientSidePdfUnlock,
   runClientSidePdfRedact, runClientSidePdfSign, runClientSidePdfFlattenForm,
-  PdfAnnotation, RedactArea
+  runClientSidePdfInsertLinks, runClientSidePdfInsertImages, runClientSidePdfInsertShapes,
+  PdfAnnotation, RedactArea, PdfLink, PdfImageInsert, PdfShape,
 } from '@/lib/processing/pdf/client-pdf';
 import {
   compressImage, resizeImage, convertToIco, convertSvgToPng, convertImageFormat,
@@ -384,6 +385,15 @@ export const OptionsPanel: React.FC = () => {
     { id: 'red-0', page: 1, x: 50, y: 100, width: 200, height: 30, colorHex: '#000000' }
   ]);
   const [scannedFile, setScannedFile] = useState<File | null>(null);
+  const [pdfLinks, setPdfLinks] = useState<Array<PdfLink & { id: string }>>([
+    { id: 'lnk-0', page: 1, x: 60, y: 80, width: 200, height: 20, url: '', borderColorHex: '#1a56db', showHighlight: true, highlightColorHex: '#dbeafe', labelText: '', borderWidth: 1 }
+  ]);
+  const [pdfInsertImages, setPdfInsertImages] = useState<Array<PdfImageInsert & { id: string; file?: File }>>([
+    { id: 'img-0', page: 1, x: 60, y: 60, width: 200, height: 150, mimeType: 'image/png', buffer: new ArrayBuffer(0), opacity: 1.0 }
+  ]);
+  const [pdfShapes, setPdfShapes] = useState<Array<PdfShape & { id: string }>>([
+    { id: 'shp-0', page: 1, type: 'rectangle', x: 60, y: 60, width: 150, height: 80, fillColorHex: '#4f46e5', fillOpacity: 0.15, strokeColorHex: '#4f46e5', strokeWidth: 2 }
+  ]);
 
   const firstFile   = files[0];
   const fileType    = firstFile?.type || '';
@@ -513,6 +523,33 @@ export const OptionsPanel: React.FC = () => {
       if (actionName === 'pdf_sign') { const sig = (operationOptions.signature_text || '').trim(); if (!sig) { setError('Enter your signature text.'); setProcessing(false); return; } prog(20); const blob = await runClientSidePdfSign(rawFiles[0], sig, { page: operationOptions.sign_page, x: operationOptions.sign_x || 60, y: operationOptions.sign_y || 80, fontSize: operationOptions.sign_size || 28, colorHex: operationOptions.sign_color || '#1a1a8c', underline: operationOptions.sign_underline !== false, drawBox: operationOptions.sign_box !== false }); prog(90); setTimeout(() => done(blob, rawFiles[0].size), 300); return; }
       if (actionName === 'pdf_unlock') { const pwd = (operationOptions.unlock_password || '').trim(); if (!pwd) { setError('Enter the PDF password.'); setProcessing(false); return; } prog(20); try { const blob = await runClientSidePdfUnlock(rawFiles[0], pwd); prog(90); setTimeout(() => done(blob, rawFiles[0].size), 300); } catch (e: any) { setError('Incorrect password or PDF is not encrypted.'); setProcessing(false); } return; }
       if (actionName === 'pdf_forms') { prog(20); const blob = await runClientSidePdfFlattenForm(rawFiles[0]); prog(90); setTimeout(() => done(blob, rawFiles[0].size), 300); return; }
+
+      if (actionName === 'pdf_insert_link') {
+        const valid = pdfLinks.filter(l => l.url.trim());
+        if (!valid.length) { setError('Add at least one link with a URL.'); setProcessing(false); return; }
+        prog(20);
+        const blob = await runClientSidePdfInsertLinks(rawFiles[0], valid);
+        prog(90); setTimeout(() => done(blob, rawFiles[0].size), 300); return;
+      }
+
+      if (actionName === 'pdf_insert_image') {
+        const valid: PdfImageInsert[] = [];
+        for (const item of pdfInsertImages) {
+          if (item.file) {
+            valid.push({ ...item, buffer: await item.file.arrayBuffer(), mimeType: item.file.type || 'image/png' });
+          }
+        }
+        if (!valid.length) { setError('Pick at least one image to insert.'); setProcessing(false); return; }
+        prog(20);
+        const blob = await runClientSidePdfInsertImages(rawFiles[0], valid);
+        prog(90); setTimeout(() => done(blob, rawFiles[0].size), 300); return;
+      }
+
+      if (actionName === 'pdf_insert_shape') {
+        prog(20);
+        const blob = await runClientSidePdfInsertShapes(rawFiles[0], pdfShapes);
+        prog(90); setTimeout(() => done(blob, rawFiles[0].size), 300); return;
+      }
 
       // Scan to PDF
       if (actionName === 'scan_to_pdf') {
@@ -1090,6 +1127,269 @@ export const OptionsPanel: React.FC = () => {
     return <InfoBox icon={<RefreshCw className="h-4 w-4 text-primary" />} text="Convert file to the selected destination format." />;
   };
 
+  // ── Insert Link options ────────────────────────────────────────────────────
+  const renderPdfInsertLinkOptions = () => {
+    const addLink = () => setPdfLinks(prev => [...prev, {
+      id: `lnk-${Date.now()}`, page: 1, x: 60, y: 80 + prev.length * 30, width: 200, height: 20,
+      url: '', borderColorHex: '#1a56db', showHighlight: true, highlightColorHex: '#dbeafe', labelText: '', borderWidth: 1,
+    }]);
+    const updateLink = (id: string, patch: Partial<PdfLink>) => setPdfLinks(prev => prev.map(l => l.id === id ? { ...l, ...patch } : l));
+    const removeLink = (id: string) => setPdfLinks(prev => prev.length > 1 ? prev.filter(l => l.id !== id) : prev);
+
+    return (
+      <div className="space-y-4">
+        <div className="p-3 rounded-xl bg-primary/5 border border-primary/15 text-xs text-muted-foreground leading-relaxed">
+          <Globe className="h-3.5 w-3.5 inline mr-1.5 text-primary" />
+          Adds a clickable hyperlink annotation on any area of the page. The area is highlighted and the URL opens when clicked in any PDF reader. Coordinates in points from top-left. A4 = 595 × 842 pt.
+        </div>
+        <div className="space-y-3">
+          {pdfLinks.map((link, idx) => (
+            <div key={link.id} className="border border-border rounded-xl p-3 space-y-3 bg-card/50">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-foreground">Link {idx + 1}</span>
+                <button onClick={() => removeLink(link.id)} className="h-6 w-6 rounded-md bg-destructive/10 text-destructive flex items-center justify-center hover:bg-destructive/20 transition-colors">
+                  <Minus className="h-3 w-3" />
+                </button>
+              </div>
+              <TextField label="URL" value={link.url} placeholder="https://example.com" mono
+                onChange={(v) => updateLink(link.id, { url: v })} />
+              <TextField label="Label text (shown inside box, optional)" value={link.labelText || ''} placeholder="Click here"
+                onChange={(v) => updateLink(link.id, { labelText: v })} />
+              <div className="grid grid-cols-2 gap-2">
+                <NumInput label="Page #" value={link.page} min={1} onChange={(v) => updateLink(link.id, { page: v })} />
+                <div className="space-y-1">
+                  <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Border width</label>
+                  <input type="number" min={0} max={4} value={link.borderWidth ?? 1}
+                    onChange={(e) => updateLink(link.id, { borderWidth: parseInt(e.target.value) || 0 })}
+                    className="w-full p-2 bg-card border border-border rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/40" />
+                </div>
+              </div>
+              <div className="grid grid-cols-4 gap-2">
+                {([['X', 'x'], ['Y (top)', 'y'], ['W', 'width'], ['H', 'height']] as [string, keyof PdfLink][]).map(([lbl, key]) => (
+                  <div key={key} className="space-y-1">
+                    <label className="text-[9px] text-muted-foreground">{lbl}</label>
+                    <input type="number" min={0} value={(link as any)[key] || 0}
+                      onChange={(e) => updateLink(link.id, { [key]: parseInt(e.target.value) || 0 })}
+                      className="w-full p-1.5 bg-card border border-border rounded-md text-xs font-mono focus:outline-none focus:ring-1 focus:ring-primary/40" />
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-4 flex-wrap items-center">
+                <div className="flex items-center gap-2">
+                  <label className="text-[10px] text-muted-foreground font-semibold">Border color</label>
+                  <input type="color" value={link.borderColorHex || '#1a56db'}
+                    onChange={(e) => updateLink(link.id, { borderColorHex: e.target.value })}
+                    className="h-7 w-10 rounded border border-border cursor-pointer bg-card p-0.5" />
+                </div>
+                <button onClick={() => updateLink(link.id, { showHighlight: !link.showHighlight })}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${link.showHighlight ? 'bg-primary/10 border-primary/30 text-primary' : 'bg-card border-border text-muted-foreground'}`}>
+                  Highlight fill: {link.showHighlight ? 'ON' : 'OFF'}
+                </button>
+                {link.showHighlight && (
+                  <div className="flex items-center gap-2">
+                    <label className="text-[10px] text-muted-foreground font-semibold">Fill color</label>
+                    <input type="color" value={link.highlightColorHex || '#dbeafe'}
+                      onChange={(e) => updateLink(link.id, { highlightColorHex: e.target.value })}
+                      className="h-7 w-10 rounded border border-border cursor-pointer bg-card p-0.5" />
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+        <button onClick={addLink} className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-primary/40 text-primary text-xs font-semibold hover:bg-primary/5 transition-all">
+          <Plus className="h-4 w-4" /> Add another link
+        </button>
+      </div>
+    );
+  };
+
+  // ── Insert Image options ────────────────────────────────────────────────────
+  const renderPdfInsertImageOptions = () => {
+    const addImgEntry = () => setPdfInsertImages(prev => [...prev, {
+      id: `img-${Date.now()}`, page: 1, x: 60, y: 60 + prev.length * 160,
+      width: 200, height: 150, mimeType: 'image/png', buffer: new ArrayBuffer(0), opacity: 1.0,
+    }]);
+    const updateImgEntry = (id: string, patch: any) => setPdfInsertImages(prev => prev.map(i => i.id === id ? { ...i, ...patch } : i));
+    const removeImgEntry = (id: string) => setPdfInsertImages(prev => prev.length > 1 ? prev.filter(i => i.id !== id) : prev);
+
+    const pickFile = (id: string) => {
+      const input = document.createElement('input');
+      input.type = 'file'; input.accept = 'image/png,image/jpeg,image/jpg';
+      input.onchange = (e) => {
+        const f = (e.target as HTMLInputElement).files?.[0];
+        if (f) updateImgEntry(id, { file: f, mimeType: f.type });
+      };
+      input.click();
+    };
+
+    return (
+      <div className="space-y-4">
+        <div className="p-3 rounded-xl bg-primary/5 border border-primary/15 text-xs text-muted-foreground leading-relaxed">
+          <ImageIcon className="h-3.5 w-3.5 inline mr-1.5 text-primary" />
+          Pick a PNG or JPEG and place it at exact coordinates on any page. Runs entirely client-side — images are embedded directly into the PDF.
+        </div>
+        <div className="space-y-3">
+          {pdfInsertImages.map((img, idx) => (
+            <div key={img.id} className="border border-border rounded-xl p-3 space-y-3 bg-card/50">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-foreground">Image {idx + 1}</span>
+                <button onClick={() => removeImgEntry(img.id)} className="h-6 w-6 rounded-md bg-destructive/10 text-destructive flex items-center justify-center hover:bg-destructive/20 transition-colors">
+                  <Minus className="h-3 w-3" />
+                </button>
+              </div>
+              <button onClick={() => pickFile(img.id)}
+                className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-dashed text-xs font-semibold transition-all ${(img as any).file ? 'border-emerald-500/40 bg-emerald-500/5 text-emerald-400' : 'border-primary/30 bg-primary/5 text-primary hover:bg-primary/10'}`}>
+                <ImageIcon className="h-4 w-4" />
+                {(img as any).file ? `✓ ${((img as any).file as File).name}` : 'Choose image (PNG / JPEG)'}
+              </button>
+              <div className="grid grid-cols-2 gap-2">
+                <NumInput label="Page #" value={img.page} min={1} onChange={(v) => updateImgEntry(img.id, { page: v })} />
+                <div />
+              </div>
+              <div className="grid grid-cols-4 gap-2">
+                {([['X', 'x'], ['Y (top)', 'y'], ['W', 'width'], ['H', 'height']] as [string, string][]).map(([lbl, key]) => (
+                  <div key={key} className="space-y-1">
+                    <label className="text-[9px] text-muted-foreground">{lbl}</label>
+                    <input type="number" min={0} value={(img as any)[key] || 0}
+                      onChange={(e) => updateImgEntry(img.id, { [key]: parseInt(e.target.value) || 0 })}
+                      className="w-full p-1.5 bg-card border border-border rounded-md text-xs font-mono focus:outline-none focus:ring-1 focus:ring-primary/40" />
+                  </div>
+                ))}
+              </div>
+              <SliderField id={`img-op-${img.id}`} label="Opacity" unit="%" value={Math.round((img.opacity ?? 1) * 100)} min={10} max={100}
+                onChange={(v) => updateImgEntry(img.id, { opacity: v / 100 })} />
+              <div className="flex items-center gap-3">
+                <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Border width</label>
+                <input type="number" min={0} max={10} value={img.borderWidth ?? 0}
+                  onChange={(e) => updateImgEntry(img.id, { borderWidth: parseInt(e.target.value) || 0 })}
+                  className="w-20 p-1.5 bg-card border border-border rounded-lg text-xs font-mono focus:outline-none focus:ring-1 focus:ring-primary/40" />
+                {(img.borderWidth ?? 0) > 0 && (
+                  <input type="color" value={img.borderColorHex || '#000000'}
+                    onChange={(e) => updateImgEntry(img.id, { borderColorHex: e.target.value })}
+                    className="h-7 w-10 rounded border border-border cursor-pointer bg-card p-0.5" />
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+        <button onClick={addImgEntry} className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-primary/40 text-primary text-xs font-semibold hover:bg-primary/5 transition-all">
+          <Plus className="h-4 w-4" /> Add another image
+        </button>
+      </div>
+    );
+  };
+
+  // ── Draw Shapes options ──────────────────────────────────────────────────────
+  const renderPdfInsertShapeOptions = () => {
+    const shapeTypeLabels: Record<string, string> = { rectangle: 'Rectangle', ellipse: 'Ellipse / Circle', line: 'Line', arrow: 'Arrow' };
+    const isLineLike = (t: string) => t === 'line' || t === 'arrow';
+
+    const addShape = () => setPdfShapes(prev => [...prev, {
+      id: `shp-${Date.now()}`, page: 1, type: 'rectangle',
+      x: 60, y: 60 + prev.length * 100, width: 150, height: 80,
+      fillColorHex: '#4f46e5', fillOpacity: 0.15, strokeColorHex: '#4f46e5', strokeWidth: 2,
+    }]);
+    const updateShape = (id: string, patch: Partial<PdfShape>) => setPdfShapes(prev => prev.map(s => s.id === id ? { ...s, ...patch } : s));
+    const removeShape = (id: string) => setPdfShapes(prev => prev.length > 1 ? prev.filter(s => s.id !== id) : prev);
+
+    return (
+      <div className="space-y-4">
+        <div className="p-3 rounded-xl bg-primary/5 border border-primary/15 text-xs text-muted-foreground leading-relaxed">
+          <PenTool className="h-3.5 w-3.5 inline mr-1.5 text-primary" />
+          Draw filled or stroked shapes on any page. Coordinates are points from the top-left (Y downward). A4 = 595 × 842 pt.
+        </div>
+        <div className="space-y-3">
+          {pdfShapes.map((shape, idx) => {
+            const lineMode = isLineLike(shape.type);
+            return (
+              <div key={shape.id} className="border border-border rounded-xl p-3 space-y-3 bg-card/50">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-foreground">Shape {idx + 1}</span>
+                  <button onClick={() => removeShape(shape.id)} className="h-6 w-6 rounded-md bg-destructive/10 text-destructive flex items-center justify-center hover:bg-destructive/20 transition-colors">
+                    <Minus className="h-3 w-3" />
+                  </button>
+                </div>
+                <div className="grid grid-cols-4 gap-1.5">
+                  {(['rectangle', 'ellipse', 'line', 'arrow'] as const).map((t) => (
+                    <button key={t} onClick={() => updateShape(shape.id, { type: t })}
+                      className={`py-1.5 rounded-lg text-[10px] font-semibold border transition-all ${shape.type === t ? 'bg-primary text-primary-foreground border-primary' : 'bg-card border-border text-muted-foreground hover:border-primary/40'}`}>
+                      {shapeTypeLabels[t]}
+                    </button>
+                  ))}
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <NumInput label="Page #" value={shape.page} min={1} onChange={(v) => updateShape(shape.id, { page: v })} />
+                  <NumInput label="Stroke width" value={shape.strokeWidth ?? 2} min={1} max={20} onChange={(v) => updateShape(shape.id, { strokeWidth: v })} />
+                </div>
+                {lineMode ? (
+                  <div className="grid grid-cols-4 gap-2">
+                    {([['X1', 'x'], ['Y1', 'y'], ['X2', 'x2'], ['Y2', 'y2']] as [string, keyof PdfShape][]).map(([lbl, key]) => (
+                      <div key={key} className="space-y-1">
+                        <label className="text-[9px] text-muted-foreground">{lbl}</label>
+                        <input type="number" min={0} value={(shape as any)[key] || 0}
+                          onChange={(e) => updateShape(shape.id, { [key]: parseInt(e.target.value) || 0 })}
+                          className="w-full p-1.5 bg-card border border-border rounded-md text-xs font-mono focus:outline-none focus:ring-1 focus:ring-primary/40" />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-4 gap-2">
+                    {([['X', 'x'], ['Y (top)', 'y'], ['W', 'width'], ['H', 'height']] as [string, keyof PdfShape][]).map(([lbl, key]) => (
+                      <div key={key} className="space-y-1">
+                        <label className="text-[9px] text-muted-foreground">{lbl}</label>
+                        <input type="number" min={0} value={(shape as any)[key] || 0}
+                          onChange={(e) => updateShape(shape.id, { [key]: parseInt(e.target.value) || 0 })}
+                          className="w-full p-1.5 bg-card border border-border rounded-md text-xs font-mono focus:outline-none focus:ring-1 focus:ring-primary/40" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="flex gap-4 flex-wrap items-start">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Stroke color</label>
+                    <input type="color" value={shape.strokeColorHex || '#4f46e5'}
+                      onChange={(e) => updateShape(shape.id, { strokeColorHex: e.target.value })}
+                      className="h-8 w-12 rounded border border-border cursor-pointer bg-card p-0.5 block" />
+                  </div>
+                  {!lineMode && (
+                    <>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Fill color</label>
+                        <input type="color" value={shape.fillColorHex || '#4f46e5'}
+                          onChange={(e) => updateShape(shape.id, { fillColorHex: e.target.value })}
+                          className="h-8 w-12 rounded border border-border cursor-pointer bg-card p-0.5 block" />
+                      </div>
+                      <button onClick={() => updateShape(shape.id, { noFill: !shape.noFill })}
+                        className={`mt-5 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${shape.noFill ? 'bg-card border-border text-muted-foreground' : 'bg-primary/10 border-primary/30 text-primary'}`}>
+                        {shape.noFill ? 'Fill: OFF' : 'Fill: ON'}
+                      </button>
+                      {!shape.noFill && (
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Fill opacity %</label>
+                          <input type="number" min={5} max={100} value={Math.round((shape.fillOpacity ?? 0.15) * 100)}
+                            onChange={(e) => updateShape(shape.id, { fillOpacity: (parseInt(e.target.value) || 15) / 100 })}
+                            className="w-20 p-1.5 bg-card border border-border rounded-lg text-xs font-mono focus:outline-none focus:ring-1 focus:ring-primary/40" />
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+                {!lineMode && (
+                  <TextField label="Label text inside shape (optional)" value={shape.labelText || ''} placeholder="e.g. Note, Action required"
+                    onChange={(v) => updateShape(shape.id, { labelText: v })} />
+                )}
+              </div>
+            );
+          })}
+        </div>
+        <button onClick={addShape} className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-primary/40 text-primary text-xs font-semibold hover:bg-primary/5 transition-all">
+          <Plus className="h-4 w-4" /> Add another shape
+        </button>
+      </div>
+    );
+  };
+
   const renderEditOptions = () => {
     switch (actionName) {
       case 'pdf_crop':         return renderPdfCropOptions();
@@ -1110,8 +1410,11 @@ export const OptionsPanel: React.FC = () => {
       case 'scan_to_pdf':      return renderScanToPdfOptions();
       case 'remove_bg':        return renderRemoveBgOptions();
       case 'image_crop':       return renderImageCropOptions();
-      case 'image_rotate':     return renderImageRotateOptions();
-      case 'image_watermark':  return renderImageWatermarkOptions();
+      case 'image_rotate':       return renderImageRotateOptions();
+      case 'image_watermark':    return renderImageWatermarkOptions();
+      case 'pdf_insert_link':    return renderPdfInsertLinkOptions();
+      case 'pdf_insert_image':   return renderPdfInsertImageOptions();
+      case 'pdf_insert_shape':   return renderPdfInsertShapeOptions();
       case 'trim':             return (
         <div className="space-y-5">
           <div className="grid grid-cols-2 gap-3">
@@ -1147,6 +1450,7 @@ export const OptionsPanel: React.FC = () => {
     pdf_forms: 'PDF Forms', pdf_ocr: 'OCR PDF', pdf_compare: 'Compare PDFs',
     pdf_summarize: 'AI Summarize', pdf_translate: 'Translate PDF',
     pdf_to_excel: 'PDF → Excel', pdf_to_pdfa: 'PDF to PDF/A', scan_to_pdf: 'Scan to PDF',
+    pdf_insert_link: 'Insert Link', pdf_insert_image: 'Insert Image', pdf_insert_shape: 'Draw Shapes',
     remove_bg: 'Remove Background', image_crop: 'Crop Image', image_rotate: 'Rotate & Flip', image_watermark: 'Add Watermark',
   };
   const operationLabels: Record<string, string> = {
