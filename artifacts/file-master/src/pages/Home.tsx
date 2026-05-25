@@ -291,10 +291,10 @@ export default function Home() {
                       initial={{ opacity: 0, y: 14 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.07, duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                      whileHover={{ y: -2 }}
-                      whileTap={{ scale: 0.99 }}
+                      whileHover={{ y: -3, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
+                      whileTap={{ scale: 0.98 }}
                       onClick={() => setSelectedSection(suite.id)}
-                      className={`group relative text-left rounded-2xl border p-5 transition-all duration-250 overflow-hidden ${suite.cardBg} ${suite.border} hover:shadow-premium focus:outline-none focus:ring-2 focus:ring-primary/40`}
+                      className={`group relative text-left rounded-2xl border p-5 transition-all duration-250 overflow-hidden card-shine gradient-border ${suite.cardBg} ${suite.border} hover:shadow-premium focus:outline-none focus:ring-2 focus:ring-primary/40`}
                     >
                       {/* Top row */}
                       <div className="flex items-start justify-between mb-4">
