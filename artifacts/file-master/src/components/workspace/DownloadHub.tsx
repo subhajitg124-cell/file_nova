@@ -1,11 +1,60 @@
 import React, { useEffect, useState } from 'react';
-import { Download, CheckCircle, Copy, Check, RotateCcw, AlertTriangle, FileText, FileType } from 'lucide-react';
+import { Download, CheckCircle, Copy, Check, RotateCcw, AlertTriangle, FileText, FileType, Pencil } from 'lucide-react';
 import { useFileStore } from '@/store/useFileStore';
+
+const getDefaultFilename = (operation: string, format?: string): string => {
+  switch (operation) {
+    case 'merge_docs':  return format === 'pdf' ? 'merged.pdf' : 'merged.docx';
+    case 'merge':       return 'merged.pdf';
+    case 'compress':    return 'compressed.pdf';
+    case 'split':       return 'split.pdf';
+    case 'convert':     return 'converted.' + (format || 'pdf');
+    case 'pdf_rotate':  return 'rotated.pdf';
+    case 'pdf_delete':  return 'edited.pdf';
+    case 'pdf_watermark': return 'watermarked.pdf';
+    case 'pdf_page_numbers': return 'numbered.pdf';
+    case 'pdf_reorder': return 'reordered.pdf';
+    case 'pdf_annotate': return 'annotated.pdf';
+    case 'pdf_redact':  return 'redacted.pdf';
+    case 'pdf_sign':    return 'signed.pdf';
+    case 'pdf_unlock':  return 'unlocked.pdf';
+    case 'pdf_protect': return 'protected.pdf';
+    case 'pdf_crop':    return 'cropped.pdf';
+    case 'pdf_insert_link':  return 'linked.pdf';
+    case 'pdf_insert_image': return 'with-images.pdf';
+    case 'pdf_insert_shape': return 'with-shapes.pdf';
+    case 'pdf_ocr':     return 'ocr.pdf';
+    case 'pdf_compare': return 'compare.pdf';
+    case 'scan_to_pdf': return 'scan.pdf';
+    case 'images_to_pdf': return 'images.pdf';
+    case 'remove_bg':   return 'no-background.png';
+    case 'image_crop':  return 'cropped.png';
+    case 'image_rotate': return 'rotated.png';
+    case 'image_watermark': return 'watermarked.png';
+    case 'resize':      return 'resized.' + (format || 'png');
+    case 'enhance':     return 'enhanced.' + (format || 'jpg');
+    case 'to_ico':      return 'icon.ico';
+    case 'svg_to_png':  return 'converted.png';
+    case 'html_to_zip': return 'website.zip';
+    default:            return 'output.' + (format || 'file');
+  }
+};
 
 export const DownloadHub: React.FC = () => {
   const { downloadUrl, savings, clearStore, ttlRemaining, setTtlRemaining, operationOptions } = useFileStore();
   const [copied, setCopied] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
+  const [customFilename, setCustomFilename] = useState('');
+  const [isEditingName, setIsEditingName] = useState(false);
+
+  const operation = operationOptions?.operation || '';
+  const format = operationOptions?.merge_docs_format || operationOptions?.target_format || operationOptions?.resize_format || '';
+
+  useEffect(() => {
+    if (downloadUrl) {
+      setCustomFilename(getDefaultFilename(operation, format));
+    }
+  }, [downloadUrl, operation, format]);
 
   useEffect(() => {
     if (ttlRemaining !== null) setCountdown(Math.round(ttlRemaining));
@@ -29,7 +78,7 @@ export const DownloadHub: React.FC = () => {
   const handleDownload = () => {
     const a = document.createElement('a');
     a.href = downloadUrl;
-    a.download = '';
+    a.download = customFilename.trim() || getDefaultFilename(operation, format);
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -38,7 +87,7 @@ export const DownloadHub: React.FC = () => {
   };
 
   const handleCopyLink = () => {
-    const fullUrl = `${window.location.origin}${downloadUrl}`;
+    const fullUrl = downloadUrl.startsWith('blob:') ? downloadUrl : `${window.location.origin}${downloadUrl}`;
     navigator.clipboard.writeText(fullUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -60,7 +109,7 @@ export const DownloadHub: React.FC = () => {
 
   const linkExpired = countdown !== null && countdown <= 0;
 
-  const isMergeDocs = operationOptions?.operation === 'merge_docs';
+  const isMergeDocs = operation === 'merge_docs';
   const mergeDocsFormat = operationOptions?.merge_docs_format || 'docx';
 
   return (
@@ -118,6 +167,34 @@ export const DownloadHub: React.FC = () => {
                 </div>
               </div>
             )}
+
+            {/* Custom filename */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                <Pencil className="h-3 w-3" /> Save as
+              </label>
+              {isEditingName ? (
+                <input
+                  autoFocus
+                  type="text"
+                  value={customFilename}
+                  onChange={(e) => setCustomFilename(e.target.value)}
+                  onBlur={() => setIsEditingName(false)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') setIsEditingName(false); }}
+                  className="w-full px-3 py-2 rounded-xl bg-muted/40 border border-primary/50 text-sm font-mono text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+                  placeholder="filename"
+                />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setIsEditingName(true)}
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-muted/40 border border-border hover:border-primary/40 transition-all group"
+                >
+                  <span className="text-sm font-mono text-foreground truncate">{customFilename || 'output.file'}</span>
+                  <Pencil className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors shrink-0 ml-2" />
+                </button>
+              )}
+            </div>
 
             {countdown !== null && (
               <div className="flex items-center justify-center gap-2 text-xs font-medium text-amber-500">

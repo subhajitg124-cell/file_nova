@@ -591,13 +591,68 @@ export const OptionsPanel: React.FC = () => {
         return;
       }
 
-      // ── Merge Documents (DOCX) ─────────────────────────────────────────
+      // ── Merge Documents (DOCX) — real client-side merge via JSZip ─────
       if (actionName === 'merge_docs') {
         const outputFormat = operationOptions.merge_docs_format || 'docx';
-        const mime = outputFormat === 'pdf'
-          ? 'application/pdf'
-          : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-        doSimulate(mime);
+        const docxRawFiles = rawFiles.filter(f =>
+          f.name.toLowerCase().endsWith('.docx') ||
+          f.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        );
+        if (docxRawFiles.length < 2) {
+          setError('Upload at least 2 DOCX files to merge.');
+          setProcessing(false);
+          return;
+        }
+        prog(10);
+        const JSZip = (await import('jszip')).default;
+        const loadDocxZip = (file: File): Promise<InstanceType<typeof JSZip>> =>
+          new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+              try { resolve(await JSZip.loadAsync(e.target!.result as ArrayBuffer)); }
+              catch { reject(new Error(`"${file.name}" is not a valid DOCX file.`)); }
+            };
+            reader.onerror = () => reject(new Error(`Failed to read "${file.name}".`));
+            reader.readAsArrayBuffer(file);
+          });
+        prog(25);
+        const zips = await Promise.all(docxRawFiles.map(loadDocxZip));
+        prog(45);
+        const xmlContents: string[] = await Promise.all(
+          zips.map((zip, i) => {
+            const docFile = zip.file('word/document.xml');
+            if (!docFile) throw new Error(`"${docxRawFiles[i].name}" is missing word/document.xml.`);
+            return docFile.async('string');
+          })
+        );
+        prog(60);
+        // Strip sectPr from each doc body so page-layout conflicts are removed
+        const getBody = (xml: string) =>
+          (xml.match(/<w:body>([\s\S]*?)<\/w:body>/)?.[1] ?? '')
+            .replace(/<w:sectPr\b[\s\S]*?<\/w:sectPr>\s*/g, '').trim();
+        const getSectPr = (xml: string) =>
+          xml.match(/<w:sectPr\b[\s\S]*?<\/w:sectPr>/)?.[0] ?? '';
+        const pageBreak = '<w:p><w:r><w:br w:type="page"/></w:r></w:p>';
+        const combinedBody = xmlContents.map(getBody).join(pageBreak);
+        const sectPr = getSectPr(xmlContents[xmlContents.length - 1]);
+        prog(75);
+        const mergedXml = xmlContents[0].replace(
+          /<w:body>[\s\S]*?<\/w:body>/,
+          `<w:body>${combinedBody}${sectPr}</w:body>`
+        );
+        zips[0].file('word/document.xml', mergedXml);
+        prog(88);
+        if (outputFormat === 'pdf') {
+          // Client-side DOCX→PDF not available — route through backend/mock
+          doSimulate('application/pdf');
+          return;
+        }
+        const mergedBlob = await zips[0].generateAsync({
+          type: 'blob',
+          mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        });
+        prog(96);
+        setTimeout(() => done(mergedBlob, docxRawFiles.reduce((a, f) => a + f.size, 0)), 200);
         return;
       }
 
@@ -1504,12 +1559,42 @@ export const OptionsPanel: React.FC = () => {
         </div>
       </div>
 
-      {files.length < 2 && (
-        <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-500/8 border border-amber-500/20 text-xs text-amber-500">
-          <span className="shrink-0 mt-0.5">⚠</span>
-          <span>Upload at least 2 DOCX files to merge. Use the upload zone or drag files in.</span>
-        </div>
-      )}
+      {/* Add more files */}
+      <div className="space-y-1.5">
+        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Files to merge</span>
+        <button
+          type="button"
+          onClick={() => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+            input.multiple = true;
+            input.onchange = async (e: Event) => {
+              const list = (e.target as HTMLInputElement).files;
+              if (!list || list.length === 0) return;
+              const filesArr = Array.from(list);
+              const activeJobId = jobId || Math.random().toString(36).substring(2, 15);
+              try {
+                addRawFiles(filesArr);
+                const uploaded = isMockMode
+                  ? await apiMock.uploadFiles(filesArr, activeJobId)
+                  : await apiClient.uploadFiles(filesArr, activeJobId);
+                addFiles(uploaded);
+              } catch (err: any) { setError(err.message || 'Upload failed.'); }
+            };
+            input.click();
+          }}
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-dashed border-border hover:border-primary/50 hover:bg-primary/5 text-sm font-semibold text-muted-foreground hover:text-primary transition-all duration-150"
+        >
+          <Plus className="h-4 w-4" />
+          Add more DOCX files ({files.length} loaded)
+        </button>
+        {files.length < 2 && (
+          <p className="text-xs text-amber-500 flex items-center gap-1.5">
+            <span>⚠</span> Upload at least 2 DOCX files to merge.
+          </p>
+        )}
+      </div>
     </div>
   );
 
