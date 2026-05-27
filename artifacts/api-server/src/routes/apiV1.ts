@@ -334,7 +334,7 @@ router.get("/download/:jobId", (req, res): void => {
 });
 
 // Periodic task to clean up expired jobs and files (older than 1 hour)
-setInterval(() => {
+const expiredCleanupTimer = setInterval(() => {
   const now = Date.now();
   const ONE_HOUR = 60 * 60 * 1000;
   for (const [jobId, job] of jobs.entries()) {
@@ -356,5 +356,6 @@ setInterval(() => {
     }
   }
 }, 15 * 60 * 1000); // run every 15 minutes
+expiredCleanupTimer.unref();
 
 export default router;

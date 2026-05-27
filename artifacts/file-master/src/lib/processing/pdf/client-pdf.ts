@@ -187,7 +187,7 @@ export async function runClientSidePdfToImages(file: File, dpi = 150): Promise<B
     const ctx = canvas.getContext('2d')!;
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    await page.render({ canvasContext: ctx, viewport: vp }).promise;
+    await page.render({ canvasContext: ctx, viewport: vp, canvas }).promise;
     const blob = await new Promise<Blob>((res, rej) =>
       canvas.toBlob(b => b ? res(b) : rej(new Error('Canvas toBlob failed')), 'image/png')
     );
