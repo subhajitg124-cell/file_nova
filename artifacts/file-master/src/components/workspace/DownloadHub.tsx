@@ -32,6 +32,12 @@ const getDefaultFilename = (operation: string, format?: string): string => {
     case 'image_crop':  return 'cropped.png';
     case 'image_rotate': return 'rotated.png';
     case 'image_watermark': return 'watermarked.png';
+    case 'live_image_editor': return 'edited-image.' + (format || 'png');
+    case 'live_video_editor': return 'edited-video.webm';
+    case 'trim':        return 'trimmed-video.webm';
+    case 'video_to_gif': return 'clip.gif';
+    case 'video_to_audio': return 'audio.mp3';
+    case 'compress_audio': return 'compressed-audio.mp3';
     case 'resize':      return 'resized.' + (format || 'png');
     case 'enhance':     return 'enhanced.' + (format || 'jpg');
     case 'to_ico':      return 'icon.ico';

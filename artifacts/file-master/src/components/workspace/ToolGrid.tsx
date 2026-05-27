@@ -7,7 +7,7 @@ import {
   Trash2, Stamp, Hash, AlignJustify, Crop, FlipHorizontal, PenTool,
   Eraser, ScanLine, ScanText, Lock, Unlock, ShieldCheck,
   GitCompareArrows, BrainCircuit, Languages, PenLine, Camera, BookOpen,
-  FileCheck2, GitMerge, Zap, Film, Settings2, X
+  FileCheck2, GitMerge, Zap, Film, Settings2, X, Star, History
 } from 'lucide-react';
 import { useFileStore, OperationType } from '@/store/useFileStore';
 import { apiClient, apiMock } from '@/lib/api';
@@ -170,14 +170,34 @@ const TOOL_ICON_BG: Record<string, string> = {
   office: 'bg-emerald-500/10 border-emerald-500/20', video: 'bg-violet-500/10 border-violet-500/20',
 };
 
+const FAVORITES_KEY = 'file-master-favorite-tools';
+const RECENTS_KEY = 'file-master-recent-tools';
+const SPECIAL_FILTERS = ['favorites', 'recent'];
+
+const getToolKey = (tool: ToolItem) => `${tool.category}:${tool.actionName}:${tool.title}`;
+
+const readStoredList = (key: string) => {
+  if (typeof window === 'undefined') return [];
+  try {
+    const parsed = JSON.parse(localStorage.getItem(key) || '[]');
+    return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === 'string') : [];
+  } catch {
+    return [];
+  }
+};
+
 export const ToolGrid: React.FC = () => {
   const { files, setOperation, updateOptions, isMockMode, jobId, setJobId, setError, addFiles, selectedSection } = useFileStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSubcategory, setActiveSubcategory] = useState<'all' | string>('all');
   const [isUploading, setIsUploading] = useState(false);
+  const [favoriteTools, setFavoriteTools] = useState<string[]>(() => readStoredList(FAVORITES_KEY));
+  const [recentTools, setRecentTools] = useState<string[]>(() => readStoredList(RECENTS_KEY));
 
   const activeCategory = selectedSection || 'all';
   const firstFileType = files[0]?.type || '';
+  const favoriteSet = new Set(favoriteTools);
+  const recentSet = new Set(recentTools);
 
   const isSuggested = (tool: ToolItem) => {
     if (files.length === 0) return false;
@@ -191,12 +211,31 @@ export const ToolGrid: React.FC = () => {
   };
 
   const handleSelectTool = (tool: ToolItem) => {
+    rememberTool(tool);
     if (files.length > 0) {
       setOperation(tool.id);
       updateOptions({ operation: tool.actionName });
     } else {
       triggerDirectUpload(tool);
     }
+  };
+
+  const rememberTool = (tool: ToolItem) => {
+    const key = getToolKey(tool);
+    setRecentTools((prev) => {
+      const next = [key, ...prev.filter((item) => item !== key)].slice(0, 8);
+      localStorage.setItem(RECENTS_KEY, JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const toggleFavorite = (tool: ToolItem) => {
+    const key = getToolKey(tool);
+    setFavoriteTools((prev) => {
+      const next = prev.includes(key) ? prev.filter((item) => item !== key) : [key, ...prev];
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(next));
+      return next;
+    });
   };
 
   const getAcceptForTool = (tool: ToolItem): string => {
@@ -247,7 +286,12 @@ export const ToolGrid: React.FC = () => {
   const allFiltered = TOOLS.filter(t => {
     const matchesCat = activeCategory === 'all' || t.category === activeCategory;
     const matchesSearch = !q || t.title.toLowerCase().includes(q) || t.description.toLowerCase().includes(q) || t.actionName.toLowerCase().includes(q);
-    const matchesSubcategory = activeSubcategory === 'all' || t.subcategory === activeSubcategory;
+    const key = getToolKey(t);
+    const matchesSubcategory =
+      activeSubcategory === 'all' ||
+      (activeSubcategory === 'favorites' && favoriteSet.has(key)) ||
+      (activeSubcategory === 'recent' && recentSet.has(key)) ||
+      t.subcategory === activeSubcategory;
     return matchesCat && matchesSearch && matchesSubcategory;
   });
 
@@ -262,6 +306,10 @@ export const ToolGrid: React.FC = () => {
   }, {});
 
   const isSearching = q.length > 0;
+  const isSpecialFilter = SPECIAL_FILTERS.includes(activeSubcategory);
+  const orderedFiltered = activeSubcategory === 'recent'
+    ? [...allFiltered].sort((a, b) => recentTools.indexOf(getToolKey(a)) - recentTools.indexOf(getToolKey(b)))
+    : allFiltered;
 
   return (
     <div className="w-full space-y-2">
@@ -299,6 +347,22 @@ export const ToolGrid: React.FC = () => {
         >
           All tools
         </button>
+        <button
+          onClick={() => setActiveSubcategory('favorites')}
+          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${activeSubcategory === 'favorites' ? 'bg-amber-400 text-slate-950 border-amber-300' : 'bg-card text-muted-foreground border-border hover:border-amber-400 hover:text-foreground'}`}
+        >
+          <Star className={`h-3.5 w-3.5 ${favoriteTools.length > 0 ? 'fill-current' : ''}`} />
+          Favorites
+          {favoriteTools.length > 0 && <span className="rounded-full bg-background/70 px-1.5 text-[10px]">{favoriteTools.length}</span>}
+        </button>
+        <button
+          onClick={() => setActiveSubcategory('recent')}
+          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${activeSubcategory === 'recent' ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground border-border hover:border-primary hover:text-foreground'}`}
+        >
+          <History className="h-3.5 w-3.5" />
+          Recent
+          {recentTools.length > 0 && <span className="rounded-full bg-background/70 px-1.5 text-[10px]">{recentTools.length}</span>}
+        </button>
         {subcategoryOrder.map((sub) => {
           const meta = SUBCATEGORY_META[sub];
           if (!meta) return null;
@@ -317,20 +381,35 @@ export const ToolGrid: React.FC = () => {
       {/* No results */}
       {allFiltered.length === 0 && (
         <div className="text-center py-16 space-y-2">
-          <Search className="h-8 w-8 mx-auto text-muted-foreground/20" />
-          <p className="text-sm text-muted-foreground">No tools match "<span className="text-foreground font-medium">{searchQuery}</span>"</p>
-          <button onClick={() => setSearchQuery('')} className="text-xs text-primary hover:underline">Clear search</button>
+          {activeSubcategory === 'favorites' ? <Star className="h-8 w-8 mx-auto text-muted-foreground/20" /> : <Search className="h-8 w-8 mx-auto text-muted-foreground/20" />}
+          <p className="text-sm text-muted-foreground">
+            {activeSubcategory === 'favorites'
+              ? 'Star tools you use often and they will appear here.'
+              : activeSubcategory === 'recent'
+                ? 'Tools you open will appear here for faster repeat work.'
+                : <>No tools match "<span className="text-foreground font-medium">{searchQuery}</span>"</>
+            }
+          </p>
+          {searchQuery && <button onClick={() => setSearchQuery('')} className="text-xs text-primary hover:underline">Clear search</button>}
         </div>
       )}
 
       {/* Grouped sections */}
       <AnimatePresence mode="popLayout">
-        {isSearching ? (
+        {isSearching || isSpecialFilter ? (
           // Flat list when searching
-          <motion.div key="search" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          <motion.div key={`${activeSubcategory}-flat`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-            {allFiltered.map((tool, i) => (
-              <ToolCard key={`${tool.actionName}-${i}`} tool={tool} suggested={isSuggested(tool)} onClick={() => handleSelectTool(tool)} showSubcategory />
+            {orderedFiltered.map((tool, i) => (
+              <ToolCard
+                key={`${tool.actionName}-${i}`}
+                tool={tool}
+                suggested={isSuggested(tool)}
+                favorite={favoriteSet.has(getToolKey(tool))}
+                onFavorite={() => toggleFavorite(tool)}
+                onClick={() => handleSelectTool(tool)}
+                showSubcategory
+              />
             ))}
           </motion.div>
         ) : (
@@ -358,7 +437,14 @@ export const ToolGrid: React.FC = () => {
                   {/* Tool cards */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                     {tools.map((tool, i) => (
-                      <ToolCard key={`${tool.actionName}-${i}`} tool={tool} suggested={isSuggested(tool)} onClick={() => handleSelectTool(tool)} />
+                      <ToolCard
+                        key={`${tool.actionName}-${i}`}
+                        tool={tool}
+                        suggested={isSuggested(tool)}
+                        favorite={favoriteSet.has(getToolKey(tool))}
+                        onFavorite={() => toggleFavorite(tool)}
+                        onClick={() => handleSelectTool(tool)}
+                      />
                     ))}
                   </div>
                 </motion.div>
@@ -374,23 +460,33 @@ export const ToolGrid: React.FC = () => {
 interface ToolCardProps {
   tool: ToolItem;
   suggested: boolean;
+  favorite: boolean;
+  onFavorite: () => void;
   onClick: () => void;
   showSubcategory?: boolean;
 }
 
-const ToolCard: React.FC<ToolCardProps> = ({ tool, suggested, onClick, showSubcategory }) => {
+const ToolCard: React.FC<ToolCardProps> = ({ tool, suggested, favorite, onFavorite, onClick, showSubcategory }) => {
   const ToolIcon = tool.icon;
   const iconColor = TOOL_ICON_COLOR[tool.category];
   const iconBg = TOOL_ICON_BG[tool.category];
   const subcatMeta = SUBCATEGORY_META[tool.subcategory];
 
   return (
-    <motion.button
+    <motion.div
       layout
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.96 }}
       onClick={onClick}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onClick();
+        }
+      }}
+      role="button"
+      tabIndex={0}
       className={`group relative w-full text-left rounded-xl border transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary/40 overflow-hidden animated-lines-bg
         ${suggested
           ? 'bg-primary/5 border-primary/35 shadow-glow hover:bg-primary/8'
@@ -409,6 +505,29 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, suggested, onClick, showSubca
           <div className="flex items-start justify-between gap-1">
             <h3 className="text-sm font-semibold text-foreground leading-tight truncate">{tool.title}</h3>
             <div className="flex flex-col items-end gap-1 shrink-0 ml-1">
+              <span
+                role="button"
+                tabIndex={0}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onFavorite();
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    onFavorite();
+                  }
+                }}
+                className={`h-7 w-7 inline-flex items-center justify-center rounded-lg border transition-colors cursor-pointer ${
+                  favorite
+                    ? 'bg-amber-400/15 border-amber-400/30 text-amber-400'
+                    : 'bg-background/70 border-border text-muted-foreground hover:text-amber-400 hover:border-amber-400/40'
+                }`}
+                aria-label={favorite ? `Remove ${tool.title} from favorites` : `Add ${tool.title} to favorites`}
+              >
+                <Star className={`h-3.5 w-3.5 ${favorite ? 'fill-current' : ''}`} />
+              </span>
               {suggested && (
                 <span className="text-[9px] bg-primary/10 text-primary border border-primary/25 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wide whitespace-nowrap">Suggested</span>
               )}
@@ -429,7 +548,7 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, suggested, onClick, showSubca
           )}
         </div>
       </div>
-    </motion.button>
+    </motion.div>
   );
 };
 

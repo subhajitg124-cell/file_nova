@@ -104,12 +104,12 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
         className={`
           relative group cursor-pointer rounded-2xl border-2 transition-all duration-300 overflow-hidden
           focus-within:ring-2 focus-within:ring-primary/50 focus-within:ring-offset-2 focus-within:ring-offset-background
+          min-h-[160px] sm:min-h-[200px]
           ${isDragActive
             ? 'border-primary bg-primary/5 shadow-glow border-march'
             : 'border-dashed border-border hover:border-primary/50 bg-card hover:bg-muted/30'
           }
         `}
-        style={{ minHeight: 200 }}
         role="button" tabIndex={0}
         aria-label={`File upload zone. ${getHeadline()}. ${getAcceptLabel()}`}
       >
@@ -136,11 +136,11 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
         <div className="absolute bottom-3 left-3 h-4 w-4 border-b-2 border-l-2 border-border/40 rounded-bl-lg pointer-events-none transition-colors group-hover:border-primary/30" />
         <div className="absolute bottom-3 right-3 h-4 w-4 border-b-2 border-r-2 border-border/40 rounded-br-lg pointer-events-none transition-colors group-hover:border-primary/30" />
 
-        <div className="relative flex flex-col items-center justify-center gap-5 p-10 text-center">
+        <div className="relative flex flex-col items-center justify-center gap-4 sm:gap-5 p-5 sm:p-10 text-center">
           {isUploading ? (
             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center gap-4">
               <div className="relative">
-                <div className="h-16 w-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
                   <Loader2 className="h-7 w-7 text-primary animate-spin" />
                 </div>
               </div>
@@ -153,7 +153,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
             <motion.div
               animate={isDragActive ? { scale: 1.05 } : { scale: 1 }}
               transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-              className="flex flex-col items-center gap-5"
+              className="flex flex-col items-center gap-4 sm:gap-5"
             >
               {/* Icon */}
               <div className="relative">
@@ -166,7 +166,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
                 <motion.div
                   animate={isDragActive ? { y: -4 } : { y: [0, -4, 0] }}
                   transition={isDragActive ? { duration: 0.2 } : { duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-                  className={`relative h-16 w-16 rounded-2xl border flex items-center justify-center shadow-premium
+                  className={`relative h-14 w-14 sm:h-16 sm:w-16 rounded-2xl border flex items-center justify-center shadow-premium
                     ${isDragActive
                       ? 'bg-primary/15 border-primary/40'
                       : catMeta
@@ -176,18 +176,18 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
                   `}
                 >
                   {isDragActive
-                    ? <Upload className="h-7 w-7 text-primary" />
-                    : <CatIcon className={`h-7 w-7 ${catMeta?.color || 'text-primary'}`} />
+                    ? <Upload className="h-6 w-6 sm:h-7 sm:w-7 text-primary" />
+                    : <CatIcon className={`h-6 w-6 sm:h-7 sm:w-7 ${catMeta?.color || 'text-primary'}`} />
                   }
                 </motion.div>
               </div>
 
               {/* Text */}
               <div className="space-y-1.5">
-                <p className={`text-lg font-bold transition-colors ${isDragActive ? 'text-primary' : 'text-foreground'}`}>
+                <p className={`text-base sm:text-lg font-bold transition-colors ${isDragActive ? 'text-primary' : 'text-foreground'}`}>
                   {getHeadline()}
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   or{' '}
                   <span className="text-primary font-semibold underline-offset-2 group-hover:underline transition-all">
                     click to browse
@@ -197,7 +197,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
               </div>
 
               {/* Accept label pill */}
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/60 border border-border text-xs text-muted-foreground font-medium">
+              <div className="flex max-w-full items-center gap-1.5 px-3 py-1.5 rounded-xl sm:rounded-full bg-muted/60 border border-border text-[11px] sm:text-xs text-muted-foreground font-medium text-center">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0" />
                 {getAcceptLabel()}
               </div>

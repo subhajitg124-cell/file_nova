@@ -462,6 +462,23 @@ export const OptionsPanel: React.FC = () => {
     else updateOptions({ compress_preset: 'custom' });
   };
 
+  const applyCompressionTarget = (target: number) => {
+    const pct = Math.max(0, Math.min(90, target));
+    const imageQuality = Math.max(35, Math.round(96 - pct * 0.7));
+    const imageScale = Math.max(0.55, Math.min(1, 1.08 - pct * 0.006));
+    const pdfQuality = Math.max(35, Math.round(95 - pct * 0.65));
+    const crf = Math.max(18, Math.min(35, Math.round(18 + pct * 0.2)));
+    const audioBitrate = pct >= 75 ? 64 : pct >= 55 ? 96 : pct >= 30 ? 128 : 192;
+    updateOptions({
+      compression_target: pct,
+      quality: isPdf ? pdfQuality : imageQuality,
+      resize_pct: imageScale,
+      crf,
+      audio_bitrate: audioBitrate,
+      compress_preset: 'custom',
+    });
+  };
+
   const applyEnhancePreset = (preset: string) => {
     const map: Record<string, any> = {
       natural: { brightness: 1.05, contrast: 1.05, sharpness: 1.1, denoise: false },
@@ -1145,6 +1162,7 @@ export const OptionsPanel: React.FC = () => {
         <PresetRow label="Quality preset" value={operationOptions.compress_preset || 'balanced'}
           onChange={(v) => applyCompressPreset(v as string)}
           options={[ { value: 'small', label: 'Small' }, { value: 'balanced', label: 'Balanced' }, { value: 'high', label: 'High' }, { value: 'lossless', label: 'Lossless' }, { value: 'custom', label: 'Custom' } ]} />
+        <SliderField id="compression-target-img" label="Compress Target" unit="%" value={operationOptions.compression_target ?? 35} min={0} max={90} onChange={applyCompressionTarget} hint="Choose how much smaller you want the file. The app adjusts quality and scale for you." />
         <SliderField id="quality-s" label="Output Quality" unit="%" value={operationOptions.quality || 82} min={10} max={100} onChange={(v) => updateOptions({ quality: v, compress_preset: 'custom' })} hint="Higher = better quality, larger file." />
         <SliderField id="scale-s" label="Resize Scale" unit="%" value={Math.round((operationOptions.resize_pct || 1.0) * 100)} min={10} max={100} onChange={(v) => updateOptions({ resize_pct: v / 100, compress_preset: 'custom' })} hint="Scale down before compressing for extra savings." />
         <InfoBox icon={<FileArchive className="h-4 w-4 text-primary" />} text="Runs entirely in your browser — no upload required." color="bg-primary/5 border-primary/15" />
@@ -1156,6 +1174,7 @@ export const OptionsPanel: React.FC = () => {
           value={operationOptions.crf <= 20 ? 'high' : operationOptions.crf <= 26 ? 'balanced' : 'small'}
           onChange={(v) => { const m: any = { high: 20, balanced: 26, small: 32 }; if (m[v as string]) updateOptions({ crf: m[v as string] }); }}
           options={[ { value: 'high', label: 'High quality' }, { value: 'balanced', label: 'Balanced' }, { value: 'small', label: 'Compact' } ]} />
+        <SliderField id="compression-target-video" label="Compress Target" unit="%" value={operationOptions.compression_target ?? 45} min={0} max={90} onChange={applyCompressionTarget} hint="Higher target = smaller video and more quality loss." />
         <SliderField id="crf-s" label="CRF" unit="" value={operationOptions.crf || 28} min={18} max={35} onChange={(v) => updateOptions({ crf: v })} hint="Lower = higher quality, larger file." />
         {showAdvanced && <SelectField id="preset-s" label="Encoder Speed" value={operationOptions.preset || 'medium'}
           options={[ { value: 'ultrafast', label: 'Ultrafast' }, { value: 'fast', label: 'Fast' }, { value: 'medium', label: 'Medium' }, { value: 'slow', label: 'Slow' } ]}
@@ -1167,12 +1186,19 @@ export const OptionsPanel: React.FC = () => {
         <SelectField id="bitrate-s" label="Target Bitrate" value={operationOptions.audio_bitrate || 128}
           options={[ { value: 64, label: '64 kbps — Smallest' }, { value: 96, label: '96 kbps' }, { value: 128, label: '128 kbps — Balanced' }, { value: 192, label: '192 kbps — High' }, { value: 320, label: '320 kbps — Near lossless' } ]}
           onChange={(v) => updateOptions({ audio_bitrate: parseInt(v) })} />
+        <SliderField id="compression-target-audio" label="Compress Target" unit="%" value={operationOptions.compression_target ?? 45} min={0} max={90} onChange={applyCompressionTarget} hint="This picks a sensible bitrate based on how small you want the audio." />
         <SelectField id="audio-fmt" label="Output Format" value={operationOptions.audio_format || 'mp3'}
           options={[ { value: 'mp3', label: 'MP3 — Universal' }, { value: 'aac', label: 'AAC — Smaller' }, { value: 'ogg', label: 'OGG — Open-source' } ]}
           onChange={(v) => updateOptions({ audio_format: v })} />
       </div>
     );
-    return <InfoBox icon={<FileArchive className="h-4 w-4 text-primary" />} text="PDF streams, fonts, and embedded objects will be re-compressed to shrink physical file size." color="bg-primary/5 border-primary/15" />;
+    return (
+      <div className="space-y-5">
+        <SliderField id="compression-target-pdf" label="Compress Target" unit="%" value={operationOptions.compression_target ?? 40} min={0} max={90} onChange={applyCompressionTarget} hint="Choose how aggressively to compress. Very high compression can soften images inside the PDF." />
+        <SliderField id="pdf-quality" label="Image Quality" unit="%" value={operationOptions.quality || 80} min={35} max={100} onChange={(v) => updateOptions({ quality: v, compression_target: undefined })} hint="Higher quality keeps images sharper but produces a larger PDF." />
+        <InfoBox icon={<FileArchive className="h-4 w-4 text-primary" />} text="PDF streams, fonts, and embedded objects will be re-compressed to shrink physical file size." color="bg-primary/5 border-primary/15" />
+      </div>
+    );
   };
 
   const renderEnhanceOptions = () => {

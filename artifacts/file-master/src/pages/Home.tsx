@@ -7,11 +7,14 @@ import { ToolGrid } from '@/components/workspace/ToolGrid';
 import { OptionsPanel } from '@/components/workspace/OptionsPanel';
 import { ProgressTracker } from '@/components/workspace/ProgressTracker';
 import { DownloadHub } from '@/components/workspace/DownloadHub';
+import { LiveImageEditor } from '@/components/workspace/LiveImageEditor';
+import { LiveVideoEditor } from '@/components/workspace/LiveVideoEditor';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Sun, Moon, ShieldCheck, Zap, AlertTriangle, FileText, Sparkles,
   Video, FileSpreadsheet, ArrowLeft, Cpu, Lock, Check,
-  ChevronRight, Upload, Settings, Download, LayoutGrid
+  ChevronRight, Upload, Settings, Download, LayoutGrid, Keyboard,
+  WandSparkles, Rocket, MousePointerClick
 } from 'lucide-react';
 
 const SUITES = [
@@ -29,6 +32,9 @@ const SUITES = [
     border: 'border-red-500/15 hover:border-red-400/40',
     iconBg: 'bg-red-500/15 border-red-500/20',
     iconColor: 'text-red-400',
+    shortcut: 'Alt+1',
+    hotkey: 'P',
+    glow: 'shadow-glow-red',
     badgeBg: 'bg-red-500/10 text-red-400',
     barColor: 'bg-red-400',
     tools: [
@@ -54,6 +60,9 @@ const SUITES = [
     border: 'border-blue-500/15 hover:border-blue-400/40',
     iconBg: 'bg-blue-500/15 border-blue-500/20',
     iconColor: 'text-blue-400',
+    shortcut: 'Alt+2',
+    hotkey: 'I',
+    glow: 'shadow-glow-blue',
     badgeBg: 'bg-blue-500/10 text-blue-400',
     barColor: 'bg-blue-400',
     tools: [
@@ -77,6 +86,9 @@ const SUITES = [
     border: 'border-emerald-500/15 hover:border-emerald-400/40',
     iconBg: 'bg-emerald-500/15 border-emerald-500/20',
     iconColor: 'text-emerald-400',
+    shortcut: 'Alt+3',
+    hotkey: 'O',
+    glow: 'shadow-glow-green',
     badgeBg: 'bg-emerald-500/10 text-emerald-400',
     barColor: 'bg-emerald-400',
     tools: [
@@ -100,6 +112,9 @@ const SUITES = [
     border: 'border-violet-500/15 hover:border-violet-400/40',
     iconBg: 'bg-violet-500/15 border-violet-500/20',
     iconColor: 'text-violet-400',
+    shortcut: 'Alt+4',
+    hotkey: 'V',
+    glow: 'shadow-glow-purple',
     badgeBg: 'bg-violet-500/10 text-violet-400',
     barColor: 'bg-violet-400',
     tools: [
@@ -123,6 +138,13 @@ const QUOTES = [
   { text: 'Use one dashboard for PDF, image, office and video workflows — without clutter.', author: 'File Master' },
   { text: 'Your files stay private by default. Process locally and share only what you choose.', author: 'Privacy First' },
   { text: 'Drop a file, select a tool, and complete the task in seconds. No extra features in the way.', author: 'Productivity Tip' },
+];
+
+const HERO_ACTIONS = [
+  { label: 'Pick a suite', icon: MousePointerClick, color: 'text-sky-400', bg: 'bg-sky-500/10 border-sky-500/20' },
+  { label: 'Drop files', icon: Upload, color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+  { label: 'Tune options', icon: WandSparkles, color: 'text-fuchsia-400', bg: 'bg-fuchsia-500/10 border-fuchsia-500/20' },
+  { label: 'Export fast', icon: Rocket, color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
 ];
 
 export default function Home() {
@@ -152,6 +174,28 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    const handleShortcut = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      const isTyping = target?.tagName === 'INPUT' || target?.tagName === 'TEXTAREA' || target?.isContentEditable;
+      if (isTyping) return;
+
+      const key = event.key.toLowerCase();
+      const suiteByNumber = event.altKey ? SUITES[Number(event.key) - 1] : undefined;
+      const suiteByLetter = SUITES.find((suite) => suite.hotkey.toLowerCase() === key);
+      const nextSuite = suiteByNumber || suiteByLetter;
+
+      if (nextSuite) {
+        event.preventDefault();
+        clearStore();
+        setSelectedSection(nextSuite.id);
+      }
+    };
+
+    window.addEventListener('keydown', handleShortcut);
+    return () => window.removeEventListener('keydown', handleShortcut);
+  }, [clearStore, setSelectedSection]);
+
+  useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const sec = params.get('section');
     if (sec && ['pdf', 'image', 'video', 'office'].includes(sec)) {
@@ -170,13 +214,26 @@ export default function Home() {
 
   const step = downloadUrl ? 3 : (files.length > 0 && selectedOperation) ? 2 : 1;
   const activeSuite = SUITES.find(s => s.id === selectedSection);
+  const firstRawFile = useFileStore((state) => state.rawFiles[0]);
+  const actionName = useFileStore((state) => state.operationOptions.operation);
+  const isLiveImageWorkflow = Boolean(
+    firstRawFile?.type.startsWith('image/') &&
+    selectedOperation &&
+    actionName !== 'images_to_pdf' &&
+    actionName !== 'svg_to_png' &&
+    actionName !== 'to_ico'
+  );
+  const isLiveVideoWorkflow = Boolean(
+    firstRawFile?.type.startsWith('video/') &&
+    (actionName === 'trim' || selectedOperation === 'compress')
+  );
 
   return (
     <div className="flex flex-col min-h-screen bg-background bg-mesh transition-colors duration-300">
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 glass border-b border-border/60">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 sm:gap-3">
           <button
             onClick={() => clearStore()}
             className="flex items-center gap-2.5 group focus:outline-none shrink-0"
@@ -190,30 +247,30 @@ export default function Home() {
             </div>
           </button>
 
-          {/* Workspace tab pills — shown once inside a workspace */}
-          {(selectedSection || files.length > 0) && (
-            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
+          {/* Workspace shortcuts */}
+          <div className="order-3 sm:order-none w-full sm:w-auto flex items-center gap-1 overflow-x-auto no-scrollbar rounded-xl bg-card/35 border border-border/50 p-1 sm:bg-transparent sm:border-0 sm:p-0">
               {SUITES.map((s) => (
                 <button
                   key={s.id}
                   onClick={() => { clearStore(); setSelectedSection(s.id); }}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all duration-150
+                  title={`${s.title} shortcut: ${s.shortcut} or ${s.hotkey}`}
+                  className={`flex flex-1 sm:flex-none items-center justify-center gap-1.5 px-2 sm:px-3 py-2 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all duration-150
                     ${selectedSection === s.id
-                      ? `${s.iconBg} border ${s.iconColor}`
+                      ? `${s.iconBg} border ${s.iconColor} ${s.glow}`
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted/60 border border-transparent'
                     }`}
                 >
                   <s.icon className="h-3 w-3 shrink-0" />
                   <span className="hidden md:inline">{s.title}</span>
                   <span className="md:hidden">{s.subtitle}</span>
+                  <kbd className="hidden xl:inline-flex rounded bg-background/70 border border-border px-1.5 py-0.5 text-[9px] text-muted-foreground">{s.hotkey}</kbd>
                 </button>
               ))}
-            </div>
-          )}
+          </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            <div className="hidden sm:flex items-center gap-2 bg-card/60 border border-border rounded-xl px-3 py-1.5 text-xs">
-              <span className="text-muted-foreground font-medium">Standalone</span>
+            <div className="flex items-center gap-2 bg-card/60 border border-border rounded-xl px-2 sm:px-3 py-1.5 text-xs">
+              <span className="hidden sm:inline text-muted-foreground font-medium">Standalone</span>
               <button
                 onClick={toggleMockMode}
                 className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ${isMockMode ? 'bg-primary' : 'bg-secondary'}`}
@@ -246,7 +303,7 @@ export default function Home() {
         </div>
       )}
 
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-8">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-3 sm:px-4 py-5 sm:py-8">
         <AnimatePresence mode="wait">
 
           {/* ─── DASHBOARD ────────────────────────────────────────────────── */}
@@ -254,22 +311,23 @@ export default function Home() {
             <motion.div key="dashboard"
               initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className="relative overflow-hidden space-y-10 animated-lines-bg"
+              className="relative overflow-hidden space-y-7 sm:space-y-10 animated-lines-bg"
             >
               {/* Hero */}
-              <div className="text-center space-y-4 max-w-2xl mx-auto pt-2">
+              <div className="relative text-center space-y-4 sm:space-y-5 max-w-4xl mx-auto pt-2 sm:pt-4">
+                <div className="hero-sparkle-field" aria-hidden="true" />
                 <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold border bg-card/80 border-border text-muted-foreground hover:scale-105 transition-transform duration-200 shadow-glow-sm">
                   <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
                   4 focused workflows · Privacy-first · Easy drag & drop
                 </div>
-                <h1 className="text-4xl sm:text-5xl font-black leading-tight tracking-tight font-outfit">
-                  <span className="bg-gradient-to-r from-primary via-sky-500 to-cyan-400 bg-clip-text text-transparent font-heading">
+                <h1 className="text-3xl sm:text-6xl font-black leading-tight tracking-tight font-outfit">
+                  <span className="rainbow-text font-heading">
                     Master Your Files.
                   </span>
                   <br />
                   <span className="text-foreground">Separate tools, one simple dashboard.</span>
                 </h1>
-                <p className="text-sm text-muted-foreground leading-relaxed max-w-md mx-auto">
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-md mx-auto">
                   Convert, compress, edit, and protect documents with an uncluttered workspace. Start by selecting a category or dropping files instantly.
                 </p>
                 <div className="flex items-center justify-center gap-5 flex-wrap text-xs text-muted-foreground pt-1">
@@ -284,8 +342,50 @@ export default function Home() {
                     </div>
                   ))}
                 </div>
-                <div className="rounded-3xl border border-border bg-card/80 p-5 text-left shadow-sm animated-lines-bg">
-                  <div className="flex items-start justify-between gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 sm:gap-2.5 sm:pt-2">
+                  {HERO_ACTIONS.map(({ label, icon: Icon, color, bg }, index) => (
+                    <motion.div
+                      key={label}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.12 + index * 0.06, duration: 0.28 }}
+                      className={`rounded-xl sm:rounded-2xl border ${bg} p-2.5 sm:p-3 text-left animate-float-sm`}
+                      style={{ animationDelay: `${index * 0.35}s` }}
+                    >
+                      <Icon className={`h-4 w-4 ${color}`} />
+                      <p className="mt-2 text-xs font-bold text-foreground">{label}</p>
+                    </motion.div>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2.5">
+                  {SUITES.map((suite, index) => (
+                    <motion.button
+                      key={suite.id}
+                      initial={{ opacity: 0, scale: 0.94 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.2 + index * 0.05, duration: 0.25 }}
+                      whileHover={{ y: -4 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => setSelectedSection(suite.id)}
+                      className={`group rounded-xl sm:rounded-2xl border p-2.5 sm:p-3 text-left transition-all duration-200 card-shine ${suite.cardBg} ${suite.border} ${suite.glow}`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div className={`h-9 w-9 rounded-xl ${suite.iconBg} border flex items-center justify-center`}>
+                          <suite.icon className={`h-4 w-4 ${suite.iconColor}`} />
+                        </div>
+                        <kbd className="rounded-full bg-card/80 border border-border px-2 py-1 text-[10px] font-bold text-muted-foreground">
+                          <span className="sm:hidden">{suite.hotkey}</span>
+                          <span className="hidden sm:inline">{suite.shortcut}</span>
+                        </kbd>
+                      </div>
+                      <p className="mt-3 text-sm font-black text-foreground">{suite.title}</p>
+                      <p className="text-[11px] text-muted-foreground">{suite.toolCount} tools ready</p>
+                    </motion.button>
+                  ))}
+                </div>
+                <div className="rounded-2xl sm:rounded-3xl border border-border bg-card/80 p-4 sm:p-5 text-left shadow-sm animated-lines-bg">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
                     <div>
                       <p className="uppercase text-[10px] tracking-[0.3em] text-muted-foreground font-semibold">Quick tip</p>
                       <p className="mt-3 text-base text-foreground font-semibold leading-7">{QUOTES[quoteIndex].text}</p>
@@ -307,7 +407,7 @@ export default function Home() {
 
               {/* Universal upload */}
               <div className="max-w-2xl mx-auto space-y-2.5">
-                <p className="text-center text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Drop any file to start</p>
+                <p className="text-center text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Tap to choose or drop a file</p>
                 <UploadZone allowedCategory={null} />
               </div>
 
@@ -317,8 +417,12 @@ export default function Home() {
                   <LayoutGrid className="h-4 w-4 text-muted-foreground" />
                   <h2 className="text-xs uppercase font-bold text-muted-foreground tracking-widest">Choose a workspace</h2>
                   <div className="flex-1 h-px bg-border/50" />
+                  <div className="hidden sm:flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                    <Keyboard className="h-3.5 w-3.5" />
+                    <span>P, I, O, V work anywhere</span>
+                  </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   {SUITES.map((suite, idx) => (
                     <motion.button
                       key={suite.id}
@@ -381,9 +485,9 @@ export default function Home() {
               className="space-y-7"
             >
               {/* Workspace header */}
-              <div className={`rounded-2xl border p-5 ${activeSuite.cardBg} ${activeSuite.border}`}>
+              <div className={`rounded-2xl border p-4 sm:p-5 ${activeSuite.cardBg} ${activeSuite.border}`}>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-start sm:items-center gap-3 sm:gap-4">
                     <div className={`h-12 w-12 rounded-xl ${activeSuite.iconBg} border flex items-center justify-center shrink-0`}>
                       <activeSuite.icon className={`h-6 w-6 ${activeSuite.iconColor}`} />
                     </div>
@@ -394,11 +498,11 @@ export default function Home() {
                       >
                         <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform duration-200" /> Back to Dashboard
                       </button>
-                      <h2 className="text-xl font-black text-foreground">{activeSuite.title}</h2>
+                      <h2 className="text-lg sm:text-xl font-black text-foreground">{activeSuite.title}</h2>
                       <p className="text-xs text-muted-foreground mt-0.5">{activeSuite.description}</p>
                     </div>
                   </div>
-                  <div className={`text-right shrink-0`}>
+                  <div className={`text-left sm:text-right shrink-0`}>
                     <span className={`text-3xl font-black ${activeSuite.iconColor}`}>{activeSuite.toolCount}</span>
                     <span className="block text-[10px] text-muted-foreground font-semibold">tools available</span>
                   </div>
@@ -434,7 +538,7 @@ export default function Home() {
               className="space-y-7"
             >
               {/* Step indicator */}
-              <div className="flex items-center justify-center">
+              <div className="flex items-center justify-center overflow-x-auto no-scrollbar pb-1">
                 <div className="flex items-center gap-0">
                   {STEPS.map(({ n, label, icon: StepIcon }, i) => {
                     const active = step === n;
@@ -452,7 +556,7 @@ export default function Home() {
                           <span className={`text-[10px] font-bold uppercase tracking-wider ${active || done ? 'text-primary' : 'text-muted-foreground'}`}>{label}</span>
                         </div>
                         {i < STEPS.length - 1 && (
-                          <div className={`h-0.5 w-16 sm:w-24 mx-1 mb-5 rounded-full transition-all duration-500 ${step > n ? 'bg-primary' : 'bg-border'}`} />
+                          <div className={`h-0.5 w-10 sm:w-24 mx-1 mb-5 rounded-full transition-all duration-500 ${step > n ? 'bg-primary' : 'bg-border'}`} />
                         )}
                       </React.Fragment>
                     );
@@ -491,6 +595,36 @@ export default function Home() {
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
                   {isProcessing ? (
                     <ProgressTracker />
+                  ) : isLiveImageWorkflow ? (
+                    <>
+                      <div className="flex items-center justify-between border-b border-border pb-4">
+                        <button
+                          onClick={() => useFileStore.setState({ selectedOperation: null })}
+                          className="group flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground font-semibold uppercase tracking-wider transition-colors cursor-pointer"
+                        >
+                          <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform duration-200" /> Change Operation
+                        </button>
+                        <span className="text-xs font-bold bg-blue-500/10 border border-blue-500/20 text-blue-400 px-3 py-1 rounded-full uppercase tracking-wider">
+                          Live editing
+                        </span>
+                      </div>
+                      <LiveImageEditor />
+                    </>
+                  ) : isLiveVideoWorkflow ? (
+                    <>
+                      <div className="flex items-center justify-between border-b border-border pb-4">
+                        <button
+                          onClick={() => useFileStore.setState({ selectedOperation: null })}
+                          className="group flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground font-semibold uppercase tracking-wider transition-colors cursor-pointer"
+                        >
+                          <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform duration-200" /> Change Operation
+                        </button>
+                        <span className="text-xs font-bold bg-violet-500/10 border border-violet-500/20 text-violet-400 px-3 py-1 rounded-full uppercase tracking-wider">
+                          Video editor
+                        </span>
+                      </div>
+                      <LiveVideoEditor />
+                    </>
                   ) : (
                     <>
                       <div className="flex items-center justify-between border-b border-border pb-4">
