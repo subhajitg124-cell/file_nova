@@ -66,7 +66,7 @@ if (process.env.NODE_ENV === "production") {
   const publicDir = path.resolve(__dirname, "../../file-master/dist/public");
   app.use(express.static(publicDir));
   
-  app.get("*", (req, res, next) => {
+  app.get(/.*/, (req, res, next) => {
     // If it starts with /api, pass it through so we don't accidentally serve index.html for API 404s
     if (req.path.startsWith("/api")) {
       return next();
