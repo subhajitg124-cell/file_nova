@@ -119,12 +119,19 @@ const STEPS = [
   { n: 3, label: 'Export',    icon: Download },
 ];
 
+const QUOTES = [
+  { text: 'Use one dashboard for PDF, image, office and video workflows — without clutter.', author: 'File Master' },
+  { text: 'Your files stay private by default. Process locally and share only what you choose.', author: 'Privacy First' },
+  { text: 'Drop a file, select a tool, and complete the task in seconds. No extra features in the way.', author: 'Productivity Tip' },
+];
+
 export default function Home() {
   const {
     files, selectedOperation, isProcessing, downloadUrl, isMockMode, toggleMockMode,
     backendHealthy, backendCapabilities, setBackendStatus, selectedSection, setSelectedSection, clearStore
   } = useFileStore();
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const [quoteIndex, setQuoteIndex] = useState(0);
 
   useEffect(() => {
     const fetchHealth = async () => {
@@ -136,6 +143,13 @@ export default function Home() {
     const interval = setInterval(fetchHealth, 30000);
     return () => clearInterval(interval);
   }, [setBackendStatus]);
+
+  useEffect(() => {
+    const quoteTimer = setInterval(() => {
+      setQuoteIndex((prev) => (prev + 1) % QUOTES.length);
+    }, 6000);
+    return () => clearInterval(quoteTimer);
+  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -240,35 +254,54 @@ export default function Home() {
             <motion.div key="dashboard"
               initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className="space-y-10"
+              className="relative overflow-hidden space-y-10 animated-lines-bg"
             >
               {/* Hero */}
               <div className="text-center space-y-4 max-w-2xl mx-auto pt-2">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold border bg-card/80 border-border text-muted-foreground hover:scale-105 transition-transform duration-200">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  56+ premium tools · 100% Client-side · Zero server tracking
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold border bg-card/80 border-border text-muted-foreground hover:scale-105 transition-transform duration-200 shadow-glow-sm">
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                  4 focused workflows · Privacy-first · Easy drag & drop
                 </div>
-                <h1 className="text-4xl sm:text-5xl font-black leading-tight tracking-tight">
-                  <span className="bg-gradient-to-r from-primary via-purple-400 to-indigo-400 bg-clip-text text-transparent">
+                <h1 className="text-4xl sm:text-5xl font-black leading-tight tracking-tight font-outfit">
+                  <span className="bg-gradient-to-r from-primary via-sky-500 to-cyan-400 bg-clip-text text-transparent font-heading">
                     Master Your Files.
                   </span>
                   <br />
-                  <span className="text-foreground">100% Private, Blazing Fast.</span>
+                  <span className="text-foreground">Separate tools, one simple dashboard.</span>
                 </h1>
                 <p className="text-sm text-muted-foreground leading-relaxed max-w-md mx-auto">
-                  Transform PDFs, images, documents, and videos directly inside your browser. No registration, no logs, no storage.
+                  Convert, compress, edit, and protect documents with an uncluttered workspace. Start by selecting a category or dropping files instantly.
                 </p>
                 <div className="flex items-center justify-center gap-5 flex-wrap text-xs text-muted-foreground pt-1">
                   {[
-                    { icon: Lock,        label: 'Zero server storage' },
-                    { icon: Zap,         label: 'Instant in-browser processing' },
-                    { icon: ShieldCheck, label: 'GDPR & Privacy compliant' },
+                    { icon: Lock,        label: 'Private by design' },
+                    { icon: Zap,         label: 'Fast local processing' },
+                    { icon: ShieldCheck, label: 'Minimal UI, no distraction' },
                   ].map(({ icon: Icon, label }) => (
                     <div key={label} className="flex items-center gap-1.5 hover:text-foreground transition-colors duration-150">
                       <Icon className="h-3.5 w-3.5 text-primary" />
                       <span className="font-medium">{label}</span>
                     </div>
                   ))}
+                </div>
+                <div className="rounded-3xl border border-border bg-card/80 p-5 text-left shadow-sm animated-lines-bg">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="uppercase text-[10px] tracking-[0.3em] text-muted-foreground font-semibold">Quick tip</p>
+                      <p className="mt-3 text-base text-foreground font-semibold leading-7">{QUOTES[quoteIndex].text}</p>
+                    </div>
+                    <span className="text-[10px] uppercase font-bold tracking-[0.25em] text-primary">{QUOTES[quoteIndex].author}</span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-4">
+                    {QUOTES.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setQuoteIndex(index)}
+                        className={`h-2.5 w-2.5 rounded-full transition-all duration-150 ${quoteIndex === index ? 'bg-primary' : 'bg-muted-foreground/40 hover:bg-muted-foreground'}`}
+                        aria-label={`Show quote ${index + 1}`}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -295,7 +328,7 @@ export default function Home() {
                       whileHover={{ y: -3, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setSelectedSection(suite.id)}
-                      className={`group relative text-left rounded-2xl border p-5 transition-all duration-250 overflow-hidden card-shine gradient-border ${suite.cardBg} ${suite.border} hover:shadow-premium focus:outline-none focus:ring-2 focus:ring-primary/40`}
+                      className={`group relative text-left rounded-2xl border p-5 transition-all duration-250 overflow-hidden card-shine gradient-border animated-lines-bg ${suite.cardBg} ${suite.border} hover:shadow-premium focus:outline-none focus:ring-2 focus:ring-primary/40`}
                     >
                       {/* Top row */}
                       <div className="flex items-start justify-between mb-4">
@@ -357,7 +390,7 @@ export default function Home() {
                     <div>
                       <button
                         onClick={() => setSelectedSection(null)}
-                        className="group flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground font-semibold uppercase tracking-wider transition-colors mb-2 cursor-pointer"
+                        className="group inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-2 text-sm font-semibold text-foreground hover:bg-card transition-all duration-200 shadow-sm"
                       >
                         <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform duration-200" /> Back to Dashboard
                       </button>
@@ -433,7 +466,7 @@ export default function Home() {
                   <div className="flex items-center justify-between border-b border-border pb-4">
                     <button
                       onClick={() => clearStore()}
-                      className="group flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground font-semibold uppercase tracking-wider transition-colors cursor-pointer"
+                      className="group inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-2 text-sm font-semibold text-foreground hover:bg-card transition-all duration-200 shadow-sm"
                     >
                       <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform duration-200" /> Reset Workspace
                     </button>

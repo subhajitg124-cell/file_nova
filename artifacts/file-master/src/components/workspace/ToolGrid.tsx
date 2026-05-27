@@ -173,6 +173,7 @@ const TOOL_ICON_BG: Record<string, string> = {
 export const ToolGrid: React.FC = () => {
   const { files, setOperation, updateOptions, isMockMode, jobId, setJobId, setError, addFiles, selectedSection } = useFileStore();
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeSubcategory, setActiveSubcategory] = useState<'all' | string>('all');
   const [isUploading, setIsUploading] = useState(false);
 
   const activeCategory = selectedSection || 'all';
@@ -246,11 +247,12 @@ export const ToolGrid: React.FC = () => {
   const allFiltered = TOOLS.filter(t => {
     const matchesCat = activeCategory === 'all' || t.category === activeCategory;
     const matchesSearch = !q || t.title.toLowerCase().includes(q) || t.description.toLowerCase().includes(q) || t.actionName.toLowerCase().includes(q);
-    return matchesCat && matchesSearch;
+    const matchesSubcategory = activeSubcategory === 'all' || t.subcategory === activeSubcategory;
+    return matchesCat && matchesSearch && matchesSubcategory;
   });
 
   const subcategoryOrder = activeCategory === 'all'
-    ? Object.values(CATEGORY_ORDER).flat()
+    ? Array.from(new Set(Object.values(CATEGORY_ORDER).flat()))
     : CATEGORY_ORDER[activeCategory] || [];
 
   const grouped = subcategoryOrder.reduce<Record<string, ToolItem[]>>((acc, sub) => {
@@ -288,6 +290,28 @@ export const ToolGrid: React.FC = () => {
             <X className="h-3.5 w-3.5" />
           </button>
         )}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2 mt-3">
+        <button
+          onClick={() => setActiveSubcategory('all')}
+          className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${activeSubcategory === 'all' ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground border-border hover:border-primary hover:text-foreground'}`}
+        >
+          All tools
+        </button>
+        {subcategoryOrder.map((sub) => {
+          const meta = SUBCATEGORY_META[sub];
+          if (!meta) return null;
+          return (
+            <button
+              key={sub}
+              onClick={() => setActiveSubcategory(sub)}
+              className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${activeSubcategory === sub ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground border-border hover:border-primary hover:text-foreground'}`}
+            >
+              {meta.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* No results */}
@@ -367,7 +391,7 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, suggested, onClick, showSubca
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.96 }}
       onClick={onClick}
-      className={`group relative w-full text-left rounded-xl border transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary/40 overflow-hidden
+      className={`group relative w-full text-left rounded-xl border transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary/40 overflow-hidden animated-lines-bg
         ${suggested
           ? 'bg-primary/5 border-primary/35 shadow-glow hover:bg-primary/8'
           : 'bg-card border-border hover:border-primary/30 hover:bg-muted/40'
