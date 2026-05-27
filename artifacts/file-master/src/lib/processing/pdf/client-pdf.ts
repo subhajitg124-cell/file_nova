@@ -22,7 +22,7 @@ export async function runClientSidePdfSplit(
 ): Promise<Blob[]> {
   const worker = createWorker(); const api = wrap<any>(worker);
   const results: Uint8Array[] = await api.splitPdf({ name: file.name, buffer: await file.arrayBuffer() }, mode, splitEvery, splitRange); worker.terminate();
-  return results.map((u8) => new Blob([u8], { type: 'application/pdf' }));
+  return results.map((u8) => new Blob([u8 as any], { type: 'application/pdf' }));
 }
 
 export async function runClientSideImagesToPdf(files: File[]): Promise<Blob> {

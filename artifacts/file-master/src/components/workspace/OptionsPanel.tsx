@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { m as motion } from 'framer-motion';
 import {
   Sliders, RefreshCw, Play, Loader2, Sparkles, FileText,
-  Scissors, Music, FileArchive, Image, ImageIcon, ArrowLeftRight, FileCode, Maximize2,
-  MonitorSmartphone, Globe, Lock, Unlock, RotateCw, Trash2, Stamp, Hash,
-  AlignJustify, Crop, FlipHorizontal, PenTool, FlipVertical, Eraser,
-  Plus, Minus, ChevronDown, ChevronUp, ScanText, Type, Camera, X,
+  Scissors, FileArchive, Image, ImageIcon, ArrowLeftRight, FileCode,
+  Globe, Lock, Unlock, RotateCw, Trash2,
+  FlipHorizontal, PenTool, FlipVertical, Eraser,
+  Plus, Minus, ChevronDown, ChevronUp, Camera, X,
   ShieldCheck, PenLine, BookOpen, ScanLine, GitCompareArrows,
   BrainCircuit, Languages, FileSpreadsheet, FileCheck2, Settings2
 } from 'lucide-react';
@@ -374,7 +374,7 @@ export const OptionsPanel: React.FC = () => {
   const {
     files, rawFiles, selectedOperation, operationOptions, updateOptions,
     isMockMode, jobId, setProcessing, setProgress, setDownloadUrl, setSavings,
-    setError, isProcessing, addRawFiles, addFiles,
+    setError, isProcessing,
   } = useFileStore();
 
   const [showAdvanced, setShowAdvanced] = useState(false);

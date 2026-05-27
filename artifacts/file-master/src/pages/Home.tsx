@@ -340,9 +340,9 @@ export default function Home() {
               <div className="space-y-1">
                 <button
                   onClick={() => setSelectedSection(null)}
-                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground font-bold uppercase tracking-wider transition-colors mb-2"
+                  className="group flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground font-semibold uppercase tracking-wider transition-colors mb-2 cursor-pointer"
                 >
-                  <ArrowLeft className="h-3 w-3" /> Back to Dashboard
+                  <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform duration-200" /> Back to Dashboard
                 </button>
                 <h2 className="text-2xl font-black text-foreground">{ws.title}</h2>
                 <p className="text-xs text-muted-foreground">{ws.desc}</p>
@@ -352,7 +352,9 @@ export default function Home() {
                 <span>Choose an operation or drop files below</span>
               </div>
             </div>
-            <UploadZone allowedCategory={selectedSection} />
+            <div className="max-w-4xl mx-auto">
+              <UploadZone allowedCategory={selectedSection} />
+            </div>
             <div className="max-w-4xl mx-auto space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-xs uppercase font-extrabold text-primary tracking-widest">Available Tools</h3>
@@ -371,8 +373,8 @@ export default function Home() {
             {step === 1 && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
                 <div className="flex items-center justify-between border-b border-border pb-4 max-w-4xl mx-auto">
-                  <button onClick={() => clearStore()} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground font-bold uppercase tracking-wider transition-colors">
-                    <ArrowLeft className="h-3 w-3" /> Reset Workspace
+                  <button onClick={() => clearStore()} className="group flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground font-semibold uppercase tracking-wider transition-colors cursor-pointer">
+                    <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform duration-200" /> Reset Workspace
                   </button>
                   <span className="text-xs font-bold bg-primary/10 border border-primary/20 text-primary px-3 py-1 rounded-full uppercase tracking-wider">
                     {files.length} {files.length === 1 ? 'file' : 'files'} ready
@@ -398,9 +400,9 @@ export default function Home() {
                     <div className="flex items-center justify-between border-b border-border pb-4 max-w-4xl mx-auto">
                       <button
                         onClick={() => useFileStore.setState({ selectedOperation: null })}
-                        className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground font-bold uppercase tracking-wider transition-colors"
+                        className="group flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground font-semibold uppercase tracking-wider transition-colors cursor-pointer"
                       >
-                        <ArrowLeft className="h-3 w-3" /> Change Operation
+                        <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform duration-200" /> Change Operation
                       </button>
                       <span className="text-xs font-bold bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 px-3 py-1 rounded-full uppercase tracking-wider">
                         Ready to process

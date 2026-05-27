@@ -266,7 +266,7 @@ export async function convertToIco(
   header.setUint16(4, iconCount, true);
 
   let dataOffset = 6 + 16 * iconCount;
-  const entries: ArrayBuffer[] = [];
+  const entries: DataView[] = [];
 
   for (let i = 0; i < iconCount; i++) {
     const s   = sizes[i];
@@ -280,10 +280,10 @@ export async function convertToIco(
     ent.setUint32(8, pngArrays[i].byteLength, true);
     ent.setUint32(12, dataOffset, true);
     dataOffset += pngArrays[i].byteLength;
-    entries.push(ent.buffer);
+    entries.push(ent);
   }
 
-  return new Blob([header.buffer, ...entries, ...pngArrays.map(p => p.buffer)], { type: 'image/x-icon' });
+  return new Blob([header as any, ...entries.map(e => e as any), ...pngArrays.map(p => p as any)], { type: 'image/x-icon' });
 }
 
 // ── SVG → PNG ─────────────────────────────────────────────────────────────

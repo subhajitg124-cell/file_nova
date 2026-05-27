@@ -113,15 +113,17 @@ router.get("/health", (_req, res) => {
 });
 
 // Upload API
-router.post("/upload", uploadRateLimiter, upload.array("files"), (req, res) => {
+router.post("/upload", uploadRateLimiter, upload.array("files"), (req, res): void => {
   const jobId = req.body.job_id;
   if (!jobId) {
-    return res.status(400).json({ detail: "job_id is required." });
+    res.status(400).json({ detail: "job_id is required." });
+    return;
   }
 
   const files = req.files as Express.Multer.File[];
   if (!files || files.length === 0) {
-    return res.status(400).json({ detail: "No files uploaded." });
+    res.status(400).json({ detail: "No files uploaded." });
+    return;
   }
 
   try {
@@ -137,14 +139,15 @@ router.post("/upload", uploadRateLimiter, upload.array("files"), (req, res) => {
       }
     }
     const message = err instanceof z.ZodError ? err.errors[0].message : "Invalid file uploaded.";
-    return res.status(400).json({ detail: message });
+    res.status(400).json({ detail: message });
+    return;
   }
 
   const job = jobs.get(jobId) || {
     id: jobId,
     status: "pending" as const,
     progress: 0,
-    files: [],
+    files: [] as JobFile[],
     updatedAt: new Date()
   };
 
@@ -173,15 +176,17 @@ router.post("/upload", uploadRateLimiter, upload.array("files"), (req, res) => {
 });
 
 // Preview endpoint
-router.get("/preview/:filename", (req, res) => {
+router.get("/preview/:filename", (req, res): void => {
   const filename = req.params.filename;
   // Security path traversal check
   if (filename.includes("..") || filename.includes("/") || filename.includes("\\")) {
-    return res.status(400).json({ detail: "Invalid filename." });
+    res.status(400).json({ detail: "Invalid filename." });
+    return;
   }
   const filePath = path.join(uploadDir, filename);
   if (!fs.existsSync(filePath)) {
-    return res.status(404).json({ detail: "Preview not found." });
+    res.status(404).json({ detail: "Preview not found." });
+    return;
   }
   res.sendFile(filePath);
 });
@@ -236,16 +241,18 @@ async function runProcessing(job: Job, operation: string, options: any) {
 }
 
 // Process API
-router.post("/process", (req, res) => {
+router.post("/process", (req, res): void => {
   const jobId = req.query.job_id as string;
   if (!jobId) {
-    return res.status(400).json({ detail: "job_id is required." });
+    res.status(400).json({ detail: "job_id is required." });
+    return;
   }
 
   const { operation, options } = req.body;
   const job = jobs.get(jobId);
   if (!job) {
-    return res.status(404).json({ detail: "Job not found." });
+    res.status(404).json({ detail: "Job not found." });
+    return;
   }
 
   job.status = "processing";
@@ -269,11 +276,12 @@ router.post("/process", (req, res) => {
 });
 
 // Status API
-router.get("/status/:jobId", (req, res) => {
+router.get("/status/:jobId", (req, res): void => {
   const jobId = req.params.jobId;
   const job = jobs.get(jobId);
   if (!job) {
-    return res.status(404).json({ detail: "Job not found." });
+    res.status(404).json({ detail: "Job not found." });
+    return;
   }
 
   res.json({
@@ -286,22 +294,25 @@ router.get("/status/:jobId", (req, res) => {
 });
 
 // Download API with immediate cleanup
-router.get("/download/:jobId", (req, res) => {
+router.get("/download/:jobId", (req, res): void => {
   const jobId = req.params.jobId;
   const job = jobs.get(jobId);
   if (!job) {
-    return res.status(404).json({ detail: "Job not found." });
+    res.status(404).json({ detail: "Job not found." });
+    return;
   }
 
   if (job.status !== "completed" || !job.outputFilePath) {
-    return res.status(400).json({ detail: "Job is not completed or output is missing." });
+    res.status(400).json({ detail: "Job is not completed or output is missing." });
+    return;
   }
 
   if (!fs.existsSync(job.outputFilePath)) {
-    return res.status(404).json({ detail: "Output file not found." });
+    res.status(404).json({ detail: "Output file not found." });
+    return;
   }
 
-  res.download(job.outputFilePath, job.originalname, (err) => {
+  res.download(job.outputFilePath, job.originalname || "output", (err) => {
     try {
       // Clean up input files
       for (const file of job.files) {

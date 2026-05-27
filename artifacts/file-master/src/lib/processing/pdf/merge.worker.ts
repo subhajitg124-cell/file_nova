@@ -248,7 +248,7 @@ async function unlockPdf(
   fileData: { name: string; buffer: ArrayBuffer },
   password: string
 ): Promise<Uint8Array> {
-  const pdfDoc = await PDFDocument.load(fileData.buffer, { password });
+  const pdfDoc = await PDFDocument.load(fileData.buffer, { password } as any);
   return await pdfDoc.save();
 }
 

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { m as motion, AnimatePresence } from 'framer-motion';
 import {
-  FileArchive, Sparkles, FileEdit, RefreshCw, Search, Video, FileText,
+  FileArchive, Sparkles, FileEdit, RefreshCw, Search, FileText,
   FileSpreadsheet, Loader2, Scissors, Image, Music, Globe, FileCode,
   ArrowLeftRight, Maximize2, MonitorSmartphone, ImageIcon, RotateCw,
   Trash2, Stamp, Hash, AlignJustify, Crop, FlipHorizontal, PenTool,
-  Eraser, ScanLine, ScanText, Lock, Unlock, ShieldCheck, FileSearch2,
+  Eraser, ScanLine, ScanText, Unlock, ShieldCheck,
   GitCompareArrows, BrainCircuit, Languages, PenLine, Camera, BookOpen,
-  FileWarning, FileCheck2
+  FileCheck2
 } from 'lucide-react';
 import { useFileStore, OperationType } from '@/store/useFileStore';
 import { apiClient, apiMock } from '@/lib/api';
