@@ -5,6 +5,7 @@ import Razorpay from "razorpay";
 import { db, usersTable, subscriptionsTable } from "@workspace/db";
 import { eq, desc } from "drizzle-orm";
 import { logger } from "../lib/logger";
+import { adminAuth } from "../middlewares/adminAuth";
 
 const router = Router();
 
@@ -251,7 +252,7 @@ router.post("/cancel", async (req: Request, res: Response) => {
 });
 
 // ── 5. GET /admin/stats — Subscription statistics for Admin Console ────────────
-router.get("/admin/stats", async (req: Request, res: Response) => {
+router.get("/admin/stats", adminAuth, async (req: Request, res: Response) => {
   try {
     let stats = {
       totalSubscribers: 142,

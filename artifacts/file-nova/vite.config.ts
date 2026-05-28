@@ -43,6 +43,7 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    chunkSizeWarningLimit: 2000,
   },
   optimizeDeps: {
     exclude: ["onnxruntime-web", "@imgly/background-removal"],

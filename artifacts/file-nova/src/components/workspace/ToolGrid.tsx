@@ -340,7 +340,12 @@ export const ToolGrid: React.FC = () => {
           className="w-full pl-10 pr-10 py-2.5 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all placeholder:text-muted-foreground/60"
         />
         {searchQuery && (
-          <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+          <button
+            onClick={() => setSearchQuery('')}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            title={t.clearSearch || "Clear search"}
+            aria-label={t.clearSearch || "Clear search"}
+          >
             <X className="h-3.5 w-3.5" />
           </button>
         )}
@@ -397,6 +402,7 @@ export const ToolGrid: React.FC = () => {
             }
           </p>
           {searchQuery && <button onClick={() => setSearchQuery('')} className="text-xs text-primary hover:underline">{t.clearSearch}</button>}
+        </div>
       )}
 
       {/* Grouped sections */}

@@ -154,9 +154,11 @@ router.post("/upload", uploadRateLimiter, upload.array("files"), (req, res): voi
   };
 
   const fileRecords = files.map(f => {
+    // Sanitize the original filename to prevent path traversal / arbitrary write attacks
+    const safeOriginalName = path.basename(f.originalname).replace(/[^a-zA-Z0-9._-]/g, "_");
     const record = {
       temp_filename: f.filename,
-      filename: f.originalname,
+      filename: safeOriginalName,
       size_bytes: f.size,
       mime_type: f.mimetype,
       temp_path: f.path,
@@ -164,7 +166,7 @@ router.post("/upload", uploadRateLimiter, upload.array("files"), (req, res): voi
     };
     job.files.push({
       path: f.path,
-      originalname: f.originalname,
+      originalname: safeOriginalName,
       mimetype: f.mimetype,
       size: f.size
     });

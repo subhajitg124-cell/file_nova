@@ -49,13 +49,18 @@ export default function AdminDashboard() {
   const logoUrl = `${import.meta.env.BASE_URL}logo.svg`;
 
   useEffect(() => {
-    fetch("/api/v1/premium/subscription/admin/stats")
+    const headers: Record<string, string> = {};
+    if (admin.creds) {
+      headers["x-admin-username"] = admin.creds.username;
+      headers["x-admin-hash"] = admin.creds.passwordHash;
+    }
+    fetch("/api/v1/premium/subscription/admin/stats", { headers })
       .then((res) => res.json())
       .then((data) => {
         if (data.success) setSubStats(data.stats);
       })
       .catch(() => {});
-  }, []);
+  }, [admin.creds]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
