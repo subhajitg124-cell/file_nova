@@ -6,4 +6,17 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './adminAnalytics';
+export * from './adminAnalyticsTopSchemesItem';
+export * from './createProcessingJobBody';
+export * from './createProcessingJobBodyLanguage';
+export * from './documentRule';
+export * from './eventRule';
+export * from './eventRuleInput';
+export * from './eventRuleInputCategory';
 export * from './healthStatus';
+export * from './processingJob';
+export * from './processingJobStatus';
+export * from './uploadJobFilesBody';
+export * from './uploadReport';
+export * from './uploadReportFilesItem';

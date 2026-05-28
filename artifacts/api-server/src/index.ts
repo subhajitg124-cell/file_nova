@@ -15,7 +15,7 @@ if (!process.env["DATABASE_URL"]) {
 }
 
 // ── Scheduled temp-file cleanup (every 5 minutes) ────────────────────────────
-const TMP_DIR = path.join(os.tmpdir(), "file-master");
+const TMP_DIR = path.join(os.tmpdir(), "file-nova");
 const cleanupTimer = setInterval(() => {
   cleanupOldFiles(TMP_DIR, 10 * 60 * 1000).catch(() => {
     // Ignore cleanup errors

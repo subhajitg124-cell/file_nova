@@ -63,7 +63,7 @@ app.use("/api", requestTimeout(30000), router);
 
 // Serve frontend static assets with SPA fallback in production
 if (process.env.NODE_ENV === "production") {
-  const publicDir = path.resolve(__dirname, "../../file-master/dist/public");
+  const publicDir = path.resolve(__dirname, "../../file-nova/dist/public");
   app.use(express.static(publicDir));
   
   app.get(/.*/, (req, res, next) => {

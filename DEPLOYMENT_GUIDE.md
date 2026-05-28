@@ -111,7 +111,7 @@ RUN npm install -g pnpm && \
 
 FROM nginx:alpine
 
-COPY --from=builder /app/artifacts/file-master/dist/public /usr/share/nginx/html
+COPY --from=builder /app/artifacts/file-nova/dist/public /usr/share/nginx/html
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 

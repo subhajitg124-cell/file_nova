@@ -41,7 +41,7 @@ This guide documents the implementation of 14 advanced premium features for File
   - Exam toolkit endpoints
 
 ### Phase 2: Frontend (IN PROGRESS)
-- ✅ **React Hooks** (`artifacts/file-master/src/hooks/usePremiumFeatures.ts`)
+- ✅ **React Hooks** (`artifacts/file-nova/src/hooks/usePremiumFeatures.ts`)
   - `useShare()` - Share link management
   - `useSecureDownload()` - Download with tracking
   - `useQRCode()` - QR generation/scanning
@@ -338,7 +338,7 @@ pnpm run dev
 
 ### Running Frontend
 ```bash
-cd artifacts/file-master
+cd artifacts/file-nova
 pnpm run dev
 
 # App runs on http://localhost:5173
@@ -441,8 +441,8 @@ When adding new premium features:
 1. Add database tables to `lib/db/src/schema/premium.ts`
 2. Create service layer in `lib/db/src/`
 3. Add API routes to `artifacts/api-server/src/routes/premium.ts`
-4. Create React hooks in `artifacts/file-master/src/hooks/`
-5. Build UI components in `artifacts/file-master/src/components/`
+4. Create React hooks in `artifacts/file-nova/src/hooks/`
+5. Build UI components in `artifacts/file-nova/src/components/`
 6. Add tests and documentation
 7. Update this guide
 
@@ -451,4 +451,5 @@ For questions about premium features implementation, refer to:
 - Database schema: `lib/db/src/schema/premium.ts`
 - Encryption docs: `lib/db/src/encryption.ts`
 - API examples: `artifacts/api-server/src/routes/premium.ts`
-- Component examples: `artifacts/file-master/src/components/`
+- Component examples: `artifacts/file-nova/src/components/`
+

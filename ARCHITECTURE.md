@@ -9,7 +9,7 @@
 │                                                                             │
 │  ┌──────────────────────────────────┬──────────────────────────────────┐  │
 │  │      FRONTEND (React)             │      BACKEND (Express.js)        │  │
-│  │  artifacts/file-master/           │  artifacts/api-server/           │  │
+│  │  artifacts/file-nova/             │  artifacts/api-server/           │  │
 │  ├──────────────────────────────────┼──────────────────────────────────┤  │
 │  │                                  │                                  │  │
 │  │  🎨 Components:                  │  📡 API Routes:                  │  │

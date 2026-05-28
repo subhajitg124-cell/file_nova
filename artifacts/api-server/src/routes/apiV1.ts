@@ -49,7 +49,7 @@ const uploadRateLimiter = rateLimit({
 });
 
 // Configure Multer
-const uploadDir = path.join(os.tmpdir(), "file-master-uploads");
+const uploadDir = path.join(os.tmpdir(), "file-nova-uploads");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }

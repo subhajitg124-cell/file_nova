@@ -56,8 +56,8 @@ export const useFileStore = create<FileState>((set) => ({
   selectedSection: null,
   setSelectedSection: (section) => set(() => {
     if (typeof window !== 'undefined') {
-      if (section) localStorage.setItem('file-master-last-workspace', section);
-      else localStorage.removeItem('file-master-last-workspace');
+      if (section) localStorage.setItem('file-nova-last-workspace', section);
+      else localStorage.removeItem('file-nova-last-workspace');
     }
     return { selectedSection: section };
   }),

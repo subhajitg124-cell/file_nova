@@ -4,7 +4,7 @@ All-in-one secure file manipulation platform for PDFs, images, office documents,
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/file-master run dev` — run the frontend dev server (port 21533)
+- `pnpm --filter @workspace/file-nova run dev` — run the frontend dev server (port 21533)
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 
@@ -17,13 +17,13 @@ All-in-one secure file manipulation platform for PDFs, images, office documents,
 
 ## Where things live
 
-- `artifacts/file-master/` — React + Vite frontend (previewPath `/`)
-- `artifacts/file-master/src/store/useFileStore.ts` — Zustand store (all app state)
-- `artifacts/file-master/src/lib/api.ts` — API client + mock fallback
-- `artifacts/file-master/src/lib/file-detection.ts` — magic-byte file type detection
-- `artifacts/file-master/src/lib/processing/pdf/` — client-side PDF Web Worker
-- `artifacts/file-master/src/components/workspace/` — all workspace UI components
-- `artifacts/file-master/src/pages/Home.tsx` — main page / routing logic
+- `artifacts/file-nova/` — React + Vite frontend (previewPath `/`)
+- `artifacts/file-nova/src/store/useFileStore.ts` — Zustand store (all app state)
+- `artifacts/file-nova/src/lib/api.ts` — API client + mock fallback
+- `artifacts/file-nova/src/lib/file-detection.ts` — magic-byte file type detection
+- `artifacts/file-nova/src/lib/processing/pdf/` — client-side PDF Web Worker
+- `artifacts/file-nova/src/components/workspace/` — all workspace UI components
+- `artifacts/file-nova/src/pages/Home.tsx` — main page / routing logic
 - `.migration-backup/` — original Next.js source (reference only)
 
 ## Architecture decisions
@@ -54,3 +54,4 @@ _Populate as you build — explicit user instructions worth remembering across s
 ## Pointers
 
 - See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+

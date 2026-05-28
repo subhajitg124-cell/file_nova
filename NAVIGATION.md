@@ -70,7 +70,7 @@
 - **Status**: 100% Complete ✅
 
 #### 5. React Hooks
-- **File**: `artifacts/file-master/src/hooks/usePremiumFeatures.ts` (7.7 KB)
+- **File**: `artifacts/file-nova/src/hooks/usePremiumFeatures.ts` (7.7 KB)
 - **Hooks**:
   - `useShare()` - Share link management
   - `useSecureDownload()` - Download with tracking
@@ -185,7 +185,7 @@ lib/db/src/schema/
 ### Frontend Files Created
 
 ```
-artifacts/file-master/src/
+artifacts/file-nova/src/
 ├── hooks/
 │   └── usePremiumFeatures.ts      (7.7 KB)  3 custom hooks
 ├── components/
@@ -445,3 +445,4 @@ async function storeDocument(userId: string, file: Buffer) {
 **Next Phase**: Feature Implementation  
 
 Made with ❤️ for FileMaster AI Premium
+

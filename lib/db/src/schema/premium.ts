@@ -9,8 +9,14 @@ import {
   timestamp,
   uuid,
   varchar,
-  bytea,
+  customType,
 } from "drizzle-orm/pg-core";
+
+const bytea = customType<{ data: Buffer }>({
+  dataType() {
+    return "bytea";
+  },
+});
 import { usersTable } from "./index";
 
 // Enums for premium features

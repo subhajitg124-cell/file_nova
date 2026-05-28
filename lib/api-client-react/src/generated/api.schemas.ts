@@ -9,3 +9,103 @@ export interface HealthStatus {
   status: string;
 }
 
+export interface DocumentRule {
+  id: string;
+  key: string;
+  label: string;
+  required: boolean;
+  acceptedFormats: string[];
+  minSizeKb?: number;
+  maxSizeKb: number;
+  widthPx?: number;
+  heightPx?: number;
+  dpi?: number;
+  outputName: string;
+  compressionTargetKb?: number;
+}
+
+export type EventRuleInputCategory = typeof EventRuleInputCategory[keyof typeof EventRuleInputCategory];
+
+
+export const EventRuleInputCategory = {
+  scheme: 'scheme',
+  student: 'student',
+  identity: 'identity',
+  job: 'job',
+  admission: 'admission',
+} as const;
+
+export interface EventRuleInput {
+  slug: string;
+  title: string;
+  category: EventRuleInputCategory;
+  description: string;
+  namingPattern: string;
+  zipStructure: string[];
+  mergeOrder?: string[];
+  documents: DocumentRule[];
+  isPublished?: boolean;
+}
+
+export type EventRule = EventRuleInput & {
+  id: string;
+  version: number;
+};
+
+export type ProcessingJobStatus = typeof ProcessingJobStatus[keyof typeof ProcessingJobStatus];
+
+
+export const ProcessingJobStatus = {
+  queued: 'queued',
+  processing: 'processing',
+  completed: 'completed',
+  failed: 'failed',
+  expired: 'expired',
+} as const;
+
+export interface ProcessingJob {
+  id: string;
+  status: ProcessingJobStatus;
+  progress: number;
+  uploadHealthScore?: number;
+  recommendations: string[];
+  downloadUrl?: string;
+}
+
+export type UploadReportFilesItem = { [key: string]: unknown };
+
+export interface UploadReport {
+  files: UploadReportFilesItem[];
+  missingDocuments: string[];
+  recommendations: string[];
+}
+
+export type AdminAnalyticsTopSchemesItem = { [key: string]: unknown };
+
+export interface AdminAnalytics {
+  activeUsers?: number;
+  uploadCount?: number;
+  storageBytes?: number;
+  compressionSavingsBytes?: number;
+  topSchemes?: AdminAnalyticsTopSchemesItem[];
+  failedUploadRate?: number;
+}
+
+export type CreateProcessingJobBodyLanguage = typeof CreateProcessingJobBodyLanguage[keyof typeof CreateProcessingJobBodyLanguage];
+
+
+export const CreateProcessingJobBodyLanguage = {
+  en: 'en',
+  bn: 'bn',
+  hi: 'hi',
+} as const;
+
+export type CreateProcessingJobBody = {
+  eventRuleId: string;
+  language?: CreateProcessingJobBodyLanguage;
+};
+
+export type UploadJobFilesBody = {
+  files?: Blob[];
+};
+

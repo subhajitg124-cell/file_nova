@@ -17,3 +17,211 @@ export const HealthCheckResponse = zod.object({
 })
 
 
+/**
+ * @summary List published event rules
+ */
+export const ListEventRulesResponseItem = zod.object({
+  "slug": zod.string(),
+  "title": zod.string(),
+  "category": zod.enum(['scheme', 'student', 'identity', 'job', 'admission']),
+  "description": zod.string(),
+  "namingPattern": zod.string(),
+  "zipStructure": zod.array(zod.string()),
+  "mergeOrder": zod.array(zod.string()).optional(),
+  "documents": zod.array(zod.object({
+  "id": zod.string(),
+  "key": zod.string(),
+  "label": zod.string(),
+  "required": zod.boolean(),
+  "acceptedFormats": zod.array(zod.string()),
+  "minSizeKb": zod.number().optional(),
+  "maxSizeKb": zod.number(),
+  "widthPx": zod.number().optional(),
+  "heightPx": zod.number().optional(),
+  "dpi": zod.number().optional(),
+  "outputName": zod.string(),
+  "compressionTargetKb": zod.number().optional()
+})),
+  "isPublished": zod.boolean().optional()
+}).and(zod.object({
+  "id": zod.string(),
+  "version": zod.number()
+}))
+export const ListEventRulesResponse = zod.array(ListEventRulesResponseItem)
+
+
+/**
+ * @summary Create an event rule
+ */
+export const CreateEventRuleBody = zod.object({
+  "slug": zod.string(),
+  "title": zod.string(),
+  "category": zod.enum(['scheme', 'student', 'identity', 'job', 'admission']),
+  "description": zod.string(),
+  "namingPattern": zod.string(),
+  "zipStructure": zod.array(zod.string()),
+  "mergeOrder": zod.array(zod.string()).optional(),
+  "documents": zod.array(zod.object({
+  "id": zod.string(),
+  "key": zod.string(),
+  "label": zod.string(),
+  "required": zod.boolean(),
+  "acceptedFormats": zod.array(zod.string()),
+  "minSizeKb": zod.number().optional(),
+  "maxSizeKb": zod.number(),
+  "widthPx": zod.number().optional(),
+  "heightPx": zod.number().optional(),
+  "dpi": zod.number().optional(),
+  "outputName": zod.string(),
+  "compressionTargetKb": zod.number().optional()
+})),
+  "isPublished": zod.boolean().optional()
+})
+
+
+/**
+ * @summary Update an event rule
+ */
+export const UpdateEventRuleParams = zod.object({
+  "eventId": zod.coerce.string()
+})
+
+export const UpdateEventRuleBody = zod.object({
+  "slug": zod.string(),
+  "title": zod.string(),
+  "category": zod.enum(['scheme', 'student', 'identity', 'job', 'admission']),
+  "description": zod.string(),
+  "namingPattern": zod.string(),
+  "zipStructure": zod.array(zod.string()),
+  "mergeOrder": zod.array(zod.string()).optional(),
+  "documents": zod.array(zod.object({
+  "id": zod.string(),
+  "key": zod.string(),
+  "label": zod.string(),
+  "required": zod.boolean(),
+  "acceptedFormats": zod.array(zod.string()),
+  "minSizeKb": zod.number().optional(),
+  "maxSizeKb": zod.number(),
+  "widthPx": zod.number().optional(),
+  "heightPx": zod.number().optional(),
+  "dpi": zod.number().optional(),
+  "outputName": zod.string(),
+  "compressionTargetKb": zod.number().optional()
+})),
+  "isPublished": zod.boolean().optional()
+})
+
+export const UpdateEventRuleResponse = zod.object({
+  "slug": zod.string(),
+  "title": zod.string(),
+  "category": zod.enum(['scheme', 'student', 'identity', 'job', 'admission']),
+  "description": zod.string(),
+  "namingPattern": zod.string(),
+  "zipStructure": zod.array(zod.string()),
+  "mergeOrder": zod.array(zod.string()).optional(),
+  "documents": zod.array(zod.object({
+  "id": zod.string(),
+  "key": zod.string(),
+  "label": zod.string(),
+  "required": zod.boolean(),
+  "acceptedFormats": zod.array(zod.string()),
+  "minSizeKb": zod.number().optional(),
+  "maxSizeKb": zod.number(),
+  "widthPx": zod.number().optional(),
+  "heightPx": zod.number().optional(),
+  "dpi": zod.number().optional(),
+  "outputName": zod.string(),
+  "compressionTargetKb": zod.number().optional()
+})),
+  "isPublished": zod.boolean().optional()
+}).and(zod.object({
+  "id": zod.string(),
+  "version": zod.number()
+}))
+
+
+/**
+ * @summary Delete an event rule
+ */
+export const DeleteEventRuleParams = zod.object({
+  "eventId": zod.coerce.string()
+})
+
+
+/**
+ * @summary Create a processing job for an event rule
+ */
+export const CreateProcessingJobBody = zod.object({
+  "eventRuleId": zod.string(),
+  "language": zod.enum(['en', 'bn', 'hi']).optional()
+})
+
+
+/**
+ * @summary Upload files for a processing job
+ */
+export const UploadJobFilesParams = zod.object({
+  "jobId": zod.coerce.string()
+})
+
+export const UploadJobFilesBody = zod.object({
+  "files": zod.array(zod.instanceof(File)).optional()
+})
+
+export const UploadJobFilesResponse = zod.object({
+  "files": zod.array(zod.object({
+
+}).passthrough()),
+  "missingDocuments": zod.array(zod.string()),
+  "recommendations": zod.array(zod.string())
+})
+
+
+/**
+ * @summary Queue validation, auto-fix and ZIP creation
+ */
+export const ProcessJobParams = zod.object({
+  "jobId": zod.coerce.string()
+})
+
+
+/**
+ * @summary Get job status
+ */
+export const GetProcessingJobParams = zod.object({
+  "jobId": zod.coerce.string()
+})
+
+export const GetProcessingJobResponse = zod.object({
+  "id": zod.string(),
+  "status": zod.enum(['queued', 'processing', 'completed', 'failed', 'expired']),
+  "progress": zod.number(),
+  "uploadHealthScore": zod.number().optional(),
+  "recommendations": zod.array(zod.string()),
+  "downloadUrl": zod.string().optional()
+})
+
+
+/**
+ * @summary Download final submission ZIP
+ */
+export const DownloadJobZipParams = zod.object({
+  "jobId": zod.coerce.string()
+})
+
+
+/**
+ * @summary Get admin analytics dashboard data
+ */
+export const GetAdminAnalyticsResponse = zod.object({
+  "activeUsers": zod.number().optional(),
+  "uploadCount": zod.number().optional(),
+  "storageBytes": zod.number().optional(),
+  "compressionSavingsBytes": zod.number().optional(),
+  "topSchemes": zod.array(zod.object({
+
+}).passthrough()).optional(),
+  "failedUploadRate": zod.number().optional()
+})
+
+

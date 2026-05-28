@@ -290,9 +290,9 @@ To Be Done:        7 features
 - Review `artifacts/api-server/src/routes/premium.ts` - API design
 
 ### For Frontend Development
-- Check `artifacts/file-master/src/hooks/usePremiumFeatures.ts` - Hook patterns
-- Review `artifacts/file-master/src/components/WhatsAppShare.tsx` - Component design
-- See `artifacts/file-master/src/components/VoiceAssistant.tsx` - Multi-language support
+- Check `artifacts/file-nova/src/hooks/usePremiumFeatures.ts` - Hook patterns
+- Review `artifacts/file-nova/src/components/WhatsAppShare.tsx` - Component design
+- See `artifacts/file-nova/src/components/VoiceAssistant.tsx` - Multi-language support
 
 ### For DevOps
 - See `DEPLOYMENT_GUIDE.md` - Docker/K8s setup
@@ -366,3 +366,4 @@ FileMaster AI has been successfully enhanced with **premium feature infrastructu
 **Next Phase**: Database Integration + Feature Completion
 
 Made with ❤️ for FileMaster AI
+

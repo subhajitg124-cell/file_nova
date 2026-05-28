@@ -60,7 +60,7 @@ You requested **14 advanced premium features** for FileMaster AI to transform it
 - All endpoints with Zod validation
 
 ### Frontend Hooks (✅ 100% Complete)
-**File**: `artifacts/file-master/src/hooks/usePremiumFeatures.ts` (7.7 KB)
+**File**: `artifacts/file-nova/src/hooks/usePremiumFeatures.ts` (7.7 KB)
 - `useShare()` - Share link management
 - `useSecureDownload()` - Download with tracking
 - `useQRCode()` - QR operations
@@ -216,7 +216,7 @@ lib/db/src/
 artifacts/api-server/src/routes/
 └── premium.ts                  (13.1 KB)
 
-artifacts/file-master/src/
+artifacts/file-nova/src/
 ├── hooks/usePremiumFeatures.ts (7.7 KB)
 ├── components/WhatsAppShare.tsx (7.2 KB)
 └── components/VoiceAssistant.tsx (7.8 KB)
@@ -252,7 +252,7 @@ cd artifacts/api-server/src
 cat routes/premium.ts          # See all API endpoints
 
 # Frontend
-cd artifacts/file-master/src
+cd artifacts/file-nova/src
 cat hooks/usePremiumFeatures.ts  # See state management
 cat components/WhatsAppShare.tsx # See component design
 
@@ -336,8 +336,8 @@ docker-compose -f docker-compose.prod.yml up -d
 - Request/response design
 
 ### For Frontend Development
-- `artifacts/file-master/src/hooks/usePremiumFeatures.ts` - Custom hook patterns
-- `artifacts/file-master/src/components/*.tsx` - Component design patterns
+- `artifacts/file-nova/src/hooks/usePremiumFeatures.ts` - Custom hook patterns
+- `artifacts/file-nova/src/components/*.tsx` - Component design patterns
 - Multi-language support examples
 - Toast notifications
 
@@ -446,3 +446,4 @@ You now have a **production-grade foundation** for 14 advanced premium features:
 **Estimated Completion**: 5-6 weeks  
 
 Made with ❤️ to transform FileMaster AI into India's premier document utility platform.
+

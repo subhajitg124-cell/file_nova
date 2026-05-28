@@ -1,10 +1,10 @@
-# File Master Platform
+# FileNova Platform
 
 An all-in-one secure file manipulation platform for PDFs, images, office documents, and video.
 
 ## Run & Operate
 
-- **Frontend Dev Server**: `pnpm --filter @workspace/file-master run dev` (Runs on port `21533` with fallback)
+- **Frontend Dev Server**: `pnpm --filter @workspace/file-nova run dev` (Runs on port `21533` with fallback)
 - **API Server Dev**: `pnpm --filter @workspace/api-server run dev` (Runs on port `8081` with automatic port collision resolver)
 - **Database Migrations**:
   - `pnpm --filter @workspace/db run generate` — Generate Drizzle migration files based on schema changes.
@@ -21,7 +21,7 @@ An all-in-one secure file manipulation platform for PDFs, images, office documen
 
 ## Where Things Live
 
-- `artifacts/file-master/` — React + Vite frontend (Vite configuration, components, styling).
+- `artifacts/file-nova/` — React + Vite frontend (Vite configuration, components, styling).
 - `artifacts/api-server/` — Express backend server handling file uploads, processing routes, timeouts, and CORS limits.
 - `lib/db/` — Database migration configuration, schema models, and pg pool connection.
 - `lib/api-spec/` — OpenAPI specification and Orval configuration for clients/zod generation.

@@ -14,7 +14,7 @@ COPY lib ./lib
 COPY scripts ./scripts
 
 RUN pnpm install --frozen-lockfile
-RUN pnpm --filter @workspace/file-master run build
+RUN pnpm --filter @workspace/file-nova run build
 RUN pnpm --filter @workspace/api-server run build
 
 EXPOSE 10000

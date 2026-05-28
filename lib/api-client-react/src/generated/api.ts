@@ -6,21 +6,32 @@
  * OpenAPI spec version: 0.1.0
  */
 import {
+  useMutation,
   useQuery
 } from '@tanstack/react-query';
 import type {
+  MutationFunction,
   QueryFunction,
   QueryKey,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult
 } from '@tanstack/react-query';
 
 import type {
-  HealthStatus
+  AdminAnalytics,
+  CreateProcessingJobBody,
+  EventRule,
+  EventRuleInput,
+  HealthStatus,
+  ProcessingJob,
+  UploadJobFilesBody,
+  UploadReport
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
-import type { ErrorType } from '../custom-fetch';
+import type { ErrorType , BodyType } from '../custom-fetch';
 
 type AwaitedInput<T> = PromiseLike<T> | T;
 
@@ -97,6 +108,744 @@ export function useHealthCheck<TData = Awaited<ReturnType<typeof healthCheck>>, 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getHealthCheckQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getListEventRulesUrl = () => {
+
+
+
+
+  return `/api/v1/events`
+}
+
+/**
+ * @summary List published event rules
+ */
+export const listEventRules = async ( options?: RequestInit): Promise<EventRule[]> => {
+
+  return customFetch<EventRule[]>(getListEventRulesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListEventRulesQueryKey = () => {
+    return [
+    `/api/v1/events`
+    ] as const;
+    }
+
+
+export const getListEventRulesQueryOptions = <TData = Awaited<ReturnType<typeof listEventRules>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listEventRules>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListEventRulesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listEventRules>>> = ({ signal }) => listEventRules({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listEventRules>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListEventRulesQueryResult = NonNullable<Awaited<ReturnType<typeof listEventRules>>>
+export type ListEventRulesQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List published event rules
+ */
+
+export function useListEventRules<TData = Awaited<ReturnType<typeof listEventRules>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listEventRules>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListEventRulesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCreateEventRuleUrl = () => {
+
+
+
+
+  return `/api/v1/events`
+}
+
+/**
+ * @summary Create an event rule
+ */
+export const createEventRule = async (eventRuleInput: EventRuleInput, options?: RequestInit): Promise<EventRule> => {
+
+  return customFetch<EventRule>(getCreateEventRuleUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      eventRuleInput,)
+  }
+);}
+
+
+
+
+export const getCreateEventRuleMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createEventRule>>, TError,{data: BodyType<EventRuleInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createEventRule>>, TError,{data: BodyType<EventRuleInput>}, TContext> => {
+
+const mutationKey = ['createEventRule'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createEventRule>>, {data: BodyType<EventRuleInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createEventRule(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateEventRuleMutationResult = NonNullable<Awaited<ReturnType<typeof createEventRule>>>
+    export type CreateEventRuleMutationBody = BodyType<EventRuleInput>
+    export type CreateEventRuleMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Create an event rule
+ */
+export const useCreateEventRule = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createEventRule>>, TError,{data: BodyType<EventRuleInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createEventRule>>,
+        TError,
+        {data: BodyType<EventRuleInput>},
+        TContext
+      > => {
+      return useMutation(getCreateEventRuleMutationOptions(options));
+    }
+
+export const getUpdateEventRuleUrl = (eventId: string,) => {
+
+
+
+
+  return `/api/v1/events/${eventId}`
+}
+
+/**
+ * @summary Update an event rule
+ */
+export const updateEventRule = async (eventId: string,
+    eventRuleInput: EventRuleInput, options?: RequestInit): Promise<EventRule> => {
+
+  return customFetch<EventRule>(getUpdateEventRuleUrl(eventId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      eventRuleInput,)
+  }
+);}
+
+
+
+
+export const getUpdateEventRuleMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateEventRule>>, TError,{eventId: string;data: BodyType<EventRuleInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateEventRule>>, TError,{eventId: string;data: BodyType<EventRuleInput>}, TContext> => {
+
+const mutationKey = ['updateEventRule'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateEventRule>>, {eventId: string;data: BodyType<EventRuleInput>}> = (props) => {
+          const {eventId,data} = props ?? {};
+
+          return  updateEventRule(eventId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateEventRuleMutationResult = NonNullable<Awaited<ReturnType<typeof updateEventRule>>>
+    export type UpdateEventRuleMutationBody = BodyType<EventRuleInput>
+    export type UpdateEventRuleMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Update an event rule
+ */
+export const useUpdateEventRule = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateEventRule>>, TError,{eventId: string;data: BodyType<EventRuleInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateEventRule>>,
+        TError,
+        {eventId: string;data: BodyType<EventRuleInput>},
+        TContext
+      > => {
+      return useMutation(getUpdateEventRuleMutationOptions(options));
+    }
+
+export const getDeleteEventRuleUrl = (eventId: string,) => {
+
+
+
+
+  return `/api/v1/events/${eventId}`
+}
+
+/**
+ * @summary Delete an event rule
+ */
+export const deleteEventRule = async (eventId: string, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getDeleteEventRuleUrl(eventId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getDeleteEventRuleMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteEventRule>>, TError,{eventId: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteEventRule>>, TError,{eventId: string}, TContext> => {
+
+const mutationKey = ['deleteEventRule'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteEventRule>>, {eventId: string}> = (props) => {
+          const {eventId} = props ?? {};
+
+          return  deleteEventRule(eventId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteEventRuleMutationResult = NonNullable<Awaited<ReturnType<typeof deleteEventRule>>>
+
+    export type DeleteEventRuleMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Delete an event rule
+ */
+export const useDeleteEventRule = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteEventRule>>, TError,{eventId: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteEventRule>>,
+        TError,
+        {eventId: string},
+        TContext
+      > => {
+      return useMutation(getDeleteEventRuleMutationOptions(options));
+    }
+
+export const getCreateProcessingJobUrl = () => {
+
+
+
+
+  return `/api/v1/jobs`
+}
+
+/**
+ * @summary Create a processing job for an event rule
+ */
+export const createProcessingJob = async (createProcessingJobBody: CreateProcessingJobBody, options?: RequestInit): Promise<ProcessingJob> => {
+
+  return customFetch<ProcessingJob>(getCreateProcessingJobUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createProcessingJobBody,)
+  }
+);}
+
+
+
+
+export const getCreateProcessingJobMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createProcessingJob>>, TError,{data: BodyType<CreateProcessingJobBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createProcessingJob>>, TError,{data: BodyType<CreateProcessingJobBody>}, TContext> => {
+
+const mutationKey = ['createProcessingJob'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createProcessingJob>>, {data: BodyType<CreateProcessingJobBody>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createProcessingJob(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateProcessingJobMutationResult = NonNullable<Awaited<ReturnType<typeof createProcessingJob>>>
+    export type CreateProcessingJobMutationBody = BodyType<CreateProcessingJobBody>
+    export type CreateProcessingJobMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Create a processing job for an event rule
+ */
+export const useCreateProcessingJob = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createProcessingJob>>, TError,{data: BodyType<CreateProcessingJobBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createProcessingJob>>,
+        TError,
+        {data: BodyType<CreateProcessingJobBody>},
+        TContext
+      > => {
+      return useMutation(getCreateProcessingJobMutationOptions(options));
+    }
+
+export const getUploadJobFilesUrl = (jobId: string,) => {
+
+
+
+
+  return `/api/v1/jobs/${jobId}/uploads`
+}
+
+/**
+ * @summary Upload files for a processing job
+ */
+export const uploadJobFiles = async (jobId: string,
+    uploadJobFilesBody: UploadJobFilesBody, options?: RequestInit): Promise<UploadReport> => {
+    const formData = new FormData();
+if(uploadJobFilesBody.files !== undefined) {
+ uploadJobFilesBody.files.forEach(value => formData.append(`files`, value));
+ }
+
+  return customFetch<UploadReport>(getUploadJobFilesUrl(jobId),
+  {
+    ...options,
+    method: 'POST'
+    ,
+    body:
+      formData,
+  }
+);}
+
+
+
+
+export const getUploadJobFilesMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadJobFiles>>, TError,{jobId: string;data: BodyType<UploadJobFilesBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof uploadJobFiles>>, TError,{jobId: string;data: BodyType<UploadJobFilesBody>}, TContext> => {
+
+const mutationKey = ['uploadJobFiles'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof uploadJobFiles>>, {jobId: string;data: BodyType<UploadJobFilesBody>}> = (props) => {
+          const {jobId,data} = props ?? {};
+
+          return  uploadJobFiles(jobId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UploadJobFilesMutationResult = NonNullable<Awaited<ReturnType<typeof uploadJobFiles>>>
+    export type UploadJobFilesMutationBody = BodyType<UploadJobFilesBody>
+    export type UploadJobFilesMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Upload files for a processing job
+ */
+export const useUploadJobFiles = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadJobFiles>>, TError,{jobId: string;data: BodyType<UploadJobFilesBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof uploadJobFiles>>,
+        TError,
+        {jobId: string;data: BodyType<UploadJobFilesBody>},
+        TContext
+      > => {
+      return useMutation(getUploadJobFilesMutationOptions(options));
+    }
+
+export const getProcessJobUrl = (jobId: string,) => {
+
+
+
+
+  return `/api/v1/jobs/${jobId}/process`
+}
+
+/**
+ * @summary Queue validation, auto-fix and ZIP creation
+ */
+export const processJob = async (jobId: string, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getProcessJobUrl(jobId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getProcessJobMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof processJob>>, TError,{jobId: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof processJob>>, TError,{jobId: string}, TContext> => {
+
+const mutationKey = ['processJob'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof processJob>>, {jobId: string}> = (props) => {
+          const {jobId} = props ?? {};
+
+          return  processJob(jobId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ProcessJobMutationResult = NonNullable<Awaited<ReturnType<typeof processJob>>>
+
+    export type ProcessJobMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Queue validation, auto-fix and ZIP creation
+ */
+export const useProcessJob = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof processJob>>, TError,{jobId: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof processJob>>,
+        TError,
+        {jobId: string},
+        TContext
+      > => {
+      return useMutation(getProcessJobMutationOptions(options));
+    }
+
+export const getGetProcessingJobUrl = (jobId: string,) => {
+
+
+
+
+  return `/api/v1/jobs/${jobId}`
+}
+
+/**
+ * @summary Get job status
+ */
+export const getProcessingJob = async (jobId: string, options?: RequestInit): Promise<ProcessingJob> => {
+
+  return customFetch<ProcessingJob>(getGetProcessingJobUrl(jobId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetProcessingJobQueryKey = (jobId: string,) => {
+    return [
+    `/api/v1/jobs/${jobId}`
+    ] as const;
+    }
+
+
+export const getGetProcessingJobQueryOptions = <TData = Awaited<ReturnType<typeof getProcessingJob>>, TError = ErrorType<unknown>>(jobId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getProcessingJob>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetProcessingJobQueryKey(jobId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProcessingJob>>> = ({ signal }) => getProcessingJob(jobId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(jobId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProcessingJob>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetProcessingJobQueryResult = NonNullable<Awaited<ReturnType<typeof getProcessingJob>>>
+export type GetProcessingJobQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get job status
+ */
+
+export function useGetProcessingJob<TData = Awaited<ReturnType<typeof getProcessingJob>>, TError = ErrorType<unknown>>(
+ jobId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getProcessingJob>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetProcessingJobQueryOptions(jobId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getDownloadJobZipUrl = (jobId: string,) => {
+
+
+
+
+  return `/api/v1/jobs/${jobId}/download`
+}
+
+/**
+ * @summary Download final submission ZIP
+ */
+export const downloadJobZip = async (jobId: string, options?: RequestInit): Promise<Blob> => {
+
+  return customFetch<Blob>(getDownloadJobZipUrl(jobId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getDownloadJobZipQueryKey = (jobId: string,) => {
+    return [
+    `/api/v1/jobs/${jobId}/download`
+    ] as const;
+    }
+
+
+export const getDownloadJobZipQueryOptions = <TData = Awaited<ReturnType<typeof downloadJobZip>>, TError = ErrorType<unknown>>(jobId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof downloadJobZip>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getDownloadJobZipQueryKey(jobId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof downloadJobZip>>> = ({ signal }) => downloadJobZip(jobId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(jobId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof downloadJobZip>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type DownloadJobZipQueryResult = NonNullable<Awaited<ReturnType<typeof downloadJobZip>>>
+export type DownloadJobZipQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Download final submission ZIP
+ */
+
+export function useDownloadJobZip<TData = Awaited<ReturnType<typeof downloadJobZip>>, TError = ErrorType<unknown>>(
+ jobId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof downloadJobZip>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getDownloadJobZipQueryOptions(jobId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetAdminAnalyticsUrl = () => {
+
+
+
+
+  return `/api/v1/admin/analytics`
+}
+
+/**
+ * @summary Get admin analytics dashboard data
+ */
+export const getAdminAnalytics = async ( options?: RequestInit): Promise<AdminAnalytics> => {
+
+  return customFetch<AdminAnalytics>(getGetAdminAnalyticsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAdminAnalyticsQueryKey = () => {
+    return [
+    `/api/v1/admin/analytics`
+    ] as const;
+    }
+
+
+export const getGetAdminAnalyticsQueryOptions = <TData = Awaited<ReturnType<typeof getAdminAnalytics>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminAnalytics>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAdminAnalyticsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAdminAnalytics>>> = ({ signal }) => getAdminAnalytics({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAdminAnalytics>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAdminAnalyticsQueryResult = NonNullable<Awaited<ReturnType<typeof getAdminAnalytics>>>
+export type GetAdminAnalyticsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get admin analytics dashboard data
+ */
+
+export function useGetAdminAnalytics<TData = Awaited<ReturnType<typeof getAdminAnalytics>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminAnalytics>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAdminAnalyticsQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
