@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { m as motion } from 'framer-motion';
+import { useTranslation } from '@/lib/i18n';
+import { useAdmin } from '@/lib/admin';
 import {
   Sliders, RefreshCw, Play, Loader2, Sparkles, FileText,
   Scissors, FileArchive, Image, ImageIcon, ArrowLeftRight, FileCode,
@@ -382,6 +384,10 @@ export const OptionsPanel: React.FC = () => {
     setError, isProcessing, addRawFiles, addFiles,
   } = useFileStore();
 
+  const t = useTranslation();
+  const admin = useAdmin();
+  const editingDisabled = !admin.settings.editingEnabled;
+
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [naturalDims, setNaturalDims] = useState<{ width: number; height: number } | null>(null);
   const [annotations, setAnnotations] = useState<Array<PdfAnnotation & { id: string }>>([
@@ -503,6 +509,7 @@ export const OptionsPanel: React.FC = () => {
   // ── Process ──────────────────────────────────────────────────────────────
   const handleStartProcess = async () => {
     if (!jobId) return;
+    if (editingDisabled) { setError(t.editingDisabled); return; }
     setProcessing(true); setError(null); setProgress(0);
     try {
       if (!isMockMode) {
@@ -1828,7 +1835,7 @@ export const OptionsPanel: React.FC = () => {
             </div>
             <div>
               <h2 className="text-sm font-bold text-foreground">{panelTitle} Settings</h2>
-              <p className="text-[11px] text-muted-foreground">Configure processing parameters</p>
+              <p className="text-[11px] text-muted-foreground">{t.configureProcessing}</p>
             </div>
           </div>
           {selectedOperation === 'compress' && isVideo && (
@@ -1839,14 +1846,19 @@ export const OptionsPanel: React.FC = () => {
           )}
         </div>
         <div className="px-6 py-5">{renderOptions()}</div>
+        {editingDisabled && (
+          <div className="px-6 pb-4 text-sm text-amber-700 bg-amber-50 border-t border-amber-200">
+            {t.editingDisabled}
+          </div>
+        )}
         <div className="px-6 pb-6">
-          <button onClick={handleStartProcess} disabled={isProcessing}
+          <button onClick={handleStartProcess} disabled={isProcessing || editingDisabled}
             className="w-full relative overflow-hidden flex items-center justify-center gap-2.5 py-3.5 rounded-xl font-bold text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-60 disabled:cursor-not-allowed"
             style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: 'white' }}>
             <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full hover:translate-x-full transition-transform duration-700" />
             {isProcessing
-              ? <><Loader2 className="h-4 w-4 animate-spin" /><span>Processing…</span></>
-              : <><Play className="h-4 w-4 fill-current" /><span>Process {fileCount > 1 ? `${fileCount} files` : 'file'}</span></>
+              ? <><Loader2 className="h-4 w-4 animate-spin" /><span>{t.processing}</span></>
+              : <><Play className="h-4 w-4 fill-current" /><span>{fileCount > 1 ? `${t.processFiles}` : `${t.processFile}`}</span></>
             }
           </button>
         </div>

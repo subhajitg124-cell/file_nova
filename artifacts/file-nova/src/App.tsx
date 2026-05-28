@@ -6,6 +6,8 @@ import Home from "@/pages/Home";
 import AdminDashboard from "@/pages/AdminDashboard";
 import PremiumSuite from "@/pages/PremiumSuite";
 import NotFound from "@/pages/not-found";
+import { LanguageProvider } from "@/lib/i18n";
+import { AdminProvider } from "@/lib/admin";
 
 const queryClient = new QueryClient();
 
@@ -78,8 +80,12 @@ function App() {
         {({ reset }) => (
           <ErrorBoundary onReset={reset}>
             <LazyMotion features={domAnimation}>
-              <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-                <Router />
+              <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}> 
+                <LanguageProvider>
+                  <AdminProvider>
+                    <Router />
+                  </AdminProvider>
+                </LanguageProvider>
               </WouterRouter>
             </LazyMotion>
           </ErrorBoundary>

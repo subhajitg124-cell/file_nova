@@ -3,6 +3,8 @@ import { useDropzone } from 'react-dropzone';
 import { Upload, AlertCircle, Loader2, FileText, Image, Video, FileSpreadsheet, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFileStore } from '@/store/useFileStore';
+import { useTranslation } from '@/lib/i18n';
+import { useAdmin } from '@/lib/admin';
 import { apiClient, apiMock } from '@/lib/api';
 import { detectFileType, getWorkspaceCategory } from '@/lib/file-detection';
 import { AutoDetectAnimation } from '@/components/shared/AutoDetectAnimation';
@@ -20,6 +22,8 @@ const CATEGORY_META = {
 
 export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }) => {
   const { addFiles, isMockMode, jobId, setJobId, setError, error, setSelectedSection } = useFileStore();
+  const t = useTranslation();
+  const admin = useAdmin();
   const [isUploading, setIsUploading] = useState(false);
   const [mismatchError, setMismatchError] = useState<{
     detected: 'pdf' | 'image' | 'video' | 'office' | null;
@@ -73,23 +77,23 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
     finally { setIsUploading(false); }
   }, [addFiles, allowedCategory, isMockMode, jobId, setError, setJobId]);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, maxSize: 100 * 1024 * 1024 });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, maxSize: 100 * 1024 * 1024, disabled: !admin.settings.editingEnabled });
 
   const getAcceptLabel = () => {
-    if (allowedCategory === 'pdf')    return 'PDF files only · up to 100 MB';
-    if (allowedCategory === 'image')  return 'PNG, JPG, WEBP, GIF, SVG images · up to 100 MB';
-    if (allowedCategory === 'video')  return 'MP4, WebM video files · up to 100 MB';
-    if (allowedCategory === 'office') return 'DOCX, PPTX, XLSX, CSV, MD, HTML · up to 100 MB';
-    return 'PDF, PNG, JPG, DOCX, PPTX, XLSX, MP4 and more · up to 100 MB';
+    if (allowedCategory === 'pdf')    return t.acceptLabelPdf;
+    if (allowedCategory === 'image')  return t.acceptLabelImage;
+    if (allowedCategory === 'video')  return t.acceptLabelVideo;
+    if (allowedCategory === 'office') return t.acceptLabelOffice;
+    return t.acceptLabelDefault;
   };
 
   const getHeadline = () => {
-    if (isDragActive) return 'Release to upload';
-    if (allowedCategory === 'pdf')    return 'Drop your PDF here';
-    if (allowedCategory === 'image')  return 'Drop your image here';
-    if (allowedCategory === 'video')  return 'Drop your video here';
-    if (allowedCategory === 'office') return 'Drop your document here';
-    return 'Drop any file to get started';
+    if (isDragActive) return t.releaseToUpload;
+    if (allowedCategory === 'pdf')    return t.dropPdfHere;
+    if (allowedCategory === 'image')  return t.dropImageHere;
+    if (allowedCategory === 'video')  return t.dropVideoHere;
+    if (allowedCategory === 'office') return t.dropDocHere;
+    return t.dropAnyFile;
   };
 
   const catMeta = allowedCategory ? CATEGORY_META[allowedCategory] : null;
@@ -145,8 +149,8 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
                 </div>
               </div>
               <div>
-                <p className="font-bold text-foreground">Uploading your file…</p>
-                <p className="text-xs text-muted-foreground mt-1">Checking integrity and generating preview</p>
+                <p className="font-bold text-foreground">{t.uploadingFile}</p>
+                <p className="text-xs text-muted-foreground mt-1">{t.uploadingChecking}</p>
               </div>
             </motion.div>
           ) : (
@@ -190,7 +194,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
                 <p className="text-xs sm:text-sm text-muted-foreground">
                   or{' '}
                   <span className="text-primary font-semibold underline-offset-2 group-hover:underline transition-all">
-                    click to browse
+                    {t.clickToBrowse}
                   </span>{' '}
                   your files
                 </p>
@@ -225,7 +229,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
             <div className="flex items-start gap-2.5 text-amber-500">
               <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
               <div>
-                <p className="font-bold text-foreground text-sm">Wrong file type</p>
+                <p className="font-bold text-foreground text-sm">{t.wrongFileTitle}</p>
                 <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
                   <span className="font-mono bg-muted px-1 py-0.5 rounded text-foreground text-[11px]">{mismatchError.fileName}</span> is a{' '}
                   <span className="font-bold uppercase text-amber-500">{mismatchError.detected || 'unknown'}</span> file.
@@ -238,10 +242,10 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
                 onClick={() => handleRedirectWorkspace(mismatchError.detected, mismatchError.file)}
                 className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold rounded-lg transition-all shadow-sm"
               >
-                Open in {mismatchError.detected === 'pdf' ? 'PDF Suite' : mismatchError.detected === 'image' ? 'Image Lab' : mismatchError.detected === 'video' ? 'Video Studio' : 'Office Suite'}
+                {t.openIn} {mismatchError.detected === 'pdf' ? 'PDF Suite' : mismatchError.detected === 'image' ? 'Image Lab' : mismatchError.detected === 'video' ? 'Video Studio' : 'Office Suite'}
               </button>
               <button onClick={() => setMismatchError(null)} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
-                Dismiss
+                {t.dismiss}
               </button>
             </div>
           </motion.div>

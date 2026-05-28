@@ -11,6 +11,8 @@ import {
 } from 'lucide-react';
 import { useFileStore, OperationType } from '@/store/useFileStore';
 import { apiClient, apiMock } from '@/lib/api';
+import { useTranslation } from '@/lib/i18n';
+import { useAdmin } from '@/lib/admin';
 
 interface ToolItem {
   id: OperationType;
@@ -188,6 +190,8 @@ const readStoredList = (key: string) => {
 
 export const ToolGrid: React.FC = () => {
   const { files, setOperation, updateOptions, isMockMode, jobId, setJobId, setError, addFiles, selectedSection } = useFileStore();
+  const t = useTranslation();
+  const admin = useAdmin();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSubcategory, setActiveSubcategory] = useState<'all' | string>('all');
   const [isUploading, setIsUploading] = useState(false);
@@ -216,6 +220,7 @@ export const ToolGrid: React.FC = () => {
       setOperation(tool.id);
       updateOptions({ operation: tool.actionName });
     } else {
+      if (!admin.settings.editingEnabled) { setError(t.editingDisabled); return; }
       triggerDirectUpload(tool);
     }
   };
@@ -256,6 +261,7 @@ export const ToolGrid: React.FC = () => {
   };
 
   const triggerDirectUpload = (tool: ToolItem) => {
+    if (!admin.settings.editingEnabled) { setError(t.editingDisabled); return; }
     if (tool.actionName === 'scan_to_pdf') {
       setOperation(tool.id); updateOptions({ operation: tool.actionName }); return;
     }
@@ -276,7 +282,7 @@ export const ToolGrid: React.FC = () => {
         addFiles(uploaded);
         setOperation(tool.id);
         updateOptions({ operation: tool.actionName });
-      } catch (err: any) { setError(err.message || 'Upload failed.'); }
+      } catch (err: any) { setError(err.message || t.uploadFailed); }
       finally { setIsUploading(false); }
     };
     input.click();
@@ -319,7 +325,7 @@ export const ToolGrid: React.FC = () => {
           <div className="h-16 w-16 rounded-2xl bg-card border border-border shadow-premium flex items-center justify-center">
             <Loader2 className="h-7 w-7 text-primary animate-spin" />
           </div>
-          <p className="font-bold text-foreground text-sm">Importing files…</p>
+          <p className="font-bold text-foreground text-sm">{t.importingFiles}</p>
         </motion.div>
       )}
 
@@ -328,7 +334,7 @@ export const ToolGrid: React.FC = () => {
         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
         <input
           type="text"
-          placeholder="Search tools…"
+          placeholder={t.searchToolsPlaceholder}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full pl-10 pr-10 py-2.5 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all placeholder:text-muted-foreground/60"
@@ -345,14 +351,14 @@ export const ToolGrid: React.FC = () => {
           onClick={() => setActiveSubcategory('all')}
           className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${activeSubcategory === 'all' ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground border-border hover:border-primary hover:text-foreground'}`}
         >
-          All tools
+          {t.allTools}
         </button>
         <button
           onClick={() => setActiveSubcategory('favorites')}
           className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${activeSubcategory === 'favorites' ? 'bg-amber-400 text-slate-950 border-amber-300' : 'bg-card text-muted-foreground border-border hover:border-amber-400 hover:text-foreground'}`}
         >
           <Star className={`h-3.5 w-3.5 ${favoriteTools.length > 0 ? 'fill-current' : ''}`} />
-          Favorites
+          {t.favorites}
           {favoriteTools.length > 0 && <span className="rounded-full bg-background/70 px-1.5 text-[10px]">{favoriteTools.length}</span>}
         </button>
         <button
@@ -360,7 +366,7 @@ export const ToolGrid: React.FC = () => {
           className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${activeSubcategory === 'recent' ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground border-border hover:border-primary hover:text-foreground'}`}
         >
           <History className="h-3.5 w-3.5" />
-          Recent
+          {t.recent}
           {recentTools.length > 0 && <span className="rounded-full bg-background/70 px-1.5 text-[10px]">{recentTools.length}</span>}
         </button>
         {subcategoryOrder.map((sub) => {
@@ -384,14 +390,13 @@ export const ToolGrid: React.FC = () => {
           {activeSubcategory === 'favorites' ? <Star className="h-8 w-8 mx-auto text-muted-foreground/20" /> : <Search className="h-8 w-8 mx-auto text-muted-foreground/20" />}
           <p className="text-sm text-muted-foreground">
             {activeSubcategory === 'favorites'
-              ? 'Star tools you use often and they will appear here.'
+              ? t.noToolsFavorites
               : activeSubcategory === 'recent'
-                ? 'Tools you open will appear here for faster repeat work.'
-                : <>No tools match "<span className="text-foreground font-medium">{searchQuery}</span>"</>
+                ? t.noToolsRecent
+                : <>{t.noToolsMatch.replace('{q}', searchQuery ? searchQuery : '')}</>
             }
           </p>
-          {searchQuery && <button onClick={() => setSearchQuery('')} className="text-xs text-primary hover:underline">Clear search</button>}
-        </div>
+          {searchQuery && <button onClick={() => setSearchQuery('')} className="text-xs text-primary hover:underline">{t.clearSearch}</button>}
       )}
 
       {/* Grouped sections */}

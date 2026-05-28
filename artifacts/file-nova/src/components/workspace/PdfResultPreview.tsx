@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Loader2, ChevronDown, ChevronUp, Eye } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n';
 
 interface Props {
   url: string;
@@ -7,6 +8,7 @@ interface Props {
 }
 
 export const PdfResultPreview: React.FC<Props> = ({ url, maxPages = 8 }) => {
+  const t = useTranslation();
   const [pages, setPages] = useState<string[]>([]);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -60,7 +62,7 @@ export const PdfResultPreview: React.FC<Props> = ({ url, maxPages = 8 }) => {
     return (
       <div className="flex items-center gap-2 py-3 text-muted-foreground text-xs">
         <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0" />
-        Rendering page preview…
+        {t.renderingPreview}
       </div>
     );
   }
@@ -70,7 +72,7 @@ export const PdfResultPreview: React.FC<Props> = ({ url, maxPages = 8 }) => {
     <div className="space-y-2.5">
       <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
         <Eye className="h-3 w-3" />
-        Preview — {totalPages} {totalPages === 1 ? 'page' : 'pages'}
+        {t.previewLabel.replace('{count}', String(totalPages)).replace('{plural}', totalPages === 1 ? 'page' : 'pages')}
       </div>
       <div className="grid grid-cols-3 gap-2">
         {pages.map((src, i) => (
@@ -88,8 +90,8 @@ export const PdfResultPreview: React.FC<Props> = ({ url, maxPages = 8 }) => {
           className="w-full flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted/40"
         >
           {expanded
-            ? <><ChevronUp className="h-3.5 w-3.5" /> Show fewer pages</>
-            : <><ChevronDown className="h-3.5 w-3.5" /> Show all {totalPages} pages</>}
+            ? <><ChevronUp className="h-3.5 w-3.5" /> {t.showFewerPages}</>
+            : <><ChevronDown className="h-3.5 w-3.5" /> {t.showAllPages.replace('{count}', String(totalPages))}</>}
         </button>
       )}
     </div>

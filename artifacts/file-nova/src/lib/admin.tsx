@@ -1,0 +1,93 @@
+import React, { createContext, useContext, useEffect, useState } from "react";
+
+type AdminCreds = { username: string; passwordHash: string } | null;
+type Settings = { standaloneMode: boolean; editingEnabled: boolean };
+
+const CRED_KEY = "filenova-admin";
+const SETTINGS_KEY = "filenova-settings";
+
+const defaultSettings: Settings = { standaloneMode: false, editingEnabled: true };
+
+const AdminContext = createContext<{
+  creds: AdminCreds;
+  settings: Settings;
+  login: (username: string, password: string) => boolean;
+  logout: () => void;
+  setCredentials: (username: string, password: string) => void;
+  setSettings: (s: Partial<Settings>) => void;
+} | null>(null);
+
+export function AdminProvider({ children }: { children: React.ReactNode }) {
+  const [creds, setCreds] = useState<AdminCreds>(() => {
+    try {
+      const raw = localStorage.getItem(CRED_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  });
+
+  const [settings, setSettingsState] = useState<Settings>(() => {
+    try {
+      const raw = localStorage.getItem(SETTINGS_KEY);
+      return raw ? JSON.parse(raw) : defaultSettings;
+    } catch (e) {
+      return defaultSettings;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      if (creds) localStorage.setItem(CRED_KEY, JSON.stringify(creds));
+      else localStorage.removeItem(CRED_KEY);
+    } catch (e) {}
+  }, [creds]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    } catch (e) {}
+  }, [settings]);
+
+  const hash = (s: string) => {
+    try {
+      return btoa(unescape(encodeURIComponent(s)));
+    } catch (e) {
+      return s;
+    }
+  };
+
+  const login = (username: string, password: string) => {
+    if (!creds) return false;
+    if (creds.username === username && creds.passwordHash === hash(password)) {
+      // session is ephemeral - we just validate
+      return true;
+    }
+    return false;
+  };
+
+  const logout = () => {
+    // nothing persisted for session; keep creds stored but client can lock
+  };
+
+  const setCredentials = (username: string, password: string) => {
+    const payload: AdminCreds = { username, passwordHash: hash(password) };
+    setCreds(payload);
+  };
+
+  const setSettings = (s: Partial<Settings>) => setSettingsState((prev) => ({ ...prev, ...s }));
+
+  return (
+    <AdminContext.Provider value={{ creds, settings, login, logout, setCredentials, setSettings }}>
+      {children}
+    </AdminContext.Provider>
+  );
+}
+
+export function useAdmin() {
+  const ctx = useContext(AdminContext);
+  if (!ctx) throw new Error("useAdmin must be used within AdminProvider");
+  return ctx;
+}
+
+export default AdminProvider;

@@ -1,3 +1,5 @@
+import { AppLanguage, automationPillars, eventRules, getRuleCompletion, quickActions, } from "@/lib/document-automation";
+import { useLanguage, useTranslation } from "@/lib/i18n";
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
@@ -25,8 +27,11 @@ import {
   WandSparkles,
   WifiOff,
   Zap,
+  Menu,
+  X,
 } from "lucide-react";
 import { useFileStore } from "@/store/useFileStore";
+import { useAdmin } from "@/lib/admin";
 import { apiClient } from "@/lib/api";
 import { DownloadHub } from "@/components/workspace/DownloadHub";
 import { OptionsPanel } from "@/components/workspace/OptionsPanel";
@@ -34,14 +39,7 @@ import { PreviewCanvas } from "@/components/workspace/PreviewCanvas";
 import { ProgressTracker } from "@/components/workspace/ProgressTracker";
 import { ToolGrid } from "@/components/workspace/ToolGrid";
 import { UploadZone } from "@/components/workspace/UploadZone";
-import {
-  AppLanguage,
-  automationPillars,
-  eventRules,
-  getRuleCompletion,
-  quickActions,
-  translations,
-} from "@/lib/document-automation";
+// (document-automation already imported at top)
 
 const languageLabels: Record<AppLanguage, string> = {
   en: "English",
@@ -64,19 +62,16 @@ export default function Home() {
     updateOptions,
     clearStore,
   } = useFileStore();
-
   const [theme, setTheme] = useState<"light" | "dark">("dark");
-  const [language, setLanguage] = useState<AppLanguage>(() => {
-    const stored = typeof window !== "undefined" ? localStorage.getItem("filenova-language") : null;
-    return stored === "bn" || stored === "hi" ? stored : "en";
-  });
+  const { language, setLanguage } = useLanguage();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedRuleId, setSelectedRuleId] = useState(eventRules[0].id);
 
   const selectedRule = useMemo(
     () => eventRules.find((rule) => rule.id === selectedRuleId) || eventRules[0],
     [selectedRuleId],
   );
-  const t = translations[language];
+  const t = useTranslation();
   const completion = getRuleCompletion(selectedRule, files.length);
   const step = downloadUrl ? 3 : files.length > 0 && selectedOperation ? 2 : files.length > 0 ? 1 : 0;
 
@@ -84,9 +79,7 @@ export default function Home() {
     document.documentElement.classList.toggle("dark", theme === "dark");
   }, [theme]);
 
-  useEffect(() => {
-    localStorage.setItem("filenova-language", language);
-  }, [language]);
+  // language persistence handled by LanguageProvider
 
   useEffect(() => {
     const fetchHealth = async () => {
@@ -98,6 +91,13 @@ export default function Home() {
     const interval = window.setInterval(fetchHealth, 30000);
     return () => window.clearInterval(interval);
   }, [setBackendStatus]);
+
+  const admin = useAdmin();
+  useEffect(() => {
+    if (admin.settings.standaloneMode) {
+      useFileStore.setState({ isMockMode: true });
+    }
+  }, [admin.settings.standaloneMode]);
 
   const startFixMode = () => {
     clearStore();
@@ -118,47 +118,84 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-50 border-b border-border bg-background/82 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3">
-          <button onClick={startFixMode} className="flex items-center gap-3 text-left">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-glow">
-              <WandSparkles className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-base font-black leading-none">FileNova AI</p>
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Indian document automation</p>
-            </div>
-          </button>
-
-          <div className="order-3 flex w-full items-center gap-2 overflow-x-auto rounded-xl border border-border bg-card/60 p-1 sm:order-none sm:w-auto">
-            {(["en", "bn", "hi"] as AppLanguage[]).map((code) => (
-              <button
-                key={code}
-                onClick={() => setLanguage(code)}
-                className={`rounded-lg px-3 py-2 text-xs font-bold transition ${language === code ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
-              >
-                {languageLabels[code]}
-              </button>
-            ))}
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3">
+          <div className="flex items-center gap-3">
+            <button onClick={startFixMode} className="flex items-center gap-3 text-left">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-glow">
+                <WandSparkles className="h-5 w-5" />
+              </div>
+              <div className="hidden sm:block">
+                <p className="text-base font-black leading-none">{t.logoTitle}</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{t.logoSubtitle}</p>
+              </div>
+            </button>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Link href="/admin" className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-bold text-muted-foreground hover:text-foreground">
-              <LayoutDashboard className="h-4 w-4" />
-              {t.admin}
-            </Link>
-            <Link href="/premium" className="inline-flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-bold text-primary">
-              <Sparkles className="h-4 w-4" />
-              Premium
-            </Link>
-            <button
-              onClick={() => setTheme((value) => (value === "dark" ? "light" : "dark"))}
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground"
-              aria-label="Toggle theme"
-            >
-              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-2 rounded-xl border border-border bg-card/60 p-1">
+              {(["en", "bn", "hi"] as AppLanguage[]).map((code) => (
+                <button
+                  key={code}
+                  onClick={() => setLanguage(code)}
+                  className={`rounded-lg px-3 py-2 text-xs font-bold transition ${language === code ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+                >
+                  {languageLabels[code]}
+                </button>
+              ))}
+            </div>
+
+            <div className="hidden sm:flex items-center gap-2">
+              <Link href="/admin" className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-bold text-muted-foreground hover:text-foreground">
+                <LayoutDashboard className="h-4 w-4" />
+                {t.admin}
+              </Link>
+              <Link href="/premium" className="inline-flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-bold text-primary">
+                <Sparkles className="h-4 w-4" />
+                <span className="font-black">Premium</span>
+              </Link>
+              <button
+                onClick={() => setTheme((value) => (value === "dark" ? "light" : "dark"))}
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground"
+                aria-label="Toggle theme"
+              >
+                {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </button>
+            </div>
+
+            <button onClick={() => setMobileMenuOpen((v) => !v)} className="sm:hidden inline-flex items-center justify-center h-9 w-9 rounded-lg border border-border bg-card text-muted-foreground">
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
+
+        {mobileMenuOpen && (
+          <div className="sm:hidden border-t border-border bg-card/95 px-4 py-3">
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                {(["en", "bn", "hi"] as AppLanguage[]).map((code) => (
+                  <button
+                    key={code}
+                    onClick={() => {
+                      setLanguage(code);
+                      setMobileMenuOpen(false);
+                    }}
+                    className={`rounded-lg px-3 py-2 text-xs font-bold transition ${language === code ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+                  >
+                    {languageLabels[code]}
+                  </button>
+                ))}
+              </div>
+              <Link href="/premium" className="inline-flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-bold text-primary">
+                <Sparkles className="h-4 w-4" />
+                <span className="font-black">Premium</span>
+              </Link>
+              <Link href="/admin" className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-bold text-muted-foreground hover:text-foreground">
+                <LayoutDashboard className="h-4 w-4" />
+                {t.admin}
+              </Link>
+            </div>
+          </div>
+        )}
       </header>
 
       {!backendHealthy && (
@@ -173,7 +210,7 @@ export default function Home() {
         </div>
       )}
 
-      <main className="mx-auto max-w-7xl px-4 py-6 sm:py-8">
+      <main className="mx-auto max-w-7xl px-4 py-16 sm:py-24">
         {files.length === 0 && (
           <div className="space-y-8">
             <section className="grid items-stretch gap-5 lg:grid-cols-[1.15fr_0.85fr]">
@@ -183,36 +220,36 @@ export default function Home() {
                 className="overflow-hidden rounded-2xl border border-border bg-card shadow-premium"
               >
                 <div className="grid min-h-[520px] gap-0 lg:grid-cols-[1fr_360px]">
-                  <div className="flex flex-col justify-between p-5 sm:p-8">
+                  <div className="flex flex-col justify-between p-5 sm:p-8 text-center lg:text-left">
                     <div className="space-y-5">
-                      <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-xs font-bold text-emerald-500">
+                      <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-xs font-bold text-emerald-500 mx-auto lg:mx-0">
                         <ShieldCheck className="h-4 w-4" />
-                        Built for scholarships, CSC centers, cyber cafes and mobile users
+                        {t.builtFor}
                       </div>
                       <div className="space-y-4">
-                        <h1 className="max-w-3xl text-4xl font-black leading-tight sm:text-6xl">
+                        <h1 className="max-w-3xl mx-auto lg:mx-0 text-4xl font-black leading-tight sm:text-5xl md:text-6xl lg:text-6xl">
                           {t.fixMode}
-                          <span className="block gradient-text">for Indian forms.</span>
+                          <span className="block gradient-text">{t.logoSubtitle}</span>
                         </h1>
-                        <p className="max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
-                          {t.assistantCopy} The rule engine checks file type, size, dimensions, naming, folder order and missing documents before final export.
+                        <p className="max-w-2xl mx-auto lg:mx-0 text-sm leading-7 text-muted-foreground sm:text-base">
+                          {t.assistantCopy} {""}{t.aiRecommendation4}
                         </p>
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        <button onClick={startFixMode} className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-black text-primary-foreground shadow-glow">
+                        <button onClick={startFixMode} disabled={!admin.settings.editingEnabled} className={`inline-flex items-center gap-2 rounded-xl ${admin.settings.editingEnabled ? 'bg-primary text-primary-foreground shadow-glow' : 'bg-muted text-muted-foreground cursor-not-allowed'} px-4 py-3 text-sm font-black`}>
                           <Sparkles className="h-4 w-4" />
-                          Start one-click mode
+                          {t.startOneClick}
                         </button>
                         <button onClick={() => setSelectedSection("pdf")} className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-4 py-3 text-sm font-black">
-                          <FileArchive className="h-4 w-4 text-red-400" />
-                          Open tools
+                          <FileArchive className="h-4 w-4 text-primary" />
+                          {t.openTools}
                         </button>
                       </div>
                     </div>
 
-                    <div className="mt-8 grid gap-2 sm:grid-cols-4">
+                    <div className="mt-8 grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                       {automationPillars.map(({ label, value, icon: Icon }) => (
-                        <div key={label} className="rounded-xl border border-border bg-background/70 p-3">
+                        <div key={label} className="rounded-xl border border-border bg-background/70 p-3 animate-fade-up transition-transform hover:-translate-y-1">
                           <Icon className="h-4 w-4 text-primary" />
                           <p className="mt-3 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{label}</p>
                           <p className="text-sm font-black">{value}</p>
@@ -266,13 +303,8 @@ export default function Home() {
                   <UploadZone allowedCategory={selectedSection} />
                 </div>
                 <div className="rounded-2xl border border-border bg-card p-4">
-                  <h2 className="mb-3 font-black">AI recommendations</h2>
-                  {[
-                    "Auto-crop whitespace from scanned certificates",
-                    "Compress PDFs to portal limits without losing readability",
-                    "Rename files using government-friendly templates",
-                    "Create folders and final ZIP in required order",
-                  ].map((item) => (
+                  <h2 className="mb-3 font-black">{t.aiRecommendationsTitle}</h2>
+                  {[t.aiRecommendation1, t.aiRecommendation2, t.aiRecommendation3, t.aiRecommendation4].map((item) => (
                     <div key={item} className="mb-2 flex items-start gap-2 rounded-lg bg-muted/50 p-3 text-sm">
                       <Zap className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
                       <span>{item}</span>
@@ -286,20 +318,20 @@ export default function Home() {
               <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
                 <div className="mb-4 flex items-center justify-between">
                   <div>
-                    <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Most used services</p>
-                    <h2 className="text-xl font-black">Government and student workflows</h2>
+                    <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{t.mostUsedServicesTitle}</p>
+                    <h2 className="text-xl font-black">{t.governmentWorkflows}</h2>
                   </div>
                   <Globe2 className="h-5 w-5 text-primary" />
                 </div>
-                <div className="grid gap-3 sm:grid-cols-2">
+                <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                   {eventRules.map((rule) => {
                     const Icon = rule.icon;
                     const active = selectedRule.id === rule.id;
-                    return (
+                      return (
                       <button
                         key={rule.id}
                         onClick={() => setSelectedRuleId(rule.id)}
-                        className={`group rounded-xl border p-4 text-left transition ${active ? "border-primary bg-primary/8 shadow-glow-sm" : "border-border bg-background/70 hover:border-primary/30"}`}
+                        className={`group rounded-xl border p-4 text-left transition transform hover:-translate-y-1 ${active ? "border-primary bg-primary/8 shadow-glow-sm" : "border-border bg-background/70 hover:border-primary/30"}`}
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card">
@@ -328,12 +360,12 @@ export default function Home() {
                     </div>
                     <Gauge className="h-5 w-5 text-primary" />
                   </div>
-                  <div className="grid gap-2 sm:grid-cols-2">
+                  <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                     {quickActions.map(({ label, icon: Icon, category, action }) => (
                       <button
                         key={label}
                         onClick={() => openQuickAction(category, action)}
-                        className="group flex items-center justify-between rounded-xl border border-border bg-background/70 p-3 text-left transition hover:border-primary/30 hover:bg-muted/50"
+                          className="group flex items-center justify-between rounded-xl border border-border bg-background/70 p-3 text-left transition transform hover:-translate-y-1 hover:border-primary/30 hover:bg-muted/50"
                       >
                         <span className="flex items-center gap-3 text-sm font-bold">
                           <Icon className="h-5 w-5 text-primary" />
@@ -345,7 +377,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="grid gap-3 sm:grid-cols-3">
+                <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                   {[
                     ["PWA mobile", "Offline basics + low-network uploads", Languages],
                     ["Secure queue", "Rate limit, scan hooks, encryption", Lock],

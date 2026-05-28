@@ -19,6 +19,8 @@ import {
   Users,
 } from "lucide-react";
 import { eventRules } from "@/lib/document-automation";
+import { useAdmin } from "@/lib/admin";
+import { useState } from "react";
 
 const stats = [
   { label: "Uploads today", value: "12,840", trend: "+18%", icon: UploadCloud },
@@ -35,6 +37,12 @@ const logs = [
 ];
 
 export default function AdminDashboard() {
+  const admin = useAdmin();
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [formUser, setFormUser] = useState(admin.creds?.username || "");
+  const [formPass, setFormPass] = useState("");
+  const [newUser, setNewUser] = useState("");
+  const [newPass, setNewPass] = useState("");
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-xl">
@@ -57,26 +65,67 @@ export default function AdminDashboard() {
 
       <main className="mx-auto grid max-w-7xl gap-5 px-4 py-6 lg:grid-cols-[240px_1fr]">
         <aside className="space-y-2 rounded-xl border border-border bg-card p-3 lg:sticky lg:top-20 lg:h-fit">
-          {[
-            ["Overview", BarChart3],
-            ["Event rules", FileCog],
-            ["Upload monitor", Activity],
-            ["Users and roles", Users],
-            ["Language manager", Languages],
-            ["Feature toggles", SlidersHorizontal],
-            ["Security guard", LockKeyhole],
-          ].map(([label, Icon]) => (
-            <button key={label as string} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold text-muted-foreground hover:bg-muted hover:text-foreground">
-              {React.createElement(Icon as typeof BarChart3, { className: "h-4 w-4" })}
-              {label as string}
-            </button>
-          ))}
+          {/* simple auth area */}
+          <div className="rounded-lg border border-border bg-background/50 p-3">
+            {!admin.creds && (
+              <div className="space-y-2">
+                <p className="text-sm font-bold">No admin user set</p>
+                <input value={newUser} onChange={(e) => setNewUser(e.target.value)} placeholder="username" className="w-full rounded-md border p-2 text-sm" />
+                <input value={newPass} onChange={(e) => setNewPass(e.target.value)} placeholder="password" type="password" className="w-full rounded-md border p-2 text-sm" />
+                <button onClick={() => { if (newUser && newPass) { admin.setCredentials(newUser, newPass); setNewUser(""); setNewPass(""); alert("Admin user created"); } }} className="mt-2 w-full rounded-lg bg-primary px-3 py-2 text-sm font-bold text-primary-foreground">Create admin</button>
+              </div>
+            )}
+
+            {admin.creds && !loggedIn && (
+              <div className="space-y-2">
+                <p className="text-sm font-bold">Admin sign in</p>
+                <input value={formUser} onChange={(e) => setFormUser(e.target.value)} placeholder="username" className="w-full rounded-md border p-2 text-sm" />
+                <input value={formPass} onChange={(e) => setFormPass(e.target.value)} placeholder="password" type="password" className="w-full rounded-md border p-2 text-sm" />
+                <button onClick={() => { const ok = admin.login(formUser, formPass); if (ok) setLoggedIn(true); else alert("Invalid credentials"); }} className="mt-2 w-full rounded-lg bg-primary px-3 py-2 text-sm font-bold text-primary-foreground">Sign in</button>
+              </div>
+            )}
+
+            {admin.creds && loggedIn && (
+              <div className="space-y-2">
+                <p className="text-sm font-bold">Signed in as {admin.creds.username}</p>
+                <button onClick={() => setLoggedIn(false)} className="mt-2 w-full rounded-lg border px-3 py-2 text-sm font-bold">Lock</button>
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-xl border border-border bg-card p-3">
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-muted-foreground">Settings</p>
+            <div className="mt-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold">Standalone mode</span>
+                <label className="inline-flex items-center">
+                  <input type="checkbox" className="mr-2" checked={admin.settings.standaloneMode} onChange={(e) => admin.setSettings({ standaloneMode: e.target.checked })} />
+                  <span className="text-xs text-muted-foreground">{admin.settings.standaloneMode ? 'On' : 'Off'}</span>
+                </label>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-semibold">Editing enabled</span>
+                <label className="inline-flex items-center">
+                  <input type="checkbox" className="mr-2" checked={admin.settings.editingEnabled} onChange={(e) => admin.setSettings({ editingEnabled: e.target.checked })} />
+                  <span className="text-xs text-muted-foreground">{admin.settings.editingEnabled ? 'Yes' : 'No'}</span>
+                </label>
+              </div>
+            </div>
+            {loggedIn && (
+              <div className="mt-3">
+                <p className="text-xs font-bold">Change credentials</p>
+                <input value={newUser} onChange={(e) => setNewUser(e.target.value)} placeholder="new username" className="w-full rounded-md border p-2 text-sm mt-2" />
+                <input value={newPass} onChange={(e) => setNewPass(e.target.value)} placeholder="new password" type="password" className="w-full rounded-md border p-2 text-sm mt-2" />
+                <button onClick={() => { if (newUser && newPass) { admin.setCredentials(newUser, newPass); alert('Credentials updated'); } }} className="mt-2 w-full rounded-lg bg-primary px-3 py-2 text-sm font-bold text-primary-foreground">Update creds</button>
+              </div>
+            )}
+          </div>
         </aside>
 
         <section className="space-y-5">
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {stats.map(({ label, value, trend, icon: Icon }) => (
-              <div key={label} className="rounded-xl border border-border bg-card p-4 shadow-sm">
+              <div key={label} className="rounded-xl border border-border bg-card p-4 shadow-sm animate-fade-up transition-transform hover:-translate-y-1">
                 <div className="flex items-center justify-between">
                   <Icon className="h-5 w-5 text-primary" />
                   <span className="rounded-full bg-emerald-500/10 px-2 py-1 text-[11px] font-bold text-emerald-500">{trend}</span>
