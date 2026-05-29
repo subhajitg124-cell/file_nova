@@ -1,7 +1,7 @@
 import { AppLanguage, automationPillars, eventRules, getRuleCompletion, quickActions, } from "@/lib/document-automation";
 import { useLanguage, useTranslation } from "@/lib/i18n";
-import React, { useEffect, useMemo, useState } from "react";
-import { Link } from "wouter";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import {
   AlertTriangle,
@@ -20,6 +20,7 @@ import {
   Lock,
   Moon,
   Play,
+  Search,
   ShieldCheck,
   Sparkles,
   Sun,
@@ -116,6 +117,63 @@ export default function Home() {
   const [guideOpen, setGuideOpen] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
   const logoUrl = `${import.meta.env.BASE_URL}logo.png`;
+  const [, setLocation] = useLocation();
+
+  // ── Search state ─────────────────────────────────────────────────────────
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const ADMIN_SECRET = "subhajit_admin";
+
+  const allFeatures = [
+    { label: "Merge PDF", desc: "Combine multiple PDFs into one", action: () => openQuickAction("pdf", "merge"), icon: "📄" },
+    { label: "Compress PDF", desc: "Reduce PDF file size", action: () => openQuickAction("pdf", "compress"), icon: "🗜️" },
+    { label: "Compress Image", desc: "Reduce image size without quality loss", action: () => openQuickAction("image", "compress"), icon: "🖼️" },
+    { label: "Resize Photo", desc: "Resize images to exact dimensions", action: () => openQuickAction("image", "resize"), icon: "📐" },
+    { label: "Passport Size Photo", desc: "Convert to 200x230px passport photo", action: () => openQuickAction("image", "photo"), icon: "🪪" },
+    { label: "Signature Resize", desc: "Resize signature to 280x80px", action: () => openQuickAction("image", "signature"), icon: "✍️" },
+    { label: "Aadhaar Masking", desc: "Mask Aadhaar number for privacy", action: () => openQuickAction("image", "aadhaar"), icon: "🔒" },
+    { label: "Extract Text (OCR)", desc: "Extract text from images/PDFs", action: () => openQuickAction("pdf", "ocr"), icon: "🔍" },
+    { label: "Convert to ZIP", desc: "Package files into a ZIP archive", action: () => openQuickAction("pdf", "zip"), icon: "📦" },
+    { label: "Video Compress", desc: "Compress video files", action: () => openQuickAction("video", "compress"), icon: "🎬" },
+    { label: "PDF to Image", desc: "Convert PDF pages to images", action: () => openQuickAction("pdf", "convert"), icon: "🖼️" },
+    { label: "Pricing", desc: "View subscription plans", action: () => setLocation("/pricing"), icon: "💳" },
+    { label: "Premium Suite", desc: "Access premium tools", action: () => setLocation("/premium"), icon: "⭐" },
+  ];
+
+  const searchResults = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return [];
+    return allFeatures.filter(
+      (f) => f.label.toLowerCase().includes(q) || f.desc.toLowerCase().includes(q)
+    ).slice(0, 6);
+  }, [searchQuery]);
+
+  const handleSearchChange = (val: string) => {
+    setSearchQuery(val);
+    setSearchOpen(true);
+    if (val.trim().toLowerCase() === ADMIN_SECRET) {
+      setSearchQuery("");
+      setSearchOpen(false);
+      setLocation("/nova-control");
+    }
+  };
+
+  const handleFeatureClick = (action: () => void) => {
+    action();
+    setSearchQuery("");
+    setSearchOpen(false);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setSearchOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const selectedRule = useMemo(
     () => eventRules.find((rule) => rule.id === selectedRuleId) || eventRules[0],
@@ -219,6 +277,61 @@ export default function Home() {
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{t.logoSubtitle}</p>
               </div>
             </button>
+          </div>
+
+          {/* ── Search Bar ─────────────────────────────────────────────── */}
+          <div ref={searchRef} className="relative flex-1 max-w-sm hidden md:block">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                onFocus={() => setSearchOpen(true)}
+                placeholder="Search tools… (try 'compress PDF')"
+                aria-label="Search features"
+                className="w-full pl-9 pr-4 py-2 text-xs bg-card border border-border rounded-xl focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/20 transition placeholder:text-muted-foreground/60"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => { setSearchQuery(""); setSearchOpen(false); }}
+                  aria-label="Clear search"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Dropdown results */}
+            {searchOpen && searchQuery.trim() && (
+              <div className="absolute top-full left-0 right-0 mt-1.5 bg-card border border-border rounded-2xl shadow-premium overflow-hidden z-50 animate-scale-in">
+                {searchResults.length > 0 ? (
+                  <ul className="py-1">
+                    {searchResults.map((item) => (
+                      <li key={item.label}>
+                        <button
+                          onClick={() => handleFeatureClick(item.action)}
+                          className="w-full text-left flex items-center gap-3 px-4 py-2.5 hover:bg-primary/5 transition group"
+                        >
+                          <span className="text-lg leading-none">{item.icon}</span>
+                          <div>
+                            <p className="text-xs font-bold text-foreground group-hover:text-primary transition">{item.label}</p>
+                            <p className="text-[10px] text-muted-foreground">{item.desc}</p>
+                          </div>
+                          <ArrowRight className="h-3.5 w-3.5 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition" />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="px-4 py-4 text-center">
+                    <p className="text-xs font-bold text-muted-foreground">No tools found for "{searchQuery}"</p>
+                    <p className="text-[10px] text-muted-foreground mt-1">Try: compress, merge, resize, OCR…</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-3">
@@ -402,6 +515,57 @@ export default function Home() {
                 </div>
               </div>
             </section>
+
+            {/* ── Mobile Search Bar (below hero) ───────────────────────────────── */}
+            <div ref={undefined} className="md:hidden">
+              <div className="relative" ref={searchRef}>
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  onFocus={() => setSearchOpen(true)}
+                  placeholder="Search tools… compress, merge, OCR…"
+                  aria-label="Search features mobile"
+                  className="w-full pl-10 pr-4 py-3 text-sm bg-card border border-border rounded-2xl focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition placeholder:text-muted-foreground/60"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => { setSearchQuery(""); setSearchOpen(false); }}
+                    aria-label="Clear search"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+                {searchOpen && searchQuery.trim() && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-2xl shadow-premium overflow-hidden z-50">
+                    {searchResults.length > 0 ? (
+                      <ul className="py-1">
+                        {searchResults.map((item) => (
+                          <li key={item.label}>
+                            <button
+                              onClick={() => handleFeatureClick(item.action)}
+                              className="w-full text-left flex items-center gap-3 px-4 py-3 hover:bg-primary/5 transition group"
+                            >
+                              <span className="text-lg">{item.icon}</span>
+                              <div>
+                                <p className="text-sm font-bold text-foreground">{item.label}</p>
+                                <p className="text-xs text-muted-foreground">{item.desc}</p>
+                              </div>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <div className="px-4 py-4 text-center">
+                        <p className="text-sm font-bold text-muted-foreground">No tools found</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
 
             {/* Automation pillars section */}
             <section className="grid gap-4 grid-cols-2 lg:grid-cols-4">
