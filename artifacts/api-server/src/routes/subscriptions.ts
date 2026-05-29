@@ -363,42 +363,48 @@ router.post("/cancel", authMiddleware, requireAuth, async (req: AuthRequest, res
 // ── 5. GET /admin/stats — Subscription statistics for Admin Console ────────────
 router.get("/admin/stats", adminAuth, async (req: Request, res: Response) => {
   try {
-    let stats = {
-      totalSubscribers: 142,
-      activeBasic: 58,
-      activePro: 64,
-      activeElite: 20,
-      totalMtdRevenueInRupees: 4280,
-      recentSignups: [
-        { name: "Rahul Das", email: "rahul@gmail.com", plan: "pro", status: "active", date: new Date().toISOString() },
-        { name: "Amit Sharma", email: "amit.sharma@outlook.com", plan: "basic", status: "active", date: new Date(Date.now() - 1000 * 60 * 60).toISOString() },
-        { name: "Siddharth Sen", email: "siddharth.sen@gmail.com", plan: "elite", status: "active", date: new Date(Date.now() - 1000 * 60 * 120).toISOString() },
-      ],
-    };
+    // Fetch all subscriptions from DB
+    const allSubs = await db.select().from(subscriptionsTable).orderBy(desc(subscriptionsTable.createdAt));
+    const activeSubs = allSubs.filter(s => s.status === "active");
 
-    try {
-      const activeSubs = await db
-        .select()
-        .from(subscriptionsTable)
-        .where(eq(subscriptionsTable.status, "active"));
+    const basic = activeSubs.filter(s => s.plan === "basic").length;
+    const pro = activeSubs.filter(s => s.plan === "pro").length;
+    const elite = activeSubs.filter(s => s.plan === "elite").length;
+    const revenueInPaise = activeSubs.reduce((sum, s) => sum + (s.amount || 0), 0);
 
-      if (activeSubs.length > 0) {
-        const basic = activeSubs.filter(s => s.plan === "basic").length;
-        const pro = activeSubs.filter(s => s.plan === "pro").length;
-        const elite = activeSubs.filter(s => s.plan === "elite").length;
-        const revenue = activeSubs.reduce((sum, s) => sum + s.amount, 0) / 100; // in Rupees
-
-        stats.totalSubscribers = activeSubs.length;
-        stats.activeBasic = basic;
-        stats.activePro = pro;
-        stats.activeElite = elite;
-        stats.totalMtdRevenueInRupees = revenue;
-      }
-    } catch (e) {
-      logger.error("DB error fetching admin stats, serving default mock statistics");
+    // Fetch recent signups with user info
+    const recentSubs = allSubs.slice(0, 10);
+    const recentSignups: any[] = [];
+    for (const sub of recentSubs) {
+      try {
+        const [user] = await db.select().from(usersTable).where(eq(usersTable.id, sub.userId)).limit(1);
+        if (user) {
+          recentSignups.push({
+            name: user.name || "Anonymous",
+            email: user.email,
+            plan: sub.plan,
+            status: sub.status,
+            date: sub.createdAt,
+          });
+        }
+      } catch (_) {}
     }
 
-    res.json({ success: true, stats });
+    // Fetch all registered users count
+    const allUsers = await db.select().from(usersTable);
+
+    res.json({
+      success: true,
+      stats: {
+        totalUsers: allUsers.length,
+        totalSubscribers: activeSubs.length,
+        activeBasic: basic,
+        activePro: pro,
+        activeElite: elite,
+        totalMtdRevenueInRupees: Math.round(revenueInPaise / 100),
+        recentSignups,
+      },
+    });
   } catch (err: any) {
     res.status(500).json({ error: err.message || "Failed to fetch admin stats" });
   }
