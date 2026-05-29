@@ -41,6 +41,7 @@ import { ToolGrid } from "@/components/workspace/ToolGrid";
 import { UploadZone } from "@/components/workspace/UploadZone";
 import { TestingNotice } from "@/components/TestingNotice";
 import { VisualGuideModal } from "@/components/workspace/VisualGuideModal";
+import { AdSenseUnit } from "@/components/AdSenseUnit";
 
 const languageLabels: Record<AppLanguage, string> = {
   en: "English",
@@ -708,6 +709,11 @@ export default function Home() {
           </section>
         )}
       </main>
+
+      {/* AdSense Unit placement */}
+      <div className="mx-auto max-w-7xl px-4 py-4">
+        <AdSenseUnit />
+      </div>
 
       {/* ✅ SEO: Keyword section — visible to search engines, styled subtly for users */}
       <section aria-label="FileNova Tool Directory" className="border-t border-border bg-muted/30 px-4 py-10">

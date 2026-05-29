@@ -8,6 +8,7 @@ import { Link, useLocation } from "wouter";
 import { Play, Sparkles, Loader, ShieldAlert, CheckCircle2, ChevronRight } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { toast } from "sonner";
+import { AdSenseUnit } from "./AdSenseUnit";
 
 interface AdGateModalProps {
   isOpen: boolean;
@@ -82,30 +83,30 @@ export function AdGateModal({ isOpen, onClose }: AdGateModalProps) {
         {/* Ad screen area */}
         <div className="p-6 space-y-5">
           {watching ? (
-            <div className="aspect-video bg-black rounded-2xl flex flex-col items-center justify-center p-6 text-center text-white relative overflow-hidden">
-              {/* Simulated video playback background gradient */}
-              <div className="absolute inset-0 bg-gradient-to-b from-indigo-950/40 to-slate-950 animate-pulse" />
-              
-              <div className="z-10 space-y-3">
-                <Loader className="h-8 w-8 text-sky-400 animate-spin mx-auto" />
-                <p className="text-xs font-bold text-sky-400 tracking-widest uppercase">
-                  Streaming Sponsor Ad {currentAdIndex}/2
-                </p>
-                <p className="text-lg font-black tracking-wide">
-                  FileNova – Premium Tools Desk
-                </p>
-                <div className="inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-bold">
-                  Closing in {adTimeLeft}s
+            <div className="space-y-4">
+              <div className="aspect-video bg-black rounded-2xl flex flex-col items-center justify-center p-6 text-center text-white relative overflow-hidden">
+                {/* Simulated video playback background gradient */}
+                <div className="absolute inset-0 bg-gradient-to-b from-indigo-950/40 to-slate-950 animate-pulse" />
+                
+                <div className="z-10 space-y-3">
+                  <Loader className="h-8 w-8 text-sky-400 animate-spin mx-auto" />
+                  <p className="text-xs font-bold text-sky-400 tracking-widest uppercase">
+                    Streaming Sponsor Ad {currentAdIndex}/2
+                  </p>
+                  <div className="inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-bold">
+                    Closing in {adTimeLeft}s
+                  </div>
+                </div>
+
+                {/* Progress bar */}
+                <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-white/10">
+                  <div 
+                    className="h-full bg-sky-400 transition-all duration-1000 ease-linear"
+                    style={{ width: `${((5 - adTimeLeft) / 5) * 100}%` }}
+                  />
                 </div>
               </div>
-
-              {/* Progress bar */}
-              <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-white/10">
-                <div 
-                  className="h-full bg-sky-400 transition-all duration-1000 ease-linear"
-                  style={{ width: `${((5 - adTimeLeft) / 5) * 100}%` }}
-                />
-              </div>
+              <AdSenseUnit />
             </div>
           ) : (
             <div className="space-y-4">
