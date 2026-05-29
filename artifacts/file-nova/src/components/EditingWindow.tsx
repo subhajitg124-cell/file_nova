@@ -400,7 +400,7 @@ export const EditingWindow: React.FC<EditingWindowProps> = ({ file, fileType, on
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Editing window</p>
               <h2 className="text-lg font-black">FileNova AI</h2>
             </div>
-            <button onClick={onClose} className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900 hover:bg-slate-800 transition">
+            <button onClick={onClose} title="Close editing window" aria-label="Close editing window" className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900 hover:bg-slate-800 transition">
               <X className="h-4 w-4" />
             </button>
           </div>
