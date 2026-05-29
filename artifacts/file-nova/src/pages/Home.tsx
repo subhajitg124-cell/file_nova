@@ -115,10 +115,14 @@ export default function Home() {
     setOperation,
     updateOptions,
     clearStore,
+    editorOpen,
+    editorFile,
+    editorFileType,
+    openEditor,
+    closeEditor,
+    addRawFiles,
   } = useFileStore();
   const [voiceOpen, setVoiceOpen] = useState(false);
-  const [editorOpen, setEditorOpen] = useState(false);
-  const [editorStatus, setEditorStatus] = useState<string>("");
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     const saved = localStorage.getItem("filenova-theme");
     return saved === "light" || saved === "dark" ? saved : "light";
@@ -243,30 +247,41 @@ export default function Home() {
     }
   }, [admin.settings.standaloneMode]);
 
-  const editTargetFile = rawFiles.find((file) => file.type.startsWith("image/")) ?? rawFiles[0] ?? null;
-  const editTargetType = editTargetFile
-    ? editTargetFile.type === "application/pdf"
+  const editTargetFile = editorFile ?? rawFiles.find((file) => file.type.startsWith("image/")) ?? rawFiles[0] ?? null;
+  const editTargetType = editorFile
+    ? editorFile.type === "application/pdf"
       ? "pdf"
-      : editTargetFile.type.startsWith("image/")
+      : editorFile.type.startsWith("image/")
       ? "image"
       : "document"
-    : "image";
+    : editTargetFile
+      ? editTargetFile.type === "application/pdf"
+        ? "pdf"
+        : editTargetFile.type.startsWith("image/")
+        ? "image"
+        : "document"
+      : "image";
 
   const shareDocumentId = files[0]?.id ?? "demo-doc-123";
   const shareDocumentName = files[0]?.name ?? "selected-file.pdf";
 
   const handleEditorDone = async (result: Blob) => {
-    setEditorStatus("Preparing edited file for download...");
-    const url = URL.createObjectURL(result);
+    const fileName = editTargetFile?.name || "edited-file";
+    const objectUrl = URL.createObjectURL(result);
     const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = editTargetFile?.name ? `edited-${editTargetFile.name}` : "filenova-edited.png";
+    anchor.href = objectUrl;
+    anchor.download = `${fileName.startsWith("edited-") ? fileName : `edited-${fileName}`}`;
     document.body.appendChild(anchor);
     anchor.click();
     document.body.removeChild(anchor);
-    URL.revokeObjectURL(url);
-    setEditorStatus("Edited file downloaded successfully.");
-    setEditorOpen(false);
+    URL.revokeObjectURL(objectUrl);
+
+    const editedFile = result instanceof File
+      ? result
+      : new File([result], fileName, { type: result.type || editTargetFile?.type || "application/octet-stream" });
+
+    addRawFiles([editedFile]);
+    closeEditor();
   };
 
   const handleVoiceCommand = (action: string, target: string) => {
@@ -1066,7 +1081,7 @@ export default function Home() {
                       </div>
                       <button
                         type="button"
-                        onClick={() => setEditorOpen(true)}
+                        onClick={() => editTargetFile && openEditor(editTargetFile, editTargetType)}
                         disabled={!editTargetFile}
                         className="inline-flex items-center gap-2 rounded-2xl border border-border bg-primary px-4 py-2 text-sm font-black text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
                       >
@@ -1121,11 +1136,11 @@ export default function Home() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {editorOpen && editTargetFile && (
+        {editorOpen && editorFile && (
           <EditingWindow
-            file={editTargetFile}
-            fileType={editTargetType}
-            onClose={() => setEditorOpen(false)}
+            file={editorFile}
+            fileType={editorFileType}
+            onClose={closeEditor}
             onDone={handleEditorDone}
           />
         )}

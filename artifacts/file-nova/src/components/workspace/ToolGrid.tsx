@@ -197,7 +197,7 @@ const readStoredList = (key: string) => {
 };
 
 export const ToolGrid: React.FC = () => {
-  const { files, setOperation, updateOptions, isMockMode, jobId, setJobId, setError, addFiles, selectedSection, setSelectedSection } = useFileStore();
+  const { files, setOperation, updateOptions, isMockMode, jobId, setJobId, setError, selectedSection, setSelectedSection, openEditor } = useFileStore();
   const t = useTranslation();
   const admin = useAdmin();
   const [searchQuery, setSearchQuery] = useState('');
@@ -285,18 +285,13 @@ export const ToolGrid: React.FC = () => {
     input.onchange = async (e: Event) => {
       const filesList = (e.target as HTMLInputElement).files;
       if (!filesList || filesList.length === 0) return;
-      setIsUploading(true); setError(null);
+      setError(null);
       const filesArr = Array.from(filesList);
-      const activeJobId = jobId || Math.random().toString(36).substring(2, 15);
-      setJobId(activeJobId);
-      try {
-        useFileStore.getState().addRawFiles(filesArr);
-        const uploaded = isMockMode ? await apiMock.uploadFiles(filesArr, activeJobId) : await apiClient.uploadFiles(filesArr, activeJobId);
-        addFiles(uploaded);
-        setOperation(tool.id);
-        updateOptions({ operation: tool.actionName });
-      } catch (err: any) { setError(err.message || t.uploadFailed); }
-      finally { setIsUploading(false); }
+      const file = filesArr[0];
+      const fileType = file.type.startsWith('image/') ? 'image' : file.type === 'application/pdf' ? 'pdf' : 'document';
+      openEditor(file, fileType);
+      setOperation(tool.id);
+      updateOptions({ operation: tool.actionName });
     };
     input.click();
   };

@@ -48,6 +48,11 @@ interface FileState {
   setError: (error: string | null) => void;
   setSavings: (savings: ProcessingSavings | null) => void;
   setTtlRemaining: (ttl: number | null) => void;
+  editorOpen: boolean;
+  editorFile: File | null;
+  editorFileType: 'image' | 'pdf' | 'document';
+  openEditor: (file: File, fileType: 'image' | 'pdf' | 'document') => void;
+  closeEditor: () => void;
   toggleMockMode: () => void;
   setBackendStatus: (healthy: boolean, capabilities: { libreoffice: boolean; ffmpeg: boolean }) => void;
 }
@@ -156,6 +161,11 @@ export const useFileStore = create<FileState>((set) => ({
   setError: (error) => set({ error }),
   setSavings: (savings) => set({ savings }),
   setTtlRemaining: (ttlRemaining) => set({ ttlRemaining }),
+  editorOpen: false,
+  editorFile: null,
+  editorFileType: 'image',
+  openEditor: (file, fileType) => set({ editorOpen: true, editorFile: file, editorFileType: fileType }),
+  closeEditor: () => set({ editorOpen: false, editorFile: null }),
   toggleMockMode: () => set((state) => ({ isMockMode: !state.isMockMode })),
   setBackendStatus: (backendHealthy, backendCapabilities) => set({ backendHealthy, backendCapabilities })
 }));

@@ -362,6 +362,12 @@ export const EditingWindow: React.FC<EditingWindowProps> = ({ file, fileType, on
   };
 
   const handleDone = async () => {
+    if (fileType !== "image" || !ready) {
+      if (file) {
+        onDone(file);
+        return;
+      }
+    }
     const resultBlob = await exportAs(exportFormat);
     onDone(resultBlob);
   };

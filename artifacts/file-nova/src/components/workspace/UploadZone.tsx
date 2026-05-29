@@ -21,7 +21,7 @@ const CATEGORY_META = {
 };
 
 export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }) => {
-  const { addFiles, isMockMode, jobId, setJobId, setError, error, setSelectedSection } = useFileStore();
+  const { isMockMode, jobId, setJobId, setError, error, setSelectedSection, openEditor } = useFileStore();
   const t = useTranslation();
   const admin = useAdmin();
   const [isUploading, setIsUploading] = useState(false);
@@ -36,21 +36,18 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
     mime: string;
   } | null>(null);
 
-  const handleRedirectWorkspace = async (targetCat: 'pdf' | 'image' | 'video' | 'office' | null, file: File) => {
+  const resolveEditorType = (file: File): 'image' | 'pdf' | 'document' => {
+    if (file.type.startsWith('image/')) return 'image';
+    if (file.type === 'application/pdf') return 'pdf';
+    return 'document';
+  };
+
+  const handleRedirectWorkspace = (targetCat: 'pdf' | 'image' | 'video' | 'office' | null, file: File) => {
     if (!targetCat) return;
     setSelectedSection(targetCat);
     setMismatchError(null);
-    useFileStore.setState((state) => ({ rawFiles: [...state.rawFiles, file] }));
-    setIsUploading(true); setError(null);
-    const activeJobId = jobId || Math.random().toString(36).substring(2, 15);
-    setJobId(activeJobId);
-    try {
-      const uploaded = isMockMode
-        ? await apiMock.uploadFiles([file], activeJobId)
-        : await apiClient.uploadFiles([file], activeJobId);
-      addFiles(uploaded);
-    } catch (e: any) { setError(e.message || 'Failed to upload.'); }
-    finally { setIsUploading(false); }
+    setError(null);
+    openEditor(file, resolveEditorType(file));
   };
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
@@ -64,17 +61,8 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
     } else {
       if (detectedCat) { setPendingRedirect({ file, category: detectedCat, mime: detection.mime }); return; }
     }
-    useFileStore.getState().addRawFiles(acceptedFiles);
-    setIsUploading(true);
-    const activeJobId = jobId || Math.random().toString(36).substring(2, 15);
-    setJobId(activeJobId);
-    try {
-      const uploaded = isMockMode
-        ? await apiMock.uploadFiles(acceptedFiles, activeJobId)
-        : await apiClient.uploadFiles(acceptedFiles, activeJobId);
-      addFiles(uploaded);
-    } catch (e: any) { setError(e.message || 'Failed to upload.'); }
-    finally { setIsUploading(false); }
+    setError(null);
+    openEditor(file, resolveEditorType(file));
   }, [addFiles, allowedCategory, isMockMode, jobId, setError, setJobId]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, maxSize: 100 * 1024 * 1024, disabled: !admin.settings.editingEnabled });
