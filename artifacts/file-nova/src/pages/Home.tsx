@@ -1,6 +1,6 @@
 import { AppLanguage, automationPillars, eventRules, getRuleCompletion, quickActions, } from "@/lib/document-automation";
 import { useLanguage, useTranslation } from "@/lib/i18n";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -37,7 +37,6 @@ import { useAdmin } from "@/lib/admin";
 import { apiClient } from "@/lib/api";
 import { DownloadHub } from "@/components/workspace/DownloadHub";
 import { OptionsPanel } from "@/components/workspace/OptionsPanel";
-import { PassportPhotoEditor } from "@/components/workspace/PassportPhotoEditor";
 import { PreviewCanvas } from "@/components/workspace/PreviewCanvas";
 import { ProgressTracker } from "@/components/workspace/ProgressTracker";
 import { ToolGrid } from "@/components/workspace/ToolGrid";
@@ -46,9 +45,12 @@ import { TestingNotice } from "@/components/TestingNotice";
 import { VisualGuideModal } from "@/components/workspace/VisualGuideModal";
 import { AdSenseUnit } from "@/components/AdSenseUnit";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
-import { VoiceAssistant } from "@/components/VoiceAssistant";
-import { QuickShareButton } from "@/components/WhatsAppShare";
-import { EditingWindow } from "@/components/EditingWindow";
+const VoiceAssistant = React.lazy(() => import("@/components/VoiceAssistant"));
+const QuickShareButton = React.lazy(() => import("@/components/WhatsAppShare").then((mod) => ({ default: mod.QuickShareButton })));
+const EditingWindow = React.lazy(() => import("@/components/EditingWindow").then((mod) => ({ default: mod.EditingWindow })));
+const PassportPhotoEditor = React.lazy(() => import("@/components/workspace/PassportPhotoEditor").then((mod) => ({ default: mod.PassportPhotoEditor })));
+
+import { isLowBandwidthMode } from "@/features.config";
 
 const languageLabels: Record<AppLanguage, string> = {
   en: "English",
@@ -197,6 +199,17 @@ export default function Home() {
   );
   const t = useTranslation();
   const completion = getRuleCompletion(selectedRule, files.length);
+  const slides = isLowBandwidthMode ? [showcaseSlides[0]] : showcaseSlides;
+  const lowBandwidthMessage = isLowBandwidthMode ? "Low bandwidth mode is active. Animations and non-essential assets are reduced for faster loading." : "";
+
+  const handleCloseGuide = () => {
+    try {
+      localStorage.setItem("filenova-guide-shown", "true");
+    } catch (error) {
+      console.warn("Unable to persist guide state", error);
+    }
+    setGuideOpen(false);
+  };
   const isPassportEditorActive =
     selectedOperation === 'resize' &&
     rawFiles.some((file) => file.type.startsWith('image/')) &&
@@ -208,6 +221,17 @@ export default function Home() {
     document.documentElement.classList.toggle("dark", theme === "dark");
     localStorage.setItem("filenova-theme", theme);
   }, [theme]);
+
+  useEffect(() => {
+    try {
+      const guideShown = localStorage.getItem("filenova-guide-shown") === "true";
+      if (!guideShown) {
+        setGuideOpen(true);
+      }
+    } catch (error) {
+      console.warn("Could not read guide state", error);
+    }
+  }, []);
 
   useEffect(() => {
     document.title = "FileNova – PDF Merge, Compress, Convert & Document Tools | filenova.in";
@@ -222,10 +246,16 @@ export default function Home() {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % showcaseSlides.length);
+      setActiveSlide((prev) => (prev + 1) % slides.length);
     }, 4500);
     return () => clearInterval(timer);
-  }, []);
+  }, [slides.length]);
+
+  useEffect(() => {
+    if (isLowBandwidthMode) {
+      setActiveSlide(0);
+    }
+  }, [isLowBandwidthMode]);
 
   // language persistence handled by LanguageProvider
 
@@ -538,11 +568,13 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-2 gap-2">
-            <QuickShareButton
-              documentId={shareDocumentId}
-              documentName={shareDocumentName}
-              variant="icon"
-            />
+            <Suspense fallback={<div className="h-12 rounded-2xl border border-border bg-background/80 flex items-center justify-center text-xs text-muted-foreground">Loading share…</div>}>
+              <QuickShareButton
+                documentId={shareDocumentId}
+                documentName={shareDocumentName}
+                variant="icon"
+              />
+            </Suspense>
             <button
               onClick={() => setVoiceOpen(true)}
               className="inline-flex items-center justify-center gap-2 rounded-2xl border border-primary bg-primary/10 px-3 py-2 text-sm font-bold text-primary hover:bg-primary/20 transition"
@@ -556,6 +588,11 @@ export default function Home() {
       </div>
 
       <main className="mx-auto max-w-7xl px-4 py-16 sm:py-24">
+        {isLowBandwidthMode && (
+          <div className="mb-6 rounded-3xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+            {lowBandwidthMessage}
+          </div>
+        )}
         {files.length === 0 && (
           <div className="space-y-8 animate-fade-in">
             {/* Row 1: Hero Banner */}
@@ -595,7 +632,7 @@ export default function Home() {
                   {/* Main mockup frame */}
                   <div className="relative overflow-hidden w-full aspect-[4/3] max-h-[300px] rounded-2xl border border-border/80 bg-card/85 p-2 shadow-2xl glass transition-all duration-500">
                     <div className="relative w-full h-full">
-                      {showcaseSlides.map((slide, index) => (
+                      {slides.map((slide, index) => (
                         <div
                           key={index}
                           className={`absolute inset-0 w-full h-full transition-all duration-700 ease-in-out ${
@@ -611,7 +648,7 @@ export default function Home() {
                           />
                           
                           {/* Floating stickers / badges */}
-                          {slide.stickers.map((sticker, idx) => (
+                          {!isLowBandwidthMode && slide.stickers.map((sticker, idx) => (
                             <div
                               key={idx}
                               style={{ animationDelay: sticker.delay || "0s" }}
@@ -637,7 +674,7 @@ export default function Home() {
 
                   {/* Slider dots indicators */}
                   <div className="flex gap-2.5 mt-4 z-10">
-                    {showcaseSlides.map((_, index) => (
+                    {slides.map((_, index) => (
                       <button
                         key={index}
                         onClick={() => setActiveSlide(index)}
@@ -1073,7 +1110,11 @@ export default function Home() {
                 )}
                 {step === 2 && (isProcessing ? <ProgressTracker /> : <>
                   <div className="space-y-5">
-                    {isPassportEditorActive && <PassportPhotoEditor />}
+                    {isPassportEditorActive && (
+                      <Suspense fallback={<div className="rounded-3xl border border-border bg-background/70 p-4 text-sm text-muted-foreground">Loading passport editor…</div>}>
+                        <PassportPhotoEditor />
+                      </Suspense>
+                    )}
                     <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-background p-4">
                       <div>
                         <p className="text-sm font-bold">Preview workspace</p>
@@ -1128,7 +1169,9 @@ export default function Home() {
                 </button>
               </div>
               <div className="p-4">
-                <VoiceAssistant onCommand={handleVoiceCommand} />
+                <Suspense fallback={<div className="h-28 rounded-3xl border border-border bg-background/80 flex items-center justify-center text-xs text-muted-foreground">Loading assistant…</div>}>
+                  <VoiceAssistant onCommand={handleVoiceCommand} />
+                </Suspense>
               </div>
             </motion.div>
           </motion.div>
@@ -1137,12 +1180,14 @@ export default function Home() {
 
       <AnimatePresence>
         {editorOpen && editorFile && (
-          <EditingWindow
-            file={editorFile}
-            fileType={editorFileType}
-            onClose={closeEditor}
-            onDone={handleEditorDone}
-          />
+          <Suspense fallback={<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"><div className="rounded-3xl bg-card p-6 text-sm font-bold text-foreground">Loading editor…</div></div>}>
+            <EditingWindow
+              file={editorFile}
+              fileType={editorFileType}
+              onClose={closeEditor}
+              onDone={handleEditorDone}
+            />
+          </Suspense>
         )}
       </AnimatePresence>
 
@@ -1187,7 +1232,7 @@ export default function Home() {
       </section>
 
       {/* Visual Guide Modal */}
-      <VisualGuideModal isOpen={guideOpen} onClose={() => setGuideOpen(false)} />
+      <VisualGuideModal isOpen={guideOpen} onClose={handleCloseGuide} />
 
       {/* Sticky Bottom Navigation Bar */}
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-md rounded-2xl border border-border/80 bg-card/85 backdrop-blur-lg shadow-premium px-4 py-2.5 flex items-center justify-between gap-1">

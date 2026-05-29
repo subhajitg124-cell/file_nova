@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { Suspense, useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
 import {
   Bot,
@@ -21,28 +21,17 @@ import {
   Users,
   WandSparkles,
 } from "lucide-react";
-import { VoiceAssistant } from "@/components/VoiceAssistant";
-import { AadhaarMasking } from "@/components/AadhaarMasking";
-import { QRVerification } from "@/components/QRVerification";
-import { ExamToolkit } from "@/components/ExamToolkit";
-import { QuickShareButton } from "@/components/WhatsAppShare";
 import { FeatureGate } from "@/components/FeatureGate";
 import { useFileStore } from "@/store/useFileStore";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
+import { FeatureKey, isFeatureEnabled, enabledFeatureKeys, isLowBandwidthMode } from "@/features.config";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
-type FeatureKey =
-  | "whatsapp"
-  | "digilocker"
-  | "autofill"
-  | "voice"
-  | "scanner"
-  | "qr"
-  | "aadhaar"
-  | "exam"
-  | "cafe"
-  | "bulk"
-  | "assistant"
-  | "security";
+const VoiceAssistant = React.lazy(() => import("@/components/VoiceAssistant"));
+const AadhaarMasking = React.lazy(() => import("@/components/AadhaarMasking"));
+const QRVerification = React.lazy(() => import("@/components/QRVerification"));
+const ExamToolkit = React.lazy(() => import("@/components/ExamToolkit"));
+const QuickShareButton = React.lazy(() => import("@/components/WhatsAppShare")).then((mod) => ({ default: mod.QuickShareButton }));
 
 const features: Array<{
   key: FeatureKey;
@@ -51,16 +40,16 @@ const features: Array<{
   icon: typeof MessageCircle;
   accent: string;
 }> = [
-  { key: "whatsapp", title: "WhatsApp Share", subtitle: "Expiring secure links for PDFs, ZIPs and packages", icon: MessageCircle, accent: "text-emerald-500" },
-  { key: "digilocker", title: "DigiLocker", subtitle: "Consent-first import flow with mock connector fallback", icon: Fingerprint, accent: "text-sky-500" },
+  { key: "whatsapp", title: "WhatsApp Secure Share", subtitle: "Expiring secure links for PDFs, ZIPs and packages", icon: MessageCircle, accent: "text-emerald-500" },
+  { key: "digilocker", title: "DigiLocker Connector", subtitle: "Consent-first import flow with mock connector fallback", icon: Fingerprint, accent: "text-sky-500" },
   { key: "autofill", title: "AI Form Autofill", subtitle: "OCR extraction, confidence and editable JSON", icon: WandSparkles, accent: "text-violet-500" },
   { key: "voice", title: "Voice Assistant", subtitle: "Bengali, Hindi and English guidance", icon: Languages, accent: "text-fuchsia-500" },
   { key: "scanner", title: "Document Scanner", subtitle: "Camera capture, edge detection and scan enhancement", icon: Camera, accent: "text-cyan-500" },
   { key: "qr", title: "QR Verification", subtitle: "Scan, generate and expire secure QR links", icon: QrCode, accent: "text-indigo-500" },
   { key: "aadhaar", title: "Aadhaar Masking", subtitle: "Detect and mask first 8 digits before export", icon: IdCard, accent: "text-rose-500" },
   { key: "exam", title: "Exam Toolkit", subtitle: "WBJEE, JEE, NEET, CUET and scholarship presets", icon: School, accent: "text-amber-500" },
-  { key: "cafe", title: "Cyber Cafe Mode", subtitle: "Customer queue, repeat profiles and print-ready workflow", icon: Users, accent: "text-lime-500" },
-  { key: "bulk", title: "Bulk Students", subtitle: "CSV batches, ZIPs, reports and retry logs", icon: FileArchive, accent: "text-orange-500" },
+  { key: "cafe", title: "Cyber Café Mode", subtitle: "Customer queue, repeat profiles and print-ready workflow", icon: Users, accent: "text-lime-500" },
+  { key: "bulk", title: "Bulk Upload", subtitle: "CSV batches, ZIPs, reports and retry logs", icon: FileArchive, accent: "text-orange-500" },
   { key: "assistant", title: "AI Smart Assistant", subtitle: "Troubleshooting and portal requirement hints", icon: Bot, accent: "text-blue-500" },
   { key: "security", title: "Security Center", subtitle: "Encryption, cleanup, audit and anti-malware hooks", icon: ShieldCheck, accent: "text-teal-500" },
 ];
@@ -130,7 +119,15 @@ export default function PremiumSuite() {
     }
   };
 
-  const current = useMemo(() => features.find((item) => item.key === active) || features[0], [active]);
+  const enabledFeatures = useMemo(() => features.filter((item) => isFeatureEnabled(item.key)), []);
+  const current = useMemo(() => features.find((item) => item.key === active) || enabledFeatures[0] || features[0], [active, enabledFeatures]);
+  const currentDisabled = !isFeatureEnabled(current.key);
+
+  useEffect(() => {
+    if (!isFeatureEnabled(active) && enabledFeatures.length > 0) {
+      setActive(enabledFeatures[0].key);
+    }
+  }, [active, enabledFeatures]);
 
   useEffect(() => {
     fetch("/api/v1/premium/security/status")
@@ -198,6 +195,11 @@ export default function PremiumSuite() {
       </header>
 
       <main className="mx-auto grid max-w-7xl gap-5 px-4 py-6 lg:grid-cols-[320px_1fr]">
+        {isLowBandwidthMode && (
+          <div className="rounded-3xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+            Low bandwidth mode is enabled. Premium workflows are still available, but some assets and live previews may be deferred for faster loading.
+          </div>
+        )}
         <aside className="space-y-3">
           <div className="rounded-2xl border border-border bg-card p-4 shadow-premium">
             <div className="mb-4 flex items-center gap-3">
@@ -216,24 +218,35 @@ export default function PremiumSuite() {
               {features.map((feature) => {
                 const Icon = feature.icon;
                 const selected = active === feature.key;
+                const disabled = !isFeatureEnabled(feature.key);
                 return (
                   <button
                     key={feature.key}
+                    type="button"
                     onClick={() => {
+                      if (disabled) return;
                       setActive(feature.key);
                       setResult(null);
                     }}
-                    className={`flex items-center gap-3 rounded-xl border p-3 text-left transition ${selected ? "border-primary bg-primary/10" : "border-border bg-background/70 hover:border-primary/30"}`}
+                    disabled={disabled}
+                    className={`flex items-center gap-3 rounded-xl border p-3 text-left transition ${selected ? "border-primary bg-primary/10" : "border-border bg-background/70 hover:border-primary/30"} ${disabled ? "cursor-not-allowed opacity-60" : ""}`}
                   >
                     <Icon className={`h-5 w-5 ${feature.accent}`} />
                     <span className="min-w-0">
                       <span className="block text-sm font-black">{feature.title}</span>
-                      <span className="line-clamp-1 text-xs text-muted-foreground">{feature.subtitle}</span>
+                      <span className={`line-clamp-1 text-xs ${disabled ? "text-amber-500" : "text-muted-foreground"}`}>
+                        {disabled ? "Unavailable in this build" : feature.subtitle}
+                      </span>
                     </span>
                   </button>
                 );
               })}
             </div>
+            {features.some((feature) => !isFeatureEnabled(feature.key)) && (
+              <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 p-3 text-[11px] text-amber-800">
+                Some premium modules are disabled in this environment. Set <span className="font-semibold">VITE_APP_ENV=development</span> or use a staging build to preview additional workflows.
+              </div>
+            )}
           </div>
         </aside>
 
@@ -268,64 +281,83 @@ export default function PremiumSuite() {
             </div>
           </div>          <div className="grid gap-5 xl:grid-cols-[1fr_340px]">
             <div className="rounded-2xl border border-border bg-card p-5 shadow-premium">
-              {active === "aadhaar" ? (
-                <FeatureGate requiredPlan="basic" featureName="Aadhaar Masking">
-                  <AadhaarMasking />
-                </FeatureGate>
-              ) : active === "qr" ? (
-                <FeatureGate requiredPlan="pro" featureName="QR Verification">
-                  <QRVerification />
-                </FeatureGate>
-              ) : active === "exam" ? (
-                <FeatureGate requiredPlan="pro" featureName="Exam Toolkit">
-                  <ExamToolkit />
-                </FeatureGate>
-              ) : active === "voice" ? (
-                <FeatureGate requiredPlan="basic" featureName="Voice Assistant">
-                  <VoiceAssistant onCommand={handleVoiceCommand} />
-                </FeatureGate>
-              ) : active === "whatsapp" ? (
-                <FeatureGate requiredPlan="basic" featureName="WhatsApp Share">
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10">
-                        <MessageCircle className="h-5 w-5 text-emerald-500" />
-                      </div>
-                      <div>
-                        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-                          Premium share
-                        </p>
-                        <h3 className="text-base font-black text-foreground">WhatsApp Secure Share</h3>
-                      </div>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Upload a file or document to share securely over WhatsApp. A tracked download link with 48-hour auto-expiry will be generated.
+              <Suspense fallback={<div className="rounded-2xl border border-border bg-background/80 p-6 text-sm text-muted-foreground">Loading premium module…</div>}>
+                {currentDisabled ? (
+                  <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-800">
+                    <p className="font-black text-foreground mb-3">{current.title} is not available in this build.</p>
+                    <p className="text-xs text-foreground leading-relaxed">
+                      This workflow has been gated by your current environment. Use a development or staging build to preview additional premium modules, or update <code className="rounded bg-slate-900 px-1.5 py-0.5 text-xs text-slate-100">VITE_APP_ENV</code>.
                     </p>
-                    <div className="p-6 border border-dashed border-border bg-background/40 rounded-xl text-center space-y-4">
-                      <p className="text-sm font-black text-foreground">Demo Document: student-marksheet.pdf</p>
-                      <div className="flex justify-center">
-                        <QuickShareButton documentId="demo-doc-123" documentName="student-marksheet.pdf" />
+                  </div>
+                ) : active === "aadhaar" ? (
+                  <ErrorBoundary fallbackLabel="Aadhaar feature failed to load">
+                    <FeatureGate requiredPlan="basic" featureName="Aadhaar Masking">
+                      <AadhaarMasking />
+                    </FeatureGate>
+                  </ErrorBoundary>
+                ) : active === "qr" ? (
+                  <ErrorBoundary fallbackLabel="QR Verification failed to load">
+                    <FeatureGate requiredPlan="pro" featureName="QR Verification">
+                      <QRVerification />
+                    </FeatureGate>
+                  </ErrorBoundary>
+                ) : active === "exam" ? (
+                  <ErrorBoundary fallbackLabel="Exam Toolkit failed to load">
+                    <FeatureGate requiredPlan="pro" featureName="Exam Toolkit">
+                      <ExamToolkit />
+                    </FeatureGate>
+                  </ErrorBoundary>
+                ) : active === "voice" ? (
+                  <ErrorBoundary fallbackLabel="Voice Assistant failed to load">
+                    <FeatureGate requiredPlan="basic" featureName="Voice Assistant">
+                      <VoiceAssistant onCommand={handleVoiceCommand} />
+                    </FeatureGate>
+                  </ErrorBoundary>
+                ) : active === "whatsapp" ? (
+                  <ErrorBoundary fallbackLabel="WhatsApp workflow failed to load">
+                    <FeatureGate requiredPlan="basic" featureName="WhatsApp Share">
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10">
+                            <MessageCircle className="h-5 w-5 text-emerald-500" />
+                          </div>
+                          <div>
+                            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                              Premium share
+                            </p>
+                            <h3 className="text-base font-black text-foreground">WhatsApp Secure Share</h3>
+                          </div>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Upload a file or document to share securely over WhatsApp. A tracked download link with 48-hour auto-expiry will be generated.
+                        </p>
+                        <div className="p-6 border border-dashed border-border bg-background/40 rounded-xl text-center space-y-4">
+                          <p className="text-sm font-black text-foreground">Demo Document: student-marksheet.pdf</p>
+                          <div className="flex justify-center">
+                            <QuickShareButton documentId="demo-doc-123" documentName="student-marksheet.pdf" />
+                          </div>
+                        </div>
                       </div>
+                    </FeatureGate>
+                  </ErrorBoundary>
+                ) : (
+                  <>
+                    <div className="mb-3 flex items-center gap-2">
+                      <FileCheck2 className="h-4 w-4 text-primary" />
+                      <h3 className="font-black">Live response</h3>
                     </div>
-                  </div>
-                </FeatureGate>
-              ) : (
-                <>
-                  <div className="mb-3 flex items-center gap-2">
-                    <FileCheck2 className="h-4 w-4 text-primary" />
-                    <h3 className="font-black">Live response</h3>
-                  </div>
-                  {result ? (
-                    <pre className="max-h-[520px] overflow-auto rounded-xl border border-border bg-background p-4 text-xs leading-5 text-foreground">
-                      {JSON.stringify(result, null, 2)}
-                    </pre>
-                  ) : (
-                    <div className="flex min-h-[260px] items-center justify-center rounded-xl border border-dashed border-border bg-background/60 p-6 text-center text-sm text-muted-foreground">
-                      Select a module and run the workflow to preview API output, generated links, confidence scores, reports or security controls.
-                    </div>
-                  )}
-                </>
-              )}
+                    {result ? (
+                      <pre className="max-h-[520px] overflow-auto rounded-xl border border-border bg-background p-4 text-xs leading-5 text-foreground">
+                        {JSON.stringify(result, null, 2)}
+                      </pre>
+                    ) : (
+                      <div className="flex min-h-[260px] items-center justify-center rounded-xl border border-dashed border-border bg-background/60 p-6 text-center text-sm text-muted-foreground">
+                        Select a module and run the workflow to preview API output, generated links, confidence scores, reports or security controls.
+                      </div>
+                    )}
+                  </>
+                )}
+              </Suspense>
             </div>
 
             <div className="space-y-4">
