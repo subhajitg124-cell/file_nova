@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd artifacts/file-nova && npm install && npm run build",
+  "buildCommand": "pnpm --filter @workspace/file-nova build",
   "outputDirectory": "artifacts/file-nova/dist/public",
   "framework": "vite",
   "rewrites": [
