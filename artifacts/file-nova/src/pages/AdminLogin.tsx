@@ -20,7 +20,7 @@ export default function AdminLogin() {
   // If already authenticated, redirect to /admin immediately
   React.useEffect(() => {
     if (admin.isAuthenticated) {
-      setLocation("/admin");
+      setLocation("/nova-control");
     }
   }, [admin.isAuthenticated, setLocation]);
 
@@ -38,7 +38,7 @@ export default function AdminLogin() {
       setLoading(false);
       if (success) {
         toast.success("Welcome back, Administrator!");
-        setLocation("/admin");
+        setLocation("/nova-control");
       } else {
         toast.error("Invalid administrator credentials. Access Denied.");
       }

@@ -44,7 +44,7 @@ export default function AdminDashboard() {
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!admin.isAuthenticated) {
-      setLocation("/admin-login");
+      setLocation("/nova-login");
     }
   }, [admin.isAuthenticated, setLocation]);
 
@@ -105,7 +105,7 @@ export default function AdminDashboard() {
           <div className="rounded-lg border border-border bg-background/50 p-3">
             <div className="space-y-2">
               <p className="text-sm font-bold">Signed in as {admin.creds?.username}</p>
-              <button onClick={() => { admin.logout(); setLocation("/admin-login"); }} className="mt-2 w-full rounded-lg border px-3 py-2 text-sm font-bold cursor-pointer">Sign out</button>
+              <button onClick={() => { admin.logout(); setLocation("/nova-login"); }} className="mt-2 w-full rounded-lg border px-3 py-2 text-sm font-bold cursor-pointer">Sign out</button>
             </div>
           </div>
 

@@ -70,8 +70,8 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/premium" component={PremiumSuite} />
       <Route path="/pricing" component={PricingPage} />
-      <Route path="/admin" component={AdminDashboard} />
-      <Route path="/admin-login" component={AdminLogin} />
+      <Route path="/nova-control" component={AdminDashboard} />
+      <Route path="/nova-login" component={AdminLogin} />
       <Route component={NotFound} />
     </Switch>
   );
