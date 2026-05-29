@@ -10,6 +10,8 @@ import PricingPage from "@/pages/PricingPage";
 import NotFound from "@/pages/not-found";
 import { LanguageProvider } from "@/lib/i18n";
 import { AdminProvider } from "@/lib/admin";
+import { FileExpiryBar } from "@/components/FileExpiryBar";
+import { OfflineBanner } from "@/components/OfflineBanner";
 
 const queryClient = new QueryClient();
 
@@ -84,10 +86,12 @@ function App() {
         {({ reset }) => (
           <ErrorBoundary onReset={reset}>
             <LazyMotion features={domAnimation}>
-              <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}> 
+              <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
                 <LanguageProvider>
                   <AdminProvider>
                     <Router />
+                    <OfflineBanner />
+                    <FileExpiryBar />
                   </AdminProvider>
                 </LanguageProvider>
               </WouterRouter>
