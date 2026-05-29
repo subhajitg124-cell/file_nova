@@ -203,6 +203,9 @@ export default function PremiumSuite() {
               <div>
                 <h1 className="text-lg font-black">Premium workflows</h1>
                 <p className="text-xs text-muted-foreground">Built for Indian document desks</p>
+                <div className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-500">
+                  ⚡ 100% Ad-Free Experience
+                </div>
               </div>
             </div>
             <div className="grid gap-2">
@@ -337,6 +340,28 @@ export default function PremiumSuite() {
                 <h3 className="font-black">Expected outputs</h3>
                 <div className="mt-3 space-y-2 text-sm text-muted-foreground">
                   <p>Secure share links, QR previews, masked Aadhaar exports, exam ZIP packages, scan PDFs, CSV batch reports and cyber cafe queue tokens.</p>
+                </div>
+              </div>
+              <div className="rounded-2xl border border-border bg-card p-4">
+                <h3 className="font-black flex items-center gap-1.5 text-foreground">
+                  <Sparkles className="h-4 w-4 text-amber-500" />
+                  Premium Features Guide
+                </h3>
+                <div className="mt-3 space-y-2.5 text-xs">
+                  {[
+                    { title: "WhatsApp Share", desc: "Generates expiring download links with 48h validity to share PDF/ZIP packages." },
+                    { title: "DigiLocker Integration", desc: "Secure OAuth2 connector fallback to import verified government certificates." },
+                    { title: "AI Form Autofill", desc: "Extracts fields from identity cards using OCR and builds clean autofill maps." },
+                    { title: "Voice Assistant", desc: "Interact using Hindi, Bengali, or English voice commands to upload and convert." },
+                    { title: "Aadhaar Masking", desc: "Automatically detects and masks the first 8 digits of Aadhaar cards for secure upload." },
+                    { title: "Exam Toolkit", desc: "Optimizes photo crops, signature sizes, and PDF size targets for WBJEE/NEET portals." },
+                    { title: "Cyber Cafe & Bulk", desc: "Save client profiles, manage upload queues, and process CSV lists of student forms." }
+                  ].map((guide, idx) => (
+                    <div key={idx} className="border-b border-border/50 pb-2 last:border-0 last:pb-0">
+                      <p className="font-black text-foreground">{guide.title}</p>
+                      <p className="text-muted-foreground mt-0.5 leading-normal">{guide.desc}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

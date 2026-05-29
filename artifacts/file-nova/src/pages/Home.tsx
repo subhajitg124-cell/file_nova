@@ -49,6 +49,37 @@ const languageLabels: Record<AppLanguage, string> = {
   hi: "हिन्दी",
 };
 
+const showcaseSlides = [
+  {
+    image: "document_processing_mockup.png",
+    alt: "FileNova Document Workspace mockup",
+    stickers: [
+      { type: "pdf", text: ".pdf", className: "-top-3 -left-3 bg-red-500/90 hover:bg-red-500" },
+      { type: "check", text: "Ready to Upload", className: "-bottom-3 -right-2 bg-emerald-500/95 hover:bg-emerald-500", delay: "1s" },
+      { type: "zap", text: "Auto Resize", className: "top-1/2 -right-4 -translate-y-1/2 bg-indigo-600/90 hover:bg-indigo-600", delay: "2s" },
+      { type: "secure", text: "100% Client-Side", className: "-bottom-2 -left-2 bg-slate-900/90 hover:bg-slate-900", delay: "1.5s" }
+    ]
+  },
+  {
+    image: "photo_resize_mockup.png",
+    alt: "Passport Size Photo & Signature Workspace",
+    stickers: [
+      { type: "photo", text: "Passport Photo", className: "-top-3 -left-3 bg-emerald-600/90 hover:bg-emerald-600" },
+      { type: "crop", text: "Signature Crop", className: "-bottom-3 -right-2 bg-amber-500/90 hover:bg-amber-500", delay: "0.8s" },
+      { type: "size", text: "200x230 px Target", className: "top-1/3 -right-4 bg-sky-600/90 hover:bg-sky-600", delay: "1.8s" }
+    ]
+  },
+  {
+    image: "aadhaar_mask_mockup.png",
+    alt: "Aadhaar Card Masking & Secure Processing",
+    stickers: [
+      { type: "shield", text: "Aadhaar Masking", className: "-top-3 -left-3 bg-indigo-600/90 hover:bg-indigo-600" },
+      { type: "lock", text: "Secure Privacy", className: "-bottom-3 -right-2 bg-violet-600/90 hover:bg-violet-600", delay: "1.2s" },
+      { type: "key", text: "AES-256 Encrypted", className: "top-1/2 -right-4 -translate-y-1/2 bg-emerald-600/90 hover:bg-emerald-600", delay: "2.2s" }
+    ]
+  }
+];
+
 const actionColorMeta: Record<string, { bg: string; text: string; border: string; hover: string }> = {
   compress:  { bg: "bg-amber-505/10 text-amber-500", text: "text-amber-500", border: "border-amber-550/20", hover: "hover:border-amber-400 hover:bg-amber-500/5 hover:text-amber-400" },
   aadhaar:   { bg: "bg-indigo-500/10 text-indigo-500", text: "text-indigo-500", border: "border-indigo-500/20", hover: "hover:border-indigo-400 hover:bg-indigo-500/5 hover:text-indigo-400" },
@@ -82,6 +113,7 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedRuleId, setSelectedRuleId] = useState(eventRules[0].id);
   const [guideOpen, setGuideOpen] = useState(false);
+  const [activeSlide, setActiveSlide] = useState(0);
   const logoUrl = `${import.meta.env.BASE_URL}logo.png`;
 
   const selectedRule = useMemo(
@@ -97,7 +129,6 @@ export default function Home() {
     localStorage.setItem("filenova-theme", theme);
   }, [theme]);
 
-  // SEO: Set page title dynamically for Google
   useEffect(() => {
     document.title = "FileNova – PDF Merge, Compress, Convert & Document Tools | filenova.in";
     const metaDesc = document.querySelector('meta[name="description"]');
@@ -107,6 +138,13 @@ export default function Home() {
         "FileNova provides free online tools to merge PDF, compress PDF, convert images to PDF, resize images, extract text (OCR), and automate Indian government document workflows."
       );
     }
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % showcaseSlides.length);
+    }, 4500);
+    return () => clearInterval(timer);
   }, []);
 
   // language persistence handled by LanguageProvider
@@ -294,43 +332,67 @@ export default function Home() {
                 </div>
 
                 {/* Right side: Mockup Showcase with floating stickers */}
-                <div className="relative flex justify-center items-center lg:pl-4">
+                <div className="relative flex flex-col justify-center items-center lg:pl-4 w-full max-w-lg">
                   {/* Decorative mesh background behind image */}
                   <div className="absolute -inset-4 bg-gradient-to-tr from-primary/10 via-purple-500/10 to-cyan-500/10 rounded-3xl blur-2xl opacity-60 animate-glow-breathe pointer-events-none" />
 
                   {/* Main mockup frame */}
-                  <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-card/85 p-2 shadow-2xl glass transform hover:scale-[1.02] transition-transform duration-500">
-                    <img 
-                      src={`${import.meta.env.BASE_URL}document_processing_mockup.png`} 
-                      alt="FileNova Document Workspace mockup" 
-                      className="rounded-lg shadow-inner max-w-full h-auto object-cover border border-border/40"
-                      style={{ maxHeight: "300px" }}
-                    />
-                    
-                    {/* Floating stickers / badges */}
-                    {/* Sticker 1: PDF Badge */}
-                    <div className="absolute -top-3 -left-3 animate-float rounded-xl bg-red-500/90 hover:bg-red-500 text-white font-black text-xs px-3 py-1.5 shadow-lg border border-red-400/30 flex items-center gap-1.5 cursor-default transition-all duration-300">
-                      <FileCheck2 className="h-3 w-3" />
-                      <span>.pdf</span>
+                  <div className="relative overflow-hidden w-full aspect-[4/3] max-h-[300px] rounded-2xl border border-border/80 bg-card/85 p-2 shadow-2xl glass transition-all duration-500">
+                    <div className="relative w-full h-full">
+                      {showcaseSlides.map((slide, index) => (
+                        <div
+                          key={index}
+                          className={`absolute inset-0 w-full h-full transition-all duration-700 ease-in-out ${
+                            index === activeSlide 
+                              ? "opacity-100 scale-100 z-10 pointer-events-auto" 
+                              : "opacity-0 scale-95 z-0 pointer-events-none"
+                          }`}
+                        >
+                          <img 
+                            src={`${import.meta.env.BASE_URL}${slide.image}`} 
+                            alt={slide.alt} 
+                            className="rounded-lg shadow-inner w-full h-full object-cover border border-border/40"
+                          />
+                          
+                          {/* Floating stickers / badges */}
+                          {slide.stickers.map((sticker, idx) => (
+                            <div
+                              key={idx}
+                              style={{ animationDelay: sticker.delay || "0s" }}
+                              className={`absolute animate-float rounded-xl text-white font-black text-xs px-3 py-1.5 shadow-lg border border-white/10 flex items-center gap-1.5 cursor-default transition-all duration-300 ${sticker.className}`}
+                            >
+                              {sticker.type === "pdf" && <FileCheck2 className="h-3 w-3" />}
+                              {sticker.type === "check" && <CheckCircle2 className="h-4 w-4 text-white fill-white/10" />}
+                              {sticker.type === "zap" && <Zap className="h-3 w-3 text-amber-300" />}
+                              {sticker.type === "secure" && <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />}
+                              {sticker.type === "photo" && <WandSparkles className="h-3 w-3" />}
+                              {sticker.type === "crop" && <FileArchive className="h-3 w-3" />}
+                              {sticker.type === "size" && <Gauge className="h-3 w-3 text-amber-300" />}
+                              {sticker.type === "shield" && <ShieldCheck className="h-3.5 w-3.5 text-indigo-400" />}
+                              {sticker.type === "lock" && <Lock className="h-3 w-3" />}
+                              {sticker.type === "key" && <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />}
+                              <span>{sticker.text}</span>
+                            </div>
+                          ))}
+                        </div>
+                      ))}
                     </div>
+                  </div>
 
-                    {/* Sticker 2: ZIP Success Stamp */}
-                    <div className="absolute -bottom-3 -right-2 animate-float rounded-2xl bg-emerald-500/95 hover:bg-emerald-500 text-white font-black text-xs px-4 py-2 shadow-lg border border-emerald-400/40 flex items-center gap-2 cursor-default transition-all duration-300" style={{ animationDelay: "1s" }}>
-                      <CheckCircle2 className="h-4 w-4 text-white fill-white/10" />
-                      <span>Ready to Upload</span>
-                    </div>
-
-                    {/* Sticker 3: Auto Resize badge */}
-                    <div className="absolute top-1/2 -right-4 -translate-y-1/2 animate-float rounded-xl bg-indigo-600/90 hover:bg-indigo-600 text-white font-black text-[11px] px-3 py-1.5 shadow-lg border border-indigo-400/30 flex items-center gap-1.5 cursor-default transition-all duration-300" style={{ animationDelay: "2s" }}>
-                      <Zap className="h-3 w-3 text-amber-300" />
-                      <span>Auto Resize</span>
-                    </div>
-
-                    {/* Sticker 4: Secure check */}
-                    <div className="absolute -bottom-2 -left-2 animate-float rounded-xl bg-slate-900/90 hover:bg-slate-900 text-slate-100 font-bold text-[10px] px-3 py-1 shadow-lg border border-slate-700/50 flex items-center gap-1.5 cursor-default transition-all duration-300" style={{ animationDelay: "1.5s" }}>
-                      <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
-                      <span>100% Client-Side</span>
-                    </div>
+                  {/* Slider dots indicators */}
+                  <div className="flex gap-2.5 mt-4 z-10">
+                    {showcaseSlides.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setActiveSlide(index)}
+                        className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
+                          index === activeSlide 
+                            ? "w-8 bg-primary shadow-glow-sm" 
+                            : "w-2.5 bg-muted hover:bg-muted-foreground/50"
+                        }`}
+                        aria-label={`Go to slide ${index + 1}`}
+                      />
+                    ))}
                   </div>
                 </div>
               </div>
