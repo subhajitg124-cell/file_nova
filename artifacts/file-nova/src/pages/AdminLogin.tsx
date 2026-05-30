@@ -45,7 +45,7 @@ export default function AdminLogin() {
     }, 800);
   };
 
-  const logoUrl = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/logo.png`;
+  const logoUrl = '/logo.png';
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col justify-center items-center px-4 relative overflow-hidden bg-mesh">
