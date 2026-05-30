@@ -1171,7 +1171,7 @@ export default function Home() {
             </section>
 
             {/* Row 2: Assistant & Upload dropzone */}
-            <section className="grid items-stretch gap-6 grid-cols-1 lg:grid-cols-12">
+            <section className="grid items-start gap-6 grid-cols-1 lg:grid-cols-12">
               {/* Left: Smart Government Assistant checklist */}
               <div id="government-checklist-section" className="rounded-2xl border border-border bg-card shadow-premium glass lg:col-span-7 xl:col-span-8 p-6 sm:p-8 card-shine">
                 <div className="mb-6 flex items-center justify-between">
@@ -1870,6 +1870,8 @@ export default function Home() {
             Merge PDF &bull; Compress PDF &bull; Image to PDF &bull; OCR &bull; Document Converter &bull; Government Form Automation
           </p>
           <div className="mt-6 border-t border-border/40 pt-4 text-center text-xs text-muted-foreground flex flex-col sm:flex-row items-center justify-center gap-4">
+            <span>&copy; {new Date().getFullYear()} FileNova. All rights reserved.</span>
+            <span className="hidden sm:inline text-muted-foreground/30">|</span>
             <span>Testing & feedback: <a href="mailto:pixelsubhajit@gmail.com" className="underline font-bold text-foreground">pixelsubhajit@gmail.com</a></span>
           </div>
         </div>
