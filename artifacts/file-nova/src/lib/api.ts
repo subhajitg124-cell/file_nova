@@ -1,6 +1,6 @@
 import { FileRecord, ProcessingSavings } from '@/store/useFileStore';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
 
 export interface HealthCheckResult {
   healthy: boolean;

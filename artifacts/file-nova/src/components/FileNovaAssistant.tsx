@@ -1,5 +1,5 @@
 /**
- * Brainware Assistant - Interactive AI Helping Bot for Document Processing,
+ * File Nova Assistant - Interactive AI Helping Bot for Document Processing,
  * Admissions, Fees, and SVMCM Scholarships.
  * Incorporates a premium glassmorphic UI, responsive controls, and active translations.
  */
@@ -28,25 +28,25 @@ interface Message {
   timestamp: Date;
 }
 
-interface BrainwareAssistantProps {
+interface FileNovaAssistantProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
 const PRESET_PROMPTS = [
-  { text: "Admission process 2026", icon: <GraduationCap className="h-3 w-3 text-emerald-400" /> },
-  { text: "Scholarship & SVMCM requirements", icon: <ShieldCheck className="h-3 w-3 text-indigo-400" /> },
+  { text: "How to mask Aadhaar card?", icon: <ShieldCheck className="h-3 w-3 text-emerald-400" /> },
   { text: "How to compress PDF?", icon: <FileDown className="h-3 w-3 text-amber-400" /> },
-  { text: "What are the course fees?", icon: <HelpCircle className="h-3 w-3 text-sky-400" /> }
+  { text: "Crop photo & signature?", icon: <Sparkles className="h-3 w-3 text-indigo-400" /> },
+  { text: "Is my data stored securely?", icon: <HelpCircle className="h-3 w-3 text-sky-400" /> }
 ];
 
-export function BrainwareAssistant({ isOpen, onClose }: BrainwareAssistantProps) {
+export function FileNovaAssistant({ isOpen, onClose }: FileNovaAssistantProps) {
   const { tText } = useTranslation();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
       sender: "bot",
-      text: "Welcome to **FileNova AI Helpdesk**! I'm your **File Nova Assistant**.\n\nAsk me about **courses, admissions 2026, semester fees, SVMCM scholarships / credit cards**, or how to crop, mask, and optimize your application documents! How can I help you today?",
+      text: "Welcome to **FileNova AI Helpdesk**! I'm your **File Nova Assistant**.\n\nI can help you navigate **FileNova's secure browser-based document tools**. Ask me how to mask Aadhaar cards, crop signatures, resize passport photos, compress PDFs, extract text (OCR), compile application ZIP files, or how our privacy-first local processing works! How can I help you today?",
       timestamp: new Date()
     }
   ]);
@@ -128,19 +128,25 @@ export function BrainwareAssistant({ isOpen, onClose }: BrainwareAssistantProps)
 
   const getOfflineReply = (query: string): string => {
     const low = query.toLowerCase();
-    if (low.includes("admission") || low.includes("apply") || low.includes("vorti")) {
-      return "**Brainware University Admissions 2026** are currently open! Popular courses: B.Tech CSE, BCA, MCA, MBA, and Allied Health Sciences. Apply online through the portal. Use our **Direct Slots compiler** to auto-compile your marksheets into a matching ZIP.";
+    if (low.includes("aadhaar") || low.includes("aadhar") || low.includes("mask")) {
+      return "Our **Aadhaar Masking** tool blanks out the first 8 digits of your Aadhaar card for privacy compliance. This runs 100% locally in your browser using canvas APIs; your card is never uploaded to any server. To use it, select it from the Shortcuts or Tools list, upload your image/PDF, draw or auto-redact, and download the masked version.";
     }
-    if (low.includes("scholarship") || low.includes("svmcm") || low.includes("bhandar") || low.includes("laxmi")) {
-      return "Yes! **SVMCM (Swami Vivekananda Merit-cum-Means) scholarship** and Kanyashree are fully supported. Document requirements:\n- Family Income certificate (< ₹2.5 LPA) compiled under 100KB\n- Previous Marksheet under 300KB\n- Aadhaar card masked.\n\nUse our **Scholarship ZIP Maker** tool to compile these instantly!";
+    if (low.includes("compress") || low.includes("size") || low.includes("limit") || low.includes("kb")) {
+      return "FileNova offers a **PDF Compressor** tool to shrink documents under portal limits (like 100KB or 300KB). You can choose between Low, Medium, or High compression. For images, use the **Passport Photo Resize** tool to scale to exact dimensions and target file sizes.";
     }
-    if (low.includes("fee") || low.includes("sem") || low.includes("cost") || low.includes("taka")) {
-      return "Semester fees range from ₹40,050 to ₹65,000 for standard engineering, technology, and health programs. The West Bengal Student Credit Card scheme provides simple low-interest institutional loans up to ₹10 Lakhs.";
+    if (low.includes("crop") || low.includes("photo") || low.includes("signature") || low.includes("resize")) {
+      return "Use the **Passport Photo Resize** and **Signature Crop** tools in the *Advanced Tools Suite*. They let you adjust aspect ratios, clean up scanning noise, and crop to precise requirements with a live visual preview in our **Editing Window** before saving.";
     }
-    if (low.includes("compress") || low.includes("resize") || low.includes("crop") || low.includes("aadhar") || low.includes("mask")) {
-      return "To fix files instantly on FileNova:\n1. Open the **Shortcuts** dropdown in the header.\n2. Click the matching tool (e.g., **Aadhaar Masking** or **Compress PDF**).\n3. Upload and let the system process. Click **Done** to download the compliant asset!";
+    if (low.includes("privacy") || low.includes("secure") || low.includes("store") || low.includes("server") || low.includes("save")) {
+      return "Privacy is our core principle! All core tools (Aadhaar masking, cropping, image compression) execute **locally in your web browser**. If you use advanced cloud features, files are encrypted in transit, and are immediately deleted from our servers the moment you download them or after 1 hour.";
     }
-    return "I am the **File Nova Assistant**. I specialize in helping you format student documents, understand application portals, course streams, fees, and West Bengal scholarships. Drop another question!";
+    if (low.includes("merge") || low.includes("combine") || low.includes("zip") || low.includes("package")) {
+      return "You can merge multiple PDFs using our **PDF Merge** tool. If you are preparing scholarship/admission documents, use our **ZIP Compiler** to bundle all required files (marksheet, income certificate, masked ID) into a single optimized ZIP folder.";
+    }
+    if (low.includes("voice") || low.includes("speech") || low.includes("mic")) {
+      return "Click the **Voice** button or mic icon. You can speak commands like *'compress PDF'*, *'mask Aadhaar'*, or *'crop signature'* to instantly trigger and launch the corresponding tool.";
+    }
+    return "I am the **File Nova Assistant**. I help you use FileNova's secure browser-based tools: Aadhaar masking, PDF compression/merge, passport photo resizing, signature cropping, text OCR, and secure WhatsApp file sharing. Ask me how to use any of these!";
   };
 
   const formatText = (text: string) => {
@@ -184,8 +190,8 @@ export function BrainwareAssistant({ isOpen, onClose }: BrainwareAssistantProps)
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 40, scale: 0.95 }}
           transition={{ duration: 0.28, ease: "easeOut" }}
-          id="brainware-bot-window"
-          className="fixed bottom-24 right-4 sm:right-6 z-[120] w-[92vw] sm:w-[410px] h-[60vh] sm:h-[530px] rounded-3xl border border-primary/30 bg-slate-900/90 text-white backdrop-blur-xl shadow-premium overflow-hidden flex flex-col font-sans"
+          id="filenova-bot-window"
+          className="fixed bottom-24 right-4 sm:right-6 z-[120] w-[92vw] sm:w-[410px] h-[60vh] sm:h-[530px] rounded-3xl border border-white/10 bg-slate-950/60 text-white backdrop-blur-2xl shadow-premium overflow-hidden flex flex-col font-sans"
         >
           {/* Header */}
           <div className="p-4 bg-transparent border-b border-white/[0.08] flex items-center justify-between shadow-md">
@@ -205,6 +211,8 @@ export function BrainwareAssistant({ isOpen, onClose }: BrainwareAssistantProps)
             <button
               onClick={onClose}
               className="h-8 w-8 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 text-white/90 hover:text-white transition cursor-pointer"
+              aria-label="Close assistant"
+              title="Close Assistant"
             >
               <X className="h-4 w-4" />
             </button>
@@ -213,7 +221,7 @@ export function BrainwareAssistant({ isOpen, onClose }: BrainwareAssistantProps)
           {/* Message log */}
           <div
             ref={scrollRef}
-            className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-950/40"
+            className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-950/20"
           >
             {messages.map((m) => (
               <div
@@ -261,7 +269,7 @@ export function BrainwareAssistant({ isOpen, onClose }: BrainwareAssistantProps)
           </div>
 
           {/* Preset Prompts Container */}
-          <div className="px-4 py-2 border-t border-slate-850 bg-slate-900/50 flex flex-wrap gap-1.5 overflow-x-auto select-none">
+          <div className="px-4 py-2 border-t border-white/[0.06] bg-slate-950/30 flex flex-wrap gap-1.5 overflow-x-auto select-none">
             {PRESET_PROMPTS.map((pr) => (
               <button
                 key={pr.text}
@@ -280,7 +288,7 @@ export function BrainwareAssistant({ isOpen, onClose }: BrainwareAssistantProps)
               e.preventDefault();
               handleSendMessage(inputVal);
             }}
-            className="p-3 border-t border-slate-800 bg-slate-950 flex items-center gap-2"
+            className="p-3 border-t border-white/[0.08] bg-slate-950/50 backdrop-blur-md flex items-center gap-2"
           >
             <input
               type="text"
@@ -293,13 +301,15 @@ export function BrainwareAssistant({ isOpen, onClose }: BrainwareAssistantProps)
               type="submit"
               disabled={!inputVal.trim() || isTyping}
               className="h-9 w-9 flex items-center justify-center rounded-xl bg-primary text-primary-foreground disabled:opacity-40 hover:opacity-90 transition cursor-pointer"
+              aria-label="Send message"
+              title="Send Message"
             >
               <Send className="h-3.5 w-3.5" />
             </button>
           </form>
 
           {/* Credit Footer */}
-          <div className="bg-slate-950/80 py-1.5 border-t border-slate-900 text-center text-[10px] text-slate-500 select-none">
+          <div className="bg-slate-950/60 py-1.5 border-t border-white/[0.04] text-center text-[10px] text-slate-500 select-none">
             Powered by AI &bull; {tText("FileNova AI")}
           </div>
         </motion.div>

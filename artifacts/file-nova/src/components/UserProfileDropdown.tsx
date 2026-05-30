@@ -103,13 +103,13 @@ export function UserProfileDropdown() {
 
       {/* Dropdown Menu */}
       {dropdownOpen && user && (
-        <div className="absolute right-0 mt-2.5 w-72 rounded-2xl border border-border bg-card/95 backdrop-blur-xl shadow-premium p-4 z-50 animate-scale-in">
+        <div className="absolute right-0 mt-4 w-72 rounded-2xl border border-border bg-card/95 backdrop-blur-xl shadow-premium p-4 z-50 animate-scale-in">
           {/* User info */}
-          <div className="border-b border-border pb-3.5 mb-3.5">
+          <div className="border-b border-border pt-1 pb-3.5 mb-3.5">
             <p className="text-xs font-black text-foreground truncate">{user.name || "FileNova User"}</p>
             <p className="text-[10px] text-muted-foreground truncate mt-0.5">{user.email}</p>
             {user.phoneNumber && (
-              <p className="text-[10px] text-muted-foreground mt-0.5">{user.phoneNumber}</p>
+              <p className="text-[10px] text-muted-foreground mt-1.5">{user.phoneNumber}</p>
             )}
           </div>
 
@@ -152,19 +152,19 @@ export function UserProfileDropdown() {
             {!plan.isPremium ? (
               <button
                 onClick={() => { setLocation("/pricing"); setDropdownOpen(false); }}
-                className="w-full text-left py-2 px-3 rounded-lg text-xs font-bold text-primary hover:bg-primary/10 hover:text-primary transition flex items-center gap-2 cursor-pointer"
+                className="w-full text-center py-2.5 px-4 rounded-xl text-xs font-black text-white bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-glow flex items-center justify-center gap-2 cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
               >
-                <Zap className="h-3.5 w-3.5" />
-                Upgrade Workspace
+                <Zap className="h-3.5 w-3.5 fill-white" />
+                <span>Upgrade Workspace</span>
               </button>
             ) : (
               <button
                 onClick={handleCancelSub}
                 disabled={subLoading}
-                className="w-full text-left py-2 px-3 rounded-lg text-xs font-bold text-destructive hover:bg-destructive/10 transition flex items-center gap-2 cursor-pointer"
+                className="w-full text-left py-2 px-3 rounded-lg text-xs font-bold text-destructive hover:bg-destructive/10 transition flex items-center gap-2 cursor-pointer border border-transparent hover:border-destructive/15"
               >
                 <CreditCard className="h-3.5 w-3.5" />
-                Cancel Plan
+                <span>Cancel Plan</span>
               </button>
             )}
           </div>

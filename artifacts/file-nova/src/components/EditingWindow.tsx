@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { QuickShareButton } from "@/components/WhatsAppShare";
 import { useImageEditor } from "@/hooks/useImageEditor";
+import { useTranslation } from "@/lib/i18n";
 
 interface EditingWindowProps {
   file: File | null;
@@ -65,6 +66,7 @@ const filterOptions = [
 ];
 
 export const EditingWindow: React.FC<EditingWindowProps> = ({ file, fileType, onClose, onDone }) => {
+  const { tText } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const {
     ready,
@@ -376,13 +378,13 @@ export const EditingWindow: React.FC<EditingWindowProps> = ({ file, fileType, on
     <button
       type="button"
       onClick={() => toggleSection(sectionKey)}
-      className={`flex w-full items-center justify-between gap-3 rounded-2xl border border-slate-800 px-4 py-3 text-left transition ${activeSection === sectionKey ? "bg-slate-800" : "bg-slate-950/95 hover:bg-slate-900"}`}
+      className={`flex w-full items-center justify-between gap-3 rounded-2xl border border-slate-800 px-4 py-3 text-left transition ${activeSection === sectionKey ? "bg-slate-850" : "bg-slate-950/80 hover:bg-slate-900"}`}
     >
       <div className="flex items-center gap-3">
         <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-slate-800 text-slate-100">{icon}</span>
         <div>
-          <p className="text-sm font-semibold">{label}</p>
-          <p className="text-xs text-slate-400">{sectionKey === activeSection ? "Open" : "Closed"}</p>
+          <p className="text-sm font-semibold">{tText(label)}</p>
+          <p className="text-xs text-slate-400">{sectionKey === activeSection ? tText("Open") : tText("Closed")}</p>
         </div>
       </div>
       <motion.span animate={{ rotate: activeSection === sectionKey ? 180 : 0 }} className="text-slate-400">
@@ -392,24 +394,24 @@ export const EditingWindow: React.FC<EditingWindowProps> = ({ file, fileType, on
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex bg-slate-950 text-white">
-      <aside className="w-[300px] border-r border-slate-800 bg-slate-950/95 overflow-y-auto pb-10">
-        <div className="sticky top-0 z-20 border-b border-slate-800 bg-slate-950/95 px-4 py-4 backdrop-blur-xl">
+    <div className="fixed inset-0 z-50 flex flex-col lg:flex-row bg-slate-950/90 text-white backdrop-blur-xl overflow-y-auto lg:overflow-hidden font-sans">
+      <aside className="w-full lg:w-[320px] shrink-0 border-b lg:border-b-0 lg:border-r border-slate-800 bg-slate-1000/60 backdrop-blur-lg overflow-y-auto pb-6 lg:pb-10 flex flex-col">
+        <div className="sticky top-0 z-20 border-b border-slate-800 bg-slate-950/85 px-4 py-4 backdrop-blur-md">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Editing window</p>
-              <h2 className="text-lg font-black">FileNova AI</h2>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">{tText("Editing Window")}</p>
+              <h2 className="text-lg font-black text-white">FileNova AI</h2>
             </div>
-            <button onClick={onClose} title="Close editing window" aria-label="Close editing window" className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900 hover:bg-slate-800 transition">
+            <button onClick={onClose} title={tText("Close")} aria-label={tText("Close")} className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900 hover:bg-slate-800 transition cursor-pointer">
               <X className="h-4 w-4" />
             </button>
           </div>
-          <div className="mt-4 rounded-3xl border border-slate-800 bg-slate-900 p-3 text-sm text-slate-400">
+          <div className="mt-4 rounded-3xl border border-slate-805 bg-slate-900/60 p-3 text-sm text-slate-400">
             <div className="flex items-center justify-between gap-2">
-              <span>Active tool</span>
-              <span className="rounded-full bg-slate-800 px-2 py-1 text-[11px] uppercase tracking-[0.18em] text-slate-300">{activeSectionLabel}</span>
+              <span className="text-xs text-slate-400">{tText("Active tool")}</span>
+              <span className="rounded-full bg-slate-800/80 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-300">{tText(activeSectionLabel)}</span>
             </div>
-            <p className="mt-3 text-xs leading-5 text-slate-500">Use the sidebar to preview edits live, then save with Done.</p>
+            <p className="mt-2 text-xs leading-5 text-slate-500">{tText("Use the sidebar to preview edits live, then save with Done.")}</p>
           </div>
         </div>
 
@@ -1107,83 +1109,85 @@ export const EditingWindow: React.FC<EditingWindowProps> = ({ file, fileType, on
         </div>
       </aside>
 
-      <main className="flex min-h-screen flex-1 flex-col bg-slate-100">
-        <div className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4 shadow-sm">
+      <main className="flex flex-1 flex-col bg-slate-950/40 text-slate-100 min-h-0 overflow-y-auto lg:overflow-hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 bg-slate-900/60 backdrop-blur-md px-6 py-4 shadow-sm">
           <div className="space-y-1">
-            <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Editing</p>
-            <h1 className="text-lg font-black text-slate-900 truncate">{file?.name || "Untitled file"}</h1>
+            <p className="text-xs uppercase tracking-[0.22em] text-slate-400">{tText("Editing")}</p>
+            <h1 className="text-lg font-black text-white truncate max-w-[200px] sm:max-w-xs">{file?.name || "Untitled file"}</h1>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={() => setZoomLevel((level) => Math.max(0.5, level - 0.1))}
-              title="Zoom out"
-              aria-label="Zoom out"
-              className="inline-flex h-10 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+              title={tText("Zoom out")}
+              aria-label={tText("Zoom out")}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-750 bg-slate-850 hover:bg-slate-800 hover:text-white transition text-slate-300 cursor-pointer text-sm font-bold"
             >
               -
             </button>
-            <span className="text-sm font-semibold text-slate-700">{Math.round(zoomLevel * 100)}%</span>
+            <span className="text-xs font-bold text-slate-300 px-1">{Math.round(zoomLevel * 100)}%</span>
             <button
               type="button"
               onClick={() => setZoomLevel((level) => Math.min(2, level + 0.1))}
-              title="Zoom in"
-              aria-label="Zoom in"
-              className="inline-flex h-10 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+              title={tText("Zoom in")}
+              aria-label={tText("Zoom in")}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-750 bg-slate-850 hover:bg-slate-800 hover:text-white transition text-slate-300 cursor-pointer text-sm font-bold"
             >
               +
             </button>
             <button
               type="button"
               onClick={resetAll}
-              className="inline-flex items-center gap-2 rounded-2xl border border-slate-300 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+              className="inline-flex items-center gap-2 rounded-2xl border border-slate-750 bg-slate-850 hover:bg-slate-800 px-4 py-2 text-xs font-bold text-slate-300 transition cursor-pointer"
             >
-              <RotateCcw className="h-4 w-4" /> Reset
+              <RotateCcw className="h-3.5 w-3.5" /> {tText("Reset")}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex items-center gap-2 rounded-2xl border border-transparent bg-slate-900 px-4 py-2 text-sm font-black text-white transition hover:bg-slate-800"
+              className="inline-flex items-center gap-2 rounded-2xl border border-transparent bg-slate-100 px-4 py-2 text-xs font-black text-slate-950 transition hover:bg-slate-200 cursor-pointer"
             >
-              <X className="h-4 w-4" /> Close
+              <X className="h-3.5 w-3.5" /> {tText("Close")}
             </button>
           </div>
         </div>
 
-        <div className="flex flex-1 flex-col overflow-hidden px-6 py-6">
-          <div className="flex items-center justify-between rounded-3xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
-            <div className="flex items-center gap-3 text-sm text-slate-600">
-              <Circle className="h-3 w-3 text-emerald-500" />
-              Live preview
+        <div className="flex flex-1 flex-col overflow-y-auto lg:overflow-hidden px-4 py-4 sm:px-6 sm:py-6">
+          <div className="flex items-center justify-between rounded-3xl border border-slate-800 bg-slate-900/60 backdrop-blur-md px-4 py-3 shadow-sm">
+            <div className="flex items-center gap-3 text-sm text-slate-350">
+              <Circle className="h-2.5 w-2.5 text-emerald-500 fill-emerald-500/30 animate-pulse" />
+              {tText("Live preview")}
             </div>
-            <div className="text-xs uppercase tracking-[0.18em] text-slate-400">{activeSectionLabel}</div>
+            <div className="text-[10px] uppercase font-bold tracking-[0.14em] text-slate-400">{tText(activeSectionLabel)}</div>
           </div>
 
-          <div className="mt-6 flex flex-1 items-center justify-center overflow-auto rounded-3xl bg-slate-100 p-6">
+          <div className="mt-4 sm:mt-6 flex flex-1 items-center justify-center overflow-auto rounded-3xl bg-slate-950 p-4 sm:p-6 shadow-inner border border-slate-900">
             {fileType === "image" ? (
-              <div className="relative max-w-full overflow-hidden rounded-3xl bg-white shadow-inner" style={{ transform: `scale(${zoomLevel})` }}>
-                <canvas ref={canvasRef} className="block h-auto w-full max-w-[960px] rounded-3xl bg-slate-100" />
+              <div className="relative max-w-full overflow-hidden rounded-3xl bg-slate-900 shadow-inner" style={{ transform: `scale(${zoomLevel})`, transition: "transform 0.15s ease-out" }}>
+                <canvas ref={canvasRef} className="block h-auto w-full max-w-[960px] rounded-3xl bg-slate-950" />
                 {!ready && (
-                  <div className="absolute inset-0 grid place-items-center bg-white/80 text-slate-700">
+                  <div className="absolute inset-0 grid place-items-center bg-slate-950/90 text-slate-200 backdrop-blur-sm">
                     <div className="text-center">
-                      <p className="font-black">Preparing preview…</p>
-                      <p className="text-sm text-slate-500">The canvas will render once the image loads.</p>
+                      <p className="font-black text-sm">{tText("Preparing preview…")}</p>
+                      <p className="text-xs text-slate-500 mt-1">{tText("The canvas will render once the image loads.")}</p>
                     </div>
                   </div>
                 )}
               </div>
             ) : (
-              <div className="flex max-w-3xl flex-1 flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center shadow-sm">
-                <Layers className="mb-4 h-12 w-12 text-slate-400" />
-                <p className="text-lg font-black text-slate-900">Preview unavailable</p>
-                <p className="mt-2 text-sm text-slate-500">This editor currently renders live previews for images. PDF/document rendering is shown as a placeholder.</p>
+              <div className="flex max-w-3xl flex-1 flex-col items-center justify-center rounded-3xl border border-dashed border-slate-800 bg-slate-900/50 p-6 sm:p-10 text-center shadow-sm">
+                <Layers className="mb-4 h-12 w-12 text-slate-600" />
+                <p className="text-md font-bold text-slate-200">{tText("Preview unavailable")}</p>
+                <p className="mt-2 text-xs text-slate-500 leading-5">
+                  {tText("This editor currently renders live previews for images. PDF/document rendering is shown as a placeholder.")}
+                </p>
               </div>
             )}
           </div>
 
-          <div className="mt-4 flex items-center justify-between rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 shadow-sm">
-            <span>{statusMessage || "Use the sidebar tools to edit your project."}</span>
-            <span className="font-semibold">{file?.type || "No file selected"}</span>
+          <div className="mt-4 flex items-center justify-between rounded-3xl border border-slate-800 bg-slate-900/50 px-4 py-3 text-xs text-slate-400 shadow-sm">
+            <span>{statusMessage ? tText(statusMessage) : tText("Use the sidebar tools to edit your project.")}</span>
+            <span className="font-bold text-slate-500">{file?.type || "None"}</span>
           </div>
         </div>
       </main>

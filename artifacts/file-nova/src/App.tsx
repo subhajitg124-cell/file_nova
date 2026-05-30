@@ -12,6 +12,7 @@ import { LanguageProvider } from "@/lib/i18n";
 import { AdminProvider } from "@/lib/admin";
 import { FileExpiryBar } from "@/components/FileExpiryBar";
 import { OfflineBanner } from "@/components/OfflineBanner";
+import { Toaster } from "@/components/ui/sonner";
 
 const queryClient = new QueryClient();
 
@@ -92,6 +93,7 @@ function App() {
                     <Router />
                     <OfflineBanner />
                     <FileExpiryBar />
+                    <Toaster closeButton position="top-right" richColors />
                   </AdminProvider>
                 </LanguageProvider>
               </WouterRouter>

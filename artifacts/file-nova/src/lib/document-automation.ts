@@ -46,7 +46,7 @@ export interface EventRule {
   documents: DocumentRule[];
 }
 
-export const translations: Record<AppLanguage, Record<string, string>> = {
+export const translations = {
   en: {
     assistantTitle: "Smart Government Assistant",
     assistantCopy: "Pick a scheme, upload documents, and FileNova AI prepares a submission-ready ZIP.",

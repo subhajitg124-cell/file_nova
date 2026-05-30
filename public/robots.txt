@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://filenova.in/sitemap.xml

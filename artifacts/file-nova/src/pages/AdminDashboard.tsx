@@ -39,6 +39,85 @@ export default function AdminDashboard() {
   const [loadingStats, setLoadingStats] = useState(false);
   const [backendHealth, setBackendHealth] = useState<any>(null);
 
+  // New Scheme Creator State & customRules loader
+  const [customRules, setCustomRules] = useState<any[]>([]);
+  const [showCreator, setShowCreator] = useState(false);
+  const [schemeId, setSchemeId] = useState("");
+  const [schemeTitle, setSchemeTitle] = useState("");
+  const [schemePattern, setSchemePattern] = useState("{name}_documents.zip");
+  const [slotKey, setSlotKey] = useState("");
+  const [slotLabel, setSlotLabel] = useState("");
+  const [slotTarget, setSlotTarget] = useState("");
+  const [slotMaxKb, setSlotMaxKb] = useState(100);
+  const [currentSlots, setCurrentSlots] = useState<{ id: string; label: string; target: string; maxSizeKb: number }[]>([]);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("filenova-custom-rules");
+      if (stored) {
+        setCustomRules(JSON.parse(stored));
+      }
+    } catch (e) {
+      console.warn("Could not read custom rules", e);
+    }
+  }, []);
+
+  const handleAddSlot = () => {
+    if (!slotKey || !slotLabel) {
+      toast.error("Please fill Key and Label for the slot");
+      return;
+    }
+    setCurrentSlots([...currentSlots, { id: slotKey, label: slotLabel, target: slotTarget || "JPEG / PDF format", maxSizeKb: Number(slotMaxKb) || 100 }]);
+    setSlotKey("");
+    setSlotLabel("");
+    setSlotTarget("");
+    setSlotMaxKb(150);
+    toast.success("Added slot constraint");
+  };
+
+  const handleRemoveSlot = (index: number) => {
+    setCurrentSlots(currentSlots.filter((_, i) => i !== index));
+    toast.info("Removed slot constraint");
+  };
+
+  const handleSaveScheme = () => {
+    if (!schemeId || !schemeTitle) {
+      toast.error("Scheme ID and Title are required");
+      return;
+    }
+    if (currentSlots.length === 0) {
+      toast.error("Please add at least one document slot requirement");
+      return;
+    }
+    const newRule = {
+      id: schemeId,
+      title: schemeTitle,
+      namingPattern: schemePattern,
+      icon: "📋",
+      category: "custom",
+      documents: currentSlots
+    };
+
+    const nextCustom = [...customRules, newRule];
+    setCustomRules(nextCustom);
+    localStorage.setItem("filenova-custom-rules", JSON.stringify(nextCustom));
+    
+    // reset form
+    setSchemeId("");
+    setSchemeTitle("");
+    setSchemePattern("{name}_documents.zip");
+    setCurrentSlots([]);
+    setShowCreator(false);
+    toast.success("Custom scheme created and saved beautifully! 🚀");
+  };
+
+  const handleDeleteScheme = (id: string) => {
+    const nextCustom = customRules.filter(r => r.id !== id);
+    setCustomRules(nextCustom);
+    localStorage.setItem("filenova-custom-rules", JSON.stringify(nextCustom));
+    toast.info("Custom scheme deleted successfully");
+  };
+
   const logoUrl = `${import.meta.env.BASE_URL}logo.png`;
 
   const fetchStats = async () => {
@@ -292,34 +371,213 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              {/* Event Rules (real config data) */}
-              <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
-                <div className="mb-4 flex items-center justify-between">
+              {/* Event Rules (dynamic config data & interactive builder) */}
+              <div className="rounded-xl border border-border bg-card p-5 shadow-sm space-y-6">
+                <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="font-black">Document Event Rules</h2>
-                    <p className="text-xs text-muted-foreground mt-0.5">Active automation schemes configured in the system</p>
+                    <h2 className="text-base font-black">Document Event Rules & Dynamic Schemes</h2>
+                    <p className="text-xs text-muted-foreground mt-0.5">Configure strict multipart document uploading rules & templates dynamically</p>
                   </div>
+                  <button
+                    onClick={() => setShowCreator(!showCreator)}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-black text-primary-foreground hover:bg-primary/95 transition cursor-pointer"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    <span>{showCreator ? "Cancel" : "Build Dynamic Rule"}</span>
+                  </button>
                 </div>
+
+                {/* Collapsible Creator Form */}
+                {showCreator && (
+                  <div className="rounded-xl border border-border bg-muted/35 p-4 space-y-4 animate-scale-in">
+                    <h3 className="text-xs font-black uppercase tracking-wider text-primary">New Scheme Blueprint Builder</h3>
+                    <div className="grid gap-4 sm:grid-cols-3">
+                      <div>
+                        <label className="block text-[10px] font-black uppercase tracking-wider text-muted-foreground mb-1">Unique Scheme ID</label>
+                        <input
+                          value={schemeId}
+                          onChange={(e) => setSchemeId(e.target.value.toLowerCase().replace(/\s+/g, "-"))}
+                          placeholder="e.g. aikyashree-scholar"
+                          className="w-full rounded-lg border border-border bg-background p-2 text-xs text-foreground"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-black uppercase tracking-wider text-muted-foreground mb-1">Scheme Title</label>
+                        <input
+                          value={schemeTitle}
+                          onChange={(e) => setSchemeTitle(e.target.value)}
+                          placeholder="e.g. Aikyashree Scholarship"
+                          className="w-full rounded-lg border border-border bg-background p-2 text-xs text-foreground"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-black uppercase tracking-wider text-muted-foreground mb-1">Naming ZIP Pattern</label>
+                        <input
+                          value={schemePattern}
+                          onChange={(e) => setSchemePattern(e.target.value)}
+                          placeholder="e.g. {name}_aikyashree.zip"
+                          className="w-full rounded-lg border border-border bg-background p-2 text-xs text-foreground"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Document constraint listing */}
+                    <div className="border-t border-border/80 pt-3 space-y-3">
+                      <h4 className="text-[11px] font-black text-foreground">Document Slot Requirements ({currentSlots.length} defined)</h4>
+                      
+                      {currentSlots.length > 0 && (
+                        <div className="flex flex-wrap gap-2 py-1">
+                          {currentSlots.map((slot, index) => (
+                            <div key={index} className="flex items-center gap-1.5 bg-background border border-border rounded-lg px-2.5 py-1 text-xs text-foreground font-semibold">
+                              <span>📁 {slot.label} (<span className="text-[10px] text-primary">{slot.id}</span> · Max {slot.maxSizeKb}KB)</span>
+                              <button
+                                onClick={() => handleRemoveSlot(index)}
+                                className="text-red-500 hover:text-red-700 font-bold ml-1 cursor-pointer"
+                              >
+                                &times;
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Add Slot Constraint Subsection */}
+                      <div className="grid gap-3 sm:grid-cols-4 items-end bg-card p-3 rounded-lg border border-border">
+                        <div>
+                          <label className="block text-[9px] font-bold text-muted-foreground mb-1">Slot Key</label>
+                          <input
+                            value={slotKey}
+                            onChange={(e) => setSlotKey(e.target.value.toLowerCase().replace(/\s+/g, "_"))}
+                            placeholder="e.g. income_cert"
+                            className="w-full rounded-md border border-border bg-background p-1.5 text-xs font-mono text-foreground"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[9px] font-bold text-muted-foreground mb-1">Slot Label</label>
+                          <input
+                            value={slotLabel}
+                            onChange={(e) => setSlotLabel(e.target.value)}
+                            placeholder="e.g. Family Income Certificate"
+                            className="w-full rounded-md border border-border bg-background p-1.5 text-xs text-foreground"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[9px] font-bold text-muted-foreground mb-1">Resolution / Format Requirement</label>
+                          <input
+                            value={slotTarget}
+                            onChange={(e) => setSlotTarget(e.target.value)}
+                            placeholder="e.g. PDF under 500 KB"
+                            className="w-full rounded-md border border-border bg-background p-1.5 text-xs text-foreground"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[9px] font-bold text-muted-foreground mb-1">Max KB Limit</label>
+                          <input
+                            type="number"
+                            value={slotMaxKb}
+                            onChange={(e) => setSlotMaxKb(Number(e.target.value))}
+                            placeholder="500"
+                            className="w-full rounded-md border border-border bg-background p-1.5 text-xs text-foreground"
+                          />
+                        </div>
+                        <div className="sm:col-span-4 flex justify-end">
+                          <button
+                            type="button"
+                            onClick={handleAddSlot}
+                            className="rounded bg-secondary hover:bg-secondary/80 px-3 py-1.5 font-bold text-[10px] text-foreground border border-border cursor-pointer transition"
+                          >
+                            + Add Document Slot Rule
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end gap-2 border-t border-border pt-3">
+                      <button
+                        onClick={() => setShowCreator(false)}
+                        className="rounded-lg border border-border px-3 py-1.5 text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleSaveScheme}
+                        className="rounded-lg bg-primary px-4 py-1.5 text-xs font-black text-primary-foreground hover:bg-primary/95 shadow-premium shadow-glow-sm cursor-pointer"
+                      >
+                        Publish & Initialize Scheme 🚀
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 <div className="overflow-x-auto rounded-lg border border-border">
                   <table className="w-full min-w-[600px] text-left text-sm">
-                    <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
+                    <thead className="bg-muted/60 text-xs uppercase text-muted-foreground text-[10px] tracking-wider">
                       <tr>
-                        <th className="px-3 py-3">Event Name</th>
-                        <th className="px-3 py-3">Rules</th>
-                        <th className="px-3 py-3">Naming Pattern</th>
-                        <th className="px-3 py-3">Status</th>
+                        <th className="px-3 py-3">Event/Scheme Name</th>
+                        <th className="px-3 py-3">Doc Slots</th>
+                        <th className="px-3 py-3">Naming ZIP Pattern</th>
+                        <th className="px-3 py-3">Source</th>
+                        <th className="px-3 py-3 text-right">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
+                      {/* Predefined static event rules */}
                       {eventRules.map((rule) => (
-                        <tr key={rule.id} className="border-t border-border">
-                          <td className="px-3 py-3 font-bold">{rule.title}</td>
-                          <td className="px-3 py-3 text-muted-foreground">{rule.documents.length} rules</td>
+                        <tr key={rule.id} className="border-t border-border hover:bg-muted/20 transition">
+                          <td className="px-3 py-3">
+                            <span className="font-bold text-foreground">{rule.title}</span>
+                          </td>
+                          <td className="px-3 py-3 text-muted-foreground text-xs">
+                            <div className="flex gap-1.5 flex-wrap">
+                              {rule.documents.map((d: any) => (
+                                <span key={d.id} className="inline-flex rounded-md bg-secondary/80 px-1.5 py-0.5 text-[9px] font-black text-muted-foreground" title={d.target}>
+                                  {d.label}
+                                </span>
+                              ))}
+                            </div>
+                          </td>
                           <td className="px-3 py-3 font-mono text-xs text-muted-foreground">{rule.namingPattern}</td>
                           <td className="px-3 py-3">
-                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-1 text-xs font-bold text-emerald-500">
-                              <CheckCircle2 className="h-3 w-3" /> Live
+                            <span className="inline-flex items-center gap-1 rounded-full bg-indigo-500/10 px-2.5 py-0.5 text-[10px] font-black text-indigo-500">
+                              System Preset
                             </span>
+                          </td>
+                          <td className="px-3 py-3 text-right">
+                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-500">
+                              Active
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+
+                      {/* Custom Dynamic Rules created by dynamic builder in local storage */}
+                      {customRules.map((rule) => (
+                        <tr key={rule.id} className="border-t border-border hover:bg-muted/20 transition bg-primary/2">
+                          <td className="px-3 py-3">
+                            <span className="font-bold text-primary">{rule.title}</span>
+                          </td>
+                          <td className="px-3 py-3 text-muted-foreground text-xs">
+                            <div className="flex gap-1.5 flex-wrap">
+                              {rule.documents.map((d: any) => (
+                                <span key={d.id} className="inline-flex rounded-md bg-primary/10 px-1.5 py-0.5 text-[9px] font-black text-primary" title={d.target}>
+                                  {d.label}
+                                </span>
+                              ))}
+                            </div>
+                          </td>
+                          <td className="px-3 py-3 font-sans text-xs font-bold text-foreground">{rule.namingPattern}</td>
+                          <td className="px-3 py-3">
+                            <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-black text-amber-500">
+                              Custom Rule
+                            </span>
+                          </td>
+                          <td className="px-3 py-3 text-right">
+                            <button
+                              onClick={() => handleDeleteScheme(rule.id)}
+                              className="text-red-500 hover:text-red-700 font-bold text-xs px-2 py-1 rounded hover:bg-red-500/10 transition cursor-pointer"
+                            >
+                              Delete
+                            </button>
                           </td>
                         </tr>
                       ))}
