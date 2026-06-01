@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="monetag" content="3354879" />
 
     <!-- Google AdSense Verification -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1022082801397971" crossorigin="anonymous"></script>
@@ -89,5 +90,13 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js')
+          .then(function(registration) {
+            console.log('SW registered');
+          });
+      }
+    </script>
   </body>
 </html>
