@@ -24,3 +24,14 @@ export const subscriptionsRelations = relations(subscriptionsTable, ({ one }) =>
     references: [usersTable.id],
   }),
 }));
+
+export const upiPaymentsTable = pgTable("upi_payments", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  email: varchar("email", { length: 320 }).notNull(),
+  utrId: varchar("utr_id", { length: 12 }).notNull().unique(),
+  plan: varchar("plan", { length: 50 }).notNull(),
+  amount: integer("amount").notNull(),
+  status: varchar("status", { length: 50 }).notNull().default("pending"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});

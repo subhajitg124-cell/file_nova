@@ -181,5 +181,5 @@ export {
 } from "./premium";
 
 export * from "./subscriptions";
-export { subscriptionsTable } from "./subscriptions";
+export { subscriptionsTable, upiPaymentsTable } from "./subscriptions";
 

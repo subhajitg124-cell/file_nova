@@ -5,7 +5,7 @@
 
 import React from "react";
 import { Link } from "wouter";
-import { ChevronLeft, Sparkles, CheckCircle2, ShieldCheck, Zap, Loader } from "lucide-react";
+import { ChevronLeft, Sparkles, CheckCircle2, ShieldCheck, Zap, Loader, Copy, QrCode, Upload, Check } from "lucide-react";
 import { useSubscription, type PremiumTier, isTestingPeriodActive } from "@/hooks/useSubscription";
 import { TestingNotice } from "@/components/TestingNotice";
 import { useAdmin } from "@/lib/admin";
@@ -28,6 +28,8 @@ interface PlanCardProps {
   onSelect: () => void;
   currentTier: PremiumTier;
   loading: boolean;
+  amount: number;
+  userEmail?: string;
 }
 
 function PlanCard({
@@ -44,8 +46,11 @@ function PlanCard({
   onSelect,
   currentTier,
   loading,
+  amount,
+  userEmail,
 }: PlanCardProps) {
   const isCurrent = currentTier === id;
+  const isPaidPlan = id !== "free";
 
   return (
     <div
@@ -85,6 +90,7 @@ function PlanCard({
         ))}
       </ul>
 
+      <div className={isPaidPlan && !isCurrent ? "grid grid-cols-1 gap-3 xl:grid-cols-2" : ""}>
       {/* CTA Button */}
       <button
         onClick={onSelect}
@@ -108,6 +114,177 @@ function PlanCard({
           ctaText
         )}
       </button>
+      {isPaidPlan && !isCurrent && (
+        <div>
+          <UpiPaymentBox plan={id} amount={amount} userEmail={userEmail} />
+        </div>
+      )}
+      </div>
+    </div>
+  );
+}
+
+function UpiPaymentBox({
+  plan,
+  amount,
+  userEmail,
+}: {
+  plan: Exclude<PremiumTier, "free">;
+  amount: number;
+  userEmail?: string;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const [formOpen, setFormOpen] = React.useState(false);
+  const [utrId, setUtrId] = React.useState("");
+  const [email, setEmail] = React.useState(userEmail || "");
+  const [screenshotName, setScreenshotName] = React.useState("");
+  const [submitting, setSubmitting] = React.useState(false);
+  const upiId = "subhajitgho123-1@oksbi";
+
+  React.useEffect(() => {
+    if (userEmail && !email) setEmail(userEmail);
+  }, [email, userEmail]);
+
+  const copyUpiId = async () => {
+    try {
+      await navigator.clipboard.writeText(upiId);
+      toast.success("UPI ID copied.");
+    } catch {
+      toast.error("Could not copy UPI ID.");
+    }
+  };
+
+  const submitVerification = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!/^\d{12}$/.test(utrId)) {
+      toast.error("Enter a valid 12 digit UTR/Transaction ID.");
+      return;
+    }
+    if (!email) {
+      toast.error("Email address is required.");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/upi-payment-verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ utrId, email, plan, amount }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Could not submit payment verification.");
+
+      toast.success(data.message || "Payment received! Your account will be upgraded within 2-4 hours after verification.");
+      setUtrId("");
+      setScreenshotName("");
+      setFormOpen(false);
+      setOpen(false);
+    } catch (err: any) {
+      toast.error(err.message || "Could not submit payment verification.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="rounded-xl border border-indigo-500/25 bg-indigo-500/5">
+      <button
+        type="button"
+        onClick={() => setOpen((value) => !value)}
+        className="w-full py-3 px-3 rounded-xl text-sm font-black text-primary hover:bg-indigo-500/10 transition flex items-center justify-center gap-2 cursor-pointer"
+      >
+        <QrCode className="h-4 w-4" />
+        Pay via UPI
+      </button>
+
+      {open && (
+        <div className="border-t border-indigo-500/20 p-4 space-y-4 animate-fade-in">
+          <div className="relative flex items-center justify-center text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+            <span className="absolute inset-x-0 top-1/2 border-t border-border" />
+            <span className="relative bg-card px-3">OR pay via UPI</span>
+          </div>
+
+          <div className="rounded-2xl border border-border bg-background/80 p-3 text-center">
+            <img
+              src="/upi-qr.png"
+              alt="FileNova UPI QR code"
+              className="mx-auto h-36 w-36 rounded-xl border border-border bg-white object-contain p-2"
+            />
+            <div className="mt-3 flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2">
+              <span className="min-w-0 flex-1 truncate text-xs font-bold text-foreground">{upiId}</span>
+              <button
+                type="button"
+                onClick={copyUpiId}
+                title="Copy UPI ID"
+                aria-label="Copy UPI ID"
+                className="h-8 w-8 shrink-0 rounded-lg border border-border bg-background hover:bg-muted flex items-center justify-center cursor-pointer"
+              >
+                <Copy className="h-3.5 w-3.5" />
+              </button>
+            </div>
+            <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
+              Scan QR or pay to UPI ID, then click 'I have paid' button below.
+            </p>
+          </div>
+
+          {!formOpen ? (
+            <button
+              type="button"
+              onClick={() => setFormOpen(true)}
+              className="w-full rounded-xl bg-primary py-3 text-xs font-black text-primary-foreground shadow-glow hover:opacity-90 transition cursor-pointer"
+            >
+              I have paid
+            </button>
+          ) : (
+            <form onSubmit={submitVerification} className="space-y-3">
+              <input
+                type="text"
+                inputMode="numeric"
+                maxLength={12}
+                placeholder="UTR/Transaction ID (12 digits)"
+                value={utrId}
+                onChange={(e) => setUtrId(e.target.value.replace(/\D/g, "").slice(0, 12))}
+                className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-xs font-semibold outline-none focus:border-primary"
+              />
+              <input
+                type="email"
+                placeholder="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-xs font-semibold outline-none focus:border-primary"
+              />
+              <label className="flex items-center gap-2 rounded-xl border border-dashed border-border bg-background px-3 py-2.5 text-xs font-semibold text-muted-foreground cursor-pointer hover:border-primary/50">
+                <Upload className="h-4 w-4" />
+                <span className="min-w-0 flex-1 truncate">{screenshotName || "Upload screenshot (optional)"}</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => setScreenshotName(e.target.files?.[0]?.name || "")}
+                />
+              </label>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="w-full rounded-xl bg-primary py-3 text-xs font-black text-primary-foreground shadow-glow hover:opacity-90 transition cursor-pointer disabled:opacity-60"
+              >
+                {submitting ? (
+                  <span className="inline-flex items-center justify-center gap-2">
+                    <Loader className="h-4 w-4 animate-spin" />
+                    Submitting
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center justify-center gap-2">
+                    <Check className="h-4 w-4" />
+                    Submit for verification
+                  </span>
+                )}
+              </button>
+            </form>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -249,6 +426,14 @@ export default function PricingPage() {
     return defaultCta;
   };
 
+  const getPayableAmount = (planId: PremiumTier, originalPrice: number) => {
+    if (planId === "free") return 0;
+    if (activeOffer && activeOffer.discountPercentage > 0) {
+      return Math.round(originalPrice * (1 - activeOffer.discountPercentage / 100));
+    }
+    return originalPrice;
+  };
+
   return (
     <div className={`min-h-screen bg-background text-foreground flex flex-col bg-mesh ${themeClass}`}>
       <TestingNotice />
@@ -315,6 +500,8 @@ export default function PricingPage() {
               onSelect={() => handleSelectPlan(p.id)}
               currentTier={premiumTier}
               loading={loading}
+              amount={getPayableAmount(p.id, p.originalPrice)}
+              userEmail={user?.email}
             />
           ))}
         </div>

@@ -4,6 +4,7 @@ import { LazyMotion, domAnimation } from "framer-motion";
 import React, { Component, ErrorInfo, ReactNode, useState, useEffect } from "react";
 import Home from "@/pages/Home";
 import AdminDashboard from "@/pages/AdminDashboard";
+import AdminUpiPayments from "@/pages/AdminUpiPayments";
 import AdminLogin from "@/pages/AdminLogin";
 import PremiumSuite from "@/pages/PremiumSuite";
 import PricingPage from "@/pages/PricingPage";
@@ -77,6 +78,7 @@ function Router() {
       <Route path="/premium" component={PremiumSuite} />
       <Route path="/pricing" component={PricingPage} />
       <Route path="/nova-control" component={AdminDashboard} />
+      <Route path="/admin/upi-payments" component={AdminUpiPayments} />
       <Route path="/nova-login" component={AdminLogin} />
       <Route path="/login" component={LoginPage} />
       <Route path="/dashboard" component={DashboardPage} />
