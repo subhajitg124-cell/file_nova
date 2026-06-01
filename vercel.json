@@ -1,5 +1,5 @@
 {
-  "buildCommand": "pnpm --filter @workspace/file-nova build",
+  "buildCommand": "pnpm run build",
   "installCommand": "pnpm install",
   "outputDirectory": "artifacts/file-nova/dist",
   "framework": "vite",
