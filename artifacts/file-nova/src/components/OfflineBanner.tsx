@@ -22,9 +22,17 @@ export function useOnlineStatus() {
 
 export function OfflineBanner() {
   const isOnline = useOnlineStatus();
+  const [canShowUpdate, setCanShowUpdate] = useState(false);
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [showOnlineToast, setShowOnlineToast] = useState(false);
   const [wasOffline, setWasOffline] = useState(false);
+
+  useEffect(() => {
+    const fiveMinutes = 5 * 60 * 1000;
+    const timer = window.setTimeout(() => setCanShowUpdate(true), fiveMinutes);
+
+    return () => window.clearTimeout(timer);
+  }, []);
 
   // Detect service worker update
   useEffect(() => {
@@ -136,7 +144,7 @@ export function OfflineBanner() {
       )}
 
       {/* Update available banner */}
-      {updateAvailable && (
+      {canShowUpdate && updateAvailable && (
         <div
           style={{
             position: "fixed",

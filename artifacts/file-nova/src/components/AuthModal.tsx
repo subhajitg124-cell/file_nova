@@ -200,9 +200,9 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/75 backdrop-blur-md flex items-start justify-center overflow-y-auto z-50 p-4 py-12 md:py-20 animate-fade-in">
+    <div className="fixed inset-0 bg-black/75 backdrop-blur-md flex items-end justify-center overflow-y-auto z-50 p-0 sm:p-4 md:items-center md:p-6 md:py-[10vh] animate-fade-in">
       <div 
-        className="bg-card border border-border rounded-3xl shadow-premium max-w-md w-full overflow-hidden animate-scale-in relative"
+        className="bg-card border border-border rounded-t-3xl sm:rounded-3xl shadow-premium max-w-md w-full max-h-[92dvh] md:max-h-[80vh] overflow-y-auto animate-scale-in relative"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}

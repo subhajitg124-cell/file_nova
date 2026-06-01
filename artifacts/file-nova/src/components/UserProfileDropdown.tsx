@@ -7,10 +7,9 @@ import { AuthModal } from "./AuthModal";
 import { toast } from "sonner";
 
 export function UserProfileDropdown() {
-  const { user, subscription, fetchMe, logout } = useAuthStore();
+  const { user, subscription, fetchMe, logout, isLoginModalOpen, openLoginModal, closeLoginModal } = useAuthStore();
   const { cancelSubscription, loading: subLoading } = useSubscription();
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [authModalOpen, setAuthModalOpen] = useState(false);
   const [, setLocation] = useLocation();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -93,7 +92,7 @@ export function UserProfileDropdown() {
         </button>
       ) : (
         <button
-          onClick={() => setAuthModalOpen(true)}
+          onClick={openLoginModal}
           className="inline-flex items-center gap-2 rounded-xl bg-primary hover:opacity-90 px-4 py-2 text-xs font-black text-primary-foreground transition duration-300 cursor-pointer shadow-glow"
         >
           <Key className="h-3.5 w-3.5" />
@@ -184,8 +183,8 @@ export function UserProfileDropdown() {
 
       {/* Register/Login Modal */}
       <AuthModal 
-        isOpen={authModalOpen} 
-        onClose={() => setAuthModalOpen(false)} 
+        isOpen={isLoginModalOpen} 
+        onClose={closeLoginModal} 
         onSuccess={() => fetchMe()} 
       />
     </div>
