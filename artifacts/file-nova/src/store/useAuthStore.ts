@@ -29,6 +29,9 @@ interface AuthState {
   loginWithGoogle: (email: string, name: string, googleSubject: string) => Promise<boolean>;
   logout: () => Promise<void>;
   clearError: () => void;
+  isLoginModalOpen: boolean;
+  openLoginModal: () => void;
+  closeLoginModal: () => void;
 }
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
@@ -39,6 +42,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   loading: false,
   error: null,
   initialized: false,
+  isLoginModalOpen: false,
+
+  openLoginModal: () => set({ isLoginModalOpen: true }),
+  closeLoginModal: () => set({ isLoginModalOpen: false }),
 
   clearError: () => set({ error: null }),
 
