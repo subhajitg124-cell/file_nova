@@ -8,6 +8,7 @@ import AdminLogin from "@/pages/AdminLogin";
 import PremiumSuite from "@/pages/PremiumSuite";
 import PricingPage from "@/pages/PricingPage";
 import NotFound from "@/pages/not-found";
+import LoginPage from "@/pages/LoginPage";
 import { LanguageProvider } from "@/lib/i18n";
 import { AdminProvider } from "@/lib/admin";
 import { FileExpiryBar } from "@/components/FileExpiryBar";
@@ -75,6 +76,7 @@ function Router() {
       <Route path="/pricing" component={PricingPage} />
       <Route path="/nova-control" component={AdminDashboard} />
       <Route path="/nova-login" component={AdminLogin} />
+      <Route path="/login" component={LoginPage} />
       <Route component={NotFound} />
     </Switch>
   );
