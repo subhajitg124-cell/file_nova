@@ -26,6 +26,7 @@ import { useFileStore } from "@/store/useFileStore";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
 import { FeatureKey, isFeatureEnabled, enabledFeatureKeys, isLowBandwidthMode } from "@/features.config";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { MonetagAd } from "@/components/MonetagAd";
 
 const VoiceAssistant = React.lazy(() => import("@/components/VoiceAssistant").then((mod) => ({ default: mod.VoiceAssistant })));
 const AadhaarMasking = React.lazy(() => import("@/components/AadhaarMasking").then((mod) => ({ default: mod.AadhaarMasking })));
@@ -194,13 +195,10 @@ export default function PremiumSuite() {
         </div>
       </header>
 
-      <main className="mx-auto grid max-w-7xl gap-5 px-4 py-6 lg:grid-cols-[320px_1fr]">
-        {isLowBandwidthMode && (
-          <div className="rounded-3xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-            Low bandwidth mode is enabled. Premium workflows are still available, but some assets and live previews may be deferred for faster loading.
-          </div>
-        )}
-        <aside className="space-y-3">
+      <main className="mx-auto max-w-7xl px-4 py-6">
+        <MonetagAd placement="top" />
+        <div className="flex flex-col lg:flex-row gap-5">
+          <aside className="w-full lg:w-[320px] shrink-0 space-y-3">
           <div className="rounded-2xl border border-border bg-card p-4 shadow-premium">
             <div className="mb-4 flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
@@ -403,7 +401,12 @@ export default function PremiumSuite() {
             </div>
           </div>
         </section>
-      </main>
+        
+        {/* Desktop Sidebar Ad */}
+        <MonetagAd placement="sidebar" />
+      </div>
+      <MonetagAd placement="bottom" />
+    </main>
     </div>
   );
 }

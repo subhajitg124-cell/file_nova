@@ -895,6 +895,9 @@ export default function Home() {
       </div>
 
       <main className="mx-auto max-w-7xl px-4 py-16 sm:py-24">
+        <MonetagAd placement="top" />
+        <div className="flex flex-col lg:flex-row gap-5">
+          <div className="flex-1 min-w-0">
         {isLowBandwidthMode && (
           <div className="mb-6 rounded-3xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
             {lowBandwidthMessage}
@@ -1762,6 +1765,10 @@ export default function Home() {
             </div>
           </section>
         )}
+          </div>
+          <MonetagAd placement="sidebar" />
+        </div>
+        <MonetagAd placement="bottom" />
       </main>
 
       <AnimatePresence>

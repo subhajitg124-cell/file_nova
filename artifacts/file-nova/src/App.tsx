@@ -1,7 +1,7 @@
 import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider, QueryErrorResetBoundary } from "@tanstack/react-query";
 import { LazyMotion, domAnimation } from "framer-motion";
-import React, { Component, ErrorInfo, ReactNode } from "react";
+import React, { Component, ErrorInfo, ReactNode, useState, useEffect } from "react";
 import Home from "@/pages/Home";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminLogin from "@/pages/AdminLogin";
@@ -9,11 +9,13 @@ import PremiumSuite from "@/pages/PremiumSuite";
 import PricingPage from "@/pages/PricingPage";
 import NotFound from "@/pages/not-found";
 import LoginPage from "@/pages/LoginPage";
+import DashboardPage from "@/pages/DashboardPage";
 import { LanguageProvider } from "@/lib/i18n";
 import { AdminProvider } from "@/lib/admin";
 import { FileExpiryBar } from "@/components/FileExpiryBar";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { Toaster } from "@/components/ui/sonner";
+import { UpgradeLimitModal } from "@/components/UpgradeLimitModal";
 
 const queryClient = new QueryClient();
 
@@ -77,12 +79,52 @@ function Router() {
       <Route path="/nova-control" component={AdminDashboard} />
       <Route path="/nova-login" component={AdminLogin} />
       <Route path="/login" component={LoginPage} />
+      <Route path="/dashboard" component={DashboardPage} />
       <Route component={NotFound} />
     </Switch>
   );
 }
 
 function App() {
+  const [limitModalOpen, setLimitModalOpen] = useState(false);
+  const [modalLimit, setModalLimit] = useState(3);
+  const [modalUsage, setModalUsage] = useState(3);
+
+  useEffect(() => {
+    const originalFetch = window.fetch;
+    window.fetch = async (...args) => {
+      const response = await originalFetch(...args);
+      if (response.status === 403) {
+        const clone = response.clone();
+        try {
+          const data = await clone.json();
+          if (data.limitReached) {
+            setModalLimit(data.limit ?? 3);
+            setModalUsage(data.usage ?? 3);
+            setLimitModalOpen(true);
+          }
+        } catch (_) {
+          // Ignore json parsing issues
+        }
+      }
+      return response;
+    };
+
+    const handleLimitReached = (e: any) => {
+      const data = e.detail;
+      setModalLimit(data.limit ?? 3);
+      setModalUsage(data.usage ?? 3);
+      setLimitModalOpen(true);
+    };
+
+    window.addEventListener("filenova-limit-reached" as any, handleLimitReached);
+
+    return () => {
+      window.fetch = originalFetch;
+      window.removeEventListener("filenova-limit-reached" as any, handleLimitReached);
+    };
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <QueryErrorResetBoundary>
@@ -96,6 +138,12 @@ function App() {
                     <OfflineBanner />
                     <FileExpiryBar />
                     <Toaster closeButton position="top-right" richColors />
+                    <UpgradeLimitModal 
+                      isOpen={limitModalOpen} 
+                      onClose={() => setLimitModalOpen(false)} 
+                      limit={modalLimit}
+                      usage={modalUsage}
+                    />
                   </AdminProvider>
                 </LanguageProvider>
               </WouterRouter>
