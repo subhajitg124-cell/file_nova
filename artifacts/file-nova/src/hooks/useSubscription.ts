@@ -50,11 +50,19 @@ export function useSubscription() {
       const res = await fetch("/api/v1/premium/subscription/status");
       if (res.ok) {
         const data = await res.json();
+        const isPremium = data.premiumEnabled || false;
         setPremiumTierState(data.premiumTier || "free");
-        setPremiumEnabledState(data.premiumEnabled || false);
+        setPremiumEnabledState(isPremium);
         setExpiresAt(data.subscription?.expiresAt || null);
         setDbUsageToday(data.usageToday ?? 0);
         setDbLimit(data.limit ?? 3);
+        
+        try {
+          localStorage.setItem("fn_premium_enabled", String(isPremium));
+        } catch (e) {
+          // Ignore localStorage errors
+        }
+
         if (data.activeOffer) {
           setActiveOffer(data.activeOffer);
         } else {
