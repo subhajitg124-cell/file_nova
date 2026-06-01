@@ -48,6 +48,7 @@ import { VisualGuideModal } from "@/components/workspace/VisualGuideModal";
 import { FileNovaAssistant } from "@/components/FileNovaAssistant";
 import { AdSenseUnit } from "@/components/AdSenseUnit";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
+import { MonetagAd } from "@/components/MonetagAd";
 const VoiceAssistant = React.lazy(() => import("@/components/VoiceAssistant").then((mod) => ({ default: mod.VoiceAssistant })));
 const QuickShareButton = React.lazy(() => import("@/components/WhatsAppShare").then((mod) => ({ default: mod.QuickShareButton })));
 const EditingWindow = React.lazy(() => import("@/components/EditingWindow").then((mod) => ({ default: mod.EditingWindow })));

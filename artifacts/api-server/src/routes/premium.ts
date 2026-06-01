@@ -1,8 +1,17 @@
 import { Router, type NextFunction, type Request, type Response } from "express";
 import crypto from "node:crypto";
 import { z } from "zod";
+import { checkUsageLimit } from "../middlewares/limits";
 
 const router = Router();
+
+// Apply daily usage limits to all write/process operations (POST requests) in premium tools
+router.use((req, res, next) => {
+  if (req.method === "POST") {
+    return checkUsageLimit(req, res, next);
+  }
+  next();
+});
 
 type ShareRecord = {
   token: string;

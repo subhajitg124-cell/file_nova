@@ -32,7 +32,16 @@ export const usersTable = pgTable("users", {
   voiceLanguage: varchar("voice_language", { length: 10 }).default("en"), // en, hi, bn
   privacyMode: boolean("privacy_mode").notNull().default(false), // No logging mode
   cafeOperatorId: uuid("cafe_operator_id"), // Link to cafe if operator
+  usageToday: integer("usage_today").notNull().default(0),
+  lastUsageReset: varchar("last_usage_reset", { length: 20 }).notNull().default(""),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const ipUsageTable = pgTable("ip_usage", {
+  ipAddress: varchar("ip_address", { length: 45 }).primaryKey(),
+  usageToday: integer("usage_today").notNull().default(0),
+  lastUsedAt: varchar("last_used_at", { length: 20 }).notNull().default(""),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

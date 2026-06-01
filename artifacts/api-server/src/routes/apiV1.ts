@@ -11,6 +11,7 @@ import { execSync } from "child_process";
 import premiumRouter from "./premium";
 import subscriptionRouter from "./subscriptions";
 import authRouter from "./auth";
+import { checkUsageLimit } from "../middlewares/limits";
 
 const router = Router();
 
@@ -247,7 +248,7 @@ async function runProcessing(job: Job, operation: string, options: any) {
 }
 
 // Process API
-router.post("/process", (req, res): void => {
+router.post("/process", checkUsageLimit, (req, res): void => {
   const jobId = req.query.job_id as string;
   if (!jobId) {
     res.status(400).json({ detail: "job_id is required." });

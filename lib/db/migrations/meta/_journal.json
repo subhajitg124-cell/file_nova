@@ -8,6 +8,13 @@
       "when": 1780026469683,
       "tag": "0000_sloppy_green_goblin",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1780294604649,
+      "tag": "0001_cynical_baron_strucker",
+      "breakpoints": true
     }
   ]
 }

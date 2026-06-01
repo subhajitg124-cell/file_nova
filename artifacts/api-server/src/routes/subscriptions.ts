@@ -9,6 +9,7 @@ import { adminAuth } from "../middlewares/adminAuth";
 import { authMiddleware, requireAuth, type AuthRequest } from "../middlewares/auth";
 import fs from "node:fs";
 import path from "node:path";
+import { getISTDate } from "../middlewares/limits";
 
 const router = Router();
 
@@ -122,9 +123,26 @@ router.get("/status", authMiddleware, async (req: AuthRequest, res: Response) =>
         premiumTier: "free",
         premiumEnabled: false,
         activeOffer,
+        usageToday: 0,
+        limit: 3,
         subscription: null,
       });
       return;
+    }
+    
+    // Reset usage counter if needed
+    const today = getISTDate();
+    let usage = user.usageToday;
+    if (user.lastUsageReset !== today) {
+      usage = 0;
+      try {
+        await db
+          .update(usersTable)
+          .set({ usageToday: 0, lastUsageReset: today, updatedAt: new Date() })
+          .where(eq(usersTable.id, user.id));
+      } catch (err) {
+        logger.error({ err }, "Failed to reset daily limits in /status");
+      }
     }
     
     // Find active subscription from DB
@@ -183,6 +201,8 @@ router.get("/status", authMiddleware, async (req: AuthRequest, res: Response) =>
       premiumTier: user.premiumTier || "free",
       premiumEnabled: user.premiumEnabled || false,
       activeOffer,
+      usageToday: usage,
+      limit: user.premiumTier === "basic" ? 20 : (user.premiumTier === "pro" || user.premiumTier === "elite" || user.premiumTier === "enterprise" || user.role === "admin" || user.role === "super_admin") ? -1 : 3,
       subscription: activeSub ? {
         plan: activeSub.plan,
         status: activeSub.status,
@@ -408,6 +428,77 @@ router.get("/admin/stats", adminAuth, async (req: Request, res: Response) => {
   } catch (err: any) {
     res.status(500).json({ error: err.message || "Failed to fetch admin stats" });
   }
+});
+
+// ── 6. POST /webhook — Razorpay Webhook Verification ───────────────────────────
+router.post("/webhook", async (req: Request, res: Response) => {
+  const signature = req.headers["x-razorpay-signature"] as string;
+  const secret = process.env.RAZORPAY_WEBHOOK_SECRET || "";
+
+  logger.info({ body: req.body }, "Received Razorpay webhook payload");
+
+  if (secret && signature) {
+    const crypto = await import("node:crypto");
+    const expectedSignature = crypto
+      .createHmac("sha256", secret)
+      .update(typeof req.body === "string" ? req.body : JSON.stringify(req.body))
+      .digest("hex");
+
+    if (expectedSignature !== signature) {
+      logger.error("Invalid Razorpay webhook signature");
+      return res.status(400).json({ success: false, error: "Invalid signature" });
+    }
+  }
+
+  try {
+    const event = req.body?.event;
+    const payload = req.body?.payload;
+
+    if (event === "order.paid" || event === "payment.captured") {
+      const payment = payload?.payment?.entity;
+      const orderId = payment?.order_id;
+      const paymentId = payment?.id;
+
+      if (orderId) {
+        const [sub] = await db
+          .select()
+          .from(subscriptionsTable)
+          .where(eq(subscriptionsTable.razorpayOrderId, orderId))
+          .limit(1);
+
+        if (sub && sub.status !== "active") {
+          const expiresAt = new Date();
+          expiresAt.setDate(expiresAt.getDate() + 30);
+
+          await db
+            .update(subscriptionsTable)
+            .set({
+              status: "active",
+              razorpayPaymentId: paymentId,
+              currentPeriodStart: new Date(),
+              currentPeriodEnd: expiresAt,
+              updatedAt: new Date(),
+            })
+            .where(eq(subscriptionsTable.id, sub.id));
+
+          await db
+            .update(usersTable)
+            .set({
+              premiumTier: sub.plan,
+              premiumEnabled: true,
+              updatedAt: new Date(),
+            })
+            .where(eq(usersTable.id, sub.userId));
+
+          logger.info({ orderId, userId: sub.userId }, "Successfully activated subscription via webhook");
+        }
+      }
+    }
+  } catch (err) {
+    logger.error({ err }, "Error processing Razorpay webhook");
+  }
+
+  res.json({ status: "ok" });
 });
 
 export default router;

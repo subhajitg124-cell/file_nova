@@ -22,6 +22,8 @@ export function useSubscription() {
   const [premiumEnabledState, setPremiumEnabledState] = useState(false);
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [activeOffer, setActiveOffer] = useState<{ announcement: string; discountPercentage: number } | null>(null);
+  const [dbUsageToday, setDbUsageToday] = useState(0);
+  const [dbLimit, setDbLimit] = useState(3);
 
   const testingActive = isTestingPeriodActive();
   const premiumTier = testingActive ? "elite" : premiumTierState;
@@ -51,6 +53,8 @@ export function useSubscription() {
         setPremiumTierState(data.premiumTier || "free");
         setPremiumEnabledState(data.premiumEnabled || false);
         setExpiresAt(data.subscription?.expiresAt || null);
+        setDbUsageToday(data.usageToday ?? 0);
+        setDbLimit(data.limit ?? 3);
         if (data.activeOffer) {
           setActiveOffer(data.activeOffer);
         } else {
@@ -215,21 +219,20 @@ export function useSubscription() {
     const current = parseInt(localStorage.getItem(usesKey) || "0", 10);
     localStorage.setItem(usesKey, String(current + 1));
     syncLocalMetrics();
+    // Proactively refresh DB status
+    fetchStatus();
   };
 
   // Max daily limit rules
   const getDailyLimit = (): number => {
     if (isTestingPeriodActive()) return Infinity;
-    if (premiumTier === "basic") return 20;
-    if (premiumTier === "pro") return 100;
-    if (premiumTier === "elite") return Infinity;
-    return Infinity; // Free users have ad watch gating instead of fixed daily limits
+    return dbLimit === -1 ? Infinity : dbLimit;
   };
 
   const isLimitReached = (): boolean => {
     if (isTestingPeriodActive()) return false;
     const max = getDailyLimit();
-    return useCount >= max;
+    return dbUsageToday >= max;
   };
 
   const shouldShowAdGate = (): boolean => {
@@ -237,7 +240,7 @@ export function useSubscription() {
     if (premiumTier !== "free") return false;
     // FREE user: watch 2 ads per use.
     // Condition: watched ads must be >= (uses + 1) * 2 to run next feature
-    const requiredAds = (useCount + 1) * 2;
+    const requiredAds = (dbUsageToday + 1) * 2;
     return adWatchCount < requiredAds;
   };
 
@@ -247,7 +250,7 @@ export function useSubscription() {
     premiumEnabled,
     expiresAt,
     adWatchCount,
-    useCount,
+    useCount: dbUsageToday,
     activeOffer,
     incrementAdWatch,
     incrementFeatureUse,
@@ -256,5 +259,6 @@ export function useSubscription() {
     isLimitReached,
     shouldShowAdGate,
     getDailyLimit,
+    refreshStatus: fetchStatus,
   };
 }
