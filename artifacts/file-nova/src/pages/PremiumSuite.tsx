@@ -27,6 +27,7 @@ import { UserProfileDropdown } from "@/components/UserProfileDropdown";
 import { FeatureKey, isFeatureEnabled, enabledFeatureKeys, isLowBandwidthMode } from "@/features.config";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { MonetagAd } from "@/components/MonetagAd";
+import { useSubscription } from "@/hooks/useSubscription";
 
 const VoiceAssistant = React.lazy(() => import("@/components/VoiceAssistant").then((mod) => ({ default: mod.VoiceAssistant })));
 const AadhaarMasking = React.lazy(() => import("@/components/AadhaarMasking").then((mod) => ({ default: mod.AadhaarMasking })));
@@ -177,6 +178,8 @@ export default function PremiumSuite() {
     }
   };
 
+  const { premiumEnabled, premiumTier } = useSubscription();
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-xl">
@@ -196,7 +199,7 @@ export default function PremiumSuite() {
       </header>
 
       <main className="mx-auto max-w-7xl px-4 py-6">
-        <MonetagAd placement="top" />
+        {(!premiumEnabled && premiumTier === "free") && <MonetagAd placement="top" />}
         <div className="flex flex-col lg:flex-row gap-5">
           <aside className="w-full lg:w-[320px] shrink-0 space-y-3">
           <div className="rounded-2xl border border-border bg-card p-4 shadow-premium">
@@ -405,7 +408,7 @@ export default function PremiumSuite() {
         {/* Desktop Sidebar Ad */}
         <MonetagAd placement="sidebar" />
       </div>
-      <MonetagAd placement="bottom" />
+      {(!premiumEnabled && premiumTier === "free") && <MonetagAd placement="bottom" />}
     </main>
     </div>
   );

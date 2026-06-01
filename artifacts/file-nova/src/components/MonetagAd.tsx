@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useSubscription } from "@/hooks/useSubscription";
 
 interface MonetagAdProps {
@@ -13,6 +13,22 @@ export function MonetagAd({ placement, className = "" }: MonetagAdProps) {
   if (premiumEnabled || premiumTier === "basic" || premiumTier === "pro" || premiumTier === "elite") {
     return null;
   }
+
+  // Ensure Monetag publisher script is present for free/guest users
+  useEffect(() => {
+    try {
+      if (document.querySelector('script[src="https://quge5.com/88/tag.min.js"]')) return;
+      const s = document.createElement("script");
+      s.src = "https://quge5.com/88/tag.min.js";
+      // publisher-level zone (multitag anchor)
+      s.setAttribute("data-zone", "244995");
+      s.async = true;
+      s.setAttribute("data-cfasync", "false");
+      document.head.appendChild(s);
+    } catch (e) {
+      // ignore
+    }
+  }, []);
 
   // Determine size classes based on placement
   let sizeClasses = "";
@@ -36,26 +52,16 @@ export function MonetagAd({ placement, className = "" }: MonetagAdProps) {
 
   return (
     <>
-      {/* Monetag Multitag Integration Zones */}
-      <div 
-        className="hidden" 
-        data-zone-onclick="11084619" 
-        data-zone-inpage="11084620" 
-        data-zone-vignette="11084621" 
-        data-zone-push="11084622" 
+      {/* Monetag Multitag Integration Zones (hidden anchor for tag to read) */}
+      <div
+        className="hidden"
+        data-zone-onclick="11084619"
+        data-zone-inpage="11084620"
+        data-zone-vignette="11084621"
+        data-zone-push="11084622"
       />
-      <script 
-        type="text/javascript"
-        dangerouslySetInnerHTML={{ 
-          __html: `
-            /* Monetag Multitag Integration */
-            // OnClick Popunder: 11084619
-            // In-Page Push: 11084620
-            // Vignette Banner: 11084621
-            // Push Notifications: 11084622
-          ` 
-        }} 
-      />
+
+      {/* Note: publisher script is injected in component mount for free/guest users */}
 
       {/* Visual Ad Unit Container */}
       <div 

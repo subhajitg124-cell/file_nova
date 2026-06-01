@@ -132,7 +132,7 @@ export default function Home() {
     addRawFiles,
     addFiles,
   } = useFileStore();
-  const { premiumEnabled } = useSubscription();
+  const { premiumEnabled, premiumTier } = useSubscription();
   const [voiceOpen, setVoiceOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [botOpen, setBotOpen] = useState(false);
@@ -897,7 +897,7 @@ export default function Home() {
       </div>
 
       <main className="mx-auto max-w-7xl px-4 py-16 sm:py-24">
-        <MonetagAd placement="top" />
+        {(!premiumEnabled && premiumTier === "free") && <MonetagAd placement="top" />}
         <div className="flex flex-col lg:flex-row gap-5">
           <div className="flex-1 min-w-0">
         {isLowBandwidthMode && (
@@ -1770,7 +1770,7 @@ export default function Home() {
           </div>
           <MonetagAd placement="sidebar" />
         </div>
-        <MonetagAd placement="bottom" />
+        {(!premiumEnabled && premiumTier === "free") && <MonetagAd placement="bottom" />}
       </main>
 
       <AnimatePresence>
