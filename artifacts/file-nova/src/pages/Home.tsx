@@ -52,6 +52,7 @@ const VoiceAssistant = React.lazy(() => import("@/components/VoiceAssistant").th
 const QuickShareButton = React.lazy(() => import("@/components/WhatsAppShare").then((mod) => ({ default: mod.QuickShareButton })));
 const EditingWindow = React.lazy(() => import("@/components/EditingWindow").then((mod) => ({ default: mod.EditingWindow })));
 const PassportPhotoEditor = React.lazy(() => import("@/components/workspace/PassportPhotoEditor").then((mod) => ({ default: mod.PassportPhotoEditor })));
+const PanCardResizer = React.lazy(() => import("@/components/PanCardResizer").then((mod) => ({ default: mod.PanCardResizer })));
 
 import { isLowBandwidthMode } from "@/features.config";
 
@@ -97,6 +98,7 @@ const actionColorMeta: Record<string, { bg: string; text: string; border: string
   aadhaar:   { bg: "bg-indigo-500/10 text-indigo-500", text: "text-indigo-500", border: "border-indigo-500/20", hover: "hover:border-indigo-400 hover:bg-indigo-500/5 hover:text-indigo-400" },
   signature: { bg: "bg-rose-500/10 text-rose-500", text: "text-rose-500", border: "border-rose-500/20", hover: "hover:border-rose-400 hover:bg-rose-500/5 hover:text-rose-400" },
   photo:     { bg: "bg-emerald-500/10 text-emerald-500", text: "text-emerald-500", border: "border-emerald-500/20", hover: "hover:border-emerald-400 hover:bg-emerald-500/5 hover:text-emerald-400" },
+  pancard:   { bg: "bg-cyan-500/10 text-cyan-500", text: "text-cyan-500", border: "border-cyan-500/20", hover: "hover:border-cyan-400 hover:bg-cyan-500/5 hover:text-cyan-400" },
   enhance:   { bg: "bg-teal-500/10 text-teal-500", text: "text-teal-500", border: "border-teal-500/20", hover: "hover:border-teal-400 hover:bg-teal-500/5 hover:text-teal-400" },
   ocr:       { bg: "bg-violet-500/10 text-violet-500", text: "text-violet-500", border: "border-violet-500/20", hover: "hover:border-violet-400 hover:bg-violet-500/5 hover:text-violet-400" },
   zip:       { bg: "bg-sky-500/10 text-sky-500", text: "text-sky-500", border: "border-sky-500/20", hover: "hover:border-sky-400 hover:bg-sky-500/5 hover:text-sky-400" },
@@ -206,6 +208,7 @@ export default function Home() {
     { label: "Resize Photo", desc: "Resize images to exact dimensions", action: () => openQuickAction("image", "resize"), icon: "📐" },
     { label: "Passport Size Photo", desc: "Convert to 200x230px passport photo", action: () => openQuickAction("image", "photo"), icon: "🪪" },
     { label: "Signature Resize", desc: "Resize signature to 280x80px", action: () => openQuickAction("image", "signature"), icon: "✍️" },
+    { label: "PAN Card Resize", desc: "Resize for NSDL/UTI PAN applications", action: () => openQuickAction("image", "pancard"), icon: "🪪" },
     { label: "Aadhaar Masking", desc: "Mask Aadhaar number for privacy", action: () => openQuickAction("image", "aadhaar"), icon: "🔒" },
     { label: "Extract Text (OCR)", desc: "Extract text from images/PDFs", action: () => openQuickAction("pdf", "ocr"), icon: "🔍" },
     { label: "Convert to ZIP", desc: "Package files into a ZIP archive", action: () => openQuickAction("pdf", "zip"), icon: "📦" },
@@ -503,6 +506,8 @@ export default function Home() {
     } else if (action === "photo") {
       setOperation("resize");
       updateOptions({ operation: "resize", resizeType: "dimensions", width: 200, height: 230, resize_width: 200, resize_height: 230, resize_lock_aspect: false });
+    } else if (action === "pancard") {
+      setOperation("pancard");
     } else if (action === "zip") {
       setOperation("convert");
       updateOptions({ operation: "html_to_zip" });
@@ -1143,7 +1148,27 @@ export default function Home() {
             </section>
 
             {/* Visual Shortcuts Grid */}
-            <section id="shortcuts-grid-section" className="space-y-4">
+            {selectedOperation === "pancard" ? (
+              <section className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">Quick Tool</p>
+                    <h2 className="text-xl font-black">PAN Card Resizer</h2>
+                  </div>
+                  <button
+                    onClick={() => setOperation(null)}
+                    className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-xs font-bold hover:bg-muted transition"
+                  >
+                    <X className="h-4 w-4" />
+                    Close
+                  </button>
+                </div>
+                <Suspense fallback={<div className="rounded-3xl border border-border bg-background/70 p-4 text-sm text-muted-foreground">Loading PAN Card resizer…</div>}>
+                  <PanCardResizer />
+                </Suspense>
+              </section>
+            ) : (
+              <section id="shortcuts-grid-section" className="space-y-4">
               <div className="text-center lg:text-left">
                 <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">Easy Access Tiles</p>
                 <h2 className="text-xl font-black text-foreground">Clickable visual shortcuts for portal uploads</h2>
@@ -1169,6 +1194,7 @@ export default function Home() {
                 })}
               </div>
             </section>
+            )}
 
             {/* Row 2: Assistant & Upload dropzone */}
             <section className="grid items-start gap-6 grid-cols-1 lg:grid-cols-12">

@@ -392,6 +392,7 @@ export const quickActions = [
   { label: "Aadhaar resize", icon: IdCard, category: "image", action: "aadhaar" },
   { label: "Signature resize", icon: Signature, category: "image", action: "signature" },
   { label: "Passport photo", icon: Camera, category: "image", action: "photo" },
+  { label: "PAN Card Resize", icon: IdCard, category: "image", action: "pancard" },
   { label: "Image compressor", icon: FileImage, category: "image", action: "compress" },
   { label: "Scan cleanup", icon: ScanLine, category: "image", action: "enhance" },
   { label: "OCR text extraction", icon: FileText, category: "pdf", action: "ocr" },

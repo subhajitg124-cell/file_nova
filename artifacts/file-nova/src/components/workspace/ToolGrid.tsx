@@ -120,6 +120,7 @@ const TOOLS: ToolItem[] = [
 
   // ── IMAGE / Transform ───────────────────────────────────────────────────────
   { id: 'resize',  title: 'Resize Image',     description: 'Set exact pixel dimensions or scale by percentage.',    category: 'image', subcategory: 'img_transform', icon: Maximize2,    actionName: 'resize',        badge: 'Client-side', badgeColor: 'emerald' },
+  { id: 'resize',  title: 'PAN Card Resize',  description: 'Resize for NSDL/UTI PAN Card applications',           category: 'image', subcategory: 'img_transform', icon: Camera,      actionName: 'pancard',       badge: 'Client-side', badgeColor: 'emerald' },
   { id: 'edit',    title: 'Crop Image',       description: 'Trim to exact coordinates or common aspect ratios.',   category: 'image', subcategory: 'img_transform', icon: Crop,         actionName: 'image_crop',    badge: 'Client-side', badgeColor: 'emerald' },
   { id: 'edit',    title: 'Rotate & Flip',    description: 'Rotate 90°/180°/270° or flip horizontally/vertically.',category: 'image', subcategory: 'img_transform', icon: FlipHorizontal,actionName: 'image_rotate',  badge: 'Client-side', badgeColor: 'emerald' },
 
