@@ -5,24 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="monetag" content="3354879" />
 
-    <!-- Monetag Multitag Script (Free/Guest Users Only) -->
-    <script>
-      (function() {
-        var isPremium = false;
-        try {
-          isPremium = localStorage.getItem("fn_premium_enabled") === "true";
-        } catch (e) {}
-
-        if (!isPremium) {
-          var script = document.createElement('script');
-          script.src = "https://quge5.com/88/tag.min.js";
-          script.dataset.zone = "244995";
-          script.async = true;
-          script.dataset.cfasync = "false";
-          document.head.appendChild(script);
-        }
-      })();
-    </script>
+    <!-- Monetag Multitag Script -->
+    <script src="https://quge5.com/88/tag.min.js" data-zone="244995" async data-cfasync="false"></script>
 
     <!-- Google AdSense Verification -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1022082801397971" crossorigin="anonymous"></script>
