@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ZoomIn, ZoomOut, Maximize2, RotateCcw, RotateCw, Crop2, RotateCcwIcon } from 'lucide-react';
+import { X, ZoomIn, ZoomOut, Maximize2, RotateCcw, RotateCw, Crop } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { toast } from 'sonner';
 
@@ -162,7 +162,7 @@ export function PanCardEditor({ file, preset, onDone, onCancel }: PanCardEditorP
     ctx.setLineDash([]);
 
     // Draw resize handles
-    const handles: Array<{ pos: [number, number]; type: string }> = [
+    const handles: Array<[[number, number], string]> = [
       // Corners
       [[cropRect.x, cropRect.y], 'tl'],
       [[cropRect.x + cropRect.w, cropRect.y], 'tr'],
@@ -608,7 +608,7 @@ export function PanCardEditor({ file, preset, onDone, onCancel }: PanCardEditorP
             }`}
             title="Crop"
           >
-            <Crop2 className="h-4 w-4" />
+            <Crop className="h-4 w-4" />
           </button>
 
           <button
@@ -644,7 +644,7 @@ export function PanCardEditor({ file, preset, onDone, onCancel }: PanCardEditorP
             className="p-2 hover:bg-white/10 rounded transition-all"
             title="Reset All"
           >
-            <RotateCcwIcon className="h-4 w-4" />
+            <RotateCcw className="h-4 w-4" />
           </button>
         </div>
 

@@ -16,7 +16,7 @@ export interface ProcessingSavings {
   percent: number;
 }
 
-export type OperationType = 'merge' | 'compress' | 'enhance' | 'edit' | 'convert' | 'split' | 'resize';
+export type OperationType = 'merge' | 'compress' | 'enhance' | 'edit' | 'convert' | 'split' | 'resize' | 'pancard';
 
 interface FileState {
   selectedSection: 'pdf' | 'image' | 'office' | 'video' | null;
@@ -39,7 +39,7 @@ interface FileState {
   addFiles: (newFiles: FileRecord[]) => void;
   removeFile: (id: string) => void;
   clearStore: () => void;
-  setOperation: (operation: OperationType) => void;
+  setOperation: (operation: OperationType | null) => void;
   updateOptions: (options: Record<string, any>) => void;
   setProcessing: (processing: boolean) => void;
   setProgress: (progress: number) => void;
@@ -122,6 +122,9 @@ export const useFileStore = create<FileState>((set) => ({
     downloadUrl: null, error: null, savings: null, ttlRemaining: null
   }),
   setOperation: (operation) => set((state) => {
+    if (operation === null) {
+      return { selectedOperation: null, operationOptions: {} };
+    }
     const firstFileType = state.files[0]?.type || '';
     let defaults: Record<string, any> = {};
     if (operation === 'compress') {
