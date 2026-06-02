@@ -220,6 +220,8 @@ export function AadhaarMasking() {
                 type="file"
                 accept="application/pdf,image/*"
                 onChange={handleFileChange}
+                aria-label="Upload Aadhaar Card file"
+                title="Upload Aadhaar Card file"
                 className="absolute inset-0 opacity-0 cursor-pointer"
               />
               <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
