@@ -14,7 +14,7 @@ interface AuthModalProps {
 type AuthTab = "login" | "signup";
 
 export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
-  const { login, signup, loginWithGoogle, loading, error, clearError } = useAuthStore();
+  const { login, signup, loginWithGoogle, loading, error, clearError, loginModalMessage } = useAuthStore();
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState<AuthTab>("login");
   const [loginIdentifier, setLoginIdentifier] = useState("");
@@ -205,7 +205,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
             </Link>
           </div>
           <p className="text-xs text-white/80 mt-1.5 leading-4">
-            Sign in to configure your workspaces, secure your documents, and manage premium subscriptions.
+            {loginModalMessage || "Sign in to configure your workspaces, secure your documents, and manage premium subscriptions."}
           </p>
         </div>
 

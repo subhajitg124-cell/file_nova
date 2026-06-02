@@ -38,6 +38,7 @@ import {
   X,
 } from "lucide-react";
 import { useFileStore } from "@/store/useFileStore";
+import { useAuthStore } from "@/store/useAuthStore";
 import { useAdmin } from "@/lib/admin";
 import { apiClient } from "@/lib/api";
 import { DownloadHub } from "@/components/workspace/DownloadHub";
@@ -137,9 +138,61 @@ export default function Home() {
     addFiles,
   } = useFileStore();
   const { premiumEnabled, premiumTier, usersServedToday } = useSubscription();
+  const { user, openLoginModal } = useAuthStore();
+  const [quickActionsExpanded, setQuickActionsExpanded] = useState(false);
   const [voiceOpen, setVoiceOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [botOpen, setBotOpen] = useState(false);
+  const quickActionsTimeoutRef = useRef<any>(null);
+
+  const handleQuickActionsEnter = () => {
+    if (quickActionsTimeoutRef.current) {
+      clearTimeout(quickActionsTimeoutRef.current);
+      quickActionsTimeoutRef.current = null;
+    }
+    setQuickActionsExpanded(true);
+  };
+
+  const handleQuickActionsLeave = () => {
+    if (quickActionsTimeoutRef.current) {
+      clearTimeout(quickActionsTimeoutRef.current);
+    }
+    quickActionsTimeoutRef.current = setTimeout(() => {
+      setQuickActionsExpanded(false);
+    }, 2000);
+  };
+
+  const handleCollapsedMicClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user) {
+      toast.info("Sign in to use Voice Assistant");
+      openLoginModal("Sign in to use Voice Assistant");
+      return;
+    }
+    setQuickActionsExpanded(prev => !prev);
+  };
+
+  const handleVoiceClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user) {
+      toast.info("Sign in to use Voice Assistant");
+      openLoginModal("Sign in to use Voice Assistant");
+      return;
+    }
+    if (premiumTier === "free") {
+      toast.info("Voice Assistant is a Basic plan feature. Upgrade for ₹49/month");
+      return;
+    }
+    setVoiceOpen(true);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (quickActionsTimeoutRef.current) {
+        clearTimeout(quickActionsTimeoutRef.current);
+      }
+    };
+  }, []);
   const [showUpgradeBanner, setShowUpgradeBanner] = useState(() => {
     try {
       const dismissed = sessionStorage.getItem("filenova-upgrade-banner-dismissed");
@@ -941,19 +994,65 @@ export default function Home() {
         </motion.div>
       )}
 
-      <div className="fixed bottom-36 right-4 z-40 hidden flex-col items-end gap-3 md:flex">
-        <div className="w-full max-w-xs rounded-3xl border border-border/40 bg-card/30 glass p-4 shadow-premium backdrop-blur-xl">
-          <div className="flex items-center justify-between gap-3 mb-3">
+      {/* Premium Quick Actions Floating Panel */}
+      <div
+        className="fixed bottom-6 right-6 z-[1000] flex flex-col items-end gap-3"
+        onMouseEnter={handleQuickActionsEnter}
+        onMouseLeave={handleQuickActionsLeave}
+        onFocus={handleQuickActionsEnter}
+        onBlur={handleQuickActionsLeave}
+      >
+        {/* Collapsed Mic Icon Button */}
+        <button
+          onClick={handleCollapsedMicClick}
+          className={`flex h-12 w-12 items-center justify-center rounded-full bg-[#6366f1] text-white shadow-lg hover:bg-[#5053e3] hover:shadow-xl transition-all duration-250 ease-in-out cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#6366f1] ${
+            quickActionsExpanded
+              ? "opacity-0 scale-75 pointer-events-none absolute bottom-0 right-0"
+              : "opacity-100 scale-100 pointer-events-auto"
+          }`}
+          aria-label="Open voice and sharing panel"
+        >
+          <Mic className="h-5 w-5" />
+        </button>
+
+        {/* Expanded Panel */}
+        <div
+          className={`w-[280px] sm:w-[320px] rounded-3xl border border-border/40 bg-card/30 glass p-4 shadow-premium backdrop-blur-xl transition-all duration-250 ease-in-out origin-bottom-right ${
+            quickActionsExpanded
+              ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
+              : "opacity-0 scale-80 translate-y-4 pointer-events-none absolute bottom-0 right-0"
+          }`}
+        >
+          {/* Close button X in top right */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setQuickActionsExpanded(false);
+            }}
+            className="absolute top-3 right-3 text-muted-foreground hover:text-foreground h-6 w-6 flex items-center justify-center rounded-full bg-background/50 hover:bg-background border border-border transition cursor-pointer"
+            aria-label="Collapse actions panel"
+          >
+            <X className="h-3 w-3" />
+          </button>
+
+          <div className="flex items-center justify-between gap-3 mb-3 pr-6">
             <div>
               <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Premium quick actions</p>
               <p className="text-sm font-black text-foreground">Voice & sharing helpers</p>
             </div>
+            
+            {/* Header Mini Voice button */}
             <button
-              onClick={() => setVoiceOpen(true)}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border bg-background text-primary hover:bg-primary/10 transition"
-              aria-label="Open voice assistant"
+              onClick={handleVoiceClick}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-background text-primary hover:bg-primary/10 transition relative cursor-pointer"
+              aria-label="Open voice assistant modal"
             >
-              <Mic className="h-5 w-5" />
+              <Mic className="h-4.5 w-4.5" />
+              {(!user || premiumTier === "free") && (
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[10px] text-white border border-background shadow-sm">
+                  🔒
+                </span>
+              )}
             </button>
           </div>
 
@@ -965,15 +1064,24 @@ export default function Home() {
                 variant="icon"
               />
             </Suspense>
+            
+            {/* Main Voice Button */}
             <button
-              onClick={() => setVoiceOpen(true)}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-primary bg-primary/10 px-3 py-2 text-sm font-bold text-primary hover:bg-primary/20 transition"
+              onClick={handleVoiceClick}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-primary bg-primary/10 px-3 py-2 text-sm font-bold text-primary hover:bg-primary/20 transition relative cursor-pointer"
             >
               <Mic className="h-4 w-4" />
               Voice
+              {(!user || premiumTier === "free") && (
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[10px] text-white border border-background shadow-sm">
+                  🔒
+                </span>
+              )}
             </button>
           </div>
-          <p className="mt-3 text-[11px] text-muted-foreground">Use voice commands or generate a secure WhatsApp share link for files without leaving the workspace.</p>
+          <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
+            Use voice commands or generate a secure WhatsApp share link for files without leaving the workspace.
+          </p>
         </div>
       </div>
 

@@ -31,7 +31,8 @@ interface AuthState {
   logout: () => Promise<void>;
   clearError: () => void;
   isLoginModalOpen: boolean;
-  openLoginModal: () => void;
+  loginModalMessage: string | null;
+  openLoginModal: (message?: unknown) => void;
   closeLoginModal: () => void;
 }
 
@@ -50,9 +51,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   error: null,
   initialized: false,
   isLoginModalOpen: false,
+  loginModalMessage: null,
 
-  openLoginModal: () => set({ isLoginModalOpen: true }),
-  closeLoginModal: () => set({ isLoginModalOpen: false }),
+  openLoginModal: (message) => set({ isLoginModalOpen: true, loginModalMessage: typeof message === 'string' ? message : null }),
+  closeLoginModal: () => set({ isLoginModalOpen: false, loginModalMessage: null }),
 
   clearError: () => set({ error: null }),
 
