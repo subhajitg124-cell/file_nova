@@ -1,12 +1,14 @@
 import { Router, type Response } from "express";
 import crypto from "node:crypto";
 import { z } from "zod";
+import { OAuth2Client } from "google-auth-library";
 import { db, usersTable, sessionsTable, subscriptionsTable } from "@workspace/db";
 import { eq, or, desc } from "drizzle-orm";
 import { hashPassword, verifyPassword } from "../utils/hash";
 import { authMiddleware, AuthRequest } from "../middlewares/auth";
 
 const router = Router();
+const googleOAuthClient = new OAuth2Client();
 
 // 30 days session duration
 const SESSION_DURATION_MS = 30 * 24 * 60 * 60 * 1000;
@@ -198,20 +200,37 @@ router.post("/login", async (req, res): Promise<void> => {
 router.post("/google", async (req, res): Promise<void> => {
   try {
     const bodySchema = z.object({
-      email: z.string().email("Invalid email format"),
-      name: z.string().min(1, "Name is required"),
-      googleSubject: z.string().min(1, "Google Subject ID is required"),
+      credential: z.string().min(1, "Google credential is required"),
     });
 
     const parsed = bodySchema.parse(req.body);
-    const email = parsed.email.toLowerCase();
+    const googleClientId = process.env.GOOGLE_CLIENT_ID || process.env.VITE_GOOGLE_CLIENT_ID;
+
+    if (!googleClientId || googleClientId === "your_google_client_id") {
+      res.status(500).json({ error: "Google OAuth client ID is not configured" });
+      return;
+    }
+
+    const ticket = await googleOAuthClient.verifyIdToken({
+      idToken: parsed.credential,
+      audience: googleClientId,
+    });
+
+    const payload = ticket.getPayload();
+    if (!payload?.email || !payload.sub) {
+      res.status(401).json({ error: "Invalid Google credential" });
+      return;
+    }
+
+    const email = payload.email.toLowerCase();
+    const name = payload.name || payload.email.split("@")[0] || "Google User";
 
     // Find by email or googleSubject
     let user;
     const existingUsers = await db
       .select()
       .from(usersTable)
-      .where(or(eq(usersTable.email, email), eq(usersTable.googleSubject, parsed.googleSubject)))
+      .where(or(eq(usersTable.email, email), eq(usersTable.googleSubject, payload.sub)))
       .limit(1);
 
     if (existingUsers.length > 0) {
@@ -220,7 +239,7 @@ router.post("/google", async (req, res): Promise<void> => {
       if (!user.googleSubject) {
         const [updatedUser] = await db
           .update(usersTable)
-          .set({ googleSubject: parsed.googleSubject, updatedAt: new Date() })
+          .set({ googleSubject: payload.sub, updatedAt: new Date() })
           .where(eq(usersTable.id, user.id))
           .returning();
         user = updatedUser;
@@ -231,8 +250,8 @@ router.post("/google", async (req, res): Promise<void> => {
         .insert(usersTable)
         .values({
           email,
-          name: parsed.name,
-          googleSubject: parsed.googleSubject,
+          name,
+          googleSubject: payload.sub,
           role: "user",
           premiumTier: "free",
           premiumEnabled: false,

@@ -26,7 +26,7 @@ interface AuthState {
   fetchMe: () => Promise<void>;
   login: (identifier: string, password: string) => Promise<boolean>;
   signup: (email: string, phoneNumber: string | null, password: string, name: string | null) => Promise<boolean>;
-  loginWithGoogle: (email: string, name: string, googleSubject: string) => Promise<boolean>;
+  loginWithGoogle: (credential: string) => Promise<boolean>;
   logout: () => Promise<void>;
   clearError: () => void;
   isLoginModalOpen: boolean;
@@ -35,6 +35,12 @@ interface AuthState {
 }
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
+const SESSION_TOKEN_KEY = 'filenova_session_token';
+
+const getAuthHeaders = (): Record<string, string> => {
+  const token = localStorage.getItem(SESSION_TOKEN_KEY);
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
@@ -53,7 +59,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     // If already loading, skip
     set({ loading: true, error: null });
     try {
-      const res = await fetch(`${BACKEND_URL}/api/v1/auth/me`);
+      const res = await fetch(`${BACKEND_URL}/api/v1/auth/me`, {
+        credentials: 'include',
+        headers: getAuthHeaders(),
+      });
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.user) {
@@ -81,6 +90,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const res = await fetch(`${BACKEND_URL}/api/v1/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ identifier, password }),
       });
       const data = await res.json();
@@ -91,6 +101,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         user: data.user,
         subscription: data.subscription,
       });
+      if (data.token) {
+        localStorage.setItem(SESSION_TOKEN_KEY, data.token);
+      }
       return true;
     } catch (err: any) {
       set({ error: err.message || 'Failed to log in' });
@@ -106,6 +119,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const res = await fetch(`${BACKEND_URL}/api/v1/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ email, phoneNumber, password, name }),
       });
       const data = await res.json();
@@ -116,6 +130,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         user: data.user,
         subscription: null,
       });
+      if (data.token) {
+        localStorage.setItem(SESSION_TOKEN_KEY, data.token);
+      }
       return true;
     } catch (err: any) {
       set({ error: err.message || 'Failed to sign up' });
@@ -125,13 +142,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  loginWithGoogle: async (email, name, googleSubject) => {
+  loginWithGoogle: async (credential) => {
     set({ loading: true, error: null });
     try {
       const res = await fetch(`${BACKEND_URL}/api/v1/auth/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, name, googleSubject }),
+        credentials: 'include',
+        body: JSON.stringify({ credential }),
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
@@ -141,6 +159,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         user: data.user,
         subscription: data.subscription,
       });
+      if (data.token) {
+        localStorage.setItem(SESSION_TOKEN_KEY, data.token);
+      }
       return true;
     } catch (err: any) {
       set({ error: err.message || 'Google authentication failed' });
@@ -153,10 +174,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   logout: async () => {
     set({ loading: true });
     try {
-      await fetch(`${BACKEND_URL}/api/v1/auth/logout`, { method: 'POST' });
+      await fetch(`${BACKEND_URL}/api/v1/auth/logout`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: getAuthHeaders(),
+      });
     } catch (_) {
       // Proceed with local logout even if request fails
     } finally {
+      localStorage.removeItem(SESSION_TOKEN_KEY);
       set({ user: null, subscription: null, loading: false });
     }
   },
