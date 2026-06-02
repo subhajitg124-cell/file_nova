@@ -26,7 +26,6 @@ import { useFileStore } from "@/store/useFileStore";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
 import { FeatureKey, isFeatureEnabled, enabledFeatureKeys, isLowBandwidthMode } from "@/features.config";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { MonetagAd } from "@/components/MonetagAd";
 import { useSubscription } from "@/hooks/useSubscription";
 
 const VoiceAssistant = React.lazy(() => import("@/components/VoiceAssistant").then((mod) => ({ default: mod.VoiceAssistant })));
@@ -199,7 +198,6 @@ export default function PremiumSuite() {
       </header>
 
       <main className="mx-auto max-w-7xl px-4 py-6">
-        {(!premiumEnabled && premiumTier === "free") && <MonetagAd placement="top" />}
         <div className="flex flex-col lg:flex-row gap-5">
           <aside className="w-full lg:w-[320px] shrink-0 space-y-3">
           <div className="rounded-2xl border border-border bg-card p-4 shadow-premium">
@@ -404,11 +402,7 @@ export default function PremiumSuite() {
             </div>
           </div>
         </section>
-        
-        {/* Desktop Sidebar Ad */}
-        <MonetagAd placement="sidebar" />
       </div>
-      {(!premiumEnabled && premiumTier === "free") && <MonetagAd placement="bottom" />}
     </main>
     </div>
   );

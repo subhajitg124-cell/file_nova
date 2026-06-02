@@ -48,7 +48,6 @@ import { VisualGuideModal } from "@/components/workspace/VisualGuideModal";
 import { FileNovaAssistant } from "@/components/FileNovaAssistant";
 import { AdSenseUnit } from "@/components/AdSenseUnit";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
-import { MonetagAd } from "@/components/MonetagAd";
 import { useSubscription } from "@/hooks/useSubscription";
 const VoiceAssistant = React.lazy(() => import("@/components/VoiceAssistant").then((mod) => ({ default: mod.VoiceAssistant })));
 const QuickShareButton = React.lazy(() => import("@/components/WhatsAppShare").then((mod) => ({ default: mod.QuickShareButton })));
@@ -897,7 +896,6 @@ export default function Home() {
       </div>
 
       <main className="mx-auto max-w-7xl px-4 py-16 sm:py-24">
-        {(!premiumEnabled && premiumTier === "free") && <MonetagAd placement="top" />}
         <div className="flex flex-col lg:flex-row gap-5">
           <div className="flex-1 min-w-0">
         {isLowBandwidthMode && (
@@ -1768,9 +1766,7 @@ export default function Home() {
           </section>
         )}
           </div>
-          <MonetagAd placement="sidebar" />
         </div>
-        {(!premiumEnabled && premiumTier === "free") && <MonetagAd placement="bottom" />}
       </main>
 
       <AnimatePresence>
