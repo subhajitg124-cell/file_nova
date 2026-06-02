@@ -217,6 +217,65 @@ router.post("/upload", uploadRateLimiter, authMiddleware, upload.array("files"),
   res.json({ files: fileRecords });
 });
 
+router.post("/bulk-process", uploadRateLimiter, authMiddleware, upload.array("files", 10), async (req: AuthRequest, res): Promise<void> => {
+  if (!req.user) {
+    res.status(401).json({ detail: "Authentication required for bulk processing." });
+    return;
+  }
+
+  const plan = getUploadPlan(req);
+  if (plan !== "pro" && plan !== "elite") {
+    res.status(403).json({
+      detail: "Bulk processing is a Pro feature (₹99/month). Process up to 10 files simultaneously.",
+    });
+    return;
+  }
+
+  const files = req.files as Express.Multer.File[];
+  if (!files || files.length === 0) {
+    res.status(400).json({ detail: "No files uploaded." });
+    return;
+  }
+
+  if (files.length > 10) {
+    res.status(400).json({ detail: "Bulk processing supports a maximum of 10 files per request." });
+    return;
+  }
+
+  const limitBytes = FILE_SIZE_LIMITS_MB[plan] * 1024 * 1024;
+
+  try {
+    for (const file of files) {
+      fileValidator.parse(file);
+      if (file.size > limitBytes) {
+        throw new Error(getLimitMessage(file.size, plan, FILE_SIZE_LIMITS_MB[plan]));
+      }
+    }
+
+    const results = [];
+    for (const file of files) {
+      const safeOriginalName = path.basename(file.originalname).replace(/[^a-zA-Z0-9._-]/g, "_");
+      const outputFilename = `bulk_${Date.now()}_${file.filename}_${safeOriginalName}`;
+      const outputPath = path.join(uploadDir, outputFilename);
+      fs.copyFileSync(file.path, outputPath);
+      results.push({
+        filename: safeOriginalName,
+        status: "completed",
+        download_url: `/api/v1/preview/${outputFilename}`,
+      });
+    }
+
+    res.json({ success: true, results });
+  } catch (err: any) {
+    for (const file of files) {
+      if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+    }
+    res.status(err instanceof z.ZodError ? 400 : 413).json({
+      detail: err instanceof z.ZodError ? err.errors[0].message : err.message || "Bulk processing failed.",
+    });
+  }
+});
+
 // Preview endpoint
 router.get("/preview/:filename", (req, res): void => {
   const filename = req.params.filename;

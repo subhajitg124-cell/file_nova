@@ -71,6 +71,27 @@ export const apiClient = {
     }
   },
 
+  async bulkProcess(files: File[], operation: string): Promise<{ filename: string; status: string; downloadUrl: string }[]> {
+    const formData = new FormData();
+    formData.append('operation', operation);
+    files.forEach((f) => formData.append('files', f));
+    const res = await fetch(`${BACKEND_URL}/api/v1/bulk-process`, {
+      method: 'POST',
+      credentials: 'include',
+      body: formData,
+    });
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error((errData as any).detail || 'Bulk processing failed.');
+    }
+    const data = await res.json();
+    return data.results.map((result: any) => ({
+      filename: result.filename,
+      status: result.status,
+      downloadUrl: `${BACKEND_URL}${result.download_url}`,
+    }));
+  },
+
   async pollStatus(jobId: string) {
     const res = await fetch(`${BACKEND_URL}/api/v1/status/${jobId}`);
     if (!res.ok) throw new Error('Failed to retrieve job status.');

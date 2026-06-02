@@ -52,7 +52,7 @@ const getUploadPlan = (user: UserProfile | null, subscription: UserSubscription 
 const getPlanLabel = (plan: PlanName) => plan === 'free' ? 'Free' : plan.charAt(0).toUpperCase() + plan.slice(1);
 
 export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }) => {
-  const { isMockMode, jobId, setJobId, setError, error, setSelectedSection, openEditor } = useFileStore();
+  const { isMockMode, jobId, setJobId, setError, error, setSelectedSection, openEditor, addRawFiles, addFiles } = useFileStore();
   const { user, subscription } = useAuthStore();
   const t = useTranslation();
   const admin = useAdmin();
@@ -63,6 +63,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
     plan: PlanName;
     limitMb: number;
   } | null>(null);
+  const [bulkUpgradeOpen, setBulkUpgradeOpen] = useState(false);
   const [mismatchError, setMismatchError] = useState<{
     detected: 'pdf' | 'image' | 'video' | 'office' | null;
     fileName: string;
@@ -91,18 +92,64 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (acceptedFiles.length === 0) return;
     setError(null); setMismatchError(null); setPendingRedirect(null);
+    const activePlan = getUploadPlan(user, subscription);
+    const bulkAllowed = activePlan === 'pro' || activePlan === 'elite';
+
+    if (acceptedFiles.length > 1 && !bulkAllowed) {
+      setBulkUpgradeOpen(true);
+      return;
+    }
+
+    if (acceptedFiles.length > 10) {
+      setError('Bulk processing supports up to 10 files at once.');
+      return;
+    }
+
     const file = acceptedFiles[0];
-    const plan = getUploadPlan(user, subscription);
+    const plan = activePlan;
     const limitMb = FILE_SIZE_LIMITS_MB[plan];
     const limitBytes = limitMb * 1024 * 1024;
 
-    if (file.size > limitBytes) {
+    const oversizedFile = acceptedFiles.find((candidate) => candidate.size > limitBytes);
+    if (oversizedFile) {
       setSizeLimitModal({
-        fileName: file.name,
-        fileSizeMb: formatFileSizeMb(file.size),
+        fileName: oversizedFile.name,
+        fileSizeMb: formatFileSizeMb(oversizedFile.size),
         plan,
         limitMb,
       });
+      return;
+    }
+
+    if (acceptedFiles.length > 1) {
+      setIsUploading(true);
+      try {
+        const detections = await Promise.all(acceptedFiles.map(async (candidate) => ({
+          file: candidate,
+          detection: await detectFileType(candidate),
+        })));
+        const categories = detections.map(({ detection }) => getWorkspaceCategory(detection.mime, detection.extension));
+
+        if (allowedCategory && categories.some((category) => category !== allowedCategory)) {
+          setError(`Bulk upload for this workspace only accepts ${allowedCategory.toUpperCase()} files.`);
+          return;
+        }
+
+        const targetCategory = allowedCategory || categories.find(Boolean) || null;
+        if (targetCategory) setSelectedSection(targetCategory);
+
+        const activeJobId = jobId || Math.random().toString(36).substring(2, 15);
+        setJobId(activeJobId);
+        addRawFiles(acceptedFiles);
+        const uploaded = isMockMode
+          ? await apiMock.uploadFiles(acceptedFiles, activeJobId)
+          : await apiClient.uploadFiles(acceptedFiles, activeJobId);
+        addFiles(uploaded);
+      } catch (err: any) {
+        setError(err.message || 'Bulk upload failed.');
+      } finally {
+        setIsUploading(false);
+      }
       return;
     }
 
@@ -115,15 +162,18 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
     }
     setError(null);
     openEditor(file, resolveEditorType(file));
-  }, [allowedCategory, setError, openEditor, user, subscription]);
+  }, [allowedCategory, setError, openEditor, user, subscription, setSelectedSection, jobId, setJobId, addRawFiles, addFiles, isMockMode]);
 
   const plan = getUploadPlan(user, subscription);
   const fileSizeLimitMb = FILE_SIZE_LIMITS_MB[plan];
   const planLabel = getPlanLabel(plan);
+  const bulkAllowed = plan === 'pro' || plan === 'elite';
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     maxSize: FILE_SIZE_LIMITS_MB.elite * 1024 * 1024,
+    maxFiles: 10,
+    multiple: true,
     disabled: !admin.settings.editingEnabled,
   });
 
@@ -259,6 +309,10 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
                 Max file size: {fileSizeLimitMb}MB ({planLabel})
                 {plan === 'free' ? ' · Upgrade for larger files' : ''}
               </p>
+
+              <div className={`rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-wider ${bulkAllowed ? 'border-primary/20 bg-primary/10 text-primary' : 'border-border bg-muted/40 text-muted-foreground'}`}>
+                {bulkAllowed ? 'Pro Feature: Upload up to 10 files at once' : 'Single file upload on Free/Basic'}
+              </div>
             </motion.div>
           )}
         </div>
@@ -283,6 +337,21 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
           <DialogFooter>
             <Button variant="outline" onClick={() => setSizeLimitModal(null)}>Cancel</Button>
             <Button onClick={() => { window.location.href = '/pricing'; }}>Upgrade Now</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={bulkUpgradeOpen} onOpenChange={setBulkUpgradeOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Bulk processing is a Pro feature</DialogTitle>
+            <DialogDescription className="leading-relaxed">
+              Bulk processing is a Pro feature (₹99/month). Process up to 10 files simultaneously.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBulkUpgradeOpen(false)}>Cancel</Button>
+            <Button onClick={() => { window.location.href = '/pricing'; }}>Upgrade to Pro</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

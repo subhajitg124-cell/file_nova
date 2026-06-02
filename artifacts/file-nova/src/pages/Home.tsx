@@ -50,6 +50,7 @@ import { VisualGuideModal } from "@/components/workspace/VisualGuideModal";
 import { FileNovaAssistant } from "@/components/FileNovaAssistant";
 import { AdSenseUnit } from "@/components/AdSenseUnit";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
+import { BulkProcessor } from "@/components/BulkProcessor";
 import { useSubscription } from "@/hooks/useSubscription";
 import { blogPosts } from "@/data/blogPosts";
 const VoiceAssistant = React.lazy(() => import("@/components/VoiceAssistant").then((mod) => ({ default: mod.VoiceAssistant })));
@@ -1776,6 +1777,7 @@ export default function Home() {
                       </button>
                     </div>
                     <PreviewCanvas />
+                    <BulkProcessor />
                     <OptionsPanel />
                   </div>
                 </>)}
