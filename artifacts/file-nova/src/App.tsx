@@ -15,6 +15,7 @@ import BlogPage from "@/pages/BlogPage";
 import BlogPostPage from "@/pages/BlogPostPage";
 import ReferralPage from "@/pages/ReferralPage";
 import StudentOfferPage from "@/pages/StudentOfferPage";
+import ResourcesPage from "@/pages/ResourcesPage";
 import { LanguageProvider } from "@/lib/i18n";
 import { AdminProvider } from "@/lib/admin";
 import { FileExpiryBar } from "@/components/FileExpiryBar";
@@ -23,6 +24,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { UpgradeLimitModal } from "@/components/UpgradeLimitModal";
 
 const queryClient = new QueryClient();
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
 
 interface Props {
   children: ReactNode;
@@ -90,6 +92,7 @@ function Router() {
       <Route path="/blog/:slug" component={BlogPostPage} />
       <Route path="/referral" component={ReferralPage} />
       <Route path="/student-offer" component={StudentOfferPage} />
+      <Route path="/resources" component={ResourcesPage} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -140,7 +143,7 @@ function App() {
     if (!refCode) return;
 
     localStorage.setItem("filenova_referral_code", refCode);
-    fetch("/api/v1/referral/track", {
+    fetch(`${BACKEND_URL}/api/v1/referral/track`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ referralCode: refCode }),

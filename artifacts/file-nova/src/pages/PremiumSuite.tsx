@@ -317,31 +317,31 @@ export default function PremiumSuite() {
                     </p>
                   </div>
                 ) : active === "aadhaar" ? (
-                  <ErrorBoundary fallbackLabel="Aadhaar feature failed to load">
+                  <ErrorBoundary fallbackLabel="Aadhaar feature failed to load" toolName="Aadhaar Masking">
                     <FeatureGate requiredPlan="basic" featureName="Aadhaar Masking">
                       <AadhaarMasking />
                     </FeatureGate>
                   </ErrorBoundary>
                 ) : active === "qr" ? (
-                  <ErrorBoundary fallbackLabel="QR Verification failed to load">
+                  <ErrorBoundary fallbackLabel="QR Verification failed to load" toolName="QR Verification">
                     <FeatureGate requiredPlan="pro" featureName="QR Verification">
                       <QRVerification />
                     </FeatureGate>
                   </ErrorBoundary>
                 ) : active === "exam" ? (
-                  <ErrorBoundary fallbackLabel="Exam Toolkit failed to load">
+                  <ErrorBoundary fallbackLabel="Exam Toolkit failed to load" toolName="Exam Toolkit">
                     <FeatureGate requiredPlan="pro" featureName="Exam Toolkit">
                       <ExamToolkit />
                     </FeatureGate>
                   </ErrorBoundary>
                 ) : active === "voice" ? (
-                  <ErrorBoundary fallbackLabel="Voice Assistant failed to load">
+                  <ErrorBoundary fallbackLabel="Voice Assistant failed to load" toolName="Voice Assistant">
                     <FeatureGate requiredPlan="basic" featureName="Voice Assistant">
                       <VoiceAssistant onCommand={handleVoiceCommand} />
                     </FeatureGate>
                   </ErrorBoundary>
                 ) : active === "whatsapp" ? (
-                  <ErrorBoundary fallbackLabel="WhatsApp workflow failed to load">
+                  <ErrorBoundary fallbackLabel="WhatsApp workflow failed to load" toolName="WhatsApp Share">
                     <FeatureGate requiredPlan="basic" featureName="WhatsApp Share">
                       <div className="space-y-4">
                         <div className="flex items-center gap-2 mb-1">

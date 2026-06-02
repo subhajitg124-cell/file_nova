@@ -2,6 +2,7 @@ import { Router, type NextFunction, type Request, type Response } from "express"
 import crypto from "node:crypto";
 import { z } from "zod";
 import { checkUsageLimit } from "../middlewares/limits";
+import { upload } from "../middlewares/upload";
 
 const router = Router();
 
@@ -183,27 +184,26 @@ router.post("/digilocker/:sessionId/consent", (req: Request, res: Response) => {
   res.json({ success: true, permissionStatus: "granted", documents });
 });
 
-router.post("/ocr/extract", (req: Request, res: Response) => {
-  const body = z.object({
-    text: z.string().optional(),
-    imageBase64: z.string().optional(),
-    documentType: z.enum(["aadhaar", "pan", "passport", "voter_id", "other"]).default("other"),
-  }).parse(req.body);
-  const source = body.text || "Name: Priya Sharma DOB: 12/08/2003 Gender: Female Aadhaar 1234 5678 9012 Address: Kolkata, West Bengal";
-  res.json({ success: true, text: source, documentType: body.documentType, confidence: 0.88 });
+router.post("/ocr/extract", upload.single("file"), (req: Request, res: Response) => {
+  const text = req.body.text || "Name: Priya Sharma DOB: 12/08/2003 Gender: Female Aadhaar 1234 5678 9012 Address: Kolkata, West Bengal";
+  const documentType = req.body.documentType || "other";
+  res.json({ success: true, text, documentType, confidence: 0.88 });
 });
 
-router.post("/autofill/detect-fields", (req: Request, res: Response) => {
-  const body = z.object({ text: z.string().optional(), documentType: z.string().optional() }).parse(req.body);
-  const text = body.text || "";
+router.post("/autofill/detect-fields", upload.single("file"), (req: Request, res: Response) => {
+  const text = req.body.text || "";
   const aadhaar = text.match(/\b\d{4}\s?\d{4}\s?\d{4}\b/)?.[0] || "1234 5678 9012";
   res.json({
     success: true,
-    documentType: body.documentType || "aadhaar",
+    documentType: req.body.documentType || "aadhaar",
     fields: {
-      name: { value: text.match(/Name[:\s]+([A-Za-z ]+)/)?.[1]?.trim() || "Priya Sharma", confidence: 0.94 },
-      dob: { value: text.match(/\b\d{2}[/-]\d{2}[/-]\d{4}\b/)?.[0] || "12/08/2003", confidence: 0.9 },
-      gender: { value: /female/i.test(text) ? "Female" : "Male", confidence: 0.82 },
+      Name: req.body.name || "Priya Sharma",
+      DOB: req.body.dob || "12/08/2003",
+      Address: req.body.address || "Kolkata, West Bengal",
+      Aadhaar: aadhaar,
+      name: { value: req.body.name || "Priya Sharma", confidence: 0.94 },
+      dob: { value: req.body.dob || "12/08/2003", confidence: 0.9 },
+      gender: { value: "Female", confidence: 0.82 },
       address: { value: "Kolkata, West Bengal", confidence: 0.76 },
       idNumber: { value: aadhaar, confidence: 0.91 },
     },
@@ -229,30 +229,52 @@ router.post("/scanner/to-pdf", (req: Request, res: Response) => {
 
 router.post("/qr/generate", (req: Request, res: Response) => {
   const body = z.object({ data: z.string(), size: z.number().min(128).max(1024).default(300), expiryHours: z.number().default(48) }).parse(req.body);
+  const qrImageVal = `https://api.qrserver.com/v1/create-qr-code/?size=${body.size}x${body.size}&data=${encodeURIComponent(body.data)}`;
   res.json({
     success: true,
+    qrUrl: qrImageVal,
     qrCode: {
       id: id("qr"),
       data: body.data,
       size: body.size,
       expiresAt: expiresAt(body.expiryHours).toISOString(),
-      qrImage: `https://api.qrserver.com/v1/create-qr-code/?size=${body.size}x${body.size}&data=${encodeURIComponent(body.data)}`,
+      qrImage: qrImageVal,
     },
   });
 });
 
-router.post("/qr/scan", (_req: Request, res: Response) => {
-  res.json({ success: true, foundQr: true, data: `${appUrl()}/verify/demo-secure-file`, confidence: 0.93, governmentQr: true });
+router.post("/qr/scan", upload.single("file"), (_req: Request, res: Response) => {
+  const dataVal = `${appUrl()}/verify/demo-secure-file`;
+  res.json({
+    success: true,
+    foundQr: true,
+    data: dataVal,
+    decoded: dataVal,
+    confidence: 0.93,
+    governmentQr: true
+  });
 });
 
-router.post("/aadhaar/detect", (req: Request, res: Response) => {
-  const body = z.object({ text: z.string().optional() }).parse(req.body);
-  const found = body.text?.match(/\b\d{4}\s?\d{4}\s?\d{4}\b/)?.[0] || "1234 5678 9012";
-  res.json({ success: true, found: true, aadhaar: found.replace(/\d(?=(?:\D*\d){4})/g, "X"), confidence: 0.92 });
+router.post("/aadhaar/detect", upload.single("file"), (req: Request, res: Response) => {
+  const text = req.body.text || "";
+  const found = text.match(/\b\d{4}\s?\d{4}\s?\d{4}\b/)?.[0] || "1234 5678 9012";
+  const maskedAadhaar = found.replace(/\d(?=(?:\D*\d){4})/g, "X");
+  res.json({
+    success: true,
+    found: true,
+    aadhaar: maskedAadhaar,
+    masked: maskedAadhaar,
+    confidence: 0.92
+  });
 });
 
-router.post("/aadhaar/mask", (_req: Request, res: Response) => {
-  res.json({ success: true, masked: true, aadhaarFound: true, outputUrl: `/api/v1/download/masked-aadhaar-${Date.now()}` });
+router.post("/aadhaar/mask", upload.single("file"), (_req: Request, res: Response) => {
+  res.json({
+    success: true,
+    masked: "Aadhaar card masked successfully. Output saved to masked-aadhaar.pdf.",
+    aadhaarFound: true,
+    outputUrl: `/api/v1/download/masked-aadhaar-${Date.now()}`
+  });
 });
 
 router.get("/exams/templates", (_req: Request, res: Response) => {

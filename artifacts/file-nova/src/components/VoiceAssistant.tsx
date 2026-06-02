@@ -129,7 +129,7 @@ export function VoiceAssistant({ onCommand }: VoiceAssistantProps) {
     }
 
     recognitionRef.current = new SpeechRecognition();
-    recognitionRef.current.language = LANG_CODES[language];
+    recognitionRef.current.lang = LANG_CODES[language];
     recognitionRef.current.continuous = false;
     recognitionRef.current.interimResults = false;
 
@@ -329,7 +329,7 @@ export function VoiceCommandButton({
 
     if (!recognitionRef.current) {
       recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.language = LANG_CODES[language];
+      recognitionRef.current.lang = LANG_CODES[language];
       recognitionRef.current.onstart = () => setIsListening(true);
       recognitionRef.current.onend = () => setIsListening(false);
       recognitionRef.current.onresult = (event: any) => {

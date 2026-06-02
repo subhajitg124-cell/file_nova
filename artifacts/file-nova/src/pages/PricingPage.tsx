@@ -14,6 +14,8 @@ import { UserProfileDropdown } from "@/components/UserProfileDropdown";
 import { AuthModal } from "@/components/AuthModal";
 import { toast } from "sonner";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
+
 interface PlanCardProps {
   id: PremiumTier;
   title: string;
@@ -167,7 +169,7 @@ function UpiPaymentBox({
 
     setSubmitting(true);
     try {
-      const res = await fetch("/api/upi-payment-verify", {
+      const res = await fetch(`${BACKEND_URL}/api/upi-payment-verify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ utrId, email, plan, amount }),
@@ -175,7 +177,7 @@ function UpiPaymentBox({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Could not submit payment verification.");
 
-      toast.success(data.message || "Payment received! Your account will be upgraded within 2-4 hours after verification.");
+      toast.success("Payment received! Account upgraded in 2-4 hours.");
       setUtrId("");
       setScreenshotName("");
       setFormOpen(false);
@@ -397,6 +399,7 @@ export default function PricingPage() {
     if (code === "STUDENT20") return 20;
     if (code === "CYBER50" && planId === "elite") return 50;
     if (code === "FIRST30") return 30;
+    if (code === "WB10") return 10;
     return 0;
   };
 
@@ -409,7 +412,7 @@ export default function PricingPage() {
       return;
     }
     
-    if (cleanCode !== "STUDENT20" && cleanCode !== "CYBER50" && cleanCode !== "FIRST30") {
+    if (cleanCode !== "STUDENT20" && cleanCode !== "CYBER50" && cleanCode !== "FIRST30" && cleanCode !== "WB10") {
       setCouponError("Invalid coupon code.");
       setCouponSuccess("");
       setAppliedDiscount(0);
@@ -423,7 +426,7 @@ export default function PricingPage() {
     }
 
     try {
-      const res = await fetch("/api/v1/premium/subscription/coupons/validate", {
+      const res = await fetch(`${BACKEND_URL}/api/v1/premium/subscription/coupons/validate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ coupon: cleanCode, plan: "pro" }),

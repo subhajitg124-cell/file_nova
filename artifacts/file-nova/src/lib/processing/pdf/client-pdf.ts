@@ -27,7 +27,43 @@ export async function runClientSidePdfSplit(
 
 export async function runClientSideImagesToPdf(files: File[]): Promise<Blob> {
   const worker = createWorker(); const api = wrap<any>(worker);
-  const imagesData = await Promise.all(files.map(async (f) => ({ name: f.name, buffer: await f.arrayBuffer(), mimeType: f.type || 'image/png' })));
+  const imagesData = await Promise.all(files.map(async (f) => {
+    const extension = f.name.split('.').pop()?.toLowerCase();
+    const type = f.type || '';
+    if (type === 'image/jpeg' || type === 'image/jpg' || type === 'image/png' || extension === 'jpg' || extension === 'jpeg' || extension === 'png') {
+      return { name: f.name, buffer: await f.arrayBuffer(), mimeType: type || (extension === 'png' ? 'image/png' : 'image/jpeg') };
+    }
+    try {
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(f);
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error('Image load failed'));
+        img.src = objectUrl;
+      });
+      URL.revokeObjectURL(objectUrl);
+
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Could not get canvas context');
+      ctx.drawImage(img, 0, 0);
+
+      const pngBlob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob((b) => {
+          if (b) resolve(b);
+          else reject(new Error('toBlob failed'));
+        }, 'image/png');
+      });
+
+      const newName = f.name.substring(0, f.name.lastIndexOf('.')) + '.png';
+      return { name: newName, buffer: await pngBlob.arrayBuffer(), mimeType: 'image/png' };
+    } catch (err) {
+      console.error('Failed to convert image to PNG, passing original buffer:', err);
+      return { name: f.name, buffer: await f.arrayBuffer(), mimeType: f.type || 'image/png' };
+    }
+  }));
   const result = await api.imagesToPdf(imagesData); worker.terminate();
   return new Blob([result], { type: 'application/pdf' });
 }

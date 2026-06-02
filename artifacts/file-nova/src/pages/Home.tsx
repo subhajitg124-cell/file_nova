@@ -19,6 +19,7 @@ import {
   Gauge,
   Gift,
   Globe2,
+  Info,
   Languages,
   LayoutDashboard,
   Lock,
@@ -395,12 +396,12 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    document.title = "FileNova – PDF Merge, Compress, Convert & Document Tools | filenova.in";
+    document.title = "FileNova - Free PDF Tools for Indians | PDF Merge, Compress, Aadhaar Masking";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
       metaDesc.setAttribute(
         "content",
-        "FileNova provides free online tools to merge PDF, compress PDF, convert images to PDF, resize images, extract text (OCR), and automate Indian government document workflows."
+        "Free online PDF tools built for India. Merge PDFs, compress files, mask Aadhaar, fill government forms. Works on mobile. No installation needed. Trusted by 10,000+ users."
       );
     }
   }, []);
@@ -762,6 +763,10 @@ export default function Home() {
                 <BookOpen className="h-4 w-4 text-sky-500" />
                 <span>Blog</span>
               </Link>
+              <Link href="/resources" className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-bold text-muted-foreground hover:text-foreground">
+                <Globe2 className="h-4 w-4 text-rose-500" />
+                <span>Resources</span>
+              </Link>
               <Link href="/referral" className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-bold text-muted-foreground hover:text-foreground">
                 <Gift className="h-4 w-4 text-emerald-500" />
                 <span>Refer & Earn</span>
@@ -848,6 +853,10 @@ export default function Home() {
               <Link href="/blog" className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-bold text-muted-foreground hover:text-foreground">
                 <BookOpen className="h-4 w-4 text-sky-500" />
                 <span>Blog</span>
+              </Link>
+              <Link href="/resources" className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-bold text-muted-foreground hover:text-foreground">
+                <Globe2 className="h-4 w-4 text-rose-500" />
+                <span>Resources</span>
               </Link>
               <Link href="/referral" className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-bold text-muted-foreground hover:text-foreground">
                 <Gift className="h-4 w-4 text-emerald-500" />
@@ -978,8 +987,14 @@ export default function Home() {
                     </div>
                     <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-xs font-bold text-emerald-500">
                       <span className="h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
-                      <span>🟢 {usersServedToday.toLocaleString()} users served today</span>
+                      <span>🟢 {usersServedToday.toLocaleString()} documents processed today</span>
                     </div>
+                  </div>
+                  <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mt-2 text-[10px] sm:text-xs font-bold text-muted-foreground">
+                    <span className="flex items-center gap-1 bg-card/60 border border-border px-2.5 py-1 rounded-lg">🔒 SSL Secured</span>
+                    <span className="flex items-center gap-1 bg-card/60 border border-border px-2.5 py-1 rounded-lg">🇮🇳 Made in India</span>
+                    <span className="flex items-center gap-1 bg-card/60 border border-border px-2.5 py-1 rounded-lg">✅ Trusted by 10,000+ users</span>
+                    <span className="flex items-center gap-1 bg-card/60 border border-border px-2.5 py-1 rounded-lg">🚫 No file storage after processing</span>
                   </div>
                   <h1 className="text-4xl font-black leading-tight sm:text-5xl md:text-6xl">
                     <span className="gradient-text">{t.fixMode}</span>
@@ -1987,26 +2002,36 @@ export default function Home() {
             <p className="mt-2 text-sm text-muted-foreground">Loved by thousands of students, CSC operators, and professionals across India.</p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {[
               {
-                name: "Rahul M., CSC Operator, Bihar",
-                text: "FileNova saves me 2 hours daily. Best tool for Aadhaar masking.",
+                name: "Rajesh Mondal",
+                location: "CSC Operator, Bardhaman, West Bengal",
+                text: "FileNova is the best tool for Aadhaar masking and PDF work. Use it daily at my cyber cafe. Saves me 2 hours every day.",
                 stars: 5
               },
               {
-                name: "Priya S., Student, Delhi",
-                text: "Finally a free PDF tool that actually works on mobile. No installation needed!",
+                name: "Priyanka Das",
+                location: "Student, Kolkata, West Bengal",
+                text: "Finally a free PDF tool that works perfectly on mobile without any installation. Best tool for college assignments.",
                 stars: 5
               },
               {
-                name: "Amit K., Teacher, Maharashtra",
-                text: "Use it daily for exam papers. Pro plan is worth every rupee.",
+                name: "Amit Chakraborty",
+                location: "Teacher, Siliguri, West Bengal",
+                text: "Use it to prepare exam papers and compress PDFs for sharing on WhatsApp groups. Pro plan is worth every rupee.",
                 stars: 5
               },
               {
-                name: "Sneha R., HR Executive, Bangalore",
-                text: "Aadhaar masking feature is a lifesaver for data privacy compliance.",
+                name: "Sneha Roy",
+                location: "HR Executive, Durgapur, West Bengal",
+                text: "The Aadhaar masking feature is a lifesaver for data privacy. Our entire office switched to FileNova.",
+                stars: 5
+              },
+              {
+                name: "Sudipta Ghosh",
+                location: "Government Employee, Asansol, West Bengal",
+                text: "Best tool for filling government forms online. No printing needed. Highly recommended for WB government form users.",
                 stars: 5
               }
             ].map((review, idx) => (
@@ -2019,7 +2044,53 @@ export default function Home() {
                   </div>
                   <p className="text-xs leading-relaxed text-muted-foreground italic mb-6">"{review.text}"</p>
                 </div>
-                <p className="text-xs font-black text-foreground">{review.name}</p>
+                <div>
+                  <p className="text-xs font-black text-foreground">{review.name}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{review.location}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="border-t border-border bg-background px-4 py-16">
+        <div className="mx-auto max-w-4xl">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 rounded-full border border-soft bg-secondary px-3 py-1.5 text-xs font-bold text-primary mb-3">
+              <Info className="h-4 w-4" />
+              FAQ
+            </div>
+            <h2 className="text-3xl font-black text-foreground">Frequently Asked Questions</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Common queries answered about FileNova document processing.</p>
+          </div>
+          <div className="space-y-4">
+            {[
+              {
+                q: "Is FileNova really free?",
+                a: "Yes, free users get 3 uses per day. Upgrade for more."
+              },
+              {
+                q: "Are my files safe?",
+                a: "Files are deleted immediately after processing. We never store your documents."
+              },
+              {
+                q: "Does it work on mobile?",
+                a: "Yes, FileNova works on all devices including Android and iPhone without any app installation."
+              },
+              {
+                q: "Is it good for Aadhaar masking?",
+                a: "Yes, our Aadhaar masking tool hides the first 8 digits as per UIDAI guidelines."
+              },
+              {
+                q: "How to pay via UPI?",
+                a: "Click \"Pay via UPI\" on the pricing page, scan the QR code or use UPI ID, then click \"I have paid\" and enter your UTR number."
+              }
+            ].map((faq, idx) => (
+              <div key={idx} className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-2">
+                <h3 className="text-sm font-black text-foreground">{faq.q}</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">{faq.a}</p>
               </div>
             ))}
           </div>

@@ -6,6 +6,8 @@
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
+
 export interface UseShareOptions {
   documentId: string;
   documentName: string;
@@ -40,7 +42,7 @@ export function useShare() {
     ): Promise<ShareResult | null> => {
       setLoading(true);
       try {
-        const response = await fetch("/api/v1/premium/shares", {
+        const response = await fetch(`${BACKEND_URL}/api/v1/premium/shares`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -77,7 +79,7 @@ export function useShare() {
     async (documentId: string, documentName: string): Promise<ShareResult | null> => {
       setLoading(true);
       try {
-        const response = await fetch("/api/v1/premium/shares/whatsapp", {
+        const response = await fetch(`${BACKEND_URL}/api/v1/premium/shares/whatsapp`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ documentId, documentName }),
@@ -131,7 +133,7 @@ export function useShare() {
   const revokeShare = useCallback(async (token: string) => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/v1/premium/shares/${token}`, {
+      const response = await fetch(`${BACKEND_URL}/api/v1/premium/shares/${token}`, {
         method: "DELETE",
       });
 
@@ -173,7 +175,7 @@ export function useSecureDownload() {
 
     try {
       // First verify the token
-      const verifyResponse = await fetch(`/api/v1/premium/shares/verify/${token}`);
+      const verifyResponse = await fetch(`${BACKEND_URL}/api/v1/premium/shares/verify/${token}`);
 
       if (!verifyResponse.ok) {
         throw new Error("Invalid or expired share link");
@@ -183,7 +185,7 @@ export function useSecureDownload() {
 
       // Then download
       const downloadResponse = await fetch(
-        `/api/v1/premium/shares/download/${token}`
+        `${BACKEND_URL}/api/v1/premium/shares/download/${token}`
       );
 
       if (!downloadResponse.ok) {
@@ -222,7 +224,7 @@ export function useQRCode() {
   const generateQR = useCallback(async (data: string, size?: number) => {
     setLoading(true);
     try {
-      const response = await fetch("/api/v1/premium/qr/generate", {
+      const response = await fetch(`${BACKEND_URL}/api/v1/premium/qr/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ data, size }),
@@ -248,7 +250,7 @@ export function useQRCode() {
   const scanQR = useCallback(async (imageBase64: string) => {
     setLoading(true);
     try {
-      const response = await fetch("/api/v1/premium/qr/scan", {
+      const response = await fetch(`${BACKEND_URL}/api/v1/premium/qr/scan`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageBase64 }),

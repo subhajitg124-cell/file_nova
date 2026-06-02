@@ -7,6 +7,7 @@ import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
 export type PremiumTier = "free" | "basic" | "pro" | "elite";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
 
 const getTodayKey = () => {
   const d = new Date();
@@ -24,7 +25,7 @@ export function useSubscription() {
   const [activeOffer, setActiveOffer] = useState<{ announcement: string; discountPercentage: number } | null>(null);
   const [dbUsageToday, setDbUsageToday] = useState(0);
   const [dbLimit, setDbLimit] = useState(3);
-  const [usersServedToday, setUsersServedToday] = useState(2847);
+  const [usersServedToday, setUsersServedToday] = useState(3847);
 
   const testingActive = isTestingPeriodActive();
   const premiumTier = testingActive ? "elite" : premiumTierState;
@@ -48,7 +49,7 @@ export function useSubscription() {
 
   const fetchStatus = useCallback(async () => {
     try {
-      const res = await fetch("/api/v1/premium/subscription/status");
+      const res = await fetch(`${BACKEND_URL}/api/v1/premium/subscription/status`);
       if (res.ok) {
         const data = await res.json();
         const isPremium = data.premiumEnabled || false;
@@ -106,6 +107,12 @@ export function useSubscription() {
   };
 
   // Checkout execution
+  const PLAN_PRICES_PAISE = {
+    basic: 4900,
+    pro: 9900,
+    elite: 19900,
+  };
+
   const startCheckout = async (plan: "basic" | "pro" | "elite", coupon?: string) => {
     setLoading(true);
     try {
@@ -116,10 +123,23 @@ export function useSubscription() {
         return;
       }
 
-      const res = await fetch("/api/v1/premium/subscription/order", {
+      let discountPercentage = 0;
+      if (coupon) {
+        const code = coupon.toUpperCase().trim();
+        if (code === "STUDENT20") discountPercentage = 20;
+        else if (code === "CYBER50" && plan === "elite") discountPercentage = 50;
+        else if (code === "FIRST30") discountPercentage = 30;
+        else if (code === "WB10") discountPercentage = 10;
+      }
+      let amount = PLAN_PRICES_PAISE[plan];
+      if (discountPercentage > 0) {
+        amount = Math.round(amount * (1 - discountPercentage / 100));
+      }
+
+      const res = await fetch(`${BACKEND_URL}/api/payments/create-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan, coupon }),
+        body: JSON.stringify({ plan, amount, coupon }),
       });
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
@@ -134,7 +154,7 @@ export function useSubscription() {
         handler: async (response: any) => {
           setLoading(true);
           try {
-            const verifyRes = await fetch("/api/v1/premium/subscription/verify", {
+             const verifyRes = await fetch(`${BACKEND_URL}/api/payments/verify`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
@@ -145,7 +165,7 @@ export function useSubscription() {
               }),
             });
             if (!verifyRes.ok) throw new Error("Payment verification failed");
-            toast.success(`Welcome to FileNova ${plan.toUpperCase()}!`);
+            toast.success("🎉 Welcome to Pro! Your account is now upgraded.");
             fetchStatus();
           } catch (err: any) {
             toast.error(err.message || "Payment verification failed");
@@ -172,7 +192,7 @@ export function useSubscription() {
         toast.info("Mocking transaction checkout…");
         setTimeout(async () => {
           try {
-            const verifyRes = await fetch("/api/v1/premium/subscription/verify", {
+            const verifyRes = await fetch(`${BACKEND_URL}/api/payments/verify`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
@@ -182,7 +202,7 @@ export function useSubscription() {
               }),
             });
             if (!verifyRes.ok) throw new Error("Mock verification failed");
-            toast.success(`Activated ${plan.toUpperCase()} plan (Simulation)`);
+            toast.success("🎉 Welcome to Pro! Your account is now upgraded.");
             fetchStatus();
           } catch (err) {
             toast.error("Simulated purchase validation failed.");
@@ -204,7 +224,7 @@ export function useSubscription() {
   const cancelSubscription = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/v1/premium/subscription/cancel", {
+      const res = await fetch(`${BACKEND_URL}/api/v1/premium/subscription/cancel`, {
         method: "POST",
       });
       if (res.ok) {

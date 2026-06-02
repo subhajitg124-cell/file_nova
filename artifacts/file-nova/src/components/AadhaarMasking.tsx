@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
+
 interface DetectResult {
   success: boolean;
   found: boolean;
@@ -46,7 +48,7 @@ export function AadhaarMasking() {
 
     setLoading(true);
     try {
-      const response = await fetch("/api/v1/premium/aadhaar/detect", {
+      const response = await fetch(`${BACKEND_URL}/api/v1/premium/aadhaar/detect`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: inputText }),

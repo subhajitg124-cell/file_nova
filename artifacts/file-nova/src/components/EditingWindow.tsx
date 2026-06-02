@@ -27,6 +27,8 @@ import { QuickShareButton } from "@/components/WhatsAppShare";
 import { useImageEditor } from "@/hooks/useImageEditor";
 import { useTranslation } from "@/lib/i18n";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
+
 interface EditingWindowProps {
   file: File | null;
   fileType: "image" | "pdf" | "document";
@@ -196,7 +198,7 @@ export const EditingWindow: React.FC<EditingWindowProps> = ({ file, fileType, on
   };
 
   const callApi = async (path: string, body: BodyInit) => {
-    const response = await fetch(path, {
+    const response = await fetch(`${BACKEND_URL}${path}`, {
       method: "POST",
       body,
     });

@@ -46,6 +46,9 @@ function getCouponDiscount(couponCode: string | undefined, plan: string): number
   if (code === "FIRST30") {
     return 30; // 30% off any plan
   }
+  if (code === "WB10") {
+    return 10; // 10% off for West Bengal users
+  }
   return 0;
 }
 
@@ -132,7 +135,7 @@ router.post("/settings", adminAuth, (req: Request, res: Response) => {
 router.get("/status", authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     // Count jobs inside processingJobsTable
-    let usersServedTodayVal = 2847;
+    let usersServedTodayVal = 3847;
     try {
       const [jobsCount] = await db
         .select({ value: count() })

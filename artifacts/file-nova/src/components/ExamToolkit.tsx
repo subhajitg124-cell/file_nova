@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
+
 interface ExamTemplate {
   id: string;
   examName: string;
@@ -92,7 +94,7 @@ export function ExamToolkit() {
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const res = await fetch("/api/v1/premium/exams/templates");
+        const res = await fetch(`${BACKEND_URL}/api/v1/premium/exams/templates`);
         if (res.ok) {
           const data = await res.json();
           if (data.templates?.length > 0) setTemplates(data.templates);
@@ -164,7 +166,7 @@ export function ExamToolkit() {
     if (!selectedId) return;
     setGenerating(true);
     try {
-      const res = await fetch("/api/v1/premium/exams/package", {
+      const res = await fetch(`${BACKEND_URL}/api/v1/premium/exams/package`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
