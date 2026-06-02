@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { User, LogOut, Zap, Sparkles, Clock, CreditCard, ChevronDown, Key } from "lucide-react";
+import { User, LogOut, Zap, Sparkles, Clock, CreditCard, ChevronDown, Key, Gift } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useSubscription } from "@/hooks/useSubscription";
 import { AuthModal } from "./AuthModal";
@@ -148,6 +148,13 @@ export function UserProfileDropdown() {
 
           {/* Action Links */}
           <div className="space-y-1 mb-3.5">
+            <button
+              onClick={() => { setLocation("/referral"); setDropdownOpen(false); }}
+              className="w-full text-left py-2 px-3 rounded-lg text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/80 transition flex items-center gap-2 cursor-pointer"
+            >
+              <Gift className="h-3.5 w-3.5 text-emerald-500" />
+              <span>Refer & Earn</span>
+            </button>
             {!plan.isPremium ? (
               <button
                 onClick={() => { setLocation("/pricing"); setDropdownOpen(false); }}

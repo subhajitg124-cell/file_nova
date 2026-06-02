@@ -13,7 +13,8 @@ import {
   User, 
   ArrowUpRight,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  Gift
 } from "lucide-react";
 import { useSubscription, type PremiumTier } from "@/hooks/useSubscription";
 
@@ -275,6 +276,22 @@ export default function DashboardPage() {
                 Explore Premium Billing Plans
               </Link>
             )}
+          </div>
+        </section>
+
+        <section className="rounded-3xl border border-emerald-500/20 bg-emerald-500/5 p-6 shadow-premium">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-lg font-black flex items-center gap-2">
+                <Gift className="h-5 w-5 text-emerald-500" />
+                Refer & Earn
+              </h2>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">Invite a friend to FileNova. You both get 7 days Pro free after signup.</p>
+            </div>
+            <Link href="/referral" className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-xs font-black text-white shadow-sm">
+              Open Referral Page
+              <ArrowUpRight className="h-4 w-4" />
+            </Link>
           </div>
         </section>
 

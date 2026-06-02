@@ -26,6 +26,7 @@ export const usersTable = pgTable("users", {
   role: userRoleEnum("role").notNull().default("user"),
   language: varchar("language", { length: 8 }).notNull().default("en"),
   googleSubject: varchar("google_subject", { length: 255 }),
+  referralCode: varchar("referral_code", { length: 8 }).unique(),
   // Premium features
   premiumEnabled: boolean("premium_enabled").notNull().default(false),
   premiumTier: varchar("premium_tier", { length: 50 }).default("free"), // free, basic, pro, enterprise
@@ -43,6 +44,15 @@ export const ipUsageTable = pgTable("ip_usage", {
   usageToday: integer("usage_today").notNull().default(0),
   lastUsedAt: varchar("last_used_at", { length: 20 }).notNull().default(""),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const referralsTable = pgTable("referrals", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  referrerUserId: uuid("referrer_user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
+  referredEmail: varchar("referred_email", { length: 320 }),
+  status: varchar("status", { length: 50 }).notNull().default("pending"),
+  rewardGiven: boolean("reward_given").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const eventRulesTable = pgTable("event_rules", {

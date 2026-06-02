@@ -6,6 +6,7 @@ import { db, usersTable, sessionsTable, subscriptionsTable } from "@workspace/db
 import { eq, or, desc } from "drizzle-orm";
 import { hashPassword, verifyPassword } from "../utils/hash";
 import { authMiddleware, AuthRequest } from "../middlewares/auth";
+import { completeReferral, generateUniqueReferralCode } from "../services/referralService";
 
 const router = Router();
 const googleOAuthClient = new OAuth2Client();
@@ -73,10 +74,12 @@ router.post("/signup", async (req, res): Promise<void> => {
       phoneNumber: z.string().min(10, "Phone number must be at least 10 digits").max(15).optional().nullable(),
       password: z.string().min(6, "Password must be at least 6 characters"),
       name: z.string().min(1, "Name is required").optional().nullable(),
+      referralCode: z.string().max(8).optional().nullable(),
     });
 
     const parsed = bodySchema.parse(req.body);
     const passwordHash = hashPassword(parsed.password);
+    const referralCode = await generateUniqueReferralCode();
 
     // Check if email already exists
     const [existingEmail] = await db
@@ -114,9 +117,11 @@ router.post("/signup", async (req, res): Promise<void> => {
         role: "user",
         premiumTier: "free",
         premiumEnabled: false,
+        referralCode,
       })
       .returning();
 
+    await completeReferral(parsed.referralCode, newUser.id, newUser.email);
     const token = await createSession(newUser.id, res);
 
     res.status(201).json({
@@ -130,6 +135,7 @@ router.post("/signup", async (req, res): Promise<void> => {
         role: newUser.role,
         premiumTier: newUser.premiumTier,
         premiumEnabled: newUser.premiumEnabled,
+        referralCode: newUser.referralCode,
       },
     });
   } catch (err: any) {
@@ -184,6 +190,7 @@ router.post("/login", async (req, res): Promise<void> => {
         role: user.role,
         premiumTier: user.premiumTier,
         premiumEnabled: user.premiumEnabled,
+        referralCode: user.referralCode,
       },
       subscription,
     });
@@ -201,6 +208,7 @@ router.post("/google", async (req, res): Promise<void> => {
   try {
     const bodySchema = z.object({
       credential: z.string().min(1, "Google credential is required"),
+      referralCode: z.string().max(8).optional().nullable(),
     });
 
     const parsed = bodySchema.parse(req.body);
@@ -246,6 +254,7 @@ router.post("/google", async (req, res): Promise<void> => {
       }
     } else {
       // Create user
+      const referralCode = await generateUniqueReferralCode();
       const [newUser] = await db
         .insert(usersTable)
         .values({
@@ -255,9 +264,11 @@ router.post("/google", async (req, res): Promise<void> => {
           role: "user",
           premiumTier: "free",
           premiumEnabled: false,
+          referralCode,
         })
         .returning();
       user = newUser;
+      await completeReferral(parsed.referralCode, user.id, user.email);
     }
 
     const token = await createSession(user.id, res);
@@ -274,6 +285,7 @@ router.post("/google", async (req, res): Promise<void> => {
         role: user.role,
         premiumTier: user.premiumTier,
         premiumEnabled: user.premiumEnabled,
+        referralCode: user.referralCode,
       },
       subscription,
     });
@@ -305,6 +317,7 @@ router.get("/me", authMiddleware, async (req: AuthRequest, res): Promise<void> =
       role: req.user.role,
       premiumTier: req.user.premiumTier,
       premiumEnabled: req.user.premiumEnabled,
+      referralCode: req.user.referralCode,
     },
     subscription,
   });

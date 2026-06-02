@@ -17,6 +17,7 @@ import {
   FileCheck2,
   FolderTree,
   Gauge,
+  Gift,
   Globe2,
   Languages,
   LayoutDashboard,
@@ -737,6 +738,10 @@ export default function Home() {
                 <BookOpen className="h-4 w-4 text-sky-500" />
                 <span>Blog</span>
               </Link>
+              <Link href="/referral" className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-bold text-muted-foreground hover:text-foreground">
+                <Gift className="h-4 w-4 text-emerald-500" />
+                <span>Refer & Earn</span>
+              </Link>
               <Link href="/pricing" className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-bold text-muted-foreground hover:text-foreground">
                 <Zap className="h-4 w-4 text-amber-500" />
                 <span>Pricing</span>
@@ -819,6 +824,10 @@ export default function Home() {
               <Link href="/blog" className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-bold text-muted-foreground hover:text-foreground">
                 <BookOpen className="h-4 w-4 text-sky-500" />
                 <span>Blog</span>
+              </Link>
+              <Link href="/referral" className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-bold text-muted-foreground hover:text-foreground">
+                <Gift className="h-4 w-4 text-emerald-500" />
+                <span>Refer & Earn</span>
               </Link>
               <Link href="/pricing" className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-bold text-muted-foreground hover:text-foreground">
                 <Zap className="h-4 w-4 text-amber-500" />

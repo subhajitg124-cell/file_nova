@@ -11,6 +11,7 @@ import { execSync } from "child_process";
 import premiumRouter from "./premium";
 import subscriptionRouter from "./subscriptions";
 import authRouter from "./auth";
+import referralRouter from "./referral";
 import { checkUsageLimit } from "../middlewares/limits";
 import { authMiddleware, type AuthRequest } from "../middlewares/auth";
 
@@ -554,5 +555,6 @@ router.post("/ai/chat", async (req, res): Promise<void> => {
 router.use("/premium", premiumRouter);
 router.use("/premium/subscription", subscriptionRouter);
 router.use("/auth", authRouter);
+router.use("/referral", referralRouter);
 
 export default router;

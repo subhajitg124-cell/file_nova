@@ -8,6 +8,7 @@ export interface UserProfile {
   role: 'user' | 'operator' | 'admin' | 'super_admin';
   premiumTier: 'free' | 'basic' | 'pro' | 'elite';
   premiumEnabled: boolean;
+  referralCode?: string | null;
 }
 
 export interface UserSubscription {
@@ -120,7 +121,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ email, phoneNumber, password, name }),
+        body: JSON.stringify({
+          email,
+          phoneNumber,
+          password,
+          name,
+          referralCode: localStorage.getItem('filenova_referral_code'),
+        }),
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
@@ -133,6 +140,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (data.token) {
         localStorage.setItem(SESSION_TOKEN_KEY, data.token);
       }
+      localStorage.removeItem('filenova_referral_code');
       return true;
     } catch (err: any) {
       set({ error: err.message || 'Failed to sign up' });
@@ -149,7 +157,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ credential }),
+        body: JSON.stringify({
+          credential,
+          referralCode: localStorage.getItem('filenova_referral_code'),
+        }),
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
@@ -162,6 +173,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (data.token) {
         localStorage.setItem(SESSION_TOKEN_KEY, data.token);
       }
+      localStorage.removeItem('filenova_referral_code');
       return true;
     } catch (err: any) {
       set({ error: err.message || 'Google authentication failed' });
