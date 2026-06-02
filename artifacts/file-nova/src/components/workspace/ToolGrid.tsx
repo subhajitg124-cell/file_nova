@@ -13,6 +13,9 @@ import { useFileStore, OperationType } from '@/store/useFileStore';
 import { apiClient, apiMock } from '@/lib/api';
 import { useTranslation } from '@/lib/i18n';
 import { useAdmin } from '@/lib/admin';
+import { useSubscription } from '@/hooks/useSubscription';
+import { useLocation } from 'wouter';
+import { toast } from 'sonner';
 
 interface ToolItem {
   id: OperationType;
@@ -199,6 +202,8 @@ const readStoredList = (key: string) => {
 
 export const ToolGrid: React.FC = () => {
   const { files, setOperation, updateOptions, isMockMode, jobId, setJobId, setError, selectedSection, setSelectedSection, openEditor } = useFileStore();
+  const { premiumTier } = useSubscription();
+  const [, setLocation] = useLocation();
   const t = useTranslation();
   const admin = useAdmin();
   const [searchQuery, setSearchQuery] = useState('');
@@ -206,6 +211,10 @@ export const ToolGrid: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [favoriteTools, setFavoriteTools] = useState<string[]>(() => readStoredList(FAVORITES_KEY));
   const [recentTools, setRecentTools] = useState<string[]>(() => readStoredList(RECENTS_KEY));
+
+  const isToolAllowedOnFree = (tool: ToolItem) => {
+    return tool.category === 'pdf' && (tool.actionName === 'merge' || tool.actionName === 'compress');
+  };
 
   const activeCategory = selectedSection || 'all';
   const firstFileType = files[0]?.type || '';
@@ -229,6 +238,11 @@ export const ToolGrid: React.FC = () => {
   };
 
   const handleSelectTool = (tool: ToolItem) => {
+    if (premiumTier === 'free' && !isToolAllowedOnFree(tool)) {
+      toast.error(`Upgrade to Basic or Pro to unlock this premium tool!`);
+      setLocation('/pricing');
+      return;
+    }
     rememberTool(tool);
     if (files.length > 0) {
       setOperation(tool.id);
@@ -275,6 +289,11 @@ export const ToolGrid: React.FC = () => {
   };
 
   const triggerDirectUpload = (tool: ToolItem) => {
+    if (premiumTier === 'free' && !isToolAllowedOnFree(tool)) {
+      toast.error(`Upgrade to Basic or Pro to unlock this premium tool!`);
+      setLocation('/pricing');
+      return;
+    }
     if (!admin.settings.editingEnabled) { setError(t.editingDisabled); return; }
     if (tool.actionName === 'scan_to_pdf') {
       setOperation(tool.id); updateOptions({ operation: tool.actionName }); return;

@@ -1,10 +1,10 @@
 {
-  "name": "FileNova",
+  "name": "FileNova - PDF Tools",
   "short_name": "FileNova",
-  "description": "Secure Multi-Tool File Processing Platform",
+  "description": "Free PDF tools for Indian users",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#090d16",
+  "background_color": "#0f0f1a",
   "theme_color": "#6366f1",
   "icons": [
     {

@@ -52,6 +52,7 @@ export const referralsTable = pgTable("referrals", {
   referredEmail: varchar("referred_email", { length: 320 }),
   status: varchar("status", { length: 50 }).notNull().default("pending"),
   rewardGiven: boolean("reward_given").notNull().default(false),
+  upgradeRewardGiven: boolean("upgrade_reward_given").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -161,6 +162,23 @@ export const sessionsRelations = relations(sessionsTable, ({ one }) => ({
   }),
 }));
 
+export const fileHistoryTable = pgTable("file_history", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").references(() => usersTable.id, { onDelete: "cascade" }),
+  toolUsed: varchar("tool_used", { length: 120 }).notNull(),
+  originalFilename: text("original_filename").notNull(),
+  fileSize: integer("file_size").notNull(),
+  processedAt: timestamp("processed_at", { withTimezone: true }).notNull().defaultNow(),
+  status: varchar("status", { length: 20 }).notNull().default("completed"),
+});
+
+export const fileHistoryRelations = relations(fileHistoryTable, ({ one }) => ({
+  user: one(usersTable, {
+    fields: [fileHistoryTable.userId],
+    references: [usersTable.id],
+  }),
+}));
+
 export const insertUserSchema = createInsertSchema(usersTable).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertEventRuleSchema = createInsertSchema(eventRulesTable).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertDocumentRuleSchema = createInsertSchema(documentRulesTable).omit({ id: true });
@@ -173,6 +191,7 @@ export type InsertEventRule = z.infer<typeof insertEventRuleSchema>;
 export type DocumentRule = typeof documentRulesTable.$inferSelect;
 export type ProcessingJob = typeof processingJobsTable.$inferSelect;
 export type Session = typeof sessionsTable.$inferSelect;
+export type FileHistory = typeof fileHistoryTable.$inferSelect;
 
 // Premium features exports
 export * from "./premium";

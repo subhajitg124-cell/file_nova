@@ -33,9 +33,9 @@ const CATEGORY_META = {
 type PlanName = 'free' | 'basic' | 'pro' | 'elite';
 
 const FILE_SIZE_LIMITS_MB: Record<PlanName, number> = {
-  free: 5,
-  basic: 25,
-  pro: 100,
+  free: 3,
+  basic: 15,
+  pro: 50,
   elite: 100,
 };
 
@@ -93,15 +93,22 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
     if (acceptedFiles.length === 0) return;
     setError(null); setMismatchError(null); setPendingRedirect(null);
     const activePlan = getUploadPlan(user, subscription);
-    const bulkAllowed = activePlan === 'pro' || activePlan === 'elite';
+    const isPro = activePlan === 'pro';
+    const isElite = activePlan === 'elite';
+    const bulkAllowed = isPro || isElite;
 
     if (acceptedFiles.length > 1 && !bulkAllowed) {
       setBulkUpgradeOpen(true);
       return;
     }
 
-    if (acceptedFiles.length > 10) {
-      setError('Bulk processing supports up to 10 files at once.');
+    if (isPro && acceptedFiles.length > 5) {
+      setError('Pro plan allows up to 5 files for bulk processing. Upgrade to Elite for up to 20 files.');
+      return;
+    }
+
+    if (isElite && acceptedFiles.length > 20) {
+      setError('Elite plan allows up to 20 files for bulk processing.');
       return;
     }
 
@@ -165,14 +172,16 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
   }, [allowedCategory, setError, openEditor, user, subscription, setSelectedSection, jobId, setJobId, addRawFiles, addFiles, isMockMode]);
 
   const plan = getUploadPlan(user, subscription);
+  const isPro = plan === 'pro';
+  const isElite = plan === 'elite';
   const fileSizeLimitMb = FILE_SIZE_LIMITS_MB[plan];
   const planLabel = getPlanLabel(plan);
-  const bulkAllowed = plan === 'pro' || plan === 'elite';
+  const bulkAllowed = isPro || isElite;
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     maxSize: FILE_SIZE_LIMITS_MB.elite * 1024 * 1024,
-    maxFiles: 10,
+    maxFiles: 20,
     multiple: true,
     disabled: !admin.settings.editingEnabled,
   });
@@ -311,7 +320,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
               </p>
 
               <div className={`rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-wider ${bulkAllowed ? 'border-primary/20 bg-primary/10 text-primary' : 'border-border bg-muted/40 text-muted-foreground'}`}>
-                {bulkAllowed ? 'Pro Feature: Upload up to 10 files at once' : 'Single file upload on Free/Basic'}
+                {isElite ? 'Elite Feature: Upload up to 20 files at once' : isPro ? 'Pro Feature: Upload up to 5 files at once' : 'Single file upload on Free/Basic'}
               </div>
             </motion.div>
           )}
@@ -327,9 +336,15 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
                 <>
                   <span className="font-medium text-foreground">{sizeLimitModal.fileName}</span>
                   <br />
-                  This file is {sizeLimitModal.fileSizeMb}MB. {getPlanLabel(sizeLimitModal.plan)} plan supports up to {sizeLimitModal.limitMb}MB.
-                  <br />
-                  Upgrade to Basic (₹49/month) for 25MB or Pro (₹99/month) for 100MB.
+                  {sizeLimitModal.plan === 'free' ? (
+                    <>File is {sizeLimitModal.fileSizeMb}MB. Free plan allows 3MB max. Upgrade to Basic for 15MB → ₹49/month</>
+                  ) : sizeLimitModal.plan === 'basic' ? (
+                    <>File is {sizeLimitModal.fileSizeMb}MB. Basic plan allows 15MB max. Upgrade to Pro for 50MB → ₹99/month</>
+                  ) : sizeLimitModal.plan === 'pro' ? (
+                    <>File is {sizeLimitModal.fileSizeMb}MB. Pro plan allows 50MB max. Upgrade to Elite for 100MB → ₹199/month</>
+                  ) : (
+                    <>File is {sizeLimitModal.fileSizeMb}MB. Elite plan allows 100MB max.</>
+                  )}
                 </>
               )}
             </DialogDescription>

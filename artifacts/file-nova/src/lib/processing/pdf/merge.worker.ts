@@ -137,6 +137,7 @@ async function addPdfWatermark(
     if (position === 'diagonal')   { x = (width - textWidth) / 2; y = (height - textHeight) / 2; rot = rotation; }
     else if (position === 'center'){ x = (width - textWidth) / 2; y = height / 2; rot = 0; }
     else if (position === 'bottom'){ x = (width - textWidth) / 2; y = 30; rot = 0; }
+    else if (position === 'bottom-right') { x = width - textWidth - 20; y = 20; rot = 0; }
     else                           { x = (width - textWidth) / 2; y = height - textHeight - 20; rot = 0; }
     page.drawText(text, { x, y, size: fontSize, font, color: rgb(r, g, b), opacity, rotate: degrees(rot) });
   }

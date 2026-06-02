@@ -29,19 +29,18 @@ export async function checkUsageLimit(req: AuthRequest, res: Response, next: Nex
     if (req.user) {
       const tier = req.user.premiumTier || "free";
       
-      // Pro, Elite, Enterprise, and Admins have unlimited usage
+      // Elite, Enterprise, and Admins have unlimited usage
       if (
-        tier === "pro" || 
         tier === "elite" || 
         tier === "enterprise" || 
         req.user.role === "admin" || 
         req.user.role === "super_admin" ||
-        req.user.premiumEnabled === true && (tier === "pro" || tier === "elite")
+        (req.user.premiumEnabled === true && tier === "elite")
       ) {
         return next();
       }
 
-      const limit = tier === "basic" ? 20 : 3;
+      const limit = tier === "pro" ? 100 : (tier === "basic" ? 20 : 3);
       let usage = req.user.usageToday;
       let lastReset = req.user.lastUsageReset;
 
@@ -56,7 +55,7 @@ export async function checkUsageLimit(req: AuthRequest, res: Response, next: Nex
 
       if (usage >= limit) {
         return res.status(403).json({
-          error: `Daily limit reached. ${tier === "basic" ? "Basic" : "Free"} users are limited to ${limit} actions per day. Please upgrade to a higher tier to continue.`,
+          error: `Daily limit reached. ${tier === "pro" ? "Pro" : (tier === "basic" ? "Basic" : "Free")} users are limited to ${limit} actions per day. Please upgrade to a higher tier to continue.`,
           limitReached: true,
           limit,
           usage,

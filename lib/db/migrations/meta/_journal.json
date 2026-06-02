@@ -29,6 +29,13 @@
       "when": 1780302600000,
       "tag": "0003_add_referrals",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1780380504702,
+      "tag": "0004_closed_magus",
+      "breakpoints": true
     }
   ]
 }

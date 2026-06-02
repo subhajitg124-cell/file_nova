@@ -24,6 +24,7 @@ export function useSubscription() {
   const [activeOffer, setActiveOffer] = useState<{ announcement: string; discountPercentage: number } | null>(null);
   const [dbUsageToday, setDbUsageToday] = useState(0);
   const [dbLimit, setDbLimit] = useState(3);
+  const [usersServedToday, setUsersServedToday] = useState(2847);
 
   const testingActive = isTestingPeriodActive();
   const premiumTier = testingActive ? "elite" : premiumTierState;
@@ -56,6 +57,9 @@ export function useSubscription() {
         setExpiresAt(data.subscription?.expiresAt || null);
         setDbUsageToday(data.usageToday ?? 0);
         setDbLimit(data.limit ?? 3);
+        if (data.usersServedToday !== undefined) {
+          setUsersServedToday(data.usersServedToday);
+        }
         
         try {
           localStorage.setItem("fn_premium_enabled", String(isPremium));
@@ -102,7 +106,7 @@ export function useSubscription() {
   };
 
   // Checkout execution
-  const startCheckout = async (plan: "basic" | "pro" | "elite") => {
+  const startCheckout = async (plan: "basic" | "pro" | "elite", coupon?: string) => {
     setLoading(true);
     try {
       const isLoaded = await loadRazorpayScript();
@@ -115,7 +119,7 @@ export function useSubscription() {
       const res = await fetch("/api/v1/premium/subscription/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan }),
+        body: JSON.stringify({ plan, coupon }),
       });
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
@@ -246,9 +250,9 @@ export function useSubscription() {
   const shouldShowAdGate = (): boolean => {
     if (isTestingPeriodActive()) return false;
     if (premiumTier !== "free") return false;
-    // FREE user: watch 2 ads per use.
-    // Condition: watched ads must be >= (uses + 1) * 2 to run next feature
-    const requiredAds = (dbUsageToday + 1) * 2;
+    // FREE user: watch 1 ad per use.
+    // Condition: watched ads must be >= uses + 1 to run next feature
+    const requiredAds = dbUsageToday + 1;
     return adWatchCount < requiredAds;
   };
 
@@ -260,6 +264,7 @@ export function useSubscription() {
     adWatchCount,
     useCount: dbUsageToday,
     activeOffer,
+    usersServedToday,
     incrementAdWatch,
     incrementFeatureUse,
     startCheckout,

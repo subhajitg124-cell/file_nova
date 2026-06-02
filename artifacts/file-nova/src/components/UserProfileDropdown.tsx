@@ -8,7 +8,7 @@ import { toast } from "sonner";
 
 export function UserProfileDropdown() {
   const { user, subscription, fetchMe, logout, isLoginModalOpen, openLoginModal, closeLoginModal } = useAuthStore();
-  const { cancelSubscription, loading: subLoading } = useSubscription();
+  const { cancelSubscription, loading: subLoading, premiumTier } = useSubscription();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [, setLocation] = useLocation();
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -75,10 +75,25 @@ export function UserProfileDropdown() {
     };
   };
 
+  const getNavbarBadge = () => {
+    switch (premiumTier) {
+      case "basic":
+        return <span className="inline-flex items-center rounded-md bg-blue-550/10 px-2 py-1 text-[10px] font-bold text-blue-500 border border-blue-500/20">BASIC</span>;
+      case "pro":
+        return <span className="inline-flex items-center rounded-md bg-purple-500/10 px-2 py-1 text-[10px] font-bold text-purple-500 border border-purple-500/20">PRO ⚡</span>;
+      case "elite":
+        return <span className="inline-flex items-center rounded-md bg-amber-500/10 px-2 py-1 text-[10px] font-bold text-amber-500 border border-amber-500/20">ELITE 👑</span>;
+      case "free":
+      default:
+        return <span className="inline-flex items-center rounded-md bg-gray-500/10 px-2 py-1 text-[10px] font-bold text-gray-400 border border-gray-500/20">FREE</span>;
+    }
+  };
+
   const plan = getPlanDetails();
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative flex items-center gap-2" ref={dropdownRef}>
+      {user && getNavbarBadge()}
       {user ? (
         <button
           onClick={() => setDropdownOpen(!dropdownOpen)}

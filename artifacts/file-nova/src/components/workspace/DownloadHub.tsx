@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Download, CheckCircle, Copy, Check, RotateCcw, AlertTriangle, FileText, FileType, Pencil, Eye } from 'lucide-react';
+import { Download, CheckCircle, Copy, Check, RotateCcw, AlertTriangle, FileText, FileType, Pencil, Eye, Share2, X } from 'lucide-react';
 import { useFileStore } from '@/store/useFileStore';
 import { PdfResultPreview } from './PdfResultPreview';
 import { QuickShareButton } from '@/components/WhatsAppShare';
+import { ShareButton } from '@/components/ShareButton';
 
 const getDefaultFilename = (operation: string, format?: string): string => {
   switch (operation) {
@@ -54,6 +55,21 @@ export const DownloadHub: React.FC = () => {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [customFilename, setCustomFilename] = useState('');
   const [isEditingName, setIsEditingName] = useState(false);
+  const [showChaiModal, setShowChaiModal] = useState(false);
+
+  useEffect(() => {
+    if (downloadUrl) {
+      try {
+        const lastShownStr = localStorage.getItem("filenova-chai-modal-last-shown");
+        const now = Date.now();
+        const oneWeekMs = 7 * 24 * 60 * 60 * 1000;
+        if (!lastShownStr || now - parseInt(lastShownStr, 10) > oneWeekMs) {
+          setShowChaiModal(true);
+          localStorage.setItem("filenova-chai-modal-last-shown", String(now));
+        }
+      } catch (_) {}
+    }
+  }, [downloadUrl]);
 
   const operation = operationOptions?.operation || '';
   const format = operationOptions?.merge_docs_format || operationOptions?.target_format || operationOptions?.resize_format || '';
@@ -248,6 +264,22 @@ export const DownloadHub: React.FC = () => {
                 {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
                 {copied ? 'Link copied!' : 'Copy shareable link'}
               </button>
+              <button
+                onClick={() => window.location.href = '/referral'}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-500/10 text-emerald-500 font-bold text-sm border border-emerald-500/25 hover:bg-emerald-500/15 transition-all"
+              >
+                <span>🎁 Refer & Earn: Get 7 Days Pro Free</span>
+              </button>
+              <div className="flex items-center gap-2">
+                <div className="h-px flex-1 bg-border" />
+                <span className="text-xs text-muted-foreground font-semibold uppercase">Share</span>
+                <div className="h-px flex-1 bg-border" />
+              </div>
+              <ShareButton
+                url={downloadUrl}
+                filename={customFilename}
+                message={`I just processed ${customFilename} using FileNova (Free PDF tools)`}
+              />
               <QuickShareButton
                 documentId="latest-output"
                 documentName={customFilename.trim() || getDefaultFilename(operation, format)}
@@ -266,6 +298,46 @@ export const DownloadHub: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Once-a-week Chai Donation Modal */}
+      {showChaiModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/60 backdrop-blur-md animate-fade-in">
+          <div className="w-full max-w-md rounded-3xl border border-primary/20 bg-card p-6 shadow-premium relative overflow-hidden text-center">
+            <button
+              onClick={() => setShowChaiModal(false)}
+              className="absolute top-4 right-4 text-muted-foreground hover:text-foreground cursor-pointer"
+              aria-label="Close modal"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            
+            <div className="mx-auto h-16 w-16 bg-amber-500/10 text-amber-500 rounded-full flex items-center justify-center border border-amber-500/20 mb-4">
+              <span className="text-3xl leading-none">☕</span>
+            </div>
+
+            <h3 className="text-xl font-black text-foreground">Support FileNova</h3>
+            <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+              FileNova has processed your files securely and quickly! If we saved you time, consider buying us a cup of chai (₹10) to support server costs.
+            </p>
+
+            <div className="mt-6 flex flex-col gap-2">
+              <a
+                href="upi://pay?pa=subhajitgho123-1@oksbi&pn=FileNova&am=10"
+                onClick={() => setShowChaiModal(false)}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white py-3 text-sm font-black shadow-glow cursor-pointer transition"
+              >
+                <span>☕ Buy Chai (₹10)</span>
+              </a>
+              <button
+                onClick={() => setShowChaiModal(false)}
+                className="w-full py-2.5 rounded-xl border border-border text-muted-foreground hover:text-foreground text-xs font-bold transition cursor-pointer"
+              >
+                Maybe next time
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

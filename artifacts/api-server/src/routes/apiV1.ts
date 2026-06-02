@@ -20,9 +20,9 @@ const router = Router();
 type UploadPlan = "free" | "basic" | "pro" | "elite";
 
 const FILE_SIZE_LIMITS_MB: Record<UploadPlan, number> = {
-  free: 5,
-  basic: 25,
-  pro: 100,
+  free: 3,
+  basic: 15,
+  pro: 50,
   elite: 100,
 };
 
@@ -38,8 +38,16 @@ const formatFileSizeMb = (bytes: number) => {
 };
 
 const getLimitMessage = (fileSize: number, plan: UploadPlan, limitMb: number) => {
-  const label = plan === "free" ? "Free" : plan.charAt(0).toUpperCase() + plan.slice(1);
-  return `This file is ${formatFileSizeMb(fileSize)}MB. ${label} plan supports up to ${limitMb}MB. Upgrade to Basic (₹49/month) for 25MB or Pro (₹99/month) for 100MB.`;
+  const fsMb = formatFileSizeMb(fileSize);
+  if (plan === "free") {
+    return `File is ${fsMb}MB. Free plan allows 3MB max. Upgrade to Basic for 15MB → ₹49/month`;
+  } else if (plan === "basic") {
+    return `File is ${fsMb}MB. Basic plan allows 15MB max. Upgrade to Pro for 50MB → ₹99/month`;
+  } else if (plan === "pro") {
+    return `File is ${fsMb}MB. Pro plan allows 50MB max. Upgrade to Elite for 100MB → ₹199/month`;
+  } else {
+    return `File is ${fsMb}MB. Elite plan allows 100MB max.`;
+  }
 };
 
 // Zod schemas and validation
@@ -116,6 +124,7 @@ interface Job {
     percent: number;
   };
   updatedAt: Date;
+  userPlan?: UploadPlan;
 }
 
 const jobs = new Map<string, Job>();
@@ -188,8 +197,10 @@ router.post("/upload", uploadRateLimiter, authMiddleware, upload.array("files"),
     status: "pending" as const,
     progress: 0,
     files: [] as JobFile[],
-    updatedAt: new Date()
+    updatedAt: new Date(),
+    userPlan: plan
   };
+  job.userPlan = plan;
 
   const fileRecords = files.map(f => {
     // Sanitize the original filename to prevent path traversal / arbitrary write attacks
@@ -434,12 +445,23 @@ router.get("/download/:jobId", (req, res): void => {
   });
 });
 
-// Periodic task to clean up expired jobs and files (older than 1 hour)
+// Periodic task to clean up expired jobs and files based on plan retention
 const expiredCleanupTimer = setInterval(() => {
   const now = Date.now();
   const ONE_HOUR = 60 * 60 * 1000;
+  const ONE_DAY = 24 * ONE_HOUR;
   for (const [jobId, job] of jobs.entries()) {
-    if (now - job.updatedAt.getTime() > ONE_HOUR) {
+    const plan = job.userPlan || "free";
+    let retentionMs = ONE_HOUR;
+    if (plan === "basic") {
+      retentionMs = ONE_DAY;
+    } else if (plan === "pro") {
+      retentionMs = 7 * ONE_DAY;
+    } else if (plan === "elite") {
+      retentionMs = 30 * ONE_DAY;
+    }
+
+    if (now - job.updatedAt.getTime() > retentionMs) {
       try {
         for (const file of job.files) {
           if (fs.existsSync(file.path)) {
@@ -450,7 +472,7 @@ const expiredCleanupTimer = setInterval(() => {
           fs.unlinkSync(job.outputFilePath);
         }
         jobs.delete(jobId);
-        logger.info({ jobId }, "Cleaned up expired job files (exceeded 1 hour)");
+        logger.info({ jobId, plan }, `Cleaned up expired job files (exceeded plan retention: ${retentionMs / ONE_HOUR} hours)`);
       } catch (cleanupErr) {
         logger.error({ err: cleanupErr, jobId }, "Error cleaning up expired job files");
       }

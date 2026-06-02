@@ -65,6 +65,10 @@ app.use(apiLimiter);
 app.use("/api/v1", requestTimeout(30000), apiV1Router);
 app.use("/api", requestTimeout(30000), router);
 
+import { fileURLToPath } from "node:url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // Serve frontend static assets with SPA fallback in production
 if (process.env.NODE_ENV === "production") {
   const publicDir = path.resolve(__dirname, "../../file-nova/dist");

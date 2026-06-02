@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import { db, referralsTable, subscriptionsTable, usersTable } from "@workspace/db";
-import { and, eq } from "drizzle-orm";
+import { and, eq, desc } from "drizzle-orm";
 
 const REFERRAL_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const REWARD_DAYS = 7;
@@ -32,23 +32,52 @@ export async function ensureUserReferralCode(userId: string) {
   return referralCode;
 }
 
-async function grantReferralReward(userId: string) {
+export async function grantReferralReward(userId: string, days: number) {
   const now = new Date();
-  const rewardEnds = new Date(now.getTime() + REWARD_DAYS * 24 * 60 * 60 * 1000);
+  
+  // Find user to check their current tier
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId)).limit(1);
+  if (!user) return;
+  
+  const currentTier = user.premiumTier || "free";
+  
+  // Find active subscriptions
+  const activeSubs = await db
+    .select()
+    .from(subscriptionsTable)
+    .where(and(eq(subscriptionsTable.userId, userId), eq(subscriptionsTable.status, "active")))
+    .orderBy(desc(subscriptionsTable.currentPeriodEnd));
+  
+  let start = now;
+  let end = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
+  
+  let targetTier = "pro";
+  if (currentTier !== "free") {
+    // Keep their premium tier if they already have one, just extend it
+    targetTier = currentTier;
+  }
+  
+  if (activeSubs.length > 0 && activeSubs[0].currentPeriodEnd) {
+    const currentEnd = new Date(activeSubs[0].currentPeriodEnd);
+    if (currentEnd > now) {
+      start = currentEnd;
+      end = new Date(currentEnd.getTime() + days * 24 * 60 * 60 * 1000);
+    }
+  }
 
   await db.insert(subscriptionsTable).values({
     userId,
-    plan: "pro",
+    plan: targetTier,
     status: "active",
     amount: 0,
     currency: "INR",
-    currentPeriodStart: now,
-    currentPeriodEnd: rewardEnds,
+    currentPeriodStart: start,
+    currentPeriodEnd: end,
   });
 
   await db.update(usersTable).set({
     premiumEnabled: true,
-    premiumTier: "pro",
+    premiumTier: targetTier,
     updatedAt: now,
   }).where(eq(usersTable.id, userId));
 }
@@ -92,7 +121,34 @@ export async function completeReferral(referralCode: string | null | undefined, 
         rewardGiven: true,
       }).returning();
 
-  await grantReferralReward(referrer.id);
-  await grantReferralReward(referredUserId);
+  await grantReferralReward(referrer.id, 3);
+  await grantReferralReward(referredUserId, 3);
   return referral;
+}
+
+export async function handleUserReferrerUpgradeReward(userId: string) {
+  try {
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId)).limit(1);
+    if (!user || !user.email) return;
+
+    // Find if this user was referred by someone and the upgrade reward hasn't been given yet
+    const [referral] = await db
+      .select()
+      .from(referralsTable)
+      .where(and(eq(referralsTable.referredEmail, user.email), eq(referralsTable.upgradeRewardGiven, false)))
+      .limit(1);
+
+    if (referral) {
+      // Grant referrer 7 days Pro reward
+      await grantReferralReward(referral.referrerUserId, 7);
+      
+      // Update the referral record so we don't grant it again
+      await db
+        .update(referralsTable)
+        .set({ upgradeRewardGiven: true })
+        .where(eq(referralsTable.id, referral.id));
+    }
+  } catch (err) {
+    // Ignore database errors, don't crash the request
+  }
 }

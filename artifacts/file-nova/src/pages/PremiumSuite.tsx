@@ -20,6 +20,7 @@ import {
   Upload,
   Users,
   WandSparkles,
+  X,
 } from "lucide-react";
 import { FeatureGate } from "@/components/FeatureGate";
 import { useFileStore } from "@/store/useFileStore";
@@ -72,6 +73,14 @@ export default function PremiumSuite() {
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [security, setSecurity] = useState<any>(null);
+  const [showUpgradeBanner, setShowUpgradeBanner] = useState(() => {
+    try {
+      const dismissed = sessionStorage.getItem("filenova-upgrade-banner-dismissed");
+      return dismissed !== "true";
+    } catch {
+      return true;
+    }
+  });
 
   const [, setLocation] = useLocation();
   const { setSelectedSection, setOperation } = useFileStore();
@@ -196,6 +205,25 @@ export default function PremiumSuite() {
           </div>
         </div>
       </header>
+
+      {premiumTier === "free" && showUpgradeBanner && (
+        <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 text-white px-4 py-2 text-center text-xs font-black relative flex items-center justify-center gap-2">
+          <span>⚡ You're on the Free plan · 3 uses/day · Upgrade to Pro for ₹99/month →</span>
+          <Link href="/pricing" className="underline hover:text-amber-100 ml-1">Upgrade Now</Link>
+          <button
+            onClick={() => {
+              setShowUpgradeBanner(false);
+              try {
+                sessionStorage.setItem("filenova-upgrade-banner-dismissed", "true");
+              } catch (_) {}
+            }}
+            className="absolute right-4 hover:opacity-85 cursor-pointer"
+            aria-label="Dismiss banner"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
 
       <main className="mx-auto max-w-7xl px-4 py-6">
         <div className="flex flex-col lg:flex-row gap-5">
@@ -404,6 +432,34 @@ export default function PremiumSuite() {
         </section>
       </div>
     </main>
+
+    {/* Donation Section */}
+    <section className="border-t border-border bg-background px-4 py-12 text-center">
+      <div className="mx-auto max-w-4xl">
+        <div className="mb-6">
+          <h3 className="text-lg font-black text-foreground flex items-center justify-center gap-2">
+            <span>☕ Support FileNova</span>
+          </h3>
+          <p className="text-xs text-muted-foreground mt-1.5 max-w-md mx-auto">
+            FileNova is built to help users access free tools. If our tools saved you time or money, consider buying us a cup of chai!
+          </p>
+        </div>
+        <div className="flex flex-wrap justify-center gap-4">
+          <a
+            href="upi://pay?pa=subhajitgho123-1@oksbi&pn=FileNova&am=10"
+            className="inline-flex items-center gap-2 rounded-xl bg-card border border-border px-5 py-2.5 text-xs font-black hover:border-amber-500/40 hover:bg-amber-500/5 transition cursor-pointer"
+          >
+            <span>☕ Buy Chai (₹10)</span>
+          </a>
+          <a
+            href="upi://pay?pa=subhajitgho123-1@oksbi&pn=FileNova&am=50"
+            className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-black text-primary-foreground hover:opacity-90 shadow-glow cursor-pointer transition"
+          >
+            <span>❤️ Support Project (₹50)</span>
+          </a>
+        </div>
+      </div>
+    </section>
     </div>
   );
 }

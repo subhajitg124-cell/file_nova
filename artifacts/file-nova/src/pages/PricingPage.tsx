@@ -296,6 +296,11 @@ export default function PricingPage() {
   const admin = useAdmin();
   const isTesting = isTestingPeriodActive();
 
+  const [couponCode, setCouponCode] = React.useState("");
+  const [appliedDiscount, setAppliedDiscount] = React.useState(0);
+  const [couponError, setCouponError] = React.useState("");
+  const [couponSuccess, setCouponSuccess] = React.useState("");
+
   const themeClass = admin.settings.eventTheme && admin.settings.eventTheme !== "none"
     ? `event-theme-${admin.settings.eventTheme}`
     : "";
@@ -309,10 +314,13 @@ export default function PricingPage() {
       limit: "Ad-supported access",
       description: "Ideal for occasional, single-document edits and quick runs.",
       features: [
-        "PDF Merge & Compress",
-        "Image Conversion & Resizing",
-        "Watch 2 ads before each use",
-        "Standard temporary storage",
+        "3 uses per day (strictly enforced)",
+        "PDF Merge & Compress only",
+        "Max file size: 3MB",
+        "Must watch 1 ad before each use",
+        "filenova.in text watermark on output",
+        "Temporary storage (deleted after 1h)",
+        "No voice assistant / Aadhaar masking",
       ],
       accent: "text-muted-foreground",
       ctaText: "Current Plan",
@@ -320,16 +328,20 @@ export default function PricingPage() {
     {
       id: "basic" as const,
       title: "Basic Desk",
-      originalPrice: 19,
+      originalPrice: 49,
       period: "month",
       limit: "20 uses / day",
       description: "Built for individual applicants filling regular local job forms.",
       features: [
-        "Absolutely ad-free experience",
-        "Up to 20 operations per day",
+        "20 uses per day",
+        "All basic tools unlocked",
+        "Max file size: 15MB",
+        "Absolutely ad-free & no watermarks",
         "Voice Assistant (EN/HI/BN)",
         "Aadhaar Masking tools",
         "Expiry share links",
+        "24-hour storage retention",
+        "Standard email support",
       ],
       accent: "text-emerald-500",
       ctaText: "Upgrade Basic",
@@ -337,18 +349,22 @@ export default function PricingPage() {
     {
       id: "pro" as const,
       title: "Pro Desk",
-      originalPrice: 39,
+      originalPrice: 99,
       period: "month",
       limit: "100 uses / day",
       description: "Our best option for high-volume document creators and coordinators.",
       isPopular: true,
       features: [
-        "Absolutely ad-free experience",
-        "Up to 100 operations per day",
-        "All Basic features included",
+        "100 uses per day",
+        "All premium & basic tools unlocked",
+        "Max file size: 50MB",
+        "Absolutely ad-free & no watermarks",
         "Exam Toolkit template presets",
         "QR validation (Scan & Gen)",
-        "Priority download speeds",
+        "Priority download speeds & bulk (5)",
+        "30-file processing history",
+        "7 days storage retention",
+        "Priority support",
       ],
       accent: "text-sky-500",
       ctaText: "Go Pro Desk",
@@ -356,22 +372,80 @@ export default function PricingPage() {
     {
       id: "elite" as const,
       title: "Elite Console",
-      originalPrice: 59,
+      originalPrice: 199,
       period: "month",
       limit: "Unlimited usage",
       description: "Designed for Cyber Cafe owners and student operators handling bulk applications.",
       features: [
-        "Absolutely ad-free experience",
-        "Infinite operations per day",
-        "All Pro features included",
-        "Cyber Cafe operator mode",
-        "Bulk CSV student imports",
-        "Dedicated processing lanes",
+        "Unlimited usage",
+        "Max file size: 100MB",
+        "Absolutely ad-free & no watermarks",
+        "Cyber Cafe Operator mode",
+        "Bulk CSV student imports (20 files)",
+        "Dedicated priority processing lanes",
+        "API access keys",
+        "30 days storage retention",
+        "WhatsApp support & 5 sub-accounts",
       ],
       accent: "text-violet-500",
       ctaText: "Acquire Elite",
     },
   ];
+
+  const getDynamicCouponDiscount = (planId: PremiumTier, codeStr: string): number => {
+    const code = codeStr.toUpperCase().trim();
+    if (code === "STUDENT20") return 20;
+    if (code === "CYBER50" && planId === "elite") return 50;
+    if (code === "FIRST30") return 30;
+    return 0;
+  };
+
+  const handleValidateCoupon = async () => {
+    const cleanCode = couponCode.trim().toUpperCase();
+    if (!cleanCode) {
+      setCouponError("Please enter a coupon code.");
+      setCouponSuccess("");
+      setAppliedDiscount(0);
+      return;
+    }
+    
+    if (cleanCode !== "STUDENT20" && cleanCode !== "CYBER50" && cleanCode !== "FIRST30") {
+      setCouponError("Invalid coupon code.");
+      setCouponSuccess("");
+      setAppliedDiscount(0);
+      return;
+    }
+
+    if (!user) {
+      toast.error("Please sign in first to validate a coupon.");
+      setAuthModalOpen(true);
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/v1/premium/subscription/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ coupon: cleanCode, plan: "pro" }),
+      });
+      const data = await res.json();
+      
+      if (res.ok && data.valid) {
+        setAppliedDiscount(data.discountPercentage);
+        setCouponSuccess(`Coupon '${cleanCode}' applied successfully!`);
+        setCouponError("");
+        toast.success(`Coupon applied! ${data.discountPercentage}% discount active.`);
+      } else {
+        setAppliedDiscount(0);
+        setCouponError(data.message || "Invalid coupon code.");
+        setCouponSuccess("");
+      }
+    } catch (err) {
+      setAppliedDiscount(0);
+      setCouponError("Failed to validate coupon code.");
+      setCouponSuccess("");
+    }
+  };
 
   const handleSelectPlan = (plan: PremiumTier) => {
     if (isTesting) {
@@ -391,7 +465,11 @@ export default function PricingPage() {
       }
       return;
     }
-    startCheckout(plan);
+
+    const couponDiscount = getDynamicCouponDiscount(plan, couponCode);
+    const activeCoupon = couponDiscount > 0 ? couponCode.trim().toUpperCase() : undefined;
+    
+    startCheckout(plan, activeCoupon);
   };
 
   const getPlanPrice = (planId: PremiumTier, originalPrice: number) => {
@@ -406,8 +484,18 @@ export default function PricingPage() {
       );
     }
 
-    if (activeOffer && activeOffer.discountPercentage > 0) {
-      const discounted = Math.round(originalPrice * (1 - activeOffer.discountPercentage / 100));
+    let couponDiscount = 0;
+    if (appliedDiscount > 0) {
+      couponDiscount = getDynamicCouponDiscount(planId, couponCode);
+    }
+
+    let discountPercentage = couponDiscount;
+    if (discountPercentage === 0 && activeOffer && activeOffer.discountPercentage > 0) {
+      discountPercentage = activeOffer.discountPercentage;
+    }
+
+    if (discountPercentage > 0 && discountPercentage <= 100) {
+      const discounted = Math.round(originalPrice * (1 - discountPercentage / 100));
       return (
         <span className="flex items-baseline gap-1.5">
           <span className="text-3xl font-black text-foreground">₹{discounted}</span>
@@ -428,8 +516,19 @@ export default function PricingPage() {
 
   const getPayableAmount = (planId: PremiumTier, originalPrice: number) => {
     if (planId === "free") return 0;
-    if (activeOffer && activeOffer.discountPercentage > 0) {
-      return Math.round(originalPrice * (1 - activeOffer.discountPercentage / 100));
+    
+    let couponDiscount = 0;
+    if (appliedDiscount > 0) {
+      couponDiscount = getDynamicCouponDiscount(planId, couponCode);
+    }
+
+    let discountPercentage = couponDiscount;
+    if (discountPercentage === 0 && activeOffer && activeOffer.discountPercentage > 0) {
+      discountPercentage = activeOffer.discountPercentage;
+    }
+
+    if (discountPercentage > 0 && discountPercentage <= 100) {
+      return Math.round(originalPrice * (1 - discountPercentage / 100));
     }
     return originalPrice;
   };
@@ -480,6 +579,28 @@ export default function PricingPage() {
             Acquire unlimited bandwidth, premium tools, and voice assistance today.
             Start editing securely with no installation. Cancel anytime with a single click.
           </p>
+        </div>
+
+        {/* Coupon Input Box */}
+        <div className="max-w-md mx-auto bg-card/60 backdrop-blur-md rounded-2xl border border-border p-4 shadow-sm flex flex-col gap-2.5">
+          <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">Have a coupon code?</label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="e.g. STUDENT20, CYBER50, FIRST30"
+              value={couponCode}
+              onChange={(e) => setCouponCode(e.target.value)}
+              className="flex-1 rounded-xl border border-border bg-background px-3 py-2 text-sm font-semibold outline-none focus:border-primary uppercase"
+            />
+            <button
+              onClick={handleValidateCoupon}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-xl text-sm font-bold shadow-glow hover:opacity-90 transition cursor-pointer"
+            >
+              Apply
+            </button>
+          </div>
+          {couponError && <p className="text-xs font-bold text-red-500">{couponError}</p>}
+          {couponSuccess && <p className="text-xs font-bold text-emerald-500">{couponSuccess}</p>}
         </div>
 
         {/* Plan Cards Grid */}

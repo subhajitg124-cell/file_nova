@@ -48,7 +48,7 @@ export default function ReferralPage() {
   }, [user]);
 
   const referralLink = useMemo(() => referralCode ? `https://filenova.in?ref=${referralCode}` : "", [referralCode]);
-  const whatsappMessage = `Try FileNova - Free PDF tools for Indians! Use my link: ${referralLink}`;
+  const whatsappMessage = `Try FileNova - Free PDF tools for Indians! Sign up with my link and we both get 3 days of Pro free: ${referralLink}`;
 
   const copyLink = async () => {
     if (!referralLink) return;
@@ -76,7 +76,7 @@ export default function ReferralPage() {
           </div>
           <h1 className="mt-4 text-3xl font-black tracking-tight md:text-4xl">Invite friends to FileNova</h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-            Invite a friend, they sign up, you get 7 days Pro free, they get 7 days Pro free.
+            Invite a friend: when they sign up, both of you get 3 days of Pro Desk free. When they upgrade to a paid plan, you get an additional 7 days of Pro Desk free.
           </p>
 
           {!user ? (
@@ -127,7 +127,10 @@ export default function ReferralPage() {
 
           <div className="mt-6 rounded-2xl border border-primary/20 bg-primary/5 p-5">
             <p className="text-sm font-black text-foreground">Reward rules</p>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">Invite a friend, they sign up, you get 7 days Pro free, they get 7 days Pro free.</p>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              1. Friend signs up &rarr; Both get 3 days Pro free. <br />
+              2. Friend upgrades to any paid plan &rarr; You get 7 days Pro free.
+            </p>
           </div>
         </div>
       </section>

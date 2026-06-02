@@ -2,14 +2,15 @@ import { Router, type Request, type Response } from "express";
 import crypto from "node:crypto";
 import { z } from "zod";
 import Razorpay from "razorpay";
-import { db, usersTable, subscriptionsTable } from "@workspace/db";
-import { eq, desc } from "drizzle-orm";
+import { db, usersTable, subscriptionsTable, processingJobsTable } from "@workspace/db";
+import { eq, desc, count } from "drizzle-orm";
 import { logger } from "../lib/logger";
 import { adminAuth } from "../middlewares/adminAuth";
 import { authMiddleware, requireAuth, type AuthRequest } from "../middlewares/auth";
 import fs from "node:fs";
 import path from "node:path";
 import { getISTDate } from "../middlewares/limits";
+import { handleUserReferrerUpgradeReward } from "../services/referralService";
 
 const router = Router();
 
@@ -27,10 +28,30 @@ const getRazorpayInstance = () => {
 // Map plans to pricing
 const PLAN_PRICES: Record<string, number> = {
   free: 0,
-  basic: 1900, // ₹19.00 in paise
-  pro: 3900,  // ₹39.00 in paise
-  elite: 5900, // ₹59.00 in paise
+  basic: 4900, // ₹49.00 in paise
+  pro: 9900,  // ₹99.00 in paise
+  elite: 19900, // ₹199.00 in paise
 };
+
+// Helper to calculate coupon discount
+function getCouponDiscount(couponCode: string | undefined, plan: string): number {
+  if (!couponCode) return 0;
+  const code = couponCode.toUpperCase().trim();
+  if (code === "STUDENT20") {
+    return 20; // 20% off any plan
+  }
+  if (code === "CYBER50" && plan === "elite") {
+    return 50; // 50% off Elite plan only
+  }
+  if (code === "FIRST30") {
+    return 30; // 30% off any plan
+  }
+  return 0;
+}
+
+import { fileURLToPath } from "node:url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const SETTINGS_FILE = path.join(__dirname, "../../../settings.json");
 
@@ -110,6 +131,19 @@ router.post("/settings", adminAuth, (req: Request, res: Response) => {
 // ── 1. GET /status — Get current subscription status ──────────────────────────
 router.get("/status", authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
+    // Count jobs inside processingJobsTable
+    let usersServedTodayVal = 2847;
+    try {
+      const [jobsCount] = await db
+        .select({ value: count() })
+        .from(processingJobsTable);
+      if (jobsCount && jobsCount.value) {
+        usersServedTodayVal += Number(jobsCount.value);
+      }
+    } catch (e) {
+      logger.error("Failed to count jobs for usersServedToday");
+    }
+
     const user = req.user;
     if (!user) {
       const settings = getSettings();
@@ -126,6 +160,7 @@ router.get("/status", authMiddleware, async (req: AuthRequest, res: Response) =>
         usageToday: 0,
         limit: 3,
         subscription: null,
+        usersServedToday: usersServedTodayVal,
       });
       return;
     }
@@ -208,6 +243,7 @@ router.get("/status", authMiddleware, async (req: AuthRequest, res: Response) =>
         status: activeSub.status,
         expiresAt: activeSub.currentPeriodEnd,
       } : null,
+      usersServedToday: usersServedTodayVal,
     });
   } catch (err: any) {
     res.status(500).json({ error: err.message || "Failed to fetch subscription status" });
@@ -217,14 +253,20 @@ router.get("/status", authMiddleware, async (req: AuthRequest, res: Response) =>
 // ── 2. POST /order — Create Razorpay Order ────────────────────────────────────
 router.post("/order", authMiddleware, requireAuth, async (req: AuthRequest, res: Response) => {
   try {
-    const { plan } = z.object({ 
+    const { plan, coupon } = z.object({ 
       plan: z.enum(["basic", "pro", "elite"]),
+      coupon: z.string().optional(),
     }).parse(req.body);
 
-    const settings = getSettings();
     let discountPercentage = 0;
-    if (settings.activeOffer && settings.discountPercentage > 0) {
-      discountPercentage = settings.discountPercentage;
+    if (coupon) {
+      discountPercentage = getCouponDiscount(coupon, plan);
+    }
+    if (discountPercentage === 0) {
+      const settings = getSettings();
+      if (settings.activeOffer && settings.discountPercentage > 0) {
+        discountPercentage = settings.discountPercentage;
+      }
     }
 
     let amount = PLAN_PRICES[plan];
@@ -246,6 +288,7 @@ router.post("/order", authMiddleware, requireAuth, async (req: AuthRequest, res:
           notes: {
             userId: user.id,
             plan,
+            coupon: coupon || "",
           },
         });
         orderId = order.id;
@@ -278,6 +321,35 @@ router.post("/order", authMiddleware, requireAuth, async (req: AuthRequest, res:
     });
   } catch (err: any) {
     res.status(500).json({ error: err.message || "Failed to create order" });
+  }
+});
+
+// ── 2b. POST /coupons/validate — Validate Coupon Code ──────────────────────────
+router.post("/coupons/validate", authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const { coupon, plan } = z.object({
+      coupon: z.string(),
+      plan: z.enum(["basic", "pro", "elite"]),
+    }).parse(req.body);
+
+    const discount = getCouponDiscount(coupon, plan);
+    if (discount > 0) {
+      res.json({
+        success: true,
+        valid: true,
+        discountPercentage: discount,
+        message: `${discount}% discount applied!`,
+      });
+    } else {
+      res.json({
+        success: true,
+        valid: false,
+        discountPercentage: 0,
+        message: "Invalid coupon code or not applicable to this plan.",
+      });
+    }
+  } catch (err: any) {
+    res.status(400).json({ success: false, error: err.message || "Invalid request body" });
   }
 });
 
@@ -334,6 +406,9 @@ router.post("/verify", authMiddleware, requireAuth, async (req: AuthRequest, res
             updatedAt: new Date(),
           })
           .where(eq(usersTable.id, user.id));
+
+        // Trigger referrer upgrade rewards check
+        await handleUserReferrerUpgradeReward(user.id);
 
       } catch (e) {
         logger.error({ err: e }, "DB error in verification handler");
@@ -489,6 +564,9 @@ router.post("/webhook", async (req: Request, res: Response) => {
               updatedAt: new Date(),
             })
             .where(eq(usersTable.id, sub.userId));
+
+          // Trigger referrer upgrade rewards check
+          await handleUserReferrerUpgradeReward(sub.userId);
 
           logger.info({ orderId, userId: sub.userId }, "Successfully activated subscription via webhook");
         }

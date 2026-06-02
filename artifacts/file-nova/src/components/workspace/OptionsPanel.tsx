@@ -7,11 +7,13 @@ import {
   Scissors, FileArchive, Image, ImageIcon, ArrowLeftRight, FileCode,
   Globe, Lock, Unlock, RotateCw, Trash2,
   FlipHorizontal, PenTool, FlipVertical, Eraser,
-  Plus, Minus, ChevronDown, ChevronUp, Camera, X,
+  Plus, Minus, ChevronDown, ChevronUp, Camera, X, ChevronRight,
   ShieldCheck, PenLine, BookOpen, ScanLine, GitCompareArrows,
   BrainCircuit, Languages, FileSpreadsheet, FileCheck2, Settings2
 } from 'lucide-react';
 import { useFileStore } from '@/store/useFileStore';
+import { useSubscription } from '@/hooks/useSubscription';
+import { Link } from 'wouter';
 import { apiClient, apiMock } from '@/lib/api';
 import {
   runClientSidePdfMerge, runClientSidePdfCompress, runClientSidePdfSplit,
@@ -411,6 +413,33 @@ export const OptionsPanel: React.FC = () => {
   const admin = useAdmin();
   const editingDisabled = !admin.settings.editingEnabled;
 
+  const { premiumTier, shouldShowAdGate, incrementAdWatch, incrementFeatureUse } = useSubscription();
+  const [adModalOpen, setAdModalOpen] = useState(false);
+  const [countdown, setCountdown] = useState(5);
+
+  useEffect(() => {
+    let timer: any;
+    if (adModalOpen && countdown > 0) {
+      timer = setTimeout(() => setCountdown(prev => prev - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [adModalOpen, countdown]);
+
+  const handleClickProcess = () => {
+    if (shouldShowAdGate()) {
+      setAdModalOpen(true);
+      setCountdown(5);
+    } else {
+      handleStartProcess();
+    }
+  };
+
+  const handleUnlockAndProcess = () => {
+    incrementAdWatch();
+    setAdModalOpen(false);
+    handleStartProcess();
+  };
+
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [naturalDims, setNaturalDims] = useState<{ width: number; height: number } | null>(null);
   const [annotations, setAnnotations] = useState<Array<PdfAnnotation & { id: string }>>([
@@ -545,6 +574,7 @@ export const OptionsPanel: React.FC = () => {
               setDownloadUrl(apiClient.getDownloadUrl(jobId));
               if (data.metadata) setSavings({ originalSize: data.metadata.input_size_bytes || 0, newSize: data.metadata.output_size_bytes || 0, percent: data.metadata.savings_percent || 0 });
               setProcessing(false);
+              incrementFeatureUse();
             } else if (data.status === 'failed') { setError(data.error || 'Backend failed.'); setProcessing(false); }
             else setTimeout(poll, 1500);
           } catch (e: any) { setError(e.message); setProcessing(false); }
@@ -553,12 +583,30 @@ export const OptionsPanel: React.FC = () => {
       }
 
       const prog = (p: number) => setProgress(p);
-      const done = (blob: Blob, origSize?: number) => {
+      const done = async (blob: Blob, origSize?: number) => {
+        let finalBlob = blob;
+        if (finalBlob.type === 'application/pdf' && premiumTier === 'free') {
+          try {
+            const file = new File([finalBlob], 'temp.pdf', { type: 'application/pdf' });
+            const watermarkedBlob = await runClientSidePdfWatermark(file, 'filenova.in', {
+              fontSize: 12,
+              opacity: 0.3,
+              rotation: 0,
+              position: 'bottom-right',
+              colorHex: '#888888',
+            });
+            finalBlob = watermarkedBlob;
+          } catch (err) {
+            console.error('Watermark injection failed', err);
+          }
+        }
+
         const orig = origSize || rawFiles.reduce((a, f) => a + f.size, 0);
         setProgress(100);
-        setDownloadUrl(URL.createObjectURL(blob));
-        setSavings({ originalSize: orig, newSize: blob.size, percent: Math.max(0, Math.round(((orig - blob.size) / orig) * 100)) });
+        setDownloadUrl(URL.createObjectURL(finalBlob));
+        setSavings({ originalSize: orig, newSize: finalBlob.size, percent: Math.max(0, Math.round(((orig - finalBlob.size) / orig) * 100)) });
         setProcessing(false);
+        incrementFeatureUse();
       };
 
       // ── PDF ────────────────────────────────────────────────────────────
@@ -1908,7 +1956,7 @@ export const OptionsPanel: React.FC = () => {
           </div>
         )}
         <div className="px-6 pb-6">
-          <button onClick={handleStartProcess} disabled={isProcessing || editingDisabled}
+          <button onClick={handleClickProcess} disabled={isProcessing || editingDisabled}
             className="w-full relative overflow-hidden flex items-center justify-center gap-2.5 py-3.5 rounded-xl font-bold text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-60 disabled:cursor-not-allowed"
             style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: 'white' }}>
             <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full hover:translate-x-full transition-transform duration-700" />
@@ -1919,6 +1967,63 @@ export const OptionsPanel: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* 5-Second Ad Countdown Modal */}
+      {adModalOpen && (
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-[110] p-4 animate-fade-in">
+          <div className="bg-card border border-border rounded-3xl p-6 shadow-premium max-w-md w-full text-center space-y-6 relative animate-scale-in">
+            <div>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-xs font-black text-primary uppercase tracking-wider animate-pulse">
+                Sponsored Ad Placeholder
+              </span>
+              <h3 className="text-lg font-black text-foreground mt-4">Unlocking Tool in {countdown}s</h3>
+              <p className="text-xs text-muted-foreground mt-1">Please wait while the sponsor message loads.</p>
+            </div>
+
+            {/* Fake Hostinger Ad Card */}
+            <a 
+              href="https://www.hostinger.in" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="block rounded-2xl border border-indigo-500/25 bg-indigo-500/5 hover:bg-indigo-500/10 p-5 text-left transition-all duration-300 group"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-black uppercase bg-indigo-500 text-white px-2 py-0.5 rounded">Ad</span>
+                <span className="text-[11px] font-bold text-indigo-400 group-hover:underline">hostinger.in</span>
+              </div>
+              <h4 className="text-sm font-black text-foreground mt-2">Premium Web Hosting — ₹149/mo</h4>
+              <p className="text-xs text-muted-foreground mt-1 leading-normal">
+                Deploy your websites in seconds! Includes a free domain, free SSL certificates, and 24/7 client support. Trusted by millions.
+              </p>
+              <div className="mt-4 text-xs font-bold text-indigo-400 flex items-center gap-1">
+                Learn More <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+              </div>
+            </a>
+
+            {/* Upgrade CTA link */}
+            <div className="bg-muted/40 border border-border rounded-2xl p-3 text-xs leading-relaxed text-muted-foreground">
+              Tired of waiting for ads? <br />
+              <Link href="/pricing" onClick={() => setAdModalOpen(false)} className="font-bold text-primary hover:underline inline-flex items-center gap-0.5 mt-1">
+                Upgrade to Pro Desk for ₹99/month <ChevronRight className="h-3 w-3" />
+              </Link>
+            </div>
+
+            {/* Unlock Button */}
+            <button
+              onClick={handleUnlockAndProcess}
+              disabled={countdown > 0}
+              className={`w-full py-3 rounded-xl text-sm font-black transition cursor-pointer ${
+                countdown > 0
+                  ? "bg-muted border border-border text-muted-foreground cursor-not-allowed opacity-60"
+                  : "bg-primary text-primary-foreground hover:opacity-90 shadow-glow"
+              }`}
+            >
+              {countdown > 0 ? `Please wait... (${countdown}s)` : "Unlock & Process"}
+            </button>
+          </div>
+        </div>
+      )}
+
     </motion.div>
   );
 };

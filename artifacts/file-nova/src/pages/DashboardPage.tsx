@@ -14,7 +14,8 @@ import {
   ArrowUpRight,
   Loader2,
   AlertCircle,
-  Gift
+  Gift,
+  LayoutDashboard
 } from "lucide-react";
 import { useSubscription, type PremiumTier } from "@/hooks/useSubscription";
 
@@ -375,6 +376,27 @@ export default function DashboardPage() {
               </Link>
             ))}
           </div>
+        </section>
+
+        {/* History Tab */}
+        <section className="rounded-3xl border border-border bg-card p-6 shadow-premium space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-black flex items-center gap-2">
+              <History className="h-5 w-5 text-violet-500" />
+              File Processing History
+            </h2>
+            <Link href="/history" className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline">
+              <LayoutDashboard className="h-3.5 w-3.5" />
+              View Full History
+            </Link>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Track all your processed files. Free users can see their last 5 files; Pro users get unlimited history.
+          </p>
+          <Link href="/history" className="inline-flex items-center gap-2 rounded-lg border border-border bg-background/50 px-4 py-2 text-sm font-bold text-foreground hover:bg-muted transition">
+            <History className="h-4 w-4" />
+            View Your History
+          </Link>
         </section>
       </main>
     </div>

@@ -135,10 +135,18 @@ export default function Home() {
     addRawFiles,
     addFiles,
   } = useFileStore();
-  const { premiumEnabled, premiumTier } = useSubscription();
+  const { premiumEnabled, premiumTier, usersServedToday } = useSubscription();
   const [voiceOpen, setVoiceOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [botOpen, setBotOpen] = useState(false);
+  const [showUpgradeBanner, setShowUpgradeBanner] = useState(() => {
+    try {
+      const dismissed = sessionStorage.getItem("filenova-upgrade-banner-dismissed");
+      return dismissed !== "true";
+    } catch {
+      return true;
+    }
+  });
   const [showDevNotice, setShowDevNotice] = useState(() => {
     try {
       const dismissed = localStorage.getItem("filenova-dev-notice-dismissed");
@@ -494,6 +502,16 @@ export default function Home() {
   };
 
   const openQuickAction = (category: string, action: string) => {
+    if (premiumTier === "free" && !(category === "pdf" && (action === "merge" || action === "compress"))) {
+      toast.error("Upgrade to Basic or Pro to unlock this premium tool!", {
+        action: {
+          label: "Upgrade",
+          onClick: () => setLocation("/pricing")
+        }
+      });
+      setLocation("/pricing");
+      return;
+    }
     clearStore();
     setSelectedSection(category as "pdf" | "image" | "office" | "video");
     if (action === "compress") {
@@ -611,6 +629,11 @@ export default function Home() {
                   <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{t.logoSubtitle}</p>
                 </div>
               </button>
+              <div className="hidden lg:block border-l border-border pl-3 ml-1">
+                <span className="inline-flex items-center rounded-full bg-blue-550/10 border border-blue-500/20 px-2.5 py-0.5 text-[10px] font-black text-blue-500">
+                  Trusted by 10,000+ users
+                </span>
+              </div>
             </div>
           )}
 
@@ -842,6 +865,25 @@ export default function Home() {
         )}
       </header>
 
+      {premiumTier === "free" && showUpgradeBanner && (
+        <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 text-white px-4 py-2 text-center text-xs font-black relative flex items-center justify-center gap-2">
+          <span>⚡ You're on the Free plan · 3 uses/day · Upgrade to Pro for ₹99/month →</span>
+          <Link href="/pricing" className="underline hover:text-amber-100 ml-1">Upgrade Now</Link>
+          <button
+            onClick={() => {
+              setShowUpgradeBanner(false);
+              try {
+                sessionStorage.setItem("filenova-upgrade-banner-dismissed", "true");
+              } catch (_) {}
+            }}
+            className="absolute right-4 hover:opacity-85 cursor-pointer"
+            aria-label="Dismiss banner"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+
       {!backendHealthy && (
         <div className="border-b border-amber-500/20 bg-amber-500/10 px-4 py-2 text-center text-xs font-bold text-amber-500">
           <WifiOff className="mr-2 inline h-4 w-4" />
@@ -929,9 +971,15 @@ export default function Home() {
             <section className="relative overflow-hidden rounded-3xl border border-border/80 bg-card/95 glass shadow-premium p-8 sm:p-12 card-shine animated-lines-bg">
               <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] items-center">
                 <div className="space-y-6 text-center lg:text-left">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-soft bg-secondary px-3 py-1.5 text-xs font-bold text-primary mx-auto lg:mx-0 animate-pulse">
-                    <ShieldCheck className="h-4 w-4" />
-                    {t.builtFor}
+                  <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2.5">
+                    <div className="inline-flex items-center gap-2 rounded-full border border-soft bg-secondary px-3 py-1.5 text-xs font-bold text-primary animate-pulse">
+                      <ShieldCheck className="h-4 w-4" />
+                      {t.builtFor}
+                    </div>
+                    <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-xs font-bold text-emerald-500">
+                      <span className="h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
+                      <span>🟢 {usersServedToday.toLocaleString()} users served today</span>
+                    </div>
                   </div>
                   <h1 className="text-4xl font-black leading-tight sm:text-5xl md:text-6xl">
                     <span className="gradient-text">{t.fixMode}</span>
@@ -1927,6 +1975,57 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Testimonials Section */}
+      <section className="border-t border-border bg-card/40 px-4 py-16">
+        <div className="mx-auto max-w-7xl">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <div className="inline-flex items-center gap-2 rounded-full border border-soft bg-secondary px-3 py-1.5 text-xs font-bold text-primary mb-3">
+              <Sparkles className="h-4 w-4" />
+              User Reviews
+            </div>
+            <h2 className="text-3xl font-black text-foreground">What our users say</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Loved by thousands of students, CSC operators, and professionals across India.</p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {[
+              {
+                name: "Rahul M., CSC Operator, Bihar",
+                text: "FileNova saves me 2 hours daily. Best tool for Aadhaar masking.",
+                stars: 5
+              },
+              {
+                name: "Priya S., Student, Delhi",
+                text: "Finally a free PDF tool that actually works on mobile. No installation needed!",
+                stars: 5
+              },
+              {
+                name: "Amit K., Teacher, Maharashtra",
+                text: "Use it daily for exam papers. Pro plan is worth every rupee.",
+                stars: 5
+              },
+              {
+                name: "Sneha R., HR Executive, Bangalore",
+                text: "Aadhaar masking feature is a lifesaver for data privacy compliance.",
+                stars: 5
+              }
+            ].map((review, idx) => (
+              <div key={idx} className="rounded-2xl border border-border bg-card p-6 shadow-premium relative flex flex-col justify-between hover:border-primary/45 hover:shadow-panel transition duration-300">
+                <div>
+                  <div className="flex gap-1 mb-4">
+                    {[...Array(review.stars)].map((_, i) => (
+                      <span key={i} className="text-amber-500 text-lg leading-none">★</span>
+                    ))}
+                  </div>
+                  <p className="text-xs leading-relaxed text-muted-foreground italic mb-6">"{review.text}"</p>
+                </div>
+                <p className="text-xs font-black text-foreground">{review.name}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ✅ SEO: Keyword section — visible to search engines, styled subtly for users */}
       <section aria-label="FileNova Tool Directory" className="border-t border-border bg-muted/30 px-4 py-10">
         <div className="mx-auto max-w-7xl">
@@ -1960,6 +2059,34 @@ export default function Home() {
             <span>&copy; {new Date().getFullYear()} FileNova. All rights reserved.</span>
             <span className="hidden sm:inline text-muted-foreground/30">|</span>
             <span>Testing & feedback: <a href="mailto:pixelsubhajit@gmail.com" className="underline font-bold text-foreground">pixelsubhajit@gmail.com</a></span>
+          </div>
+        </div>
+      </section>
+
+      {/* Donation Section */}
+      <section className="border-t border-border bg-background px-4 py-12 text-center">
+        <div className="mx-auto max-w-4xl">
+          <div className="mb-6">
+            <h3 className="text-lg font-black text-foreground flex items-center justify-center gap-2">
+              <span>☕ Support FileNova</span>
+            </h3>
+            <p className="text-xs text-muted-foreground mt-1.5 max-w-md mx-auto">
+              FileNova is built to help users access free tools. If our tools saved you time or money, consider buying us a cup of chai!
+            </p>
+          </div>
+          <div className="flex flex-wrap justify-center gap-4">
+            <a
+              href="upi://pay?pa=subhajitgho123-1@oksbi&pn=FileNova&am=10"
+              className="inline-flex items-center gap-2 rounded-xl bg-card border border-border px-5 py-2.5 text-xs font-black hover:border-amber-500/40 hover:bg-amber-500/5 transition cursor-pointer"
+            >
+              <span>☕ Buy Chai (₹10)</span>
+            </a>
+            <a
+              href="upi://pay?pa=subhajitgho123-1@oksbi&pn=FileNova&am=50"
+              className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-black text-primary-foreground hover:opacity-90 shadow-glow cursor-pointer transition"
+            >
+              <span>❤️ Support Project (₹50)</span>
+            </a>
           </div>
         </div>
       </section>
