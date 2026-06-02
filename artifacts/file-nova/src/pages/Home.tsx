@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   AlertTriangle,
   ArrowRight,
+  BookOpen,
   Bot,
   CheckCircle2,
   ChevronDown,
@@ -49,6 +50,7 @@ import { FileNovaAssistant } from "@/components/FileNovaAssistant";
 import { AdSenseUnit } from "@/components/AdSenseUnit";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
 import { useSubscription } from "@/hooks/useSubscription";
+import { blogPosts } from "@/data/blogPosts";
 const VoiceAssistant = React.lazy(() => import("@/components/VoiceAssistant").then((mod) => ({ default: mod.VoiceAssistant })));
 const QuickShareButton = React.lazy(() => import("@/components/WhatsAppShare").then((mod) => ({ default: mod.QuickShareButton })));
 const EditingWindow = React.lazy(() => import("@/components/EditingWindow").then((mod) => ({ default: mod.EditingWindow })));
@@ -731,6 +733,10 @@ export default function Home() {
             </div>
 
             <div className="hidden md:flex items-center gap-2">
+              <Link href="/blog" className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-bold text-muted-foreground hover:text-foreground">
+                <BookOpen className="h-4 w-4 text-sky-500" />
+                <span>Blog</span>
+              </Link>
               <Link href="/pricing" className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-bold text-muted-foreground hover:text-foreground">
                 <Zap className="h-4 w-4 text-amber-500" />
                 <span>Pricing</span>
@@ -809,6 +815,10 @@ export default function Home() {
               <Link href="/premium" className="inline-flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-bold text-primary">
                 <Sparkles className="h-4 w-4" />
                 <span className="font-black">Premium</span>
+              </Link>
+              <Link href="/blog" className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-bold text-muted-foreground hover:text-foreground">
+                <BookOpen className="h-4 w-4 text-sky-500" />
+                <span>Blog</span>
               </Link>
               <Link href="/pricing" className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-bold text-muted-foreground hover:text-foreground">
                 <Zap className="h-4 w-4 text-amber-500" />
@@ -1871,6 +1881,40 @@ export default function Home() {
       <div className="mx-auto max-w-7xl px-4 py-4">
         <AdSenseUnit type="multiplex" />
       </div>
+
+      <section className="border-t border-border bg-background px-4 py-12">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-sky-500/20 bg-sky-500/10 px-3 py-1 text-xs font-black text-sky-500">
+                <BookOpen className="h-3.5 w-3.5" />
+                FileNova Blog
+              </div>
+              <h2 className="mt-3 text-2xl font-black tracking-tight text-foreground">Latest PDF and document guides</h2>
+              <p className="mt-2 max-w-2xl text-sm text-muted-foreground">Simple tutorials for compressing, merging, converting, and preparing files for Indian portals.</p>
+            </div>
+            <Link href="/blog" className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-xs font-black text-muted-foreground hover:text-foreground">
+              View all guides
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            {blogPosts.slice(-3).reverse().map((post) => (
+              <Link key={post.slug} href={`/blog/${post.slug}`} className="group overflow-hidden rounded-lg border border-border bg-card transition hover:border-primary/50 hover:shadow-panel">
+                <div className="aspect-[16/9] overflow-hidden bg-muted">
+                  <img src={post.thumbnail} alt="" className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                </div>
+                <div className="p-4">
+                  <p className="text-[11px] font-bold text-muted-foreground">{post.readTime}</p>
+                  <h3 className="mt-2 text-base font-black leading-tight text-foreground group-hover:text-primary">{post.title}</h3>
+                  <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">{post.description}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* ✅ SEO: Keyword section — visible to search engines, styled subtly for users */}
       <section aria-label="FileNova Tool Directory" className="border-t border-border bg-muted/30 px-4 py-10">

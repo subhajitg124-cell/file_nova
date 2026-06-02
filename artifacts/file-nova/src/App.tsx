@@ -11,6 +11,8 @@ import PricingPage from "@/pages/PricingPage";
 import NotFound from "@/pages/not-found";
 import LoginPage from "@/pages/LoginPage";
 import DashboardPage from "@/pages/DashboardPage";
+import BlogPage from "@/pages/BlogPage";
+import BlogPostPage from "@/pages/BlogPostPage";
 import { LanguageProvider } from "@/lib/i18n";
 import { AdminProvider } from "@/lib/admin";
 import { FileExpiryBar } from "@/components/FileExpiryBar";
@@ -82,6 +84,8 @@ function Router() {
       <Route path="/nova-login" component={AdminLogin} />
       <Route path="/login" component={LoginPage} />
       <Route path="/dashboard" component={DashboardPage} />
+      <Route path="/blog" component={BlogPage} />
+      <Route path="/blog/:slug" component={BlogPostPage} />
       <Route component={NotFound} />
     </Switch>
   );
