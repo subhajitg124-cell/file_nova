@@ -16,7 +16,7 @@ const app: Express = express();
 app.use(helmet());
 
 // Dynamic CORS configuration (avoiding wildcard '*')
-const allowedOriginRegex = /^(https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?|https?:\/\/.*\.replit\.(app|dev|co))$/;
+const allowedOriginRegex = /^(https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?|https?:\/\/.*\.replit\.(app|dev|co)|https?:\/\/(.*\.)?filenova\.in)$/;
 
 app.use(
   cors({
@@ -28,6 +28,8 @@ app.use(
       logger.warn({ origin }, "CORS: blocked request from disallowed origin");
       return callback(new Error("Not allowed by CORS policy"));
     },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );

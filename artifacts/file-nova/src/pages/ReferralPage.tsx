@@ -12,7 +12,7 @@ interface ReferralStats {
 }
 
 const getAuthHeaders = (): Record<string, string> => {
-  const token = localStorage.getItem("filenova_session_token");
+  const token = localStorage.getItem("filenova_token");
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 

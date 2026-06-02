@@ -36,7 +36,7 @@ interface AuthState {
 }
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
-const SESSION_TOKEN_KEY = 'filenova_session_token';
+const SESSION_TOKEN_KEY = 'filenova_token';
 
 const getAuthHeaders = (): Record<string, string> => {
   const token = localStorage.getItem(SESSION_TOKEN_KEY);

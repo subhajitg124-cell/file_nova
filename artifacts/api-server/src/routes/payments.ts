@@ -2,7 +2,7 @@ import { Router, type NextFunction, type Request, type Response } from "express"
 import crypto from "node:crypto";
 import { z } from "zod";
 import Razorpay from "razorpay";
-import { db, usersTable, subscriptionsTable } from "@workspace/db";
+import { db, usersTable, subscriptionsTable, upiPaymentsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { logger } from "../lib/logger";
 import { authMiddleware, requireAuth, type AuthRequest } from "../middlewares/auth";
@@ -145,6 +145,65 @@ router.post("/verify", authMiddleware, requireAuth, async (req: AuthRequest, res
     }
   } catch (err: any) {
     res.status(500).json({ error: err.message || "Failed to verify payment" });
+  }
+});
+
+// GET /history
+router.get("/history", authMiddleware, requireAuth, async (req: AuthRequest, res: Response) => {
+  try {
+    const user = req.user!;
+
+    // 1. Fetch from subscriptionsTable
+    const subs = await db
+      .select()
+      .from(subscriptionsTable)
+      .where(eq(subscriptionsTable.userId, user.id));
+
+    // 2. Fetch from upiPaymentsTable
+    let upiPayments: any[] = [];
+    if (user.email) {
+      upiPayments = await db
+        .select()
+        .from(upiPaymentsTable)
+        .where(eq(upiPaymentsTable.email, user.email.toLowerCase()));
+    }
+
+    const history = [];
+
+    // Add subscriptions
+    for (const sub of subs) {
+      history.push({
+        id: sub.razorpayPaymentId || sub.razorpayOrderId || sub.id,
+        plan: sub.plan,
+        amount: sub.amount, // in paise
+        status: sub.status,
+        createdAt: sub.createdAt || new Date(),
+      });
+    }
+
+    // Add pending UPI payments (approved ones are already in subscriptions)
+    for (const upi of upiPayments) {
+      if (upi.status === "pending") {
+        history.push({
+          id: `upi_${upi.utrId}`,
+          plan: upi.plan,
+          amount: upi.amount * 100, // convert rupees to paise
+          status: "pending verification",
+          createdAt: upi.createdAt || new Date(),
+        });
+      }
+    }
+
+    // Sort by date descending
+    history.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    res.json({
+      success: true,
+      history,
+    });
+  } catch (err: any) {
+    logger.error({ err }, "Failed to fetch payment history");
+    res.status(500).json({ success: false, error: err.message || "Failed to fetch payment history" });
   }
 });
 

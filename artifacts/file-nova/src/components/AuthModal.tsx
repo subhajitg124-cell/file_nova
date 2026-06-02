@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
 import { X, Sparkles, Mail, Phone, Lock, User, ArrowRight, Loader, ExternalLink } from "lucide-react";
@@ -24,11 +24,53 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
   const [signupPhone, setSignupPhone] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
 
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        handleClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const handleClose = () => {
-    clearError();
+    clearErrors();
     onClose();
+  };
+
+  const clearErrors = () => {
+    setEmailError("");
+    setPasswordError("");
+    clearError();
+  };
+
+  const handleTabChange = (tab: AuthTab) => {
+    if (tab === "login") {
+      if (signupEmail) {
+        setLoginIdentifier(signupEmail);
+      } else if (signupPhone) {
+        setLoginIdentifier(signupPhone);
+      }
+    } else {
+      if (loginIdentifier) {
+        if (loginIdentifier.includes("@")) {
+          setSignupEmail(loginIdentifier);
+        } else if (/^\d+$/.test(loginIdentifier)) {
+          setSignupPhone(loginIdentifier);
+        }
+      }
+    }
+    setActiveTab(tab);
+    setEmailError("");
+    setPasswordError("");
+    clearError();
   };
 
   const finishAuth = (message: string) => {
@@ -54,41 +96,92 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!loginIdentifier || !loginPassword) {
-      toast.error("Please enter both credentials.");
-      return;
+    clearErrors();
+    let hasValError = false;
+
+    if (loginIdentifier.includes("@")) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(loginIdentifier)) {
+        setEmailError("Please enter a valid email address.");
+        hasValError = true;
+      }
+    } else if (!loginIdentifier.trim()) {
+      setEmailError("Email or Phone Number is required.");
+      hasValError = true;
     }
+
+    if (!loginPassword) {
+      setPasswordError("Password is required.");
+      hasValError = true;
+    } else if (loginPassword.length < 8) {
+      setPasswordError("Password must be at least 8 characters.");
+      hasValError = true;
+    }
+
+    if (hasValError) return;
+
     const success = await login(loginIdentifier, loginPassword);
     if (success) {
       finishAuth("Successfully logged in!");
-    } else {
-      toast.error(useAuthStore.getState().error || "Failed to log in.");
     }
   };
 
   const handleSignupSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!signupEmail || !signupPassword) {
-      toast.error("Email and Password are required.");
-      return;
+    clearErrors();
+    let hasValError = false;
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!signupEmail) {
+      setEmailError("Email is required.");
+      hasValError = true;
+    } else if (!emailRegex.test(signupEmail)) {
+      setEmailError("Please enter a valid email address.");
+      hasValError = true;
     }
-    if (signupPassword.length < 6) {
-      toast.error("Password must be at least 6 characters.");
-      return;
+
+    if (!signupPassword) {
+      setPasswordError("Password is required.");
+      hasValError = true;
+    } else if (signupPassword.length < 8) {
+      setPasswordError("Password must be at least 8 characters.");
+      hasValError = true;
     }
+
+    if (hasValError) return;
 
     const success = await signup(signupEmail, signupPhone || null, signupPassword, signupName || null);
     if (success) {
       finishAuth("Account created successfully!");
-    } else {
-      toast.error(useAuthStore.getState().error || "Failed to sign up.");
     }
   };
 
+  const getFriendlyErrorMessage = (err: string | null) => {
+    if (!err) return "";
+    const msg = err.toLowerCase();
+    if (msg.includes("password") || msg.includes("incorrect")) {
+      return "Incorrect password. Please try again.";
+    }
+    if (msg.includes("no account") || msg.includes("user not found") || msg.includes("not found")) {
+      return "No account found with this email.";
+    }
+    if (msg.includes("fetch") || msg.includes("network") || msg.includes("failed to fetch") || msg.includes("connect")) {
+      return "Connection failed. Please check your internet.";
+    }
+    return err;
+  };
+
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  const hasGoogleClientId = googleClientId && googleClientId !== "your_google_client_id" && googleClientId !== "";
+
   return (
-    <div className="fixed inset-0 bg-black/75 backdrop-blur-md flex items-end justify-center overflow-y-auto z-50 p-0 sm:p-4 md:items-center md:p-6 md:py-[10vh] animate-fade-in">
+    <>
+      {/* Backdrop overlay */}
+      <div className="auth-modal-overlay" onClick={handleClose} />
+
+      {/* Centered / bottom sheet content */}
       <div
-        className="bg-card border border-border rounded-t-3xl sm:rounded-3xl shadow-premium max-w-md w-full max-h-[92dvh] md:max-h-[80vh] overflow-y-auto animate-scale-in relative"
+        className="auth-modal-content bg-card border border-border rounded-t-3xl sm:rounded-3xl shadow-premium max-h-[92vh] overflow-y-auto animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -118,48 +211,89 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
 
         <div className="flex border border-border/80 bg-muted/40 p-1 m-4 rounded-xl">
           <button
-            onClick={() => { setActiveTab("login"); clearError(); }}
-            className={`flex-1 py-2 text-xs font-bold rounded-lg transition ${activeTab === "login" ? "bg-card text-foreground shadow-sm border border-border/40" : "text-muted-foreground hover:text-foreground"}`}
+            onClick={() => handleTabChange("login")}
+            className={`flex-grow py-2 text-xs font-bold rounded-lg transition cursor-pointer ${activeTab === "login" ? "bg-card text-foreground shadow-sm border border-border/40" : "text-muted-foreground hover:text-foreground"}`}
           >
             Sign In
           </button>
           <button
-            onClick={() => { setActiveTab("signup"); clearError(); }}
-            className={`flex-1 py-2 text-xs font-bold rounded-lg transition ${activeTab === "signup" ? "bg-card text-foreground shadow-sm border border-border/40" : "text-muted-foreground hover:text-foreground"}`}
+            onClick={() => handleTabChange("signup")}
+            className={`flex-grow py-2 text-xs font-bold rounded-lg transition cursor-pointer ${activeTab === "signup" ? "bg-card text-foreground shadow-sm border border-border/40" : "text-muted-foreground hover:text-foreground"}`}
           >
             Create Account
           </button>
         </div>
 
         <div className="px-6 pb-6 space-y-4">
-          <div className="flex justify-center rounded-xl bg-white p-1 shadow-sm">
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={() => toast.error("Google sign in was cancelled or failed.")}
-              text="continue_with"
-              shape="rectangular"
-              width="360"
-            />
-          </div>
+          {hasGoogleClientId && (
+            <>
+              <div className="flex justify-center rounded-xl bg-white p-1 shadow-sm">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => toast.error("Google sign in was cancelled or failed.")}
+                  text="continue_with"
+                  shape="rectangular"
+                  width="360"
+                />
+              </div>
 
-          <div className="relative flex py-1 items-center">
-            <div className="flex-grow border-t border-border/80" />
-            <span className="flex-shrink mx-4 text-muted-foreground text-[10px] font-bold uppercase tracking-wider">or continue with email</span>
-            <div className="flex-grow border-t border-border/80" />
-          </div>
+              <div className="relative flex py-1 items-center">
+                <div className="flex-grow border-t border-border/80" />
+                <span className="flex-shrink mx-4 text-muted-foreground text-[10px] font-bold uppercase tracking-wider">or continue with email</span>
+                <div className="flex-grow border-t border-border/80" />
+              </div>
+            </>
+          )}
 
           {activeTab === "login" ? (
             <form onSubmit={handleLoginSubmit} className="space-y-3.5">
               <div className="relative">
                 <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <input type="text" placeholder="Email or Phone Number" value={loginIdentifier} onChange={(e) => setLoginIdentifier(e.target.value)} className="w-full pl-9 pr-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none" />
+                <input
+                  type="text"
+                  placeholder="Email or Phone Number"
+                  value={loginIdentifier}
+                  onChange={(e) => {
+                    setLoginIdentifier(e.target.value);
+                    setEmailError("");
+                  }}
+                  className="w-full pl-9 pr-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none"
+                />
               </div>
+              {emailError && <p className="text-xs font-bold text-destructive px-1">{emailError}</p>}
+
               <div className="relative">
                 <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <input type="password" placeholder="Password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} className="w-full pl-9 pr-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none" />
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={loginPassword}
+                  onChange={(e) => {
+                    setLoginPassword(e.target.value);
+                    setPasswordError("");
+                  }}
+                  className="w-full pl-9 pr-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none"
+                />
               </div>
-              {error && <p className="text-xs font-bold text-destructive px-1">{error}</p>}
-              <button type="submit" disabled={loading} className="w-full py-3.5 bg-primary text-primary-foreground font-black text-sm rounded-xl shadow-glow transition hover:opacity-90 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50">
+              {passwordError && <p className="text-xs font-bold text-destructive px-1">{passwordError}</p>}
+
+              <div className="text-right">
+                <button
+                  type="button"
+                  onClick={() => toast.info("Please contact support@filenova.in")}
+                  className="text-xs text-primary hover:underline font-bold"
+                >
+                  Forgot Password?
+                </button>
+              </div>
+
+              {error && <p className="text-xs font-bold text-destructive px-1">{getFriendlyErrorMessage(error)}</p>}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3.5 bg-primary text-primary-foreground font-black text-sm rounded-xl shadow-glow transition hover:opacity-90 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              >
                 {loading ? <Loader className="h-4 w-4 animate-spin" /> : <><span>Sign In</span><ArrowRight className="h-4 w-4" /></>}
               </button>
             </form>
@@ -167,28 +301,69 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
             <form onSubmit={handleSignupSubmit} className="space-y-3">
               <div className="relative">
                 <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <input type="text" placeholder="Full Name" value={signupName} onChange={(e) => setSignupName(e.target.value)} className="w-full pl-9 pr-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none" />
+                <input
+                  type="text"
+                  placeholder="Full Name"
+                  value={signupName}
+                  onChange={(e) => setSignupName(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none"
+                />
               </div>
+
               <div className="relative">
                 <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <input type="email" placeholder="Email Address" value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} className="w-full pl-9 pr-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none" />
+                <input
+                  type="email"
+                  placeholder="Email Address"
+                  value={signupEmail}
+                  onChange={(e) => {
+                    setSignupEmail(e.target.value);
+                    setEmailError("");
+                  }}
+                  className="w-full pl-9 pr-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none"
+                />
               </div>
+              {emailError && <p className="text-xs font-bold text-destructive px-1">{emailError}</p>}
+
               <div className="relative">
                 <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <input type="tel" placeholder="Phone Number (e.g. 9876543210)" value={signupPhone} onChange={(e) => setSignupPhone(e.target.value)} className="w-full pl-9 pr-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none" />
+                <input
+                  type="tel"
+                  placeholder="Phone Number (e.g. 9876543210)"
+                  value={signupPhone}
+                  onChange={(e) => setSignupPhone(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none"
+                />
               </div>
+
               <div className="relative">
                 <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <input type="password" placeholder="Password (min 6 characters)" value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} className="w-full pl-9 pr-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none" />
+                <input
+                  type="password"
+                  placeholder="Password (min 8 characters)"
+                  value={signupPassword}
+                  onChange={(e) => {
+                    setSignupPassword(e.target.value);
+                    setPasswordError("");
+                  }}
+                  className="w-full pl-9 pr-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none"
+                />
               </div>
-              {error && <p className="text-xs font-bold text-destructive px-1">{error}</p>}
-              <button type="submit" disabled={loading} className="w-full py-3.5 bg-primary text-primary-foreground font-black text-sm rounded-xl shadow-glow transition hover:opacity-90 flex items-center justify-center gap-2 cursor-pointer mt-1 disabled:opacity-50">
+              {passwordError && <p className="text-xs font-bold text-destructive px-1">{passwordError}</p>}
+
+              {error && <p className="text-xs font-bold text-destructive px-1">{getFriendlyErrorMessage(error)}</p>}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3.5 bg-primary text-primary-foreground font-black text-sm rounded-xl shadow-glow transition hover:opacity-90 flex items-center justify-center gap-2 cursor-pointer mt-1 disabled:opacity-50"
+              >
                 {loading ? <Loader className="h-4 w-4 animate-spin" /> : <><span>Create Account</span><ArrowRight className="h-4 w-4" /></>}
               </button>
             </form>
           )}
         </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -204,7 +204,18 @@ export default function Home() {
   const [guideOpen, setGuideOpen] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
   const logoUrl = '/logo.png';
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
+  const headerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutsideHeader(event: MouseEvent) {
+      if (headerRef.current && !headerRef.current.contains(event.target as Node)) {
+        setMobileMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutsideHeader);
+    return () => document.removeEventListener("mousedown", handleClickOutsideHeader);
+  }, []);
 
   // ── Search state ─────────────────────────────────────────────────────────
   const [searchQuery, setSearchQuery] = useState("");
@@ -548,7 +559,7 @@ export default function Home() {
 
   return (
     <div className={`min-h-screen bg-background text-foreground bg-mesh pb-24 ${themeClass}`}>
-      <header className="sticky top-0 z-50 border-b border-border bg-background/82 backdrop-blur-xl">
+      <header ref={headerRef} className="sticky top-0 z-50 border-b border-border bg-background/82 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3">
           {mobileSearchActive ? (
             /* Mobile full width search input overlay */
@@ -759,23 +770,23 @@ export default function Home() {
             </div>
 
             <div className="hidden md:flex items-center gap-2">
-              <Link href="/blog" className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-bold text-muted-foreground hover:text-foreground">
+              <Link href="/blog" className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-bold transition ${location.startsWith("/blog") ? "border-sky-500/30 bg-sky-500/10 text-sky-500" : "border-border bg-card text-muted-foreground hover:text-foreground"}`}>
                 <BookOpen className="h-4 w-4 text-sky-500" />
                 <span>Blog</span>
               </Link>
-              <Link href="/resources" className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-bold text-muted-foreground hover:text-foreground">
+              <Link href="/resources" className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-bold transition ${location.startsWith("/resources") ? "border-rose-500/30 bg-rose-500/10 text-rose-500" : "border-border bg-card text-muted-foreground hover:text-foreground"}`}>
                 <Globe2 className="h-4 w-4 text-rose-500" />
                 <span>Resources</span>
               </Link>
-              <Link href="/referral" className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-bold text-muted-foreground hover:text-foreground">
+              <Link href="/referral" className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-bold transition ${location === "/referral" ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-500" : "border-border bg-card text-muted-foreground hover:text-foreground"}`}>
                 <Gift className="h-4 w-4 text-emerald-500" />
                 <span>Refer & Earn</span>
               </Link>
-              <Link href="/pricing" className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-bold text-muted-foreground hover:text-foreground">
+              <Link href="/pricing" className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-bold transition ${location === "/pricing" ? "border-amber-500/30 bg-amber-500/10 text-amber-500" : "border-border bg-card text-muted-foreground hover:text-foreground"}`}>
                 <Zap className="h-4 w-4 text-amber-500" />
                 <span>Pricing</span>
               </Link>
-              <Link href="/premium" className="inline-flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-bold text-primary">
+              <Link href="/premium" className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-bold transition ${location === "/premium" ? "border-primary bg-primary/20 text-primary" : "border-primary/30 bg-primary/10 text-primary"}`}>
                 <Sparkles className="h-4 w-4" />
                 <span className="font-black">Premium</span>
               </Link>
@@ -846,23 +857,23 @@ export default function Home() {
                   </button>
                 ))}
               </div>
-              <Link href="/premium" className="inline-flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-bold text-primary">
+              <Link href="/premium" onClick={() => setMobileMenuOpen(false)} className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-bold transition ${location === "/premium" ? "border-primary bg-primary/25 text-primary" : "border-primary/30 bg-primary/10 text-primary"}`}>
                 <Sparkles className="h-4 w-4" />
                 <span className="font-black">Premium</span>
               </Link>
-              <Link href="/blog" className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-bold text-muted-foreground hover:text-foreground">
+              <Link href="/blog" onClick={() => setMobileMenuOpen(false)} className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-bold transition ${location.startsWith("/blog") ? "border-sky-500/30 bg-sky-500/10 text-sky-500" : "border-border bg-card text-muted-foreground hover:text-foreground"}`}>
                 <BookOpen className="h-4 w-4 text-sky-500" />
                 <span>Blog</span>
               </Link>
-              <Link href="/resources" className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-bold text-muted-foreground hover:text-foreground">
+              <Link href="/resources" onClick={() => setMobileMenuOpen(false)} className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-bold transition ${location.startsWith("/resources") ? "border-rose-500/30 bg-rose-500/10 text-rose-500" : "border-border bg-card text-muted-foreground hover:text-foreground"}`}>
                 <Globe2 className="h-4 w-4 text-rose-500" />
                 <span>Resources</span>
               </Link>
-              <Link href="/referral" className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-bold text-muted-foreground hover:text-foreground">
+              <Link href="/referral" onClick={() => setMobileMenuOpen(false)} className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-bold transition ${location === "/referral" ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-500" : "border-border bg-card text-muted-foreground hover:text-foreground"}`}>
                 <Gift className="h-4 w-4 text-emerald-500" />
                 <span>Refer & Earn</span>
               </Link>
-              <Link href="/pricing" className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-bold text-muted-foreground hover:text-foreground">
+              <Link href="/pricing" onClick={() => setMobileMenuOpen(false)} className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-bold transition ${location === "/pricing" ? "border-amber-500/30 bg-amber-500/10 text-amber-500" : "border-border bg-card text-muted-foreground hover:text-foreground"}`}>
                 <Zap className="h-4 w-4 text-amber-500" />
                 <span>Pricing</span>
               </Link>

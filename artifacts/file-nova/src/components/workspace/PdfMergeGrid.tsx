@@ -40,7 +40,12 @@ export const PdfMergeGrid: React.FC = () => {
     const updated = [...files];
     const [moved] = updated.splice(dragIndex, 1);
     updated.splice(dropIndex, 0, moved);
-    useFileStore.setState({ files: updated });
+
+    const updatedRaw = [...rawFiles];
+    const [movedRaw] = updatedRaw.splice(dragIndex, 1);
+    updatedRaw.splice(dropIndex, 0, movedRaw);
+
+    useFileStore.setState({ files: updated, rawFiles: updatedRaw });
     cleanup();
   };
 

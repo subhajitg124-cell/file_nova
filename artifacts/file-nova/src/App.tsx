@@ -22,6 +22,7 @@ import { FileExpiryBar } from "@/components/FileExpiryBar";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { Toaster } from "@/components/ui/sonner";
 import { UpgradeLimitModal } from "@/components/UpgradeLimitModal";
+import { ScrollToTop } from "@/components/ScrollToTop";
 
 const queryClient = new QueryClient();
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
@@ -159,6 +160,7 @@ function App() {
           <ErrorBoundary onReset={reset}>
             <LazyMotion features={domAnimation}>
               <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+                <ScrollToTop />
                 <LanguageProvider>
                   <AdminProvider>
                     <Router />

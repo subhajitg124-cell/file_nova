@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   Camera,
   Image,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useQRCode } from "@/hooks/usePremiumFeatures";
@@ -64,7 +65,7 @@ export function QRVerification() {
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`flex-1 inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-bold transition ${
+            className={`flex-grow inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-xs font-bold transition cursor-pointer ${
               tab === t
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -86,22 +87,38 @@ function GenerateTab() {
   const [inputData, setInputData] = useState("");
   const [size, setSize] = useState(300);
 
-  const handleGenerate = async () => {
-    if (!inputData.trim()) {
-      toast.error("Enter a URL or text to encode");
-      return;
-    }
-    await generateQR(inputData, size);
-  };
+  // Debounced real-time generation on input change
+  useEffect(() => {
+    if (!inputData.trim()) return;
 
-  const handleDownload = () => {
-    if (!qrCode?.qrImage) return;
-    const a = document.createElement("a");
-    a.href = qrCode.qrImage;
-    a.download = `filenova-qr-${Date.now()}.png`;
-    a.target = "_blank";
-    a.click();
-    toast.success("QR code download started");
+    const delayDebounce = setTimeout(() => {
+      generateQR(inputData, size);
+    }, 450);
+
+    return () => clearTimeout(delayDebounce);
+  }, [inputData, size, generateQR]);
+
+  const handleDownload = async (format: "png" | "svg") => {
+    if (!qrCode?.data) return;
+    try {
+      const sizeParam = format === "png" ? `${size}x${size}` : "300x300";
+      const url = `https://api.qrserver.com/v1/create-qr-code/?size=${sizeParam}&data=${encodeURIComponent(qrCode.data)}&format=${format}`;
+
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = `filenova-qr-${Date.now()}.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+
+      toast.success(`QR code downloaded as ${format.toUpperCase()}`);
+    } catch (e) {
+      toast.error("Failed to download QR code. Please try again.");
+    }
   };
 
   const expiry = useExpiryCountdown(qrCode?.expiresAt);
@@ -123,7 +140,7 @@ function GenerateTab() {
       {/* URL Input */}
       <div>
         <label className="text-xs font-bold text-muted-foreground mb-1.5 block">
-          URL or Text
+          URL or Text (Generates in real-time)
         </label>
         <input
           id="qr-input"
@@ -143,7 +160,7 @@ function GenerateTab() {
             <button
               key={opt.value}
               onClick={() => setSize(opt.value)}
-              className={`flex-1 rounded-lg border px-3 py-2 text-xs font-bold transition ${
+              className={`flex-grow rounded-lg border px-3 py-2 text-xs font-bold transition cursor-pointer ${
                 size === opt.value
                   ? "border-primary bg-primary/10 text-primary"
                   : "border-border bg-background/60 text-muted-foreground hover:border-primary/30"
@@ -156,25 +173,13 @@ function GenerateTab() {
         </div>
       </div>
 
-      {/* Generate button */}
-      <button
-        id="qr-generate-btn"
-        onClick={handleGenerate}
-        disabled={loading || !inputData.trim()}
-        className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground font-black py-3 text-sm transition disabled:opacity-50 shadow-glow-sm"
-      >
-        {loading ? (
-          <>
-            <Loader className="h-4 w-4 animate-spin" />
-            Generating…
-          </>
-        ) : (
-          <>
-            <QrCode className="h-4 w-4" />
-            Generate QR Code
-          </>
-        )}
-      </button>
+      {/* Loading state indicator */}
+      {loading && (
+        <div className="flex items-center justify-center gap-2 text-xs text-primary font-bold py-1.5">
+          <Loader className="h-4 w-4 animate-spin" />
+          Refreshing QR code preview…
+        </div>
+      )}
 
       {/* QR Result */}
       {qrCode && (
@@ -194,7 +199,7 @@ function GenerateTab() {
 
           {/* QR Image */}
           <div className="flex justify-center">
-            <div className="rounded-xl border border-border bg-white p-3">
+            <div className="rounded-xl border border-border bg-white p-3 shadow-sm">
               <img
                 src={qrCode.qrImage}
                 alt="Generated QR Code"
@@ -209,15 +214,23 @@ function GenerateTab() {
             <code className="text-[11px] text-primary break-all">{qrCode.data}</code>
           </div>
 
-          {/* Download */}
-          <button
-            id="qr-download-btn"
-            onClick={handleDownload}
-            className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-background/60 hover:bg-muted text-foreground font-bold py-2.5 text-sm transition"
-          >
-            <Download className="h-4 w-4" />
-            Download QR as PNG
-          </button>
+          {/* Download Buttons */}
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => handleDownload("png")}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-background hover:bg-muted text-foreground font-bold py-2.5 text-xs transition cursor-pointer"
+            >
+              <Download className="h-4 w-4" />
+              Download PNG
+            </button>
+            <button
+              onClick={() => handleDownload("svg")}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-background hover:bg-muted text-foreground font-bold py-2.5 text-xs transition cursor-pointer"
+            >
+              <Download className="h-4 w-4" />
+              Download SVG
+            </button>
+          </div>
         </div>
       )}
     </div>
@@ -227,7 +240,81 @@ function GenerateTab() {
 function ScanTab() {
   const { loading, scanQR } = useQRCode();
   const [scannedData, setScannedData] = useState<string | null>(null);
+  const [useCamera, setUseCamera] = useState(false);
+  const [cameraActive, setCameraActive] = useState(false);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+
+  const startCamera = async () => {
+    setScannedData(null);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" }
+      });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+      }
+      setCameraActive(true);
+      setUseCamera(true);
+      toast.success("Camera started");
+    } catch (err) {
+      toast.error("Failed to access camera. Please upload an image instead.");
+    }
+  };
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+    setCameraActive(false);
+    setUseCamera(false);
+  };
+
+  // Video frame capture loop
+  useEffect(() => {
+    if (!cameraActive || !useCamera) return;
+
+    const interval = setInterval(async () => {
+      if (videoRef.current && canvasRef.current) {
+        const video = videoRef.current;
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext("2d");
+        
+        if (ctx && video.readyState === video.HAVE_ENOUGH_DATA) {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const base64 = canvas.toDataURL("image/jpeg").split(",")[1];
+          try {
+            const data = await scanQR(base64);
+            if (data) {
+              setScannedData(data);
+              stopCamera();
+              toast.success("QR Code detected!");
+            }
+          } catch (e) {
+            // Suppress errors during scan loop polling
+          }
+        }
+      }
+    }, 1200);
+
+    return () => clearInterval(interval);
+  }, [cameraActive, useCamera, scanQR]);
+
+  useEffect(() => {
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, []);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -238,7 +325,6 @@ function ScanTab() {
       return;
     }
 
-    // Convert to base64
     const reader = new FileReader();
     reader.onloadend = async () => {
       const base64 = (reader.result as string).split(",")[1];
@@ -252,37 +338,72 @@ function ScanTab() {
 
   return (
     <div className="rounded-2xl border border-border bg-card p-4 shadow-premium space-y-4">
-      <div className="flex items-center gap-2 mb-1">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-500/10">
-          <Camera className="h-5 w-5 text-indigo-500" />
+      <div className="flex items-center justify-between mb-1">
+        <div className="flex items-center gap-2">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-500/10">
+            <Camera className="h-5 w-5 text-indigo-500" />
+          </div>
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+              QR Scanner
+            </p>
+            <h3 className="text-base font-black text-foreground">Scan QR Code</h3>
+          </div>
         </div>
-        <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-            QR Scanner
-          </p>
-          <h3 className="text-base font-black text-foreground">Scan QR Code</h3>
-        </div>
+
+        {/* Camera Toggle Button */}
+        <button
+          onClick={useCamera ? stopCamera : startCamera}
+          className={`px-3 py-1.5 rounded-lg border text-xs font-bold flex items-center gap-1.5 transition cursor-pointer ${
+            useCamera
+              ? "border-red-500/30 bg-red-500/10 text-red-500"
+              : "border-border bg-background hover:bg-muted text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Camera className="h-3.5 w-3.5" />
+          <span>{useCamera ? "Stop Camera" : "Use Camera"}</span>
+        </button>
       </div>
 
-      {/* Upload area */}
-      <div
-        onClick={() => fileInputRef.current?.click()}
-        className="flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-border hover:border-primary/40 bg-background/40 p-8 cursor-pointer transition group"
-      >
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted group-hover:bg-primary/10 transition">
-          <Image className="h-6 w-6 text-muted-foreground group-hover:text-primary transition" />
+      {/* Scanner View Area */}
+      {useCamera ? (
+        <div className="relative rounded-xl border border-border overflow-hidden bg-black aspect-video flex items-center justify-center">
+          <video
+            ref={videoRef}
+            playsInline
+            muted
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 border-[3px] border-primary/40 rounded-lg pointer-events-none animate-pulse m-8" />
+          <canvas ref={canvasRef} className="hidden" />
+          {loading && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md rounded-full px-3 py-1.5 text-[10px] font-bold text-white flex items-center gap-1.5 shadow-lg">
+              <Loader className="h-3 w-3 animate-spin text-primary" />
+              <span>Scanning video frames…</span>
+            </div>
+          )}
         </div>
-        <div className="text-center">
-          <p className="text-sm font-bold text-foreground">Upload image with QR code</p>
-          <p className="text-xs text-muted-foreground mt-1">Click or drag & drop • PNG, JPG, WEBP</p>
-        </div>
-        {loading && (
-          <div className="flex items-center gap-2 text-xs text-primary font-bold">
-            <Loader className="h-3.5 w-3.5 animate-spin" />
-            Scanning…
+      ) : (
+        /* Image Upload Area */
+        <div
+          onClick={() => fileInputRef.current?.click()}
+          className="flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-border hover:border-primary/40 bg-background/40 p-8 cursor-pointer transition group"
+        >
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted group-hover:bg-primary/10 transition">
+            <Image className="h-6 w-6 text-muted-foreground group-hover:text-primary transition" />
           </div>
-        )}
-      </div>
+          <div className="text-center">
+            <p className="text-sm font-bold text-foreground">Upload image with QR code</p>
+            <p className="text-xs text-muted-foreground mt-1">Click or drag & drop • PNG, JPG, WEBP</p>
+          </div>
+          {loading && (
+            <div className="flex items-center gap-2 text-xs text-primary font-bold">
+              <Loader className="h-3.5 w-3.5 animate-spin" />
+              Scanning image…
+            </div>
+          )}
+        </div>
+      )}
 
       <input
         ref={fileInputRef}
@@ -326,7 +447,7 @@ function ScanTab() {
               navigator.clipboard.writeText(scannedData);
               toast.success("Copied to clipboard");
             }}
-            className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-background/60 hover:bg-muted text-foreground font-bold py-2.5 text-sm transition"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-background/60 hover:bg-muted text-foreground font-bold py-2.5 text-sm transition cursor-pointer"
           >
             Copy Text
           </button>

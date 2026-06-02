@@ -469,3 +469,37 @@
   }
 }
 
+/* Auth Modal Custom Overlay & Responsive Layout */
+.auth-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 9998;
+}
+
+.auth-modal-content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 440px;
+  width: 90%;
+  z-index: 9999;
+}
+
+@media (max-width: 768px) {
+  .auth-modal-content {
+    position: fixed;
+    bottom: 0;
+    top: auto;
+    left: 0;
+    right: 0;
+    transform: none;
+    border-radius: 24px 24px 0 0 !important;
+    width: 100%;
+    max-width: 100%;
+  }
+}
+

@@ -15,9 +15,14 @@ import {
   Loader2,
   AlertCircle,
   Gift,
-  LayoutDashboard
+  LayoutDashboard,
+  Copy,
 } from "lucide-react";
 import { useSubscription, type PremiumTier } from "@/hooks/useSubscription";
+import { useAuthStore } from "@/store/useAuthStore";
+import { toast } from "sonner";
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
 
 interface BillingItem {
   id: string;
@@ -29,6 +34,7 @@ interface BillingItem {
 
 export default function DashboardPage() {
   const [, setLocation] = useLocation();
+  const { user } = useAuthStore();
   const { 
     premiumTier, 
     premiumEnabled, 
@@ -42,11 +48,25 @@ export default function DashboardPage() {
 
   const [billingHistory, setBillingHistory] = useState<BillingItem[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
-  const [userEmail, setUserEmail] = useState<string>("user@filenova.in");
-  const [userName, setUserName] = useState<string>("FileNova Member");
+
+  const userName = user?.name || "FileNova Member";
+  const userEmail = user?.email || "user@filenova.in";
 
   const dailyLimit = getDailyLimit();
   const usagePercentage = dailyLimit === Infinity || dailyLimit === -1 ? 0 : Math.min(100, (useCount / dailyLimit) * 100);
+
+  // Authentication Route Protection
+  useEffect(() => {
+    const checkAuth = async () => {
+      // Delay slightly to let state load
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      const currentUser = useAuthStore.getState().user;
+      if (!currentUser) {
+        setLocation(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+      }
+    };
+    checkAuth();
+  }, [user, setLocation]);
 
   useEffect(() => {
     refreshStatus();
@@ -56,30 +76,23 @@ export default function DashboardPage() {
   const fetchBillingAndUser = async () => {
     setLoadingHistory(true);
     try {
-      // Fetch billing history from the admin stats or stats endpoint
-      // We will make a safe call, and if it fails fallback to mock data
-      const statusRes = await fetch("/api/v1/premium/subscription/status");
-      if (statusRes.ok) {
-        const statusData = await statusRes.json();
-        // Fallback to fetch billing if there's user email
-        if (statusData.userId) {
-          // If we had a specific billing history endpoint, we'd call it.
-          // Since it's in subscriptions database, we can mock or construct billing entries based on active plan.
-          if (statusData.premiumTier && statusData.premiumTier !== "free") {
-            setBillingHistory([
-              {
-                id: statusData.subscription?.id || "sub_mock_" + Math.random().toString(36).slice(2, 8),
-                plan: statusData.premiumTier,
-                amount: statusData.premiumTier === "basic" ? 1900 : statusData.premiumTier === "pro" ? 3900 : 5900,
-                status: statusData.subscription?.status || "active",
-                createdAt: new Date().toISOString()
-              }
-            ]);
-          }
+      const token = localStorage.getItem("filenova_token");
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+      const response = await fetch(`${BACKEND_URL}/api/payments/history`, {
+        headers
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.history) {
+          setBillingHistory(data.history);
         }
       }
-    } catch (_) {
-      // Fail silently
+    } catch (e) {
+      console.error("Failed to fetch billing history:", e);
     } finally {
       setLoadingHistory(false);
     }
@@ -153,10 +166,10 @@ export default function DashboardPage() {
                 Account Command Center
               </p>
               <h1 className="text-3xl font-black md:text-4xl tracking-tight">
-                Welcome to FileNova Dashboard
+                Welcome, {userName}
               </h1>
               <p className="text-sm text-muted-foreground font-medium">
-                Manage your secure document workflow usage, subscription levels, and billing history.
+                Email: {userEmail}
               </p>
             </div>
             <div>
@@ -209,7 +222,7 @@ export default function DashboardPage() {
                 <AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
                 <div className="text-xs space-y-1">
                   <p className="font-bold text-red-500">Operation limit reached today</p>
-                  <p className="text-muted-foreground">Please wait until midnight IST or upgrade your plan now for uninterrupted access to PDF tools, gobierno form presets, and Aadhaar masking.</p>
+                  <p className="text-muted-foreground">Please wait until midnight IST or upgrade your plan now for uninterrupted access to PDF tools, government form presets, and Aadhaar masking.</p>
                 </div>
               </div>
             )}
@@ -280,20 +293,50 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        <section className="rounded-3xl border border-emerald-500/20 bg-emerald-500/5 p-6 shadow-premium">
+        {/* Refer & Earn Section with link copy helper */}
+        <section className="rounded-3xl border border-emerald-500/20 bg-emerald-500/5 p-6 shadow-premium space-y-4">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-lg font-black flex items-center gap-2">
                 <Gift className="h-5 w-5 text-emerald-500" />
-                Refer & Earn
+                Refer & Earn program
               </h2>
-              <p className="mt-1 text-xs leading-5 text-muted-foreground">Invite a friend to FileNova. You both get 7 days Pro free after signup.</p>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                Invite friends to FileNova. When they sign up using your referral link, both of you get 7 days of Pro plan access for free!
+              </p>
             </div>
-            <Link href="/referral" className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-xs font-black text-white shadow-sm">
-              Open Referral Page
+            <Link href="/referral" className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-xs font-black text-white shadow-sm hover:bg-emerald-750 transition cursor-pointer">
+              Open Referral Center
               <ArrowUpRight className="h-4 w-4" />
             </Link>
           </div>
+
+          {user?.referralCode && (
+            <div className="pt-4 border-t border-emerald-500/15 flex flex-col md:flex-row md:items-center gap-4 justify-between">
+              <div className="space-y-1">
+                <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Your Referral Link</p>
+                <code className="text-xs bg-card border border-border px-3 py-1.5 rounded-lg block select-all font-mono font-bold text-foreground">
+                  {`${window.location.origin}/login?ref=${user.referralCode}`}
+                </code>
+              </div>
+              <div className="flex gap-2">
+                <div className="bg-card border border-border px-3.5 py-1.5 rounded-lg flex flex-col justify-center">
+                  <p className="text-[9px] text-muted-foreground uppercase font-bold leading-none">Promo Code</p>
+                  <p className="text-sm font-black tracking-wider text-emerald-600 dark:text-emerald-400 mt-1 leading-none">{user.referralCode}</p>
+                </div>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(`${window.location.origin}/login?ref=${user.referralCode}`);
+                    toast.success("Referral link copied to clipboard!");
+                  }}
+                  className="px-4 py-2 bg-card border border-border hover:bg-muted text-foreground rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-1.5"
+                >
+                  <Copy className="h-3.5 w-3.5" />
+                  Copy Link
+                </button>
+              </div>
+            </div>
+          )}
         </section>
 
         {/* Billing History Section */}

@@ -1,6 +1,7 @@
 import { FileRecord, ProcessingSavings } from '@/store/useFileStore';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
+export const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || 'https://filenova.in/api';
+const BACKEND_URL = API_BASE;
 
 export interface HealthCheckResult {
   healthy: boolean;

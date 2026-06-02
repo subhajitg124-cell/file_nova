@@ -58,13 +58,13 @@ export function UserProfileDropdown() {
     let color = "text-muted-foreground bg-muted/40 border-border";
     if (subscription.plan === "basic") {
       name = "Basic Desk";
-      color = "text-emerald-500 bg-emerald-500/10 border-emerald-500/20";
+      color = "text-blue-500 bg-blue-500/10 border-blue-500/20";
     } else if (subscription.plan === "pro") {
       name = "Pro Desk";
-      color = "text-sky-500 bg-sky-500/10 border-sky-500/20";
+      color = "text-purple-500 bg-purple-500/10 border-purple-500/20";
     } else if (subscription.plan === "elite") {
       name = "Elite Console";
-      color = "text-violet-500 bg-violet-500/10 border-violet-500/20";
+      color = "text-amber-500 bg-amber-500/10 border-amber-500/20";
     }
 
     return {
@@ -78,7 +78,7 @@ export function UserProfileDropdown() {
   const getNavbarBadge = () => {
     switch (premiumTier) {
       case "basic":
-        return <span className="inline-flex items-center rounded-md bg-blue-550/10 px-2 py-1 text-[10px] font-bold text-blue-500 border border-blue-500/20">BASIC</span>;
+        return <span className="inline-flex items-center rounded-md bg-blue-500/10 px-2 py-1 text-[10px] font-bold text-blue-500 border border-blue-500/20">BASIC</span>;
       case "pro":
         return <span className="inline-flex items-center rounded-md bg-purple-500/10 px-2 py-1 text-[10px] font-bold text-purple-500 border border-purple-500/20">PRO ⚡</span>;
       case "elite":
@@ -163,6 +163,20 @@ export function UserProfileDropdown() {
 
           {/* Action Links */}
           <div className="space-y-1 mb-3.5">
+            <button
+              onClick={() => { setLocation("/dashboard"); setDropdownOpen(false); }}
+              className="w-full text-left py-2 px-3 rounded-lg text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/80 transition flex items-center gap-2 cursor-pointer"
+            >
+              <User className="h-3.5 w-3.5 text-primary" />
+              <span>Dashboard</span>
+            </button>
+            <button
+              onClick={() => { setLocation("/pricing"); setDropdownOpen(false); }}
+              className="w-full text-left py-2 px-3 rounded-lg text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/80 transition flex items-center gap-2 cursor-pointer"
+            >
+              <CreditCard className="h-3.5 w-3.5 text-blue-500" />
+              <span>My Plan</span>
+            </button>
             <button
               onClick={() => { setLocation("/referral"); setDropdownOpen(false); }}
               className="w-full text-left py-2 px-3 rounded-lg text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/80 transition flex items-center gap-2 cursor-pointer"
