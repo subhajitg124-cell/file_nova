@@ -12,8 +12,34 @@ import premiumRouter from "./premium";
 import subscriptionRouter from "./subscriptions";
 import authRouter from "./auth";
 import { checkUsageLimit } from "../middlewares/limits";
+import { authMiddleware, type AuthRequest } from "../middlewares/auth";
 
 const router = Router();
+
+type UploadPlan = "free" | "basic" | "pro" | "elite";
+
+const FILE_SIZE_LIMITS_MB: Record<UploadPlan, number> = {
+  free: 5,
+  basic: 25,
+  pro: 100,
+  elite: 100,
+};
+
+const getUploadPlan = (req: AuthRequest): UploadPlan => {
+  const tier = req.user?.premiumTier;
+  if (tier === "basic" || tier === "pro" || tier === "elite") return tier;
+  return "free";
+};
+
+const formatFileSizeMb = (bytes: number) => {
+  const mb = bytes / (1024 * 1024);
+  return mb >= 10 ? Math.round(mb).toString() : mb.toFixed(1);
+};
+
+const getLimitMessage = (fileSize: number, plan: UploadPlan, limitMb: number) => {
+  const label = plan === "free" ? "Free" : plan.charAt(0).toUpperCase() + plan.slice(1);
+  return `This file is ${formatFileSizeMb(fileSize)}MB. ${label} plan supports up to ${limitMb}MB. Upgrade to Basic (₹49/month) for 25MB or Pro (₹99/month) for 100MB.`;
+};
 
 // Zod schemas and validation
 const allowedMimeTypes = [
@@ -37,7 +63,7 @@ const fileValidator = z.object({
   mimetype: z.string().refine(val => allowedMimeTypes.includes(val), {
     message: "Unsupported file type"
   }),
-  size: z.number().max(50 * 1024 * 1024, "File size exceeds 50MB limit"),
+  size: z.number().max(FILE_SIZE_LIMITS_MB.elite * 1024 * 1024, "File size exceeds 100MB limit"),
   destination: z.string(),
   filename: z.string(),
   path: z.string()
@@ -61,7 +87,7 @@ if (!fs.existsSync(uploadDir)) {
 const upload = multer({
   dest: uploadDir,
   limits: {
-    fileSize: 50 * 1024 * 1024, // 50MB size limit
+    fileSize: FILE_SIZE_LIMITS_MB.elite * 1024 * 1024,
     files: 20
   }
 });
@@ -118,7 +144,7 @@ router.get("/health", (_req, res) => {
 });
 
 // Upload API
-router.post("/upload", uploadRateLimiter, upload.array("files"), (req, res): void => {
+router.post("/upload", uploadRateLimiter, authMiddleware, upload.array("files"), (req: AuthRequest, res): void => {
   const jobId = req.body.job_id;
   if (!jobId) {
     res.status(400).json({ detail: "job_id is required." });
@@ -131,10 +157,17 @@ router.post("/upload", uploadRateLimiter, upload.array("files"), (req, res): voi
     return;
   }
 
+  const plan = getUploadPlan(req);
+  const limitMb = FILE_SIZE_LIMITS_MB[plan];
+  const limitBytes = limitMb * 1024 * 1024;
+
   try {
     // Validate each file
     for (const file of files) {
       fileValidator.parse(file);
+      if (file.size > limitBytes) {
+        throw new Error(getLimitMessage(file.size, plan, limitMb));
+      }
     }
   } catch (err: any) {
     // Clean up uploaded files on validation error
@@ -144,7 +177,8 @@ router.post("/upload", uploadRateLimiter, upload.array("files"), (req, res): voi
       }
     }
     const message = err instanceof z.ZodError ? err.errors[0].message : "Invalid file uploaded.";
-    res.status(400).json({ detail: message });
+    const status = err instanceof z.ZodError ? 400 : 413;
+    res.status(status).json({ detail: err instanceof z.ZodError ? message : err.message });
     return;
   }
 

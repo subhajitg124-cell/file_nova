@@ -3,11 +3,21 @@ import { useDropzone } from 'react-dropzone';
 import { Upload, AlertCircle, Loader2, FileText, Image, Video, FileSpreadsheet, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFileStore } from '@/store/useFileStore';
+import { useAuthStore, type UserProfile, type UserSubscription } from '@/store/useAuthStore';
 import { useTranslation } from '@/lib/i18n';
 import { useAdmin } from '@/lib/admin';
 import { apiClient, apiMock } from '@/lib/api';
 import { detectFileType, getWorkspaceCategory } from '@/lib/file-detection';
 import { AutoDetectAnimation } from '@/components/shared/AutoDetectAnimation';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface UploadZoneProps {
   allowedCategory?: 'pdf' | 'image' | 'video' | 'office' | null;
@@ -20,11 +30,39 @@ const CATEGORY_META = {
   office: { icon: FileSpreadsheet,label: 'Office Suite',  color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30' },
 };
 
+type PlanName = 'free' | 'basic' | 'pro' | 'elite';
+
+const FILE_SIZE_LIMITS_MB: Record<PlanName, number> = {
+  free: 5,
+  basic: 25,
+  pro: 100,
+  elite: 100,
+};
+
+const formatFileSizeMb = (bytes: number) => {
+  const mb = bytes / (1024 * 1024);
+  return mb >= 10 ? Math.round(mb).toString() : mb.toFixed(1);
+};
+
+const getUploadPlan = (user: UserProfile | null, subscription: UserSubscription | null): PlanName => {
+  if (subscription?.status === 'active' && subscription.plan) return subscription.plan;
+  return user?.premiumTier || 'free';
+};
+
+const getPlanLabel = (plan: PlanName) => plan === 'free' ? 'Free' : plan.charAt(0).toUpperCase() + plan.slice(1);
+
 export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }) => {
   const { isMockMode, jobId, setJobId, setError, error, setSelectedSection, openEditor } = useFileStore();
+  const { user, subscription } = useAuthStore();
   const t = useTranslation();
   const admin = useAdmin();
   const [isUploading, setIsUploading] = useState(false);
+  const [sizeLimitModal, setSizeLimitModal] = useState<{
+    fileName: string;
+    fileSizeMb: string;
+    plan: PlanName;
+    limitMb: number;
+  } | null>(null);
   const [mismatchError, setMismatchError] = useState<{
     detected: 'pdf' | 'image' | 'video' | 'office' | null;
     fileName: string;
@@ -54,6 +92,20 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
     if (acceptedFiles.length === 0) return;
     setError(null); setMismatchError(null); setPendingRedirect(null);
     const file = acceptedFiles[0];
+    const plan = getUploadPlan(user, subscription);
+    const limitMb = FILE_SIZE_LIMITS_MB[plan];
+    const limitBytes = limitMb * 1024 * 1024;
+
+    if (file.size > limitBytes) {
+      setSizeLimitModal({
+        fileName: file.name,
+        fileSizeMb: formatFileSizeMb(file.size),
+        plan,
+        limitMb,
+      });
+      return;
+    }
+
     const detection = await detectFileType(file);
     const detectedCat = getWorkspaceCategory(detection.mime, detection.extension);
     if (allowedCategory) {
@@ -63,9 +115,17 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
     }
     setError(null);
     openEditor(file, resolveEditorType(file));
-  }, [allowedCategory, setError, openEditor]);
+  }, [allowedCategory, setError, openEditor, user, subscription]);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, maxSize: 100 * 1024 * 1024, disabled: !admin.settings.editingEnabled });
+  const plan = getUploadPlan(user, subscription);
+  const fileSizeLimitMb = FILE_SIZE_LIMITS_MB[plan];
+  const planLabel = getPlanLabel(plan);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    maxSize: FILE_SIZE_LIMITS_MB.elite * 1024 * 1024,
+    disabled: !admin.settings.editingEnabled,
+  });
 
   const getAcceptLabel = () => {
     if (allowedCategory === 'pdf')    return t.acceptLabelPdf;
@@ -193,10 +253,39 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0" />
                 {getAcceptLabel()}
               </div>
+
+              {/* Plan-aware size limit */}
+              <p className="text-[11px] sm:text-xs text-muted-foreground">
+                Max file size: {fileSizeLimitMb}MB ({planLabel})
+                {plan === 'free' ? ' · Upgrade for larger files' : ''}
+              </p>
             </motion.div>
           )}
         </div>
       </motion.div>
+
+      <Dialog open={Boolean(sizeLimitModal)} onOpenChange={(open) => !open && setSizeLimitModal(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>File size limit reached</DialogTitle>
+            <DialogDescription className="leading-relaxed">
+              {sizeLimitModal && (
+                <>
+                  <span className="font-medium text-foreground">{sizeLimitModal.fileName}</span>
+                  <br />
+                  This file is {sizeLimitModal.fileSizeMb}MB. {getPlanLabel(sizeLimitModal.plan)} plan supports up to {sizeLimitModal.limitMb}MB.
+                  <br />
+                  Upgrade to Basic (₹49/month) for 25MB or Pro (₹99/month) for 100MB.
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSizeLimitModal(null)}>Cancel</Button>
+            <Button onClick={() => { window.location.href = '/pricing'; }}>Upgrade Now</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Auto-detect redirect */}
       {pendingRedirect && (

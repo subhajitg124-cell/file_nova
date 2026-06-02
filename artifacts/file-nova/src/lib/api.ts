@@ -40,6 +40,7 @@ export const apiClient = {
     files.forEach((f) => formData.append('files', f));
     const res = await fetch(`${BACKEND_URL}/api/v1/upload`, {
       method: 'POST',
+      credentials: 'include',
       body: formData,
     });
     if (!res.ok) {
