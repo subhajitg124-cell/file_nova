@@ -2,7 +2,7 @@ import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider, QueryErrorResetBoundary } from "@tanstack/react-query";
 import { LazyMotion, domAnimation } from "framer-motion";
 import React, { Component, ErrorInfo, ReactNode, useState, useEffect } from "react";
-import Home from "@/pages/Home";
+import Home from "@/pages/SimpleHome";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminUpiPayments from "@/pages/AdminUpiPayments";
 import AdminLogin from "@/pages/AdminLogin";
