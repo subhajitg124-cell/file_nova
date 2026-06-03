@@ -20,6 +20,7 @@ import BlogPostPage from "@/pages/BlogPostPage";
 import ReferralPage from "@/pages/ReferralPage";
 import StudentOfferPage from "@/pages/StudentOfferPage";
 import ResourcesPage from "@/pages/ResourcesPage";
+import ContactPage from "@/pages/Contact";
 import ProfilePage from "@/pages/ProfilePage";
 import { LanguageProvider } from "@/lib/i18n";
 import { AdminProvider } from "@/lib/admin";
@@ -135,6 +136,7 @@ function Router() {
       <Route path="/referral" component={ReferralPage} />
       <Route path="/student-offer" component={StudentOfferPage} />
       <Route path="/resources" component={ResourcesPage} />
+      <Route path="/contact" component={ContactPage} />
       <Route path="/profile" component={ProfilePage} />
       <Route component={NotFound} />
     </Switch>

@@ -7,6 +7,7 @@ import {
   HelpCircle, Check, PlayCircle, ShieldCheck, Printer, Server, Palette, Fingerprint
 } from "lucide-react";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
+import { Footer } from "@/components/Footer";
 import { useFileStore } from "@/store/useFileStore";
 import { WB_REQUIREMENTS, SchemeRequirement, DocumentSpec } from "@/data/wbRequirements";
 import { Confetti } from "@/components/AnimatedEffects";
@@ -650,15 +651,7 @@ export default function ResourcesPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-900 py-10 text-center bg-slate-950 relative z-10">
-        <p className="text-xs text-slate-500 max-w-2xl mx-auto leading-relaxed px-4">
-          Disclaimer: Some of the recommendations above contain affiliate links, meaning we may earn a small commission if you purchase through them at no extra cost to you. We only recommend high-quality tools we trust.
-        </p>
-        <p className="mt-4 text-xs text-slate-500">
-          &copy; {new Date().getFullYear()} FileNova AI. All rights reserved.
-        </p>
-      </footer>
+      <Footer />
     </div>
   );
 }

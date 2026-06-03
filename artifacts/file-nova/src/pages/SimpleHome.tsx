@@ -9,6 +9,7 @@ import {
 import { useFileStore } from "@/store/useFileStore";
 import { useLanguage, useTranslation } from "@/lib/i18n";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
+import Footer from "@/components/Footer";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useSubscription } from "@/hooks/useSubscription";
 
@@ -246,6 +247,11 @@ export default function SimpleHome() {
                 Open Document Workspace
               </a>
             </Link>
+            <Link href="/contact">
+              <a className="text-center text-sm border border-slate-800 text-slate-300 font-bold py-2 rounded-lg">
+                📞 Contact Support
+              </a>
+            </Link>
           </div>
         </div>
       )}
@@ -462,40 +468,7 @@ export default function SimpleHome() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-900 py-16 bg-slate-950 relative z-10">
-        <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 sm:grid-cols-4 gap-8">
-          <div className="space-y-3 col-span-1 sm:col-span-2">
-            <span className="font-black text-white text-base block">FileNova.in</span>
-            <p className="text-xs text-slate-500 max-w-sm leading-relaxed">
-              India's first AI-powered document automation desk built client-side. Optimize marksheets, mask Aadhaar, package scholarship ZIP portfolios in seconds.
-            </p>
-            <p className="text-[10px] text-slate-600 mt-4">
-              © {new Date().getFullYear()} FileNova AI India. All rights reserved.
-            </p>
-          </div>
-
-          <div>
-            <span className="font-bold text-xs text-white uppercase tracking-wider block mb-4">Quick Directory</span>
-            <ul className="space-y-2 text-xs text-slate-400">
-              <li><Link href="/tools"><a className="hover:text-indigo-400 transition-colors">All 30+ Tools</a></Link></li>
-              <li><Link href="/workspace"><a className="hover:text-indigo-400 transition-colors">Document Desk</a></Link></li>
-              <li><Link href="/pricing"><a className="hover:text-indigo-400 transition-colors">Pricing & Plans</a></Link></li>
-              <li><Link href="/student-offer"><a className="hover:text-indigo-400 transition-colors">Student Discounts</a></Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <span className="font-bold text-xs text-white uppercase tracking-wider block mb-4">Support & Legal</span>
-            <ul className="space-y-2 text-xs text-slate-400">
-              <li><Link href="/blog"><a className="hover:text-indigo-400 transition-colors">Official Blog</a></Link></li>
-              <li><Link href="/resources"><a className="hover:text-indigo-400 transition-colors">Kiosk Resources</a></Link></li>
-              <li><a href="#" className="hover:text-indigo-400 transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-indigo-400 transition-colors">Terms of Service</a></li>
-            </ul>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
