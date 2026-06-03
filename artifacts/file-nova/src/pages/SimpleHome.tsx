@@ -142,12 +142,10 @@ export default function SimpleHome() {
           {/* Logo */}
           <Link href="/">
             <a className="flex items-center gap-2.5 shrink-0">
-              <div className="h-8.5 w-8.5 rounded-lg bg-indigo-600 flex items-center justify-center font-black text-white text-base shadow-glow-indigo">
-                FN
-              </div>
+              <img src="/logo.png" alt="FileNova logo" className="h-9 w-auto" />
               <div className="hidden sm:block">
                 <span className="font-extrabold text-sm text-white block">FileNova.in</span>
-                <span className="text-[10px] text-slate-500 block leading-none font-bold uppercase tracking-wider">CSC & Student Portal</span>
+                <span className="text-[10px] text-slate-500 block leading-none font-bold uppercase tracking-wider">CSC & STUDENT PORTAL</span>
               </div>
             </a>
           </Link>

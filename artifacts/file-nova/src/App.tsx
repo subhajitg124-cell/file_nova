@@ -86,16 +86,17 @@ class ErrorBoundary extends Component<Props, State> {
 function Router() {
   return (
     <Switch>
-       <Route path="/" component={Home} />
-       <Route path="/workspace" component={Workspace} />
-       <Route path="/tools" component={ToolsPage} />
-       <Route path="/tools/:toolId" component={ToolPage} />
-       <Route path="/premium" component={PremiumSuite} />
-       <Route path="/pricing" component={PricingPage} />
-       <Route path="/nova-control" component={AdminDashboard} />
-       <Route path="/admin/upi-payments" component={AdminUpiPayments} />
-       <Route path="/admin/coupons" component={AdminCouponManagement} />
-       <Route path="/nova-login" component={AdminLogin} />
+      <Route path="/" component={Home} />
+      <Route path="/workspace" component={Workspace} />
+      <Route path="/tools" component={ToolsPage} />
+      <Route path="/tools/:toolId" component={ToolPage} />
+      <Route path="/premium" component={PremiumSuite} />
+      <Route path="/pricing" component={PricingPage} />
+      <Route path="/nova-control" component={AdminDashboard} />
+      <Route path="/admin/upi-payments" component={AdminUpiPayments} />
+      <Route path="/admin/coupons" component={AdminCouponManagement} />
+      <Route path="/nova-login" component={AdminLogin} />
+      <Route path="/login" component={LoginPage} />
       <Route path="/dashboard" component={DashboardPage} />
       <Route path="/blog" component={BlogPage} />
       <Route path="/blog/:slug" component={BlogPostPage} />
