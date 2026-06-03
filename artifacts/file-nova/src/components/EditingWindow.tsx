@@ -26,8 +26,7 @@ import {
 import { QuickShareButton } from "@/components/WhatsAppShare";
 import { useImageEditor } from "@/hooks/useImageEditor";
 import { useTranslation } from "@/lib/i18n";
-
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
+import { BACKEND_URL } from "@/lib/api";
 
 interface EditingWindowProps {
   file: File | null;

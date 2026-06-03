@@ -257,6 +257,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                     setLoginIdentifier(e.target.value);
                     setEmailError("");
                   }}
+                  autoComplete="username"
                   className="w-full pl-9 pr-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none"
                 />
               </div>
@@ -272,6 +273,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                     setLoginPassword(e.target.value);
                     setPasswordError("");
                   }}
+                  autoComplete="new-password"
                   className="w-full pl-9 pr-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none"
                 />
               </div>
@@ -306,6 +308,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                   placeholder="Full Name"
                   value={signupName}
                   onChange={(e) => setSignupName(e.target.value)}
+                  autoComplete="name"
                   className="w-full pl-9 pr-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none"
                 />
               </div>
@@ -320,6 +323,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                     setSignupEmail(e.target.value);
                     setEmailError("");
                   }}
+                  autoComplete="email"
                   className="w-full pl-9 pr-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none"
                 />
               </div>
@@ -332,6 +336,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                   placeholder="Phone Number (e.g. 9876543210)"
                   value={signupPhone}
                   onChange={(e) => setSignupPhone(e.target.value)}
+                  autoComplete="tel"
                   className="w-full pl-9 pr-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none"
                 />
               </div>
@@ -346,6 +351,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                     setSignupPassword(e.target.value);
                     setPasswordError("");
                   }}
+                  autoComplete="new-password"
                   className="w-full pl-9 pr-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none"
                 />
               </div>

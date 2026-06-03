@@ -13,8 +13,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
 import { AuthModal } from "@/components/AuthModal";
 import { toast } from "sonner";
-
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
+import { BACKEND_URL } from "@/lib/api";
 
 interface PlanCardProps {
   id: PremiumTier;

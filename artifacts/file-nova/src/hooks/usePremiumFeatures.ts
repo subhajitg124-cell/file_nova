@@ -5,8 +5,7 @@
 
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
-
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
+import { BACKEND_URL } from "@/lib/api";
 
 export interface UseShareOptions {
   documentId: string;

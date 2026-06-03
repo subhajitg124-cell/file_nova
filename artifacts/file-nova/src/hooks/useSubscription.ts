@@ -5,9 +5,9 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
+import { BACKEND_URL } from "@/lib/api";
 
 export type PremiumTier = "free" | "basic" | "pro" | "elite";
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
 
 const getTodayKey = () => {
   const d = new Date();

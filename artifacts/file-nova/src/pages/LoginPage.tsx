@@ -308,6 +308,7 @@ const isValidationError = (err: string): boolean => {
                       setLoginIdentifier(e.target.value);
                       setEmailError("");
                     }}
+                    autoComplete="username"
                     className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none transition-all focus:ring-1 focus:ring-primary"
                   />
                 </div>
@@ -323,6 +324,7 @@ const isValidationError = (err: string): boolean => {
                       setLoginPassword(e.target.value);
                       setPasswordError("");
                     }}
+                    autoComplete="new-password"
                     className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none transition-all focus:ring-1 focus:ring-primary"
                   />
                 </div>
@@ -357,6 +359,7 @@ const isValidationError = (err: string): boolean => {
                     placeholder="Full Name"
                     value={signupName}
                     onChange={(e) => setSignupName(e.target.value)}
+                    autoComplete="name"
                     className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none transition-all focus:ring-1 focus:ring-primary"
                   />
                 </div>
@@ -371,6 +374,7 @@ const isValidationError = (err: string): boolean => {
                       setSignupEmail(e.target.value);
                       setEmailError("");
                     }}
+                    autoComplete="email"
                     className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none transition-all focus:ring-1 focus:ring-primary"
                   />
                 </div>
@@ -383,6 +387,7 @@ const isValidationError = (err: string): boolean => {
                     placeholder="Phone (e.g. 9876543210)"
                     value={signupPhone}
                     onChange={(e) => setSignupPhone(e.target.value)}
+                    autoComplete="tel"
                     className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none transition-all focus:ring-1 focus:ring-primary"
                   />
                 </div>
@@ -397,6 +402,7 @@ const isValidationError = (err: string): boolean => {
                       setSignupPassword(e.target.value);
                       setPasswordError("");
                     }}
+                    autoComplete="new-password"
                     className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none transition-all focus:ring-1 focus:ring-primary"
                   />
                 </div>

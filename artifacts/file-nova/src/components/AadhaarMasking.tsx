@@ -19,8 +19,7 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
-
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
+import { BACKEND_URL } from "@/lib/api";
 
 interface DetectResult {
   success: boolean;
