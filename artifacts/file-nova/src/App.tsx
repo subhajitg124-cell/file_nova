@@ -34,9 +34,9 @@ import { FloatingShortcuts } from "@/components/FloatingShortcuts";
 import { FloatingParticles } from "@/components/AnimatedEffects";
 import { useAuthStore } from "@/store/useAuthStore";
 import { LoadingScreen } from "@/components/LoadingScreen";
+import { BACKEND_URL } from "@/lib/api";
 
 const queryClient = new QueryClient();
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
 
 interface Props {
   children: ReactNode;

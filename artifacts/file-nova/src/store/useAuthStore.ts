@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { BACKEND_URL } from '@/lib/api';
 
 export interface UserProfile {
   id: string;
@@ -39,7 +40,7 @@ interface AuthState {
   deleteAccount: () => Promise<boolean>;
 }
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
+
 const SESSION_TOKEN_KEY = 'filenova_token';
 const API_TIMEOUT_MS = 30000;
 

@@ -21,8 +21,7 @@ import {
 import { useSubscription, type PremiumTier } from "@/hooks/useSubscription";
 import { useAuthStore } from "@/store/useAuthStore";
 import { toast } from "sonner";
-
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
+import { BACKEND_URL } from "@/lib/api";
 
 interface BillingItem {
   id: string;
