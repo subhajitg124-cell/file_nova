@@ -27,13 +27,30 @@ interface CuratedTool {
 export default function SimpleHome() {
   const [, setLocation] = useLocation();
   const { user } = useAuthStore();
-  const { premiumTier } = useSubscription();
+  const { premiumTier, useCount } = useSubscription();
   const { language, setLanguage } = useLanguage();
   const t = useTranslation();
   
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeCategoryFilter, setActiveCategoryFilter] = useState<"all" | "india" | "pdf" | "image" | "office" | "ai">("all");
+  const [showUpgradeBanner, setShowUpgradeBanner] = useState(true);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      const header = document.querySelector("header");
+      const mobileMenu = document.querySelector(".mobile-menu-panel");
+      if (
+        header && !header.contains(event.target as Node) &&
+        mobileMenu && !mobileMenu.contains(event.target as Node)
+      ) {
+        setMobileMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [mobileMenuOpen]);
 
   const handleScholarshipClick = () => {
     setLocation("/tools/scholarship-zip");
@@ -208,7 +225,17 @@ export default function SimpleHome() {
 
             {/* Profile Dropdown */}
             {user ? (
-              <UserProfileDropdown />
+              <div className="flex items-center gap-2">
+                <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${
+                  premiumTier === "elite" ? "badge-elite" :
+                  premiumTier === "pro" ? "badge-pro" :
+                  premiumTier === "basic" ? "badge-basic" :
+                  "badge-free"
+                }`}>
+                  {premiumTier}
+                </span>
+                <UserProfileDropdown />
+              </div>
             ) : (
               <Link href="/login" className="text-xs sm:text-sm bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-5 sm:py-1.5 sm:px-3.5 rounded-lg min-h-[44px] flex items-center justify-center transition-all shadow-glow">
                 Login
@@ -230,7 +257,7 @@ export default function SimpleHome() {
 
       {/* Mobile Menu Panel */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-b border-slate-900 bg-slate-950 p-4 space-y-3 animate-fadeIn relative z-30">
+        <div className="mobile-menu-panel md:hidden border-b border-slate-900 bg-slate-950 p-4 space-y-3 animate-fadeIn relative z-30">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 h-4 w-4 pointer-events-none" />
             <input
@@ -242,17 +269,30 @@ export default function SimpleHome() {
             />
           </div>
           <div className="flex flex-col gap-2 pt-2 border-t border-slate-900">
-            <Link href="/pricing" className="flex items-center justify-center gap-2 text-sm text-amber-400 font-bold py-2 border border-amber-500/20 bg-amber-500/5 rounded-lg">
+            <Link onClick={() => setMobileMenuOpen(false)} href="/pricing" className="flex items-center justify-center gap-2 text-sm text-amber-400 font-bold py-2 border border-amber-500/20 bg-amber-500/5 rounded-lg">
               <Crown className="h-4 w-4 fill-current" />
               Premium Suite Billing
             </Link>
-            <Link href="/workspace" className="text-center text-sm bg-slate-900 border border-slate-800 text-slate-300 font-bold py-2 rounded-lg">
+            <Link onClick={() => setMobileMenuOpen(false)} href="/workspace" className="text-center text-sm bg-slate-900 border border-slate-800 text-slate-300 font-bold py-2 rounded-lg">
               Open Document Workspace
             </Link>
-            <Link href="/contact" className="text-center text-sm border border-slate-800 text-slate-300 font-bold py-2 rounded-lg">
+            <Link onClick={() => setMobileMenuOpen(false)} href="/contact" className="text-center text-sm border border-slate-800 text-slate-300 font-bold py-2 rounded-lg">
               📞 Contact Support
             </Link>
           </div>
+        </div>
+      )}
+
+      {premiumTier === "free" && showUpgradeBanner && (
+        <div className="bg-gradient-to-r from-indigo-900 via-indigo-950 to-indigo-900 border-b border-indigo-500/20 py-2 px-4 text-center text-xs font-bold text-slate-200 flex items-center justify-center gap-2 relative z-20">
+          <span>⚡ Free plan: {Math.max(0, 3 - useCount)} of 3 uses remaining today → <Link href="/pricing" className="text-indigo-400 hover:text-indigo-300 underline">Upgrade to Pro ₹99/month</Link></span>
+          <button
+            onClick={() => setShowUpgradeBanner(false)}
+            className="absolute right-4 text-slate-400 hover:text-slate-200 cursor-pointer"
+            title="Dismiss banner"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
         </div>
       )}
 

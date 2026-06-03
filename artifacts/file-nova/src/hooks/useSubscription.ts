@@ -6,6 +6,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { BACKEND_URL } from "@/lib/api";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export type PremiumTier = "free" | "basic" | "pro" | "elite";
 
@@ -49,7 +50,13 @@ export function useSubscription() {
 
   const fetchStatus = useCallback(async () => {
     try {
-      const res = await fetch(`${BACKEND_URL}/api/v1/premium/subscription/status`);
+      const token = localStorage.getItem("filenova_token");
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const res = await fetch(`${BACKEND_URL}/api/v1/premium/subscription/status`, { headers });
       if (res.ok) {
         const data = await res.json();
         const isPremium = data.premiumEnabled || false;
@@ -136,9 +143,15 @@ export function useSubscription() {
         amount = Math.round(amount * (1 - discountPercentage / 100));
       }
 
+      const token = localStorage.getItem("filenova_token");
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
       const res = await fetch(`${BACKEND_URL}/api/payments/create-order`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({ plan, amount, coupon }),
       });
       if (!res.ok) throw new Error(await res.text());
@@ -154,9 +167,15 @@ export function useSubscription() {
         handler: async (response: any) => {
           setLoading(true);
           try {
+             const token = localStorage.getItem("filenova_token");
+             const headers: Record<string, string> = { "Content-Type": "application/json" };
+             if (token) {
+               headers["Authorization"] = `Bearer ${token}`;
+             }
+
              const verifyRes = await fetch(`${BACKEND_URL}/api/payments/verify`, {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
+              headers,
               body: JSON.stringify({
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
@@ -167,6 +186,7 @@ export function useSubscription() {
             if (!verifyRes.ok) throw new Error("Payment verification failed");
             toast.success("🎉 Welcome to Pro! Your account is now upgraded.");
             fetchStatus();
+            useAuthStore.getState().fetchMe();
           } catch (err: any) {
             toast.error(err.message || "Payment verification failed");
           } finally {
@@ -192,9 +212,15 @@ export function useSubscription() {
         toast.info("Mocking transaction checkout…");
         setTimeout(async () => {
           try {
+            const token = localStorage.getItem("filenova_token");
+            const headers: Record<string, string> = { "Content-Type": "application/json" };
+            if (token) {
+              headers["Authorization"] = `Bearer ${token}`;
+            }
+
             const verifyRes = await fetch(`${BACKEND_URL}/api/payments/verify`, {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
+              headers,
               body: JSON.stringify({
                 razorpay_order_id: data.orderId,
                 razorpay_payment_id: `pay_mock_${Math.random().toString(36).slice(2)}`,
@@ -204,6 +230,7 @@ export function useSubscription() {
             if (!verifyRes.ok) throw new Error("Mock verification failed");
             toast.success("🎉 Welcome to Pro! Your account is now upgraded.");
             fetchStatus();
+            useAuthStore.getState().fetchMe();
           } catch (err) {
             toast.error("Simulated purchase validation failed.");
           } finally {
@@ -224,8 +251,15 @@ export function useSubscription() {
   const cancelSubscription = async () => {
     setLoading(true);
     try {
+      const token = localStorage.getItem("filenova_token");
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
       const res = await fetch(`${BACKEND_URL}/api/v1/premium/subscription/cancel`, {
         method: "POST",
+        headers,
       });
       if (res.ok) {
         toast.success("Subscription downgraded to Free.");

@@ -147,7 +147,26 @@ const Footer: React.FC = () => {
           <p className="mt-2">
             Made with ❤️ by <span className="text-purple-400">Subhajit Ghosh</span>
           </p>
-          <div className="flex justify-center gap-4 mt-4 text-xs flex-wrap">
+          
+          <div className="mt-6 flex flex-col items-center justify-center gap-3">
+            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Support FileNova Development</p>
+            <div className="flex gap-4">
+              <a
+                href="upi://pay?pa=subhajitgho123-1@oksbi&pn=Subhajit%20Ghosh&am=10&cu=INR&tn=Buy%20Chai"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white rounded-xl text-xs font-black shadow-lg transition duration-200 transform hover:scale-105 active:scale-95"
+              >
+                ☕ Chai (₹10)
+              </a>
+              <a
+                href="upi://pay?pa=subhajitgho123-1@oksbi&pn=Subhajit%20Ghosh&am=50&cu=INR&tn=Support%20FileNova"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-650 text-white rounded-xl text-xs font-black shadow-lg transition duration-200 transform hover:scale-105 active:scale-95 border border-indigo-500/20"
+              >
+                💖 Support (₹50)
+              </a>
+            </div>
+          </div>
+
+          <div className="flex justify-center gap-4 mt-6 text-xs flex-wrap">
             <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
             <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
             <a href="#" className="hover:text-white transition-colors">Cookie Policy</a>

@@ -149,6 +149,14 @@ export default function DashboardPage() {
             Back to Tools
           </Link>
           <div className="flex items-center gap-3">
+            <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${
+              premiumTier === "elite" ? "badge-elite" :
+              premiumTier === "pro" ? "badge-pro" :
+              premiumTier === "basic" ? "badge-basic" :
+              "badge-free"
+            }`}>
+              {premiumTier}
+            </span>
             <UserProfileDropdown />
           </div>
         </div>
@@ -315,17 +323,17 @@ export default function DashboardPage() {
               <div className="space-y-1">
                 <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Your Referral Link</p>
                 <code className="text-xs bg-card border border-border px-3 py-1.5 rounded-lg block select-all font-mono font-bold text-foreground">
-                  {`${window.location.origin}/login?ref=${user.referralCode}`}
+                  {`https://filenova.in?ref=${user.referralCode}`}
                 </code>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap sm:flex-nowrap">
                 <div className="bg-card border border-border px-3.5 py-1.5 rounded-lg flex flex-col justify-center">
                   <p className="text-[9px] text-muted-foreground uppercase font-bold leading-none">Promo Code</p>
                   <p className="text-sm font-black tracking-wider text-emerald-600 dark:text-emerald-400 mt-1 leading-none">{user.referralCode}</p>
                 </div>
                 <button
                   onClick={() => {
-                    navigator.clipboard.writeText(`${window.location.origin}/login?ref=${user.referralCode}`);
+                    navigator.clipboard.writeText(`https://filenova.in?ref=${user.referralCode}`);
                     toast.success("Referral link copied to clipboard!");
                   }}
                   className="px-4 py-2 bg-card border border-border hover:bg-muted text-foreground rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-1.5"
@@ -333,6 +341,16 @@ export default function DashboardPage() {
                   <Copy className="h-3.5 w-3.5" />
                   Copy Link
                 </button>
+                <a
+                  href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
+                    `Hey! Join me on FileNova to resize images, compress PDFs, mask Aadhaar cards locally, and more. Use my referral link to get Pro benefits: https://filenova.in?ref=${user.referralCode}`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-1.5 text-center"
+                >
+                  Share on WhatsApp
+                </a>
               </div>
             </div>
           )}

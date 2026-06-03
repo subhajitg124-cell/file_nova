@@ -14,6 +14,8 @@ import authRouter from "./auth";
 import referralRouter from "./referral";
 import { checkUsageLimit } from "../middlewares/limits";
 import { authMiddleware, type AuthRequest } from "../middlewares/auth";
+import { db, fileHistoryTable } from "@workspace/db";
+import { desc, eq, count } from "drizzle-orm";
 
 const router = Router();
 
@@ -102,14 +104,14 @@ const upload = multer({
 });
 
 // In-memory job state store
-interface JobFile {
+export interface JobFile {
   path: string;
   originalname: string;
   mimetype: string;
   size: number;
 }
 
-interface Job {
+export interface Job {
   id: string;
   status: "pending" | "processing" | "completed" | "failed";
   progress: number;
@@ -127,7 +129,7 @@ interface Job {
   userPlan?: UploadPlan;
 }
 
-const jobs = new Map<string, Job>();
+export const jobs = new Map<string, Job>();
 
 // Command checker helper
 function checkCmd(cmd: string): boolean {
@@ -269,6 +271,9 @@ router.post("/bulk-process", uploadRateLimiter, authMiddleware, upload.array("fi
       const outputFilename = `bulk_${Date.now()}_${file.filename}_${safeOriginalName}`;
       const outputPath = path.join(uploadDir, outputFilename);
       fs.copyFileSync(file.path, outputPath);
+      if (fs.existsSync(file.path)) {
+        fs.unlinkSync(file.path);
+      }
       results.push({
         filename: safeOriginalName,
         status: "completed",
@@ -304,7 +309,7 @@ router.get("/preview/:filename", (req, res): void => {
 });
 
 // Asynchronous background processing logic
-async function runProcessing(job: Job, operation: string, options: any) {
+async function runProcessing(job: Job, operation: string, options: any, userId?: string) {
   const totalSteps = 10;
   for (let i = 1; i <= totalSteps; i++) {
     await new Promise(resolve => setTimeout(resolve, 300));
@@ -350,6 +355,18 @@ async function runProcessing(job: Job, operation: string, options: any) {
   };
   currentJob.updatedAt = new Date();
   jobs.set(currentJob.id, currentJob);
+
+  if (userId) {
+    db.insert(fileHistoryTable).values({
+      userId,
+      toolUsed: operation,
+      originalFilename: firstFile.originalname || "unknown",
+      fileSize: firstFile.size,
+      status: "completed",
+    }).catch(dbErr => {
+      logger.error({ dbErr, userId, jobId: currentJob.id }, "Failed to write file history to DB");
+    });
+  }
 }
 
 // Process API
@@ -373,7 +390,7 @@ router.post("/process", checkUsageLimit, (req, res): void => {
   jobs.set(jobId, job);
 
   // Run in background asynchronously
-  runProcessing(job, operation, options).catch(err => {
+  runProcessing(job, operation, options, (req as AuthRequest).user?.id).catch(err => {
     logger.error({ err, jobId }, "Error in processing background task");
     const currentJob = jobs.get(jobId);
     if (currentJob) {
@@ -385,6 +402,34 @@ router.post("/process", checkUsageLimit, (req, res): void => {
   });
 
   res.json({ status: "processing" });
+});
+
+// GET /history API to fetch past processed files
+router.get("/history", authMiddleware, async (req: AuthRequest, res): Promise<void> => {
+  if (!req.user) {
+    res.status(401).json({ detail: "Authentication required." });
+    return;
+  }
+
+  try {
+    const history = await db
+      .select()
+      .from(fileHistoryTable)
+      .where(eq(fileHistoryTable.userId, req.user.id))
+      .orderBy(desc(fileHistoryTable.processedAt))
+      .limit(50);
+
+    const [countRes] = await db
+      .select({ value: count() })
+      .from(fileHistoryTable)
+      .where(eq(fileHistoryTable.userId, req.user.id));
+    const totalCount = countRes?.value || 0;
+
+    res.json({ success: true, history, totalCount });
+  } catch (err: any) {
+    logger.error({ err, userId: req.user.id }, "Failed to fetch file history");
+    res.status(500).json({ error: "Failed to fetch file history" });
+  }
 });
 
 // Status API

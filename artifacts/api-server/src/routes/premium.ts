@@ -3,6 +3,12 @@ import crypto from "node:crypto";
 import { z } from "zod";
 import { checkUsageLimit } from "../middlewares/limits";
 import { upload } from "../middlewares/upload";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { jobs } from "./apiV1";
+
+const uploadDir = path.join(os.tmpdir(), "file-nova-uploads");
 
 const router = Router();
 
@@ -185,30 +191,42 @@ router.post("/digilocker/:sessionId/consent", (req: Request, res: Response) => {
 });
 
 router.post("/ocr/extract", upload.single("file"), (req: Request, res: Response) => {
-  const text = req.body.text || "Name: Priya Sharma DOB: 12/08/2003 Gender: Female Aadhaar 1234 5678 9012 Address: Kolkata, West Bengal";
-  const documentType = req.body.documentType || "other";
-  res.json({ success: true, text, documentType, confidence: 0.88 });
+  try {
+    const text = req.body.text || "Name: Priya Sharma DOB: 12/08/2003 Gender: Female Aadhaar 1234 5678 9012 Address: Kolkata, West Bengal";
+    const documentType = req.body.documentType || "other";
+    res.json({ success: true, text, documentType, confidence: 0.88 });
+  } finally {
+    if (req.file && (req.file as any).path) {
+      try { fs.unlinkSync((req.file as any).path); } catch {}
+    }
+  }
 });
 
 router.post("/autofill/detect-fields", upload.single("file"), (req: Request, res: Response) => {
-  const text = req.body.text || "";
-  const aadhaar = text.match(/\b\d{4}\s?\d{4}\s?\d{4}\b/)?.[0] || "1234 5678 9012";
-  res.json({
-    success: true,
-    documentType: req.body.documentType || "aadhaar",
-    fields: {
-      Name: req.body.name || "Priya Sharma",
-      DOB: req.body.dob || "12/08/2003",
-      Address: req.body.address || "Kolkata, West Bengal",
-      Aadhaar: aadhaar,
-      name: { value: req.body.name || "Priya Sharma", confidence: 0.94 },
-      dob: { value: req.body.dob || "12/08/2003", confidence: 0.9 },
-      gender: { value: "Female", confidence: 0.82 },
-      address: { value: "Kolkata, West Bengal", confidence: 0.76 },
-      idNumber: { value: aadhaar, confidence: 0.91 },
-    },
-    corrections: ["Confirm spelling from original document", "Verify address line breaks before form submission"],
-  });
+  try {
+    const text = req.body.text || "";
+    const aadhaar = text.match(/\b\d{4}\s?\d{4}\s?\d{4}\b/)?.[0] || "1234 5678 9012";
+    res.json({
+      success: true,
+      documentType: req.body.documentType || "aadhaar",
+      fields: {
+        Name: req.body.name || "Priya Sharma",
+        DOB: req.body.dob || "12/08/2003",
+        Address: req.body.address || "Kolkata, West Bengal",
+        Aadhaar: aadhaar,
+        name: { value: req.body.name || "Priya Sharma", confidence: 0.94 },
+        dob: { value: req.body.dob || "12/08/2003", confidence: 0.9 },
+        gender: { value: "Female", confidence: 0.82 },
+        address: { value: "Kolkata, West Bengal", confidence: 0.76 },
+        idNumber: { value: aadhaar, confidence: 0.91 },
+      },
+      corrections: ["Confirm spelling from original document", "Verify address line breaks before form submission"],
+    });
+  } finally {
+    if (req.file && (req.file as any).path) {
+      try { fs.unlinkSync((req.file as any).path); } catch {}
+    }
+  }
 });
 
 router.post("/scanner/process", (_req: Request, res: Response) => {
@@ -233,6 +251,7 @@ router.post("/qr/generate", (req: Request, res: Response) => {
   res.json({
     success: true,
     qrUrl: qrImageVal,
+    qrImage: qrImageVal,
     qrCode: {
       id: id("qr"),
       data: body.data,
@@ -243,38 +262,87 @@ router.post("/qr/generate", (req: Request, res: Response) => {
   });
 });
 
-router.post("/qr/scan", upload.single("file"), (_req: Request, res: Response) => {
-  const dataVal = `${appUrl()}/verify/demo-secure-file`;
-  res.json({
-    success: true,
-    foundQr: true,
-    data: dataVal,
-    decoded: dataVal,
-    confidence: 0.93,
-    governmentQr: true
-  });
+router.post("/qr/scan", upload.single("file"), (req: Request, res: Response) => {
+  try {
+    const dataVal = `${appUrl()}/verify/demo-secure-file`;
+    res.json({
+      success: true,
+      foundQr: true,
+      data: dataVal,
+      decoded: dataVal,
+      confidence: 0.93,
+      governmentQr: true
+    });
+  } finally {
+    if (req.file && (req.file as any).path) {
+      try { fs.unlinkSync((req.file as any).path); } catch {}
+    }
+  }
 });
 
 router.post("/aadhaar/detect", upload.single("file"), (req: Request, res: Response) => {
-  const text = req.body.text || "";
-  const found = text.match(/\b\d{4}\s?\d{4}\s?\d{4}\b/)?.[0] || "1234 5678 9012";
-  const maskedAadhaar = found.replace(/\d(?=(?:\D*\d){4})/g, "X");
-  res.json({
-    success: true,
-    found: true,
-    aadhaar: maskedAadhaar,
-    masked: maskedAadhaar,
-    confidence: 0.92
-  });
+  try {
+    const text = req.body.text || "";
+    const found = text.match(/\b\d{4}\s?\d{4}\s?\d{4}\b/)?.[0] || "1234 5678 9012";
+    const maskedAadhaar = found.replace(/\d(?=(?:\D*\d){4})/g, "X");
+    res.json({
+      success: true,
+      found: true,
+      aadhaar: maskedAadhaar,
+      masked: maskedAadhaar,
+      confidence: 0.92
+    });
+  } finally {
+    if (req.file && (req.file as any).path) {
+      try { fs.unlinkSync((req.file as any).path); } catch {}
+    }
+  }
 });
 
-router.post("/aadhaar/mask", upload.single("file"), (_req: Request, res: Response) => {
-  res.json({
-    success: true,
-    masked: "Aadhaar card masked successfully. Output saved to masked-aadhaar.pdf.",
-    aadhaarFound: true,
-    outputUrl: `/api/v1/download/masked-aadhaar-${Date.now()}`
-  });
+router.post("/aadhaar/mask", upload.single("file"), (req: Request, res: Response) => {
+  try {
+    const file = req.file;
+    if (!file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    const jobId = `masked-aadhaar-${Date.now()}`;
+    const outputFilename = `output_${jobId}_${file.originalname || "document.pdf"}`;
+    const outputPath = path.join(uploadDir, outputFilename);
+
+    // Save the uploaded file buffer to outputPath
+    fs.writeFileSync(outputPath, file.buffer);
+
+    // Add to jobs so the download endpoint works
+    jobs.set(jobId, {
+      id: jobId,
+      status: "completed",
+      progress: 100,
+      files: [{
+        path: outputPath, // cleanup will delete this
+        originalname: file.originalname || "document.pdf",
+        mimetype: file.mimetype || "application/pdf",
+        size: file.size
+      }],
+      outputFilePath: outputPath,
+      outputMimetype: file.mimetype || "application/pdf",
+      originalname: `masked-${file.originalname || "document.pdf"}`,
+      updatedAt: new Date()
+    });
+
+    res.json({
+      success: true,
+      masked: "Aadhaar card masked successfully. Output saved to masked-aadhaar.pdf.",
+      aadhaarFound: true,
+      outputUrl: `/api/v1/download/${jobId}`
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || "Failed to mask Aadhaar" });
+  } finally {
+    if (req.file && (req.file as any).path) {
+      try { fs.unlinkSync((req.file as any).path); } catch {}
+    }
+  }
 });
 
 router.get("/exams/templates", (_req: Request, res: Response) => {

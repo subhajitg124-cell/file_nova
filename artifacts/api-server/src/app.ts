@@ -16,20 +16,9 @@ const app: Express = express();
 
 app.use(helmet());
 
-// Dynamic CORS configuration (avoiding wildcard '*')
-const allowedOriginRegex = /^(https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?|https?:\/\/.*\.replit\.(app|dev|co)|https?:\/\/(.*\.)?filenova\.in)$/;
-
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (mobile apps, curl, etc.) if they come from allowed origins or are from the same origin
-      if (!origin) return callback(null, true);
-      if (allowedOriginRegex.test(origin)) {
-        return callback(null, true);
-      }
-      logger.warn({ origin }, "CORS: blocked request from disallowed origin");
-      return callback(new Error("Not allowed by CORS policy"));
-    },
+    origin: ['https://filenova.in', 'http://localhost:5173', 'http://localhost:3000'],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -57,12 +46,11 @@ app.use(
 );
 
 // ── Body parsers (with size limits) ──────────────────────────────────────────
-app.use(express.json({ limit: "1mb" }));
-app.use(express.urlencoded({ extended: true, limit: "1mb" }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(cookieParser());
 
 // ── Health endpoints BEFORE authMiddleware (for load balancer probes) ───────────
-// These must be mounted without auth for load balancer health checks to work
 app.use("/api", healthRouter);
 
 // ── Auth middleware ───────────────────────────────────────────────────────────
@@ -82,8 +70,9 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   // Ensure we always return valid JSON
   if (!res.headersSent) {
     res.status(500).json({
+      success: false,
       error: "Internal server error",
-      message: "An unexpected error occurred",
+      message: err.message || "An unexpected error occurred",
       timestamp: new Date().toISOString(),
     });
   }

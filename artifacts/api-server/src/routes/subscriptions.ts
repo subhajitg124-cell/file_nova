@@ -40,6 +40,20 @@ async function getCouponDiscount(couponCode: string | undefined, plan: string, u
   }
 
   const code = couponCode.toUpperCase().trim();
+  const staticCoupons: Record<string, number> = {
+    STUDENT20: 20,
+    CYBER50: 50,
+    FIRST30: 30,
+    WB10: 10,
+  };
+
+  if (staticCoupons[code] !== undefined) {
+    return {
+      valid: true,
+      discountPercentage: staticCoupons[code],
+      message: `${staticCoupons[code]}% discount applied!`,
+    };
+  }
 
   try {
     // Find coupon in database

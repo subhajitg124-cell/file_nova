@@ -28,8 +28,15 @@ export function OfflineBanner() {
   const [wasOffline, setWasOffline] = useState(false);
 
   useEffect(() => {
-    const fiveMinutes = 5 * 60 * 1000;
-    const timer = window.setTimeout(() => setCanShowUpdate(true), fiveMinutes);
+    const tenMinutes = 10 * 60 * 1000;
+    const timer = window.setTimeout(() => {
+      const today = new Date().toDateString();
+      const lastPrompt = localStorage.getItem("lastUpdatePrompt");
+      if (lastPrompt !== today) {
+        setCanShowUpdate(true);
+        localStorage.setItem("lastUpdatePrompt", today);
+      }
+    }, tenMinutes);
 
     return () => window.clearTimeout(timer);
   }, []);

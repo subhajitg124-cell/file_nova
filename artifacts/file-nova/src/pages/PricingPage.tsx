@@ -5,7 +5,7 @@
 
 import React from "react";
 import { Link } from "wouter";
-import { ChevronLeft, Sparkles, CheckCircle2, ShieldCheck, Zap, Loader, Copy, QrCode, Upload, Check } from "lucide-react";
+import { ChevronLeft, Sparkles, CheckCircle2, ShieldCheck, Zap, Loader, Copy, QrCode, Upload, Check, X } from "lucide-react";
 import { useSubscription, type PremiumTier, isTestingPeriodActive } from "@/hooks/useSubscription";
 import { TestingNotice } from "@/components/TestingNotice";
 import { useAdmin } from "@/lib/admin";
@@ -168,9 +168,15 @@ function UpiPaymentBox({
 
     setSubmitting(true);
     try {
+      const token = localStorage.getItem("filenova_token");
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
       const res = await fetch(`${BACKEND_URL}/api/upi-payment-verify`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({ utrId, email, plan, amount }),
       });
       const data = await res.json();
@@ -189,82 +195,88 @@ function UpiPaymentBox({
   };
 
   return (
-    <div className="rounded-xl border border-indigo-500/25 bg-indigo-500/5">
+    <div>
       <button
         type="button"
-        onClick={() => setOpen((value) => !value)}
-        className="w-full py-3 px-3 rounded-xl text-sm font-black text-primary hover:bg-indigo-500/10 transition flex items-center justify-center gap-2 cursor-pointer"
+        onClick={() => setOpen(true)}
+        className="w-full py-3 px-3 rounded-xl text-sm font-black text-primary hover:bg-indigo-500/10 transition flex items-center justify-center gap-2 cursor-pointer border border-indigo-500/20 bg-indigo-500/5"
       >
         <QrCode className="h-4 w-4" />
         Pay via UPI
       </button>
 
       {open && (
-        <div className="border-t border-indigo-500/20 p-4 space-y-4 animate-fade-in">
-          <div className="relative flex items-center justify-center text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-            <span className="absolute inset-x-0 top-1/2 border-t border-border" />
-            <span className="relative bg-card px-3">OR pay via UPI</span>
-          </div>
-
-          <div className="rounded-2xl border border-border bg-background/80 p-3 text-center">
-            <img
-              src="/upi-qr.png"
-              alt="FileNova UPI QR code"
-              className="mx-auto h-36 w-36 rounded-xl border border-border bg-white object-contain p-2"
-            />
-            <div className="mt-3 flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2">
-              <span className="min-w-0 flex-1 truncate text-xs font-bold text-foreground">{upiId}</span>
-              <button
-                type="button"
-                onClick={copyUpiId}
-                title="Copy UPI ID"
-                aria-label="Copy UPI ID"
-                className="h-8 w-8 shrink-0 rounded-lg border border-border bg-background hover:bg-muted flex items-center justify-center cursor-pointer"
-              >
-                <Copy className="h-3.5 w-3.5" />
-              </button>
-            </div>
-            <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
-              Scan QR or pay to UPI ID, then click 'I have paid' button below.
-            </p>
-          </div>
-
-          {!formOpen ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+          <div className="relative w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
             <button
-              type="button"
-              onClick={() => setFormOpen(true)}
-              className="w-full rounded-xl bg-primary py-3 text-xs font-black text-primary-foreground shadow-glow hover:opacity-90 transition cursor-pointer"
+              onClick={() => setOpen(false)}
+              className="absolute top-4 right-4 h-8 w-8 rounded-lg border border-border hover:bg-muted flex items-center justify-center transition cursor-pointer text-muted-foreground"
+              title="Close modal"
             >
-              I have paid
+              <X className="h-4 w-4" />
             </button>
-          ) : (
-            <form onSubmit={submitVerification} className="space-y-3">
-              <input
-                type="text"
-                inputMode="numeric"
-                maxLength={12}
-                placeholder="UTR/Transaction ID (12 digits)"
-                value={utrId}
-                onChange={(e) => setUtrId(e.target.value.replace(/\D/g, "").slice(0, 12))}
-                className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-xs font-semibold outline-none focus:border-primary"
+
+            <div className="text-center space-y-1">
+              <h3 className="text-lg font-black text-foreground">UPI Payment Verification</h3>
+              <p className="text-xs text-muted-foreground">
+                Pay ₹{amount} for the {plan.toUpperCase()} plan using UPI.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-background/50 p-4 text-center space-y-4">
+              <img
+                src="/upi-qr.png"
+                alt="FileNova UPI QR code"
+                className="mx-auto h-40 w-40 rounded-xl border border-border bg-white object-contain p-2"
               />
-              <input
-                type="email"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-xs font-semibold outline-none focus:border-primary"
-              />
-              <label className="flex items-center gap-2 rounded-xl border border-dashed border-border bg-background px-3 py-2.5 text-xs font-semibold text-muted-foreground cursor-pointer hover:border-primary/50">
-                <Upload className="h-4 w-4" />
-                <span className="min-w-0 flex-1 truncate">{screenshotName || "Upload screenshot (optional)"}</span>
+              <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2">
+                <span className="min-w-0 flex-1 truncate text-xs font-bold text-foreground text-left">{upiId}</span>
+                <button
+                  type="button"
+                  onClick={copyUpiId}
+                  title="Copy UPI ID"
+                  aria-label="Copy UPI ID"
+                  className="h-8 w-8 shrink-0 rounded-lg border border-border bg-background hover:bg-muted flex items-center justify-center cursor-pointer"
+                >
+                  <Copy className="h-3.5 w-3.5" />
+                </button>
+              </div>
+              <p className="text-[11px] leading-relaxed text-muted-foreground">
+                Scan QR or pay to UPI ID, then submit your transaction details below.
+              </p>
+            </div>
+
+            <form onSubmit={submitVerification} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                  12-Digit UTR / Transaction ID
+                </label>
                 <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => setScreenshotName(e.target.files?.[0]?.name || "")}
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={12}
+                  placeholder="e.g. 345678901234"
+                  value={utrId}
+                  onChange={(e) => setUtrId(e.target.value.replace(/\D/g, "").slice(0, 12))}
+                  className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-xs font-semibold outline-none focus:border-primary"
+                  required
                 />
-              </label>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                  Registered Email Address
+                </label>
+                <input
+                  type="email"
+                  placeholder="e.g. yourname@gmail.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-xs font-semibold outline-none focus:border-primary"
+                  required
+                />
+              </div>
+
               <button
                 type="submit"
                 disabled={submitting}
@@ -273,17 +285,17 @@ function UpiPaymentBox({
                 {submitting ? (
                   <span className="inline-flex items-center justify-center gap-2">
                     <Loader className="h-4 w-4 animate-spin" />
-                    Submitting
+                    Verifying Payment...
                   </span>
                 ) : (
                   <span className="inline-flex items-center justify-center gap-2">
                     <Check className="h-4 w-4" />
-                    Submit for verification
+                    Submit for Verification
                   </span>
                 )}
               </button>
             </form>
-          )}
+          </div>
         </div>
       )}
     </div>
@@ -425,9 +437,15 @@ export default function PricingPage() {
     }
 
     try {
+      const token = localStorage.getItem("filenova_token");
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
       const res = await fetch(`${BACKEND_URL}/api/v1/premium/subscription/coupons/validate`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({ coupon: cleanCode, plan: "pro" }),
       });
       const data = await res.json();

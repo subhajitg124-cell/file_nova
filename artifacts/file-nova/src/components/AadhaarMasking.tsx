@@ -40,6 +40,7 @@ export function AadhaarMasking() {
   // File state
   const [file, setFile] = useState<File | null>(null);
   const [fileUploading, setFileUploading] = useState(false);
+  const [fileMaskResult, setFileMaskResult] = useState<string | null>(null);
 
   const extractAadhaar = (text: string): string | null => {
     const match = text.match(/\b\d{4}\s?\d{4}\s?\d{4}\b/);
@@ -100,6 +101,7 @@ export function AadhaarMasking() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
+      setFileMaskResult(null);
     }
   };
 
@@ -111,6 +113,7 @@ export function AadhaarMasking() {
     e.preventDefault();
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       setFile(e.dataTransfer.files[0]);
+      setFileMaskResult(null);
     }
   };
 
@@ -138,15 +141,16 @@ export function AadhaarMasking() {
         throw new Error(errText || "Aadhaar file masking failed");
       }
 
-      const blob = await response.blob();
-      const downloadUrl = URL.createObjectURL(blob);
+      const data = await response.json();
+      setFileMaskResult(data.masked);
+
+      const downloadUrl = data.outputUrl.startsWith("http") ? data.outputUrl : `${BACKEND_URL}${data.outputUrl}`;
       const link = document.createElement("a");
       link.href = downloadUrl;
       link.download = `masked-${file.name}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      URL.revokeObjectURL(downloadUrl);
 
       toast.success("Aadhaar file masked and downloaded successfully!");
       setFile(null);
@@ -253,7 +257,7 @@ export function AadhaarMasking() {
                 </div>
               </div>
               <button
-                onClick={() => setFile(null)}
+                onClick={() => { setFile(null); setFileMaskResult(null); }}
                 className="h-7 w-7 rounded-lg border border-border hover:bg-red-500/10 hover:text-red-500 flex items-center justify-center transition"
                 title="Remove file"
               >
@@ -280,6 +284,13 @@ export function AadhaarMasking() {
                 </>
               )}
             </button>
+          )}
+
+          {fileMaskResult && (
+            <div className="mt-4 p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/20 space-y-2">
+              <p className="text-xs font-black text-indigo-400">Masking Output:</p>
+              <p className="text-xs text-foreground font-mono leading-relaxed">{fileMaskResult}</p>
+            </div>
           )}
         </div>
       )}

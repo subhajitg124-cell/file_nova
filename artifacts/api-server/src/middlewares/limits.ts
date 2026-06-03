@@ -55,10 +55,11 @@ export async function checkUsageLimit(req: AuthRequest, res: Response, next: Nex
 
       if (usage >= limit) {
         return res.status(403).json({
-          error: `Daily limit reached. ${tier === "pro" ? "Pro" : (tier === "basic" ? "Basic" : "Free")} users are limited to ${limit} actions per day. Please upgrade to a higher tier to continue.`,
-          limitReached: true,
+          error: "LIMIT_EXCEEDED",
+          message: "Daily limit reached",
+          plan: tier,
           limit,
-          usage,
+          upgradeUrl: "/pricing"
         });
       }
 
@@ -107,10 +108,11 @@ export async function checkUsageLimit(req: AuthRequest, res: Response, next: Nex
 
     if (ipUsage >= 3) {
       return res.status(403).json({
-        error: "Daily limit reached. Guest users are limited to 3 actions per day. Please sign in or upgrade to a premium plan to continue.",
-        limitReached: true,
+        error: "LIMIT_EXCEEDED",
+        message: "Daily limit reached",
+        plan: "free",
         limit: 3,
-        usage: ipUsage,
+        upgradeUrl: "/pricing"
       });
     }
 

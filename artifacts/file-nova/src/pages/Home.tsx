@@ -149,7 +149,7 @@ export default function Home() {
     addRawFiles,
     addFiles,
   } = useFileStore();
-  const { premiumEnabled, premiumTier, usersServedToday } = useSubscription();
+  const { premiumEnabled, premiumTier, usersServedToday, useCount } = useSubscription();
   const { user, openLoginModal } = useAuthStore();
   const [quickActionsExpanded, setQuickActionsExpanded] = useState(false);
   const [voiceOpen, setVoiceOpen] = useState(false);
@@ -171,7 +171,7 @@ export default function Home() {
     }
     quickActionsTimeoutRef.current = setTimeout(() => {
       setQuickActionsExpanded(false);
-    }, 2000);
+    }, 3000);
   };
 
   const handleCollapsedMicClick = (e: React.MouseEvent) => {
@@ -181,7 +181,14 @@ export default function Home() {
       openLoginModal("Sign in to use Voice Assistant");
       return;
     }
-    setQuickActionsExpanded(prev => !prev);
+    const nextState = !quickActionsExpanded;
+    setQuickActionsExpanded(nextState);
+    if (nextState) {
+      if (quickActionsTimeoutRef.current) clearTimeout(quickActionsTimeoutRef.current);
+      quickActionsTimeoutRef.current = setTimeout(() => {
+        setQuickActionsExpanded(false);
+      }, 3000);
+    }
   };
 
   const handleVoiceClick = (e: React.MouseEvent) => {
@@ -227,6 +234,23 @@ export default function Home() {
   });
   const { language, setLanguage } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      const header = document.querySelector("header");
+      const mobileMenu = document.querySelector(".mobile-menu-panel");
+      if (
+        header && !header.contains(event.target as Node) &&
+        mobileMenu && !mobileMenu.contains(event.target as Node)
+      ) {
+        setMobileMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [mobileMenuOpen]);
+
   const [selectedRuleId, setSelectedRuleId] = useState(eventRules[0].id);
   const [mobileSearchActive, setMobileSearchActive] = useState(false);
   const [useDirectSlots, setUseDirectSlots] = useState(true);
@@ -884,6 +908,14 @@ export default function Home() {
                   <Moon className="h-4 w-4 text-indigo-550 transition-all hover:rotate-12 duration-300" />
                 )}
               </button>
+              <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border mr-2 ${
+                premiumTier === "elite" ? "badge-elite" :
+                premiumTier === "pro" ? "badge-pro" :
+                premiumTier === "basic" ? "badge-basic" :
+                "badge-free"
+              }`}>
+                {premiumTier}
+              </span>
               <UserProfileDropdown />
             </div>
 
@@ -910,7 +942,7 @@ export default function Home() {
         </div>
 
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-border bg-card/95 px-4 py-3">
+          <div className="mobile-menu-panel md:hidden border-t border-border bg-card/95 px-4 py-3">
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-1.5 rounded-xl border border-border bg-card/60 px-2.5 py-2 text-xs text-muted-foreground">
                 <Languages className="h-3.5 w-3.5 text-muted-foreground" />
@@ -951,6 +983,16 @@ export default function Home() {
                 <span>Pricing</span>
               </Link>
               <div className="pt-1.5 border-t border-border mt-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${
+                    premiumTier === "elite" ? "badge-elite" :
+                    premiumTier === "pro" ? "badge-pro" :
+                    premiumTier === "basic" ? "badge-basic" :
+                    "badge-free"
+                  }`}>
+                    {premiumTier}
+                  </span>
+                </div>
                 <UserProfileDropdown />
               </div>
             </div>
@@ -959,9 +1001,8 @@ export default function Home() {
       </header>
 
       {premiumTier === "free" && showUpgradeBanner && (
-        <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 text-white px-4 py-2 text-center text-xs font-black relative flex items-center justify-center gap-2">
-          <span>⚡ You're on the Free plan · 3 uses/day · Upgrade to Pro for ₹99/month →</span>
-          <Link href="/pricing" className="underline hover:text-amber-100 ml-1">Upgrade Now</Link>
+        <div className="bg-gradient-to-r from-indigo-900 via-indigo-950 to-indigo-900 border-b border-indigo-500/20 py-2 px-4 text-center text-xs font-bold text-slate-200 flex items-center justify-center gap-2 relative z-20">
+          <span>⚡ Free plan: {Math.max(0, 3 - useCount)} of 3 uses remaining today → <Link href="/pricing" className="text-indigo-400 hover:text-indigo-300 underline">Upgrade to Pro ₹99/month</Link></span>
           <button
             onClick={() => {
               setShowUpgradeBanner(false);

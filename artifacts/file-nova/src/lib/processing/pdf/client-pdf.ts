@@ -30,7 +30,10 @@ export async function runClientSideImagesToPdf(files: File[]): Promise<Blob> {
   const imagesData = await Promise.all(files.map(async (f) => {
     const extension = f.name.split('.').pop()?.toLowerCase();
     const type = f.type || '';
-    if (type === 'image/jpeg' || type === 'image/jpg' || type === 'image/png' || extension === 'jpg' || extension === 'jpeg' || extension === 'png') {
+    const isUnstableFormat = ['webp', 'gif', 'svg', 'bmp'].includes(extension || '') ||
+                             ['image/webp', 'image/gif', 'image/svg+xml', 'image/bmp'].includes(type);
+
+    if (!isUnstableFormat && (type === 'image/jpeg' || type === 'image/jpg' || type === 'image/png' || extension === 'jpg' || extension === 'jpeg' || extension === 'png')) {
       return { name: f.name, buffer: await f.arrayBuffer(), mimeType: type || (extension === 'png' ? 'image/png' : 'image/jpeg') };
     }
     try {
@@ -43,19 +46,27 @@ export async function runClientSideImagesToPdf(files: File[]): Promise<Blob> {
       });
       URL.revokeObjectURL(objectUrl);
 
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) throw new Error('Could not get canvas context');
-      ctx.drawImage(img, 0, 0);
-
-      const pngBlob = await new Promise<Blob>((resolve, reject) => {
-        canvas.toBlob((b) => {
-          if (b) resolve(b);
-          else reject(new Error('toBlob failed'));
-        }, 'image/png');
-      });
+      let pngBlob: Blob;
+      if (typeof OffscreenCanvas !== 'undefined') {
+        const canvas = new OffscreenCanvas(img.width, img.height);
+        const ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('Could not get OffscreenCanvas context');
+        ctx.drawImage(img, 0, 0);
+        pngBlob = await canvas.convertToBlob({ type: 'image/png' });
+      } else {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('Could not get canvas context');
+        ctx.drawImage(img, 0, 0);
+        pngBlob = await new Promise<Blob>((resolve, reject) => {
+          canvas.toBlob((b) => {
+            if (b) resolve(b);
+            else reject(new Error('toBlob failed'));
+          }, 'image/png');
+        });
+      }
 
       const newName = f.name.substring(0, f.name.lastIndexOf('.')) + '.png';
       return { name: newName, buffer: await pngBlob.arrayBuffer(), mimeType: 'image/png' };

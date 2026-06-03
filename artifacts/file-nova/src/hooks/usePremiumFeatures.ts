@@ -41,9 +41,15 @@ export function useShare() {
     ): Promise<ShareResult | null> => {
       setLoading(true);
       try {
+        const token = localStorage.getItem("filenova_token");
+        const headers: Record<string, string> = { "Content-Type": "application/json" };
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+
         const response = await fetch(`${BACKEND_URL}/api/v1/premium/shares`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers,
           body: JSON.stringify({
             documentId,
             expiryHours: options?.expiryHours || 48,
@@ -78,9 +84,15 @@ export function useShare() {
     async (documentId: string, documentName: string): Promise<ShareResult | null> => {
       setLoading(true);
       try {
+        const token = localStorage.getItem("filenova_token");
+        const headers: Record<string, string> = { "Content-Type": "application/json" };
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+
         const response = await fetch(`${BACKEND_URL}/api/v1/premium/shares/whatsapp`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers,
           body: JSON.stringify({ documentId, documentName }),
         });
 
@@ -132,8 +144,15 @@ export function useShare() {
   const revokeShare = useCallback(async (token: string) => {
     setLoading(true);
     try {
+      const authToken = localStorage.getItem("filenova_token");
+      const headers: Record<string, string> = {};
+      if (authToken) {
+        headers["Authorization"] = `Bearer ${authToken}`;
+      }
+
       const response = await fetch(`${BACKEND_URL}/api/v1/premium/shares/${token}`, {
         method: "DELETE",
+        headers,
       });
 
       if (!response.ok) {
@@ -173,8 +192,16 @@ export function useSecureDownload() {
     setError(null);
 
     try {
+      const authToken = localStorage.getItem("filenova_token");
+      const headers: Record<string, string> = {};
+      if (authToken) {
+        headers["Authorization"] = `Bearer ${authToken}`;
+      }
+
       // First verify the token
-      const verifyResponse = await fetch(`${BACKEND_URL}/api/v1/premium/shares/verify/${token}`);
+      const verifyResponse = await fetch(`${BACKEND_URL}/api/v1/premium/shares/verify/${token}`, {
+        headers,
+      });
 
       if (!verifyResponse.ok) {
         throw new Error("Invalid or expired share link");
@@ -184,7 +211,8 @@ export function useSecureDownload() {
 
       // Then download
       const downloadResponse = await fetch(
-        `${BACKEND_URL}/api/v1/premium/shares/download/${token}`
+        `${BACKEND_URL}/api/v1/premium/shares/download/${token}`,
+        { headers }
       );
 
       if (!downloadResponse.ok) {
@@ -223,9 +251,15 @@ export function useQRCode() {
   const generateQR = useCallback(async (data: string, size?: number) => {
     setLoading(true);
     try {
+      const token = localStorage.getItem("filenova_token");
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${BACKEND_URL}/api/v1/premium/qr/generate`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({ data, size }),
       });
 
@@ -249,9 +283,15 @@ export function useQRCode() {
   const scanQR = useCallback(async (imageBase64: string) => {
     setLoading(true);
     try {
+      const token = localStorage.getItem("filenova_token");
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${BACKEND_URL}/api/v1/premium/qr/scan`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({ imageBase64 }),
       });
 
