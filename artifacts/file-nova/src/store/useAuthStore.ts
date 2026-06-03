@@ -47,9 +47,15 @@ const getAuthHeaders = (): Record<string, string> => {
 
 // Safe JSON parse with empty response handling
 async function safeJsonParse(response: Response) {
+  if (response.status === 502 || response.status === 504) {
+    throw new Error('Server is currently starting up or offline. Please try again in a few seconds.');
+  }
   const text = await response.text();
   const contentType = response.headers.get('content-type');
   if (!contentType || !contentType.includes('application/json')) {
+    if (response.status >= 500) {
+      throw new Error(`Server error (${response.status}). The backend server might be starting up or experiencing issues.`);
+    }
     throw new Error(`Server returned non-JSON response (${response.status}). Please try again.`);
   }
   if (!text || text.trim() === '') {
@@ -76,6 +82,9 @@ async function safeFetch(input: RequestInfo, init?: RequestInit): Promise<Respon
   } catch (err: any) {
     if (err.name === 'AbortError') {
       throw new Error('Request timed out. Please try again.');
+    }
+    if (err instanceof TypeError || (err.message && err.message.includes('Failed to fetch'))) {
+      throw new Error('Cannot connect to the server. The backend server might be starting up or offline. Please verify it is running.');
     }
     throw err;
   } finally {

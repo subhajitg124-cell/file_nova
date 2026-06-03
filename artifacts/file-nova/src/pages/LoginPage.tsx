@@ -171,7 +171,10 @@ const isValidationError = (err: string): boolean => {
     if (msg.includes("no account") || msg.includes("user not found") || msg.includes("not found") || msg.includes("invalid email/phone") || msg.includes("email or phone number or password")) {
       return "No account found with this email or phone number.";
     }
-    if (msg.includes("fetch") || msg.includes("network") || msg.includes("failed to fetch") || msg.includes("connect") || msg.includes("timeout")) {
+    if (msg.includes("fetch") || msg.includes("network") || msg.includes("failed to fetch") || msg.includes("connect") || msg.includes("timeout") || msg.includes("starting up") || msg.includes("offline")) {
+      if (msg.includes("starting up") || msg.includes("offline") || msg.includes("connect")) {
+        return "Cannot connect to the server. Please verify the Express backend is running on port 4173.";
+      }
       return "Connection failed. Please check your internet and try again.";
     }
     if (msg.includes("empty response") || msg.includes("invalid") || msg.includes("unexpected")) {

@@ -1,6 +1,8 @@
 import { pgTable, uuid, varchar, integer, timestamp } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { usersTable } from "./index";
+import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod/v4";
 
 export const subscriptionsTable = pgTable("subscriptions", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -37,7 +39,10 @@ export const upiPaymentsTable = pgTable("upi_payments", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const insertSubscriptionSchema = createInsertSchema(subscriptionsTable).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertUPIPaymentSchema = createInsertSchema(upiPaymentsTable).omit({ id: true, createdAt: true, updatedAt: true });
+
 export type Subscription = typeof subscriptionsTable.$inferSelect;
-export type InsertSubscription = z.infer<typeof createInsertSchema(subscriptionsTable).omit({ id: true, createdAt: true, updatedAt: true })>;
+export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
 export type UPIPayment = typeof upiPaymentsTable.$inferSelect;
-export type InsertUPIPayment = z.infer<typeof createInsertSchema(upiPaymentsTable).omit({ id: true, createdAt: true, updatedAt: true })>;
+export type InsertUPIPayment = z.infer<typeof insertUPIPaymentSchema>;

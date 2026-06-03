@@ -11,7 +11,7 @@ import {
   Activity,
   Clock,
   Package,
-  Percentage,
+  Percent,
   DollarSign,
   Upload,
   RefreshCw,
@@ -21,21 +21,34 @@ import { toast } from "sonner";
 export default function AdminCouponManagement() {
   const admin = useAdmin();
   const [, setLocation] = useLocation();
-  const [coupons, setCoupons] = useState([]);
+  const [coupons, setCoupons] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState(false);
-  const [selectedCoupon, setSelectedCoupon] = useState(null);
-  const [formData, setFormData] = useState({
+  const [selectedCoupon, setSelectedCoupon] = useState<any | null>(null);
+  const [formData, setFormData] = useState<{
+    code: string;
+    type: "percentage" | "fixed" | "free_uploads" | "extended_validity";
+    value: string;
+    minPurchase: string;
+    maxDiscount: string;
+    validFrom: string;
+    validUntil: string;
+    usageLimit: string;
+    applicablePlans: ("free" | "basic" | "pro" | "elite")[];
+    applicableTools: string[];
+    isActive: boolean;
+    description: string;
+  }>({
     code: "",
-    type: "percentage" as const,
+    type: "percentage",
     value: "",
     minPurchase: "",
     maxDiscount: "",
     validFrom: "",
     validUntil: "",
     usageLimit: "",
-    applicablePlans: ["free", "basic", "pro", "elite"] as const[],
+    applicablePlans: ["free", "basic", "pro", "elite"],
     applicableTools: [],
     isActive: true,
     description: "",
@@ -81,7 +94,7 @@ export default function AdminCouponManagement() {
       validFrom: new Date().toISOString().slice(0, 16),
       validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16), // 30 days from now
       usageLimit: "",
-      applicablePlans: ["free", "basic", "pro", "elite"] as const[],
+      applicablePlans: ["free", "basic", "pro", "elite"],
       applicableTools: [],
       isActive: true,
       description: "",
@@ -262,7 +275,7 @@ export default function AdminCouponManagement() {
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case "percentage": return Percentage;
+      case "percentage": return Percent;
       case "fixed": return DollarSign;
       case "free_uploads": return Upload;
       case "extended_validity": return Clock;
@@ -594,7 +607,7 @@ export default function AdminCouponManagement() {
                             ) : (
                               <span className="inline-flex items-center gap-1 rounded-full bg-muted/50 px-2 py-0.5 text-[10px] font-bold text-muted-foreground">
                                 Inactive
-                              )
+                              </span>
                             )}
                           </td>
                           <td className="px-3 py-3 text-right">

@@ -337,7 +337,7 @@ router.post("/order", authMiddleware, requireAuth, async (req: AuthRequest, res:
 
     if (coupon) {
       // Get user ID from request
-      const userId = req.user.id;
+      const userId = req.user!.id;
       
       // Validate coupon using database-backed function
       couponValidationResult = await getCouponDiscount(coupon, plan, userId);
@@ -394,7 +394,7 @@ router.post("/order", authMiddleware, requireAuth, async (req: AuthRequest, res:
       const [couponDetails] = await db
         .select()
         .from(couponsTable)
-        .where(eq(couponsTable.code, coupon.toUpperCase().trim()))
+        .where(eq(couponsTable.code, coupon!.toUpperCase().trim()))
         .limit(1);
       
       if (couponDetails && couponDetails.minPurchase && amount < couponDetails.minPurchase) {
@@ -617,11 +617,6 @@ router.post("/verify", authMiddleware, requireAuth, async (req: AuthRequest, res
     res.status(500).json({ error: err.message || "Failed to verify payment" });
   }
 });
-    }
-  } catch (err: any) {
-    res.status(500).json({ error: err.message || "Failed to verify payment" });
-  }
-});
 
 // ── 4. POST /cancel — Cancel Active Subscription ──────────────────────────────
 router.post("/cancel", authMiddleware, requireAuth, async (req: AuthRequest, res: Response) => {
@@ -798,7 +793,7 @@ router.post("/admin/coupons", adminAuth, async (req: Request, res: Response) => 
 // PUT /admin/coupons/:id — Update coupon
 router.put("/admin/coupons/:id", adminAuth, async (req: Request, res: Response) => {
   try {
-    const couponId = req.params.id;
+    const couponId = req.params.id as string;
     
     const couponData = z.object({
       code: z.string().min(3).max(20).toUpperCase().optional(),
@@ -871,7 +866,7 @@ router.put("/admin/coupons/:id", adminAuth, async (req: Request, res: Response) 
 // DELETE /admin/coupons/:id — Delete coupon
 router.delete("/admin/coupons/:id", adminAuth, async (req: Request, res: Response) => {
   try {
-    const couponId = req.params.id;
+    const couponId = req.params.id as string;
 
     // Check if coupon exists
     const [existingCoupon] = await db
@@ -899,7 +894,7 @@ router.delete("/admin/coupons/:id", adminAuth, async (req: Request, res: Respons
 // POST /admin/coupons/:id/toggle — Toggle coupon active status
 router.post("/admin/coupons/:id/toggle", adminAuth, async (req: Request, res: Response) => {
   try {
-    const couponId = req.params.id;
+    const couponId = req.params.id as string;
 
     // Check if coupon exists
     const [existingCoupon] = await db

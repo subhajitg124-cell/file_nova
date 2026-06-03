@@ -1,6 +1,8 @@
-import { pgTable, uuid, varchar, integer, timestamp, boolean, jsonb, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, integer, timestamp, boolean, jsonb, pgEnum, text } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { usersTable } from "./index";
+import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod/v4";
 
 export const couponTypeEnum = pgEnum("coupon_type", ["percentage", "fixed", "free_uploads", "extended_validity"]);
 
