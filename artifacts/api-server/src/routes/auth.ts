@@ -7,12 +7,20 @@ import { eq, or, desc } from "drizzle-orm";
 import { hashPassword, verifyPassword } from "../utils/hash";
 import { authMiddleware, AuthRequest } from "../middlewares/auth";
 import { completeReferral, generateUniqueReferralCode } from "../services/referralService";
+import { logger } from "../lib/logger";
 
 const router = Router();
 const googleOAuthClient = new OAuth2Client();
 
 // 30 days session duration
 const SESSION_DURATION_MS = 30 * 24 * 60 * 60 * 1000;
+
+// Helper to safely send JSON response
+function sendJson<T>(res: Response, data: T, statusCode: number = 200) {
+  if (!res.headersSent) {
+    res.status(statusCode).json(data);
+  }
+}
 
 // Helper to create a session token and store it in database
 async function createSession(userId: string, res: Response) {
@@ -61,7 +69,8 @@ async function getUserSubscriptionInfo(userId: string) {
           daysActive,
         }
       : null;
-  } catch (_) {
+  } catch (err) {
+    logger.error({ err, userId }, "Failed to fetch subscription info");
     return null;
   }
 }
@@ -89,7 +98,7 @@ router.post("/signup", async (req, res): Promise<void> => {
       .limit(1);
 
     if (existingEmail) {
-      res.status(400).json({ error: "Email is already registered" });
+      sendJson(res, { error: "Email is already registered" }, 400);
       return;
     }
 
@@ -102,7 +111,7 @@ router.post("/signup", async (req, res): Promise<void> => {
         .limit(1);
 
       if (existingPhone) {
-        res.status(400).json({ error: "Phone number is already registered" });
+        sendJson(res, { error: "Phone number is already registered" }, 400);
         return;
       }
     }
@@ -124,7 +133,7 @@ router.post("/signup", async (req, res): Promise<void> => {
     await completeReferral(parsed.referralCode, newUser.id, newUser.email);
     const token = await createSession(newUser.id, res);
 
-    res.status(201).json({
+    sendJson(res, {
       success: true,
       token,
       user: {
@@ -137,13 +146,15 @@ router.post("/signup", async (req, res): Promise<void> => {
         premiumEnabled: newUser.premiumEnabled,
         referralCode: newUser.referralCode,
       },
-    });
+      subscription: null,
+    }, 201);
   } catch (err: any) {
+    logger.error({ err }, "Signup error");
     if (err instanceof z.ZodError) {
-      res.status(400).json({ error: err.errors[0].message });
+      sendJson(res, { error: err.errors[0].message }, 400);
       return;
     }
-    res.status(500).json({ error: err.message || "Failed to create user" });
+    sendJson(res, { error: err.message || "Failed to create user" }, 500);
   }
 });
 
@@ -172,14 +183,14 @@ router.post("/login", async (req, res): Promise<void> => {
 
     const user = users[0];
     if (!user || !user.passwordHash || !verifyPassword(parsed.password, user.passwordHash)) {
-      res.status(401).json({ error: "Invalid email/phone number or password" });
+      sendJson(res, { error: "Invalid email/phone number or password" }, 401);
       return;
     }
 
     const token = await createSession(user.id, res);
     const subscription = await getUserSubscriptionInfo(user.id);
 
-    res.json({
+    sendJson(res, {
       success: true,
       token,
       user: {
@@ -195,11 +206,12 @@ router.post("/login", async (req, res): Promise<void> => {
       subscription,
     });
   } catch (err: any) {
+    logger.error({ err }, "Login error");
     if (err instanceof z.ZodError) {
-      res.status(400).json({ error: err.errors[0].message });
+      sendJson(res, { error: err.errors[0].message }, 400);
       return;
     }
-    res.status(500).json({ error: err.message || "Failed to authenticate" });
+    sendJson(res, { error: err.message || "Failed to authenticate" }, 500);
   }
 });
 
@@ -215,7 +227,7 @@ router.post("/google", async (req, res): Promise<void> => {
     const googleClientId = process.env.GOOGLE_CLIENT_ID || process.env.VITE_GOOGLE_CLIENT_ID;
 
     if (!googleClientId || googleClientId === "your_google_client_id") {
-      res.status(500).json({ error: "Google OAuth client ID is not configured" });
+      sendJson(res, { error: "Google OAuth client ID is not configured" }, 500);
       return;
     }
 
@@ -226,7 +238,7 @@ router.post("/google", async (req, res): Promise<void> => {
 
     const payload = ticket.getPayload();
     if (!payload?.email || !payload.sub) {
-      res.status(401).json({ error: "Invalid Google credential" });
+      sendJson(res, { error: "Invalid Google credential" }, 401);
       return;
     }
 
@@ -274,7 +286,7 @@ router.post("/google", async (req, res): Promise<void> => {
     const token = await createSession(user.id, res);
     const subscription = await getUserSubscriptionInfo(user.id);
 
-    res.json({
+    sendJson(res, {
       success: true,
       token,
       user: {
@@ -290,51 +302,73 @@ router.post("/google", async (req, res): Promise<void> => {
       subscription,
     });
   } catch (err: any) {
+    logger.error({ err }, "Google auth error");
     if (err instanceof z.ZodError) {
-      res.status(400).json({ error: err.errors[0].message });
+      sendJson(res, { error: err.errors[0].message }, 400);
       return;
     }
-    res.status(500).json({ error: err.message || "Google auth processing failed" });
+    sendJson(res, { error: err.message || "Google auth processing failed" }, 500);
   }
 });
 
 // ── 4. GET /me ──
 router.get("/me", authMiddleware, async (req: AuthRequest, res): Promise<void> => {
-  if (!req.user) {
-    res.json({ success: true, user: null, subscription: null });
-    return;
+  try {
+    if (!req.user) {
+      sendJson(res, { success: true, user: null, subscription: null });
+      return;
+    }
+
+    const subscription = await getUserSubscriptionInfo(req.user.id);
+
+    sendJson(res, {
+      success: true,
+      user: {
+        id: req.user.id,
+        email: req.user.email,
+        name: req.user.name,
+        phoneNumber: req.user.phoneNumber,
+        role: req.user.role,
+        premiumTier: req.user.premiumTier,
+        premiumEnabled: req.user.premiumEnabled,
+        referralCode: req.user.referralCode,
+      },
+      subscription,
+    });
+  } catch (err: any) {
+    logger.error({ err }, "/me endpoint error");
+    sendJson(res, { success: true, user: null, subscription: null });
   }
-
-  const subscription = await getUserSubscriptionInfo(req.user.id);
-
-  res.json({
-    success: true,
-    user: {
-      id: req.user.id,
-      email: req.user.email,
-      name: req.user.name,
-      phoneNumber: req.user.phoneNumber,
-      role: req.user.role,
-      premiumTier: req.user.premiumTier,
-      premiumEnabled: req.user.premiumEnabled,
-      referralCode: req.user.referralCode,
-    },
-    subscription,
-  });
 });
 
 // ── 5. POST /logout ──
 router.post("/logout", authMiddleware, async (req: AuthRequest, res): Promise<void> => {
-  if (req.sessionToken) {
-    try {
-      await db.delete(sessionsTable).where(eq(sessionsTable.token, req.sessionToken));
-    } catch (_) {
-      // Ignore database delete errors
+  try {
+    if (req.sessionToken) {
+      try {
+        await db.delete(sessionsTable).where(eq(sessionsTable.token, req.sessionToken));
+      } catch (err) {
+        logger.error({ err }, "Failed to delete session");
+      }
     }
-  }
 
-  res.clearCookie("session_token");
-  res.json({ success: true, message: "Logged out successfully" });
+    res.clearCookie("session_token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+    });
+    sendJson(res, { success: true, message: "Logged out successfully" });
+  } catch (err: any) {
+    logger.error({ err }, "Logout error");
+    res.clearCookie("session_token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+    });
+    sendJson(res, { success: true, message: "Logged out successfully" });
+  }
 });
 
 export default router;

@@ -23,6 +23,7 @@ import { OfflineBanner } from "@/components/OfflineBanner";
 import { Toaster } from "@/components/ui/sonner";
 import { UpgradeLimitModal } from "@/components/UpgradeLimitModal";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { ConnectionStatusIndicator } from "@/components/ConnectionStatusIndicator";
 
 const queryClient = new QueryClient();
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
@@ -103,11 +104,15 @@ function App() {
   const [limitModalOpen, setLimitModalOpen] = useState(false);
   const [modalLimit, setModalLimit] = useState(3);
   const [modalUsage, setModalUsage] = useState(3);
+  const [apiStatus, setApiStatus] = useState<"online" | "offline" | "checking">("checking");
 
   useEffect(() => {
     const originalFetch = window.fetch;
     window.fetch = async (...args) => {
-      const response = await originalFetch(...args);
+      const [input, init] = args;
+      
+      // Add error handling for JSON parsing
+      const response = await originalFetch(input, init);
       if (response.status === 403) {
         const clone = response.clone();
         try {
@@ -133,9 +138,27 @@ function App() {
 
     window.addEventListener("filenova-limit-reached" as any, handleLimitReached);
 
+    // Check API health periodically
+    const checkApiHealth = async () => {
+      if (!BACKEND_URL) {
+        setApiStatus("online"); // Standalone mode
+        return;
+      }
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/healthz`, { method: "GET" });
+        setApiStatus(res.ok ? "online" : "offline");
+      } catch {
+        setApiStatus("offline");
+      }
+    };
+
+    checkApiHealth();
+    const healthCheckInterval = setInterval(checkApiHealth, 60000); // Check every minute
+
     return () => {
       window.fetch = originalFetch;
       window.removeEventListener("filenova-limit-reached" as any, handleLimitReached);
+      clearInterval(healthCheckInterval);
     };
   }, []);
 
@@ -160,6 +183,7 @@ function App() {
           <ErrorBoundary onReset={reset}>
             <LazyMotion features={domAnimation}>
               <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+                <ConnectionStatusIndicator status={apiStatus} />
                 <ScrollToTop />
                 <LanguageProvider>
                   <AdminProvider>

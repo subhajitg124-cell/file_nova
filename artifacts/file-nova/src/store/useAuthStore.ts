@@ -38,11 +38,50 @@ interface AuthState {
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
 const SESSION_TOKEN_KEY = 'filenova_token';
+const API_TIMEOUT_MS = 30000;
 
 const getAuthHeaders = (): Record<string, string> => {
   const token = localStorage.getItem(SESSION_TOKEN_KEY);
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
+
+// Safe JSON parse with empty response handling
+async function safeJsonParse(response: Response) {
+  const text = await response.text();
+  const contentType = response.headers.get('content-type');
+  if (!contentType || !contentType.includes('application/json')) {
+    throw new Error(`Server returned non-JSON response (${response.status}). Please try again.`);
+  }
+  if (!text || text.trim() === '') {
+    throw new Error('Server returned empty response. Please try again.');
+  }
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    throw new Error('Server response is invalid. Please try again later.');
+  }
+}
+
+// Safe fetch with timeout
+async function safeFetch(input: RequestInfo, init?: RequestInit): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+  
+  try {
+    const response = await fetch(input, {
+      ...init,
+      signal: controller.signal,
+    });
+    return response;
+  } catch (err: any) {
+    if (err.name === 'AbortError') {
+      throw new Error('Request timed out. Please try again.');
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
@@ -59,15 +98,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   clearError: () => set({ error: null }),
 
   fetchMe: async () => {
-    // If already loading, skip
     set({ loading: true, error: null });
     try {
-      const res = await fetch(`${BACKEND_URL}/api/v1/auth/me`, {
+      const res = await safeFetch(`${BACKEND_URL}/api/v1/auth/me`, {
         credentials: 'include',
         headers: getAuthHeaders(),
       });
       if (res.ok) {
-        const data = await res.json();
+        const data = await safeJsonParse(res);
         if (data.success && data.user) {
           set({
             user: data.user,
@@ -90,13 +128,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   login: async (identifier, password) => {
     set({ loading: true, error: null });
     try {
-      const res = await fetch(`${BACKEND_URL}/api/v1/auth/login`, {
+      const res = await safeFetch(`${BACKEND_URL}/api/v1/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ identifier, password }),
       });
-      const data = await res.json();
+      const data = await safeJsonParse(res);
       if (!res.ok || !data.success) {
         throw new Error(data.error || 'Login failed');
       }
@@ -119,7 +157,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   signup: async (email, phoneNumber, password, name) => {
     set({ loading: true, error: null });
     try {
-      const res = await fetch(`${BACKEND_URL}/api/v1/auth/signup`, {
+      const res = await safeFetch(`${BACKEND_URL}/api/v1/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -131,7 +169,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           referralCode: localStorage.getItem('filenova_referral_code'),
         }),
       });
-      const data = await res.json();
+      const data = await safeJsonParse(res);
       if (!res.ok || !data.success) {
         throw new Error(data.error || 'Signup failed');
       }
@@ -155,7 +193,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   loginWithGoogle: async (credential) => {
     set({ loading: true, error: null });
     try {
-      const res = await fetch(`${BACKEND_URL}/api/v1/auth/google`, {
+      const res = await safeFetch(`${BACKEND_URL}/api/v1/auth/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -164,7 +202,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           referralCode: localStorage.getItem('filenova_referral_code'),
         }),
       });
-      const data = await res.json();
+      const data = await safeJsonParse(res);
       if (!res.ok || !data.success) {
         throw new Error(data.error || 'Google login failed');
       }
@@ -188,7 +226,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   logout: async () => {
     set({ loading: true });
     try {
-      await fetch(`${BACKEND_URL}/api/v1/auth/logout`, {
+      await safeFetch(`${BACKEND_URL}/api/v1/auth/logout`, {
         method: 'POST',
         credentials: 'include',
         headers: getAuthHeaders(),

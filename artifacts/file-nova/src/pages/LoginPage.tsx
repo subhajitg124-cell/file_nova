@@ -23,6 +23,7 @@ export default function LoginPage() {
 
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     if (user) {
@@ -62,6 +63,16 @@ export default function LoginPage() {
     toast.success(message);
     setLocation("/dashboard");
   };
+
+const isNetworkError = (err: string): boolean => {
+  const msg = err.toLowerCase();
+  return msg.includes("fetch") || msg.includes("network") || msg.includes("failed to fetch") || msg.includes("connect") || msg.includes("timeout");
+};
+
+const isValidationError = (err: string): boolean => {
+  const msg = err.toLowerCase();
+  return msg.includes("empty response") || msg.includes("invalid") || msg.includes("unexpected end of json");
+};
 
   const handleGoogleSuccess = async (response: CredentialResponse) => {
     if (!response.credential) {
@@ -106,6 +117,12 @@ export default function LoginPage() {
     const success = await login(loginIdentifier, loginPassword);
     if (success) {
       finishAuth("Successfully logged in!");
+    } else if (isNetworkError(useAuthStore.getState().error || "")) {
+      const currentRetry = retryCount;
+      setRetryCount(currentRetry + 1);
+      if (currentRetry < 2) {
+        toast.info("Connection issue detected, please try again.");
+      }
     }
   };
 
@@ -136,6 +153,12 @@ export default function LoginPage() {
     const success = await signup(signupEmail, signupPhone || null, signupPassword, signupName || null);
     if (success) {
       finishAuth("Account created successfully!");
+    } else if (isNetworkError(useAuthStore.getState().error || "")) {
+      const currentRetry = retryCount;
+      setRetryCount(currentRetry + 1);
+      if (currentRetry < 2) {
+        toast.info("Connection issue detected, please try again.");
+      }
     }
   };
 
@@ -145,11 +168,14 @@ export default function LoginPage() {
     if (msg.includes("password") || msg.includes("incorrect")) {
       return "Incorrect password. Please try again.";
     }
-    if (msg.includes("no account") || msg.includes("user not found") || msg.includes("not found")) {
-      return "No account found with this email.";
+    if (msg.includes("no account") || msg.includes("user not found") || msg.includes("not found") || msg.includes("invalid email/phone") || msg.includes("email or phone number or password")) {
+      return "No account found with this email or phone number.";
     }
-    if (msg.includes("fetch") || msg.includes("network") || msg.includes("failed to fetch") || msg.includes("connect")) {
-      return "Connection failed. Please check your internet.";
+    if (msg.includes("fetch") || msg.includes("network") || msg.includes("failed to fetch") || msg.includes("connect") || msg.includes("timeout")) {
+      return "Connection failed. Please check your internet and try again.";
+    }
+    if (msg.includes("empty response") || msg.includes("invalid") || msg.includes("unexpected")) {
+      return "Server error. Please try again in a moment.";
     }
     return err;
   };

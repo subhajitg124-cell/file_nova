@@ -1,4 +1,4 @@
-import express, { type Express } from "express";
+import express, { type Express, type Request, type Response, type NextFunction } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import path from "node:path";
@@ -10,6 +10,7 @@ import { requestTimeout } from "./middlewares/requestTimeout";
 import { logger } from "./lib/logger";
 import { apiLimiter } from "./middlewares/rateLimit";
 import { authMiddleware } from "./middlewares/auth";
+import healthRouter from "./routes/health";
 
 const app: Express = express();
 
@@ -21,6 +22,7 @@ const allowedOriginRegex = /^(https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?|https?:
 app.use(
   cors({
     origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, curl, etc.) if they come from allowed origins or are from the same origin
       if (!origin) return callback(null, true);
       if (allowedOriginRegex.test(origin)) {
         return callback(null, true);
@@ -31,7 +33,7 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
-  })
+  }),
 );
 
 app.use(
@@ -58,6 +60,12 @@ app.use(
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 app.use(cookieParser());
+
+// ── Health endpoints BEFORE authMiddleware (for load balancer probes) ───────────
+// These must be mounted without auth for load balancer health checks to work
+app.use("/api", healthRouter);
+
+// ── Auth middleware ───────────────────────────────────────────────────────────
 app.use(authMiddleware);
 
 // ── Global rate limiting ──────────────────────────────────────────────────────
@@ -66,6 +74,25 @@ app.use(apiLimiter);
 // Apply request timeout to API/processing routes
 app.use("/api/v1", requestTimeout(30000), apiV1Router);
 app.use("/api", requestTimeout(30000), router);
+
+// ── Global error handler ─────────────────────────────────────────────────────
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+  logger.error({ err, stack: err.stack }, "Unhandled error in API");
+
+  // Ensure we always return valid JSON
+  if (!res.headersSent) {
+    res.status(500).json({
+      error: "Internal server error",
+      message: "An unexpected error occurred",
+      timestamp: new Date().toISOString(),
+    });
+  }
+});
+
+// Handle 404 for API routes
+app.use("/api", (_req, res) => {
+  res.status(404).json({ error: "API endpoint not found", timestamp: new Date().toISOString() });
+});
 
 import { fileURLToPath } from "node:url";
 const __filename = fileURLToPath(import.meta.url);
