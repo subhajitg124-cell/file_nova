@@ -266,6 +266,10 @@ export default function AdminDashboard() {
                   <option value="warm">Warm/Festival</option>
                   <option value="cool">Cool/Tech</option>
                   <option value="tricolor">Indian Tri-color</option>
+                  <option value="diwali">Diwali</option>
+                  <option value="holi">Holi</option>
+                  <option value="newYear">New Year</option>
+                  <option value="scholarship">Scholarship</option>
                 </select>
               </div>
             </div>

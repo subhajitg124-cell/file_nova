@@ -7,7 +7,7 @@ type Settings = {
   editingEnabled: boolean;
   activeOffer?: string;
   discountPercentage?: number;
-  eventTheme?: "none" | "warm" | "cool" | "tricolor";
+  eventTheme?: "none" | "warm" | "cool" | "tricolor" | "diwali" | "holi" | "newYear" | "scholarship";
 };
 
 const CRED_KEY = "filenova-admin";
@@ -77,13 +77,46 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     }
   });
 
+  // Function to get automatic event theme based on date
+  const getAutomaticEventTheme = (): Settings["eventTheme"] => {
+    const now = new Date();
+    const month = now.getMonth(); // 0-indexed: 0=Jan, 11=Dec
+    const day = now.getDate();
+
+    // Diwali: Oct-Nov (approx) - we'll set Oct 20 to Nov 15
+    if ((month === 9 && day >= 20) || (month === 10 && day <= 15)) {
+      return "diwali";
+    }
+    // Holi: March (approx) - we'll set March 10 to March 30
+    if (month === 2 && day >= 10 && day <= 30) {
+      return "holi";
+    }
+    // New Year: Dec 25 to Jan 5
+    if ((month === 11 && day >= 25) || (month === 0 && day <= 5)) {
+      return "newYear";
+    }
+    // Scholarship season: June to September
+    if (month >= 5 && month <= 8) {
+      return "scholarship";
+    }
+    // Default to none if no season matches
+    return "none";
+  };
+
   // Load settings from the server on mount
   useEffect(() => {
     fetch("/api/v1/premium/subscription/settings")
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.settings) {
-          setSettingsState(data.settings);
+          // If eventTheme is set to "none", we use the automatic theme
+          // Otherwise, we keep the admin-set theme
+          if (data.settings.eventTheme === "none") {
+            const autoTheme = getAutomaticEventTheme();
+            setSettingsState({ ...data.settings, eventTheme: autoTheme });
+          } else {
+            setSettingsState(data.settings);
+          }
         }
       })
       .catch((err) => {
