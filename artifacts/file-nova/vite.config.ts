@@ -7,6 +7,7 @@ export default defineConfig(() => {
   return {
     plugins: [react(), tailwindcss()],
     root: __dirname,
+    envDir: path.resolve(__dirname, '../../'),
     publicDir: 'public',
     resolve: {
       alias: {

@@ -131,7 +131,17 @@ const DYNAMIC_TRANSLATIONS: Partial<Record<AppLanguage, Record<string, string>>>
     "📤 Export & Share": "📤 এক্সপোর্ট ও শেয়ার",
     "File Nova Assistant": "ফাইল নোভা অ্যাসিস্ট্যান্ট",
     "Shortcuts": "শর্টকাট",
-    "Upload": "আপলোড করা"
+    "Upload": "আপলোড করা",
+    "Email Support": "ইমেল সহায়তা",
+    "Email Support (All Users)": "ইমেল সহায়তা (সব ব্যবহারকারী)",
+    "WhatsApp Support": "হোয়াটসঅ্যাপ সহায়তা",
+    "WhatsApp Support (Premium Only)": "হোয়াটসঅ্যাপ সহায়তা (কেবল প্রিমিয়াম)",
+    "Call Us": "আমাদের কল করুন",
+    "Call Support (Premium Only)": "কল সহায়তা (কেবল প্রিমিয়াম)",
+    "Help Docs": "সহায়তা নথি",
+    "View Documentation": "ডকুমেন্টেশন দেখুন",
+    "AI Assistant": "এআই সহকারী",
+    "Ask AI Assistant": "এআই সহকারীকে জিজ্ঞাসা করুন"
   },
   hi: {
     // Rule Titles
@@ -253,6 +263,16 @@ const DYNAMIC_TRANSLATIONS: Partial<Record<AppLanguage, Record<string, string>>>
     "How to compress PDF?": "पीडीएफ कैसे कंप्रेस करें?",
     "Crop photo & signature?": "फोटो और सिग्नेचर क्रॉप कैसे करें?",
     "Is my data stored securely?": "क्या मेरा डेटा सुरक्षित है?",
+    "Email Support": "ईमेल सहायता",
+    "Email Support (All Users)": "ईमेल सहायता (सभी उपयोगकर्ता)",
+    "WhatsApp Support": "व्हाट्सएप सहायता",
+    "WhatsApp Support (Premium Only)": "व्हाट्सएप सहायता (केवल प्रीमियम)",
+    "Call Us": "हमें कॉल करें",
+    "Call Support (Premium Only)": "कॉल सहायता (केवल प्रीमियम)",
+    "Help Docs": "सहायता दस्तावेज़",
+    "View Documentation": "दस्तावेज़ीकरण देखें",
+    "AI Assistant": "एआई सहायक",
+    "Ask AI Assistant": "एआई सहायक से पूछें"
   }
 };
 
@@ -266,7 +286,7 @@ export function LanguageProvider({
   const [language, setLanguageState] = useState<AppLanguage>(() => {
     try {
       const stored = typeof window !== "undefined" ? localStorage.getItem(KEY) : null;
-      return stored === "bn" || stored === "hi" || stored === "en" || stored === "ne" || stored === "sat" ? (stored as AppLanguage) : defaultLanguage;
+      return stored && (stored in translations) ? (stored as AppLanguage) : defaultLanguage;
     } catch (e) {
       return defaultLanguage;
     }
@@ -293,7 +313,17 @@ export function useLanguage() {
 
 export function useTranslation() {
   const { language } = useLanguage();
-  const map = translations[language] || translations.en;
+  
+  // Wrap with Proxy so that missing keys fallback to translations.en
+  const map = new Proxy(translations.en, {
+    get(target, prop) {
+      if (typeof prop === "string" && Object.prototype.hasOwnProperty.call(translations[language] || {}, prop)) {
+        const val = (translations[language] as any)[prop];
+        if (val !== undefined) return val;
+      }
+      return (target as any)[prop];
+    }
+  }) as typeof translations.en;
   
   const tText = (text: string | null | undefined): string => {
     if (!text) return "";

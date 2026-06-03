@@ -17,7 +17,7 @@ import {
   UserRoundCheck,
 } from "lucide-react";
 
-export type AppLanguage = "en" | "bn" | "hi" | "ne" | "sat";
+export type AppLanguage = "en" | "bn" | "hi" | "ne" | "sat" | "te" | "mr" | "ta" | "gu" | "kn" | "ml" | "pa" | "or" | "as" | "ur";
 
 export interface DocumentRule {
   id: string;
@@ -462,6 +462,16 @@ export const translations = {
     step4Title: "᱔. ZIP/ᱯᱷᱟᱭᱤᱞ ᱰᱟᱣᱩᱱᱞᱳᱰ ᱢᱮ",
     step4Desc: "ᱢᱟᱱ ᱠᱚ ᱥᱟᱡᱟᱣ ᱢᱮ, 'ᱯᱨᱚᱥᱮᱥ' ᱨᱮ ᱠᱞᱤᱠ ᱢᱮ ᱟᱨ ᱟᱢᱟᱜ ᱥᱟᱡᱟᱣ ᱟᱠᱟᱱ ᱯᱷᱟᱭᱤᱞ ᱟᱨᱵᱟᱝ ZIP ᱰᱟᱣᱩᱱᱞᱳᱰ ᱢᱮ ᱾",
   },
+  te: {},
+  mr: {},
+  ta: {},
+  gu: {},
+  kn: {},
+  ml: {},
+  pa: {},
+  or: {},
+  as: {},
+  ur: {},
 };
 
 export const eventRules: EventRule[] = [

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Phone, MessageSquare, HelpCircle, Bot, X, MessageCircle, Mail } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useTranslation } from "@/lib/i18n";
 
 interface Shortcut {
   id: string;
@@ -16,56 +17,57 @@ interface Shortcut {
 export function FloatingShortcuts() {
   const [isOpen, setIsOpen] = useState(false);
   const { user } = useAuthStore();
+  const { tText } = useTranslation();
   const isPremiumUser = (user?.premiumTier === 'basic' || user?.premiumTier === 'pro' || user?.premiumTier === 'elite');
 
   const shortcuts: Shortcut[] = [
     {
       id: "email",
       icon: <Mail className="h-5 w-5" />,
-      label: "Email Support",
+      label: tText("Email Support"),
       color: "bg-blue-500 hover:bg-blue-600",
       action: () => window.open("mailto:subhajiteditz90@gmail.com?subject=FileNova Support Request&body=Hi, I need help with..."),
-      tooltip: "Email Support (All Users)",
+      tooltip: tText("Email Support (All Users)"),
       availableFor: "all",
     },
     ...(isPremiumUser ? [{
       id: "whatsapp",
       icon: <MessageCircle className="h-5 w-5 fill-current" />,
-      label: "WhatsApp Support",
+      label: tText("WhatsApp Support"),
       color: "bg-emerald-500 hover:bg-emerald-600",
       action: () => window.open("https://wa.me/919064560741?text=Hi! I am a FileNova Premium user and need assistance with..."),
-      tooltip: "WhatsApp Support (Premium Only)",
+      tooltip: tText("WhatsApp Support (Premium Only)"),
       availableFor: "premium" as const,
     }] : []),
     ...(isPremiumUser ? [{
       id: "phone",
       icon: <Phone className="h-5 w-5" />,
-      label: "Call Us",
+      label: tText("Call Us"),
       color: "bg-red-500 hover:bg-red-600",
       action: () => window.open("tel:+919064560741"),
-      tooltip: "Call Support (Premium Only)",
+      tooltip: tText("Call Support (Premium Only)"),
       availableFor: "premium" as const,
     }] : []),
     {
       id: "document",
       icon: <HelpCircle className="h-5 w-5" />,
-      label: "Help Docs",
+      label: tText("Help Docs"),
       color: "bg-blue-500 hover:bg-blue-600",
       action: () => window.open("/resources", "_self"),
-      tooltip: "View Documentation",
+      tooltip: tText("View Documentation"),
       availableFor: "all" as const,
     },
     {
       id: "ai",
       icon: <Bot className="h-5 w-5" />,
-      label: "AI Assistant",
+      label: tText("AI Assistant"),
       color: "bg-purple-500 hover:bg-purple-600",
       action: () => {
         const event = new CustomEvent("openAIAssistant");
         window.dispatchEvent(event);
         setIsOpen(false);
       },
-      tooltip: "Ask AI Assistant",
+      tooltip: tText("Ask AI Assistant"),
       availableFor: "all" as const,
     },
   ];

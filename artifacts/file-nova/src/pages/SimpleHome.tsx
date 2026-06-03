@@ -141,14 +141,12 @@ export default function SimpleHome() {
       <header className="sticky top-0 z-40 border-b border-slate-900 bg-slate-950/80 backdrop-blur-xl transition-all">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
           {/* Logo */}
-          <Link href="/">
-            <a className="flex items-center gap-2.5 shrink-0">
-              <img src="/logo.png" alt="FileNova logo" className="h-9 w-auto" />
-              <div className="hidden sm:block">
-                <span className="font-extrabold text-sm text-white block">FileNova.in</span>
-                <span className="text-[10px] text-slate-500 block leading-none font-bold uppercase tracking-wider">CSC & STUDENT PORTAL</span>
-              </div>
-            </a>
+          <Link href="/" className="flex items-center gap-2.5 shrink-0">
+            <img src="/logo.png" alt="FileNova logo" className="h-9 w-auto" />
+            <div className="hidden sm:block">
+              <span className="font-extrabold text-sm text-white block">FileNova.in</span>
+              <span className="text-[10px] text-slate-500 block leading-none font-bold uppercase tracking-wider">CSC & STUDENT PORTAL</span>
+            </div>
           </Link>
 
           {/* Search bar inside header */}
@@ -184,28 +182,36 @@ export default function SimpleHome() {
                 className="bg-transparent border-none outline-none text-slate-300 font-bold focus:ring-0 cursor-pointer"
                 title="Select language"
               >
-                <option value="en">English</option>
-                <option value="hi">हिन्दी</option>
-                <option value="bn">বাংলা</option>
+                <option value="en" className="bg-slate-900 text-slate-300">English</option>
+                <option value="hi" className="bg-slate-900 text-slate-300">हिन्दी</option>
+                <option value="bn" className="bg-slate-900 text-slate-300">বাংলা</option>
+                <option value="te" className="bg-slate-900 text-slate-300">తెలుగు</option>
+                <option value="mr" className="bg-slate-900 text-slate-300">मराठी</option>
+                <option value="ta" className="bg-slate-900 text-slate-300">தமிழ்</option>
+                <option value="gu" className="bg-slate-900 text-slate-300">ગુજરાતી</option>
+                <option value="kn" className="bg-slate-900 text-slate-300">ಕನ್ನಡ</option>
+                <option value="ml" className="bg-slate-900 text-slate-300">മലയാളം</option>
+                <option value="pa" className="bg-slate-900 text-slate-300">ਪੰਜਾਬੀ</option>
+                <option value="or" className="bg-slate-900 text-slate-300">ଓଡ଼ିଆ</option>
+                <option value="as" className="bg-slate-900 text-slate-300">অসমীয়া</option>
+                <option value="ur" className="bg-slate-900 text-slate-300">اردو</option>
+                <option value="ne" className="bg-slate-900 text-slate-300">नेपाली</option>
+                <option value="sat" className="bg-slate-900 text-slate-300">ᱥᱟᱱᱛᱟᱲᱤ</option>
               </select>
             </div>
 
             {/* Premium billing link */}
-            <Link href="/pricing">
-              <a className="hidden sm:flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300 font-bold py-1.5 px-3 rounded-lg border border-amber-500/20 bg-amber-500/5 hover:bg-amber-500/10 transition-all">
-                <Crown className="h-3.5 w-3.5 fill-current" />
-                Premium Suite
-              </a>
+            <Link href="/pricing" className="hidden sm:flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300 font-bold py-1.5 px-3 rounded-lg border border-amber-500/20 bg-amber-500/5 hover:bg-amber-500/10 transition-all">
+              <Crown className="h-3.5 w-3.5 fill-current" />
+              Premium Suite
             </Link>
 
             {/* Profile Dropdown */}
             {user ? (
               <UserProfileDropdown />
             ) : (
-              <Link href="/login">
-                <a className="text-xs sm:text-sm bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-5 sm:py-1.5 sm:px-3.5 rounded-lg min-h-[44px] flex items-center justify-center transition-all shadow-glow">
-                  Login
-                </a>
+              <Link href="/login" className="text-xs sm:text-sm bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-5 sm:py-1.5 sm:px-3.5 rounded-lg min-h-[44px] flex items-center justify-center transition-all shadow-glow">
+                Login
               </Link>
             )}
 
@@ -236,21 +242,15 @@ export default function SimpleHome() {
             />
           </div>
           <div className="flex flex-col gap-2 pt-2 border-t border-slate-900">
-            <Link href="/pricing">
-              <a className="flex items-center justify-center gap-2 text-sm text-amber-400 font-bold py-2 border border-amber-500/20 bg-amber-500/5 rounded-lg">
-                <Crown className="h-4 w-4 fill-current" />
-                Premium Suite Billing
-              </a>
+            <Link href="/pricing" className="flex items-center justify-center gap-2 text-sm text-amber-400 font-bold py-2 border border-amber-500/20 bg-amber-500/5 rounded-lg">
+              <Crown className="h-4 w-4 fill-current" />
+              Premium Suite Billing
             </Link>
-            <Link href="/workspace">
-              <a className="text-center text-sm bg-slate-900 border border-slate-800 text-slate-300 font-bold py-2 rounded-lg">
-                Open Document Workspace
-              </a>
+            <Link href="/workspace" className="text-center text-sm bg-slate-900 border border-slate-800 text-slate-300 font-bold py-2 rounded-lg">
+              Open Document Workspace
             </Link>
-            <Link href="/contact">
-              <a className="text-center text-sm border border-slate-800 text-slate-300 font-bold py-2 rounded-lg">
-                📞 Contact Support
-              </a>
+            <Link href="/contact" className="text-center text-sm border border-slate-800 text-slate-300 font-bold py-2 rounded-lg">
+              📞 Contact Support
             </Link>
           </div>
         </div>
@@ -353,10 +353,8 @@ export default function SimpleHome() {
               <p className="text-slate-400 text-xs mt-1">Our client-side processors require zero file uploads to servers. Fast, secure, and private.</p>
             </div>
             
-            <Link href="/tools">
-              <a className="text-xs text-indigo-400 hover:text-indigo-300 font-bold flex items-center gap-1 hover:underline">
-                Explore all 30+ tools <ChevronRight className="h-4 w-4" />
-              </a>
+            <Link href="/tools" className="text-xs text-indigo-400 hover:text-indigo-300 font-bold flex items-center gap-1 hover:underline">
+              Explore all 30+ tools <ChevronRight className="h-4 w-4" />
             </Link>
           </div>
 

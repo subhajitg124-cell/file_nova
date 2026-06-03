@@ -14,7 +14,7 @@ export interface HealthCheckResult {
 export const apiClient = {
   async checkHealth(): Promise<HealthCheckResult> {
     try {
-      const res = await fetch(`${BACKEND_URL}/api/v1/health`, {
+      const res = await fetch(`${BACKEND_URL}/api/healthz`, {
         signal: AbortSignal.timeout(3000),
       });
       if (!res.ok) throw new Error('Health check status not ok');

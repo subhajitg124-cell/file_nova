@@ -69,6 +69,16 @@ const languageLabels: Record<AppLanguage, string> = {
   hi: "हिन्दी",
   ne: "नेपाली",
   sat: "ᱥᱟᱱᱛᱟᱲᱤ",
+  te: "తెలుగు",
+  mr: "मराठी",
+  ta: "தமிழ்",
+  gu: "ગુજરાતી",
+  kn: "ಕನ್ನಡ",
+  ml: "മലയാളം",
+  pa: "ਪੰਜਾਬੀ",
+  or: "ଓଡ଼ିଆ",
+  as: "অসমীয়া",
+  ur: "اردو",
 };
 
 const showcaseSlides = [
@@ -812,16 +822,20 @@ export default function Home() {
               )}
             </div>
 
-            <div className="hidden md:flex items-center gap-2 rounded-xl border border-border bg-card/60 p-1">
-              {(["en", "bn", "hi", "ne", "sat"] as AppLanguage[]).map((code) => (
-                <button
-                  key={code}
-                  onClick={() => setLanguage(code)}
-                  className={`rounded-lg px-3 py-2 text-xs font-bold transition ${language === code ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
-                >
-                  {languageLabels[code]}
-                </button>
-              ))}
+            <div className="hidden md:flex items-center gap-1.5 rounded-xl border border-border bg-card/60 px-2.5 py-1.5 text-xs text-muted-foreground">
+              <Languages className="h-3.5 w-3.5 text-muted-foreground" />
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value as any)}
+                className="bg-transparent border-none outline-none text-foreground font-bold focus:ring-0 cursor-pointer text-xs"
+                title="Select language"
+              >
+                {(Object.keys(languageLabels) as AppLanguage[]).map((code) => (
+                  <option key={code} value={code} className="bg-card text-foreground">
+                    {languageLabels[code]}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="hidden md:flex items-center gap-2">
@@ -898,19 +912,23 @@ export default function Home() {
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-border bg-card/95 px-4 py-3">
             <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2">
-                {(["en", "bn", "hi", "ne", "sat"] as AppLanguage[]).map((code) => (
-                  <button
-                    key={code}
-                    onClick={() => {
-                      setLanguage(code);
-                      setMobileMenuOpen(false);
-                    }}
-                    className={`rounded-lg px-3 py-2 text-xs font-bold transition ${language === code ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
-                  >
-                    {languageLabels[code]}
-                  </button>
-                ))}
+              <div className="flex items-center gap-1.5 rounded-xl border border-border bg-card/60 px-2.5 py-2 text-xs text-muted-foreground">
+                <Languages className="h-3.5 w-3.5 text-muted-foreground" />
+                <select
+                  value={language}
+                  onChange={(e) => {
+                    setLanguage(e.target.value as any);
+                    setMobileMenuOpen(false);
+                  }}
+                  className="bg-transparent border-none outline-none text-foreground font-bold focus:ring-0 cursor-pointer text-xs w-full"
+                  title="Select language"
+                >
+                  {(Object.keys(languageLabels) as AppLanguage[]).map((code) => (
+                    <option key={code} value={code} className="bg-card text-foreground">
+                      {languageLabels[code]}
+                    </option>
+                  ))}
+                </select>
               </div>
               <Link href="/premium" onClick={() => setMobileMenuOpen(false)} className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-bold transition ${location === "/premium" ? "border-primary bg-primary/25 text-primary" : "border-primary/30 bg-primary/10 text-primary"}`}>
                 <Sparkles className="h-4 w-4" />
@@ -2343,7 +2361,7 @@ export default function Home() {
         {/* Toggle Language shortcut */}
         <button
           onClick={() => {
-            const langs: AppLanguage[] = ["en", "bn", "hi", "ne", "sat"];
+            const langs = Object.keys(languageLabels) as AppLanguage[];
             const nextLang = langs[(langs.indexOf(language) + 1) % langs.length];
             setLanguage(nextLang);
           }}

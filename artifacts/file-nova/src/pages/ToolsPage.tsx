@@ -98,10 +98,8 @@ export default function ToolsPage() {
               </span>
             </div>
           </div>
-          <Link href="/workspace">
-            <a className="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-1.5 transition-all shadow-glow-indigo">
-              Open Workspace <ArrowUpRight className="h-3.5 w-3.5" />
-            </a>
+          <Link href="/workspace" className="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-1.5 transition-all shadow-glow-indigo">
+            Open Workspace <ArrowUpRight className="h-3.5 w-3.5" />
           </Link>
         </div>
       </header>

@@ -134,10 +134,8 @@ const Contact: React.FC = () => {
         </motion.div>
 
         <div className="mt-8 text-center">
-          <Link href="/">
-            <a className="inline-flex items-center gap-2 text-indigo-400 hover:text-indigo-300 font-semibold transition-colors">
-              ← Back to Home
-            </a>
+          <Link href="/" className="inline-flex items-center gap-2 text-indigo-400 hover:text-indigo-300 font-semibold transition-colors">
+            ← Back to Home
           </Link>
         </div>
       </div>
