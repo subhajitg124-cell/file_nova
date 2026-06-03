@@ -352,21 +352,25 @@ export default function AdminCouponManagement() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="block text-sm font-medium text-muted-foreground mb-2">Coupon Code</label>
+                    <label htmlFor="coupon-code" className="block text-sm font-medium text-muted-foreground mb-2">Coupon Code</label>
                     <input
+                      id="coupon-code"
                       type="text"
                       value={formData.code}
                       onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
                       placeholder="e.g. STUDENT20, SAVE50"
+                      title="Coupon Code"
                       className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-semibold uppercase outline-none focus:border-primary"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-muted-foreground mb-2">Coupon Type</label>
+                    <label htmlFor="coupon-type" className="block text-sm font-medium text-muted-foreground mb-2">Coupon Type</label>
                     <select
+                      id="coupon-type"
                       value={formData.type}
                       onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
+                      title="Coupon Type"
                       className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-semibold outline-none focus:border-primary"
                     >
                       <option value="percentage">Percentage Discount</option>
@@ -377,13 +381,15 @@ export default function AdminCouponManagement() {
                   </div>
                   
                   <div className="sm:col-span-2">
-                    <label className="block text-sm font-medium text-muted-foreground mb-2">Value</label>
+                    <label htmlFor="coupon-value" className="block text-sm font-medium text-muted-foreground mb-2">Value</label>
                     <div className="flex items-center gap-2">
                       <input
+                        id="coupon-value"
                         type="number"
                         value={formData.value}
                         onChange={(e) => setFormData({ ...formData, value: e.target.value })}
                         placeholder="Enter value"
+                        title="Value"
                         className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-semibold outline-none focus:border-primary"
                       />
                       <span className="text-sm font-medium text-muted-foreground">
@@ -397,23 +403,27 @@ export default function AdminCouponManagement() {
                 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="block text-sm font-medium text-muted-foreground mb-2">Minimum Purchase (₹)</label>
+                    <label htmlFor="coupon-min-purchase" className="block text-sm font-medium text-muted-foreground mb-2">Minimum Purchase (₹)</label>
                     <input
+                      id="coupon-min-purchase"
                       type="number"
                       value={formData.minPurchase}
                       onChange={(e) => setFormData({ ...formData, minPurchase: e.target.value })}
                       placeholder="Optional"
+                      title="Minimum Purchase"
                       className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-semibold outline-none focus:border-primary"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-muted-foreground mb-2">Maximum Discount (₹)</label>
+                    <label htmlFor="coupon-max-discount" className="block text-sm font-medium text-muted-foreground mb-2">Maximum Discount (₹)</label>
                     <input
+                      id="coupon-max-discount"
                       type="number"
                       value={formData.maxDiscount}
                       onChange={(e) => setFormData({ ...formData, maxDiscount: e.target.value })}
                       placeholder="Optional (for percentage coupons)"
+                      title="Maximum Discount"
                       className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-semibold outline-none focus:border-primary"
                     />
                   </div>
@@ -421,21 +431,27 @@ export default function AdminCouponManagement() {
                 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="block text-sm font-medium text-muted-foreground mb-2">Valid From</label>
+                    <label htmlFor="coupon-valid-from" className="block text-sm font-medium text-muted-foreground mb-2">Valid From</label>
                     <input
+                      id="coupon-valid-from"
                       type="datetime-local"
                       value={formData.validFrom}
                       onChange={(e) => setFormData({ ...formData, validFrom: e.target.value })}
+                      placeholder="Valid From"
+                      title="Valid From"
                       className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-semibold outline-none focus:border-primary"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-muted-foreground mb-2">Valid Until</label>
+                    <label htmlFor="coupon-valid-until" className="block text-sm font-medium text-muted-foreground mb-2">Valid Until</label>
                     <input
+                      id="coupon-valid-until"
                       type="datetime-local"
                       value={formData.validUntil}
                       onChange={(e) => setFormData({ ...formData, validUntil: e.target.value })}
+                      placeholder="Valid Until"
+                      title="Valid Until"
                       className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-semibold outline-none focus:border-primary"
                     />
                   </div>
@@ -443,22 +459,25 @@ export default function AdminCouponManagement() {
                 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="block text-sm font-medium text-muted-foreground mb-2">Usage Limit</label>
+                    <label htmlFor="coupon-usage-limit" className="block text-sm font-medium text-muted-foreground mb-2">Usage Limit</label>
                     <input
+                      id="coupon-usage-limit"
                       type="number"
                       value={formData.usageLimit}
                       onChange={(e) => setFormData({ ...formData, usageLimit: e.target.value })}
                       placeholder="Max uses"
+                      title="Usage Limit"
                       className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-semibold outline-none focus:border-primary"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-muted-foreground mb-2">Applicable Plans</label>
+                    <span className="block text-sm font-medium text-muted-foreground mb-2">Applicable Plans</span>
                     <div className="space-y-2">
                       {["free", "basic", "pro", "elite"].map((plan) => (
                         <div key={plan} className="flex items-center gap-2">
                           <input
+                            id={`plan-${plan}`}
                             type="checkbox"
                             checked={formData.applicablePlans.includes(plan as any)}
                             onChange={(e) => {
@@ -468,9 +487,10 @@ export default function AdminCouponManagement() {
                                 setFormData({ ...formData, applicablePlans: formData.applicablePlans.filter(p => p !== plan) });
                               }
                             }}
+                            title={`Applicable Plan: ${plan}`}
                             className="h-4 w-4"
                           />
-                          <span className="text-sm font-medium">{plan.toUpperCase()}</span>
+                          <label htmlFor={`plan-${plan}`} className="text-sm font-medium cursor-pointer">{plan.toUpperCase()}</label>
                         </div>
                       ))}
                     </div>
@@ -478,12 +498,14 @@ export default function AdminCouponManagement() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-muted-foreground mb-2">Applicable Tools (leave empty for all)</label>
+                  <label htmlFor="coupon-applicable-tools" className="block text-sm font-medium text-muted-foreground mb-2">Applicable Tools (leave empty for all)</label>
                   <input
+                    id="coupon-applicable-tools"
                     type="text"
                     value={formData.applicableTools.join(", ")}
                     onChange={(e) => setFormData({ ...formData, applicableTools: e.target.value.split(",").map(t => t.trim()).filter(t => t.length > 0) })}
                     placeholder="e.g. pdf_merge, video_compress, image_resize"
+                    title="Applicable Tools"
                     className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-semibold outline-none focus:border-primary"
                   />
                   <p className="text-xs text-muted-foreground mt-1">
@@ -493,10 +515,12 @@ export default function AdminCouponManagement() {
                 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="block text-sm font-medium text-muted-foreground mb-2">Is Active</label>
+                    <label htmlFor="coupon-is-active" className="block text-sm font-medium text-muted-foreground mb-2">Is Active</label>
                     <select
+                      id="coupon-is-active"
                       value={formData.isActive.toString()}
                       onChange={(e) => setFormData({ ...formData, isActive: e.target.value === "true" })}
+                      title="Is Active"
                       className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-semibold outline-none focus:border-primary"
                     >
                       <option value="true">Yes</option>
@@ -505,12 +529,14 @@ export default function AdminCouponManagement() {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-muted-foreground mb-2">Description</label>
+                    <label htmlFor="coupon-description" className="block text-sm font-medium text-muted-foreground mb-2">Description</label>
                     <textarea
+                      id="coupon-description"
                       value={formData.description}
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                       rows={3}
                       placeholder="Optional description"
+                      title="Description"
                       className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-semibold outline-none focus:border-primary"
                     />
                   </div>
@@ -614,12 +640,16 @@ export default function AdminCouponManagement() {
                             <div className="inline-flex gap-1">
                               <button
                                 onClick={() => handleEditCoupon(coupon)}
+                                title="Edit Coupon"
+                                aria-label="Edit Coupon"
                                 className="text-xs font-bold text-muted-foreground hover:text-primary p-1"
                               >
                                 <Edit className="h-3 w-3" />
                               </button>
                               <button
                                 onClick={() => handleToggleCoupon(coupon.id, coupon.isActive)}
+                                title={coupon.isActive ? "Deactivate Coupon" : "Activate Coupon"}
+                                aria-label={coupon.isActive ? "Deactivate Coupon" : "Activate Coupon"}
                                 className="text-xs font-bold text-muted-foreground hover:text-primary p-1"
                               >
                                 {coupon.isActive ? (
@@ -630,6 +660,8 @@ export default function AdminCouponManagement() {
                               </button>
                               <button
                                 onClick={() => handleDeleteCoupon(coupon.id)}
+                                title="Delete Coupon"
+                                aria-label="Delete Coupon"
                                 className="text-xs font-bold text-muted-foreground hover:text-danger p-1"
                               >
                                 <Trash2 className="h-3 w-3 text-red-500" />

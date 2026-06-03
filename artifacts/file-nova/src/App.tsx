@@ -3,6 +3,9 @@ import { QueryClient, QueryClientProvider, QueryErrorResetBoundary } from "@tans
 import { LazyMotion, domAnimation } from "framer-motion";
 import React, { Component, ErrorInfo, ReactNode, useState, useEffect } from "react";
 import Home from "@/pages/SimpleHome";
+import Workspace from "@/pages/Home";
+import ToolsPage from "@/pages/ToolsPage";
+import ToolPage from "@/pages/ToolPage";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminUpiPayments from "@/pages/AdminUpiPayments";
 import AdminCouponManagement from "@/pages/AdminCouponManagement";
@@ -84,13 +87,15 @@ function Router() {
   return (
     <Switch>
        <Route path="/" component={Home} />
+       <Route path="/workspace" component={Workspace} />
+       <Route path="/tools" component={ToolsPage} />
+       <Route path="/tools/:toolId" component={ToolPage} />
        <Route path="/premium" component={PremiumSuite} />
        <Route path="/pricing" component={PricingPage} />
        <Route path="/nova-control" component={AdminDashboard} />
        <Route path="/admin/upi-payments" component={AdminUpiPayments} />
        <Route path="/admin/coupons" component={AdminCouponManagement} />
        <Route path="/nova-login" component={AdminLogin} />
-      <Route path="/login" component={LoginPage} />
       <Route path="/dashboard" component={DashboardPage} />
       <Route path="/blog" component={BlogPage} />
       <Route path="/blog/:slug" component={BlogPostPage} />

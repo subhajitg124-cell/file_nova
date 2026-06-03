@@ -17,7 +17,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { useLocation } from 'wouter';
 import { toast } from 'sonner';
 
-interface ToolItem {
+export interface ToolItem {
   id: OperationType;
   title: string;
   description: string;
@@ -73,7 +73,7 @@ const CATEGORY_TABS = [
   { key: 'video', label: 'Video' },
 ];
 
-const TOOLS: ToolItem[] = [
+export const TOOLS: ToolItem[] = [
   // ── PDF / Merge & Combine ───────────────────────────────────────────────────
   { id: 'merge',   title: 'Merge PDFs',       description: 'Combine multiple PDF files into one document.',         category: 'pdf', subcategory: 'pdf_merge',    icon: FileText,      actionName: 'merge' },
   { id: 'convert', title: 'Images → PDF',     description: 'Pack multiple images into a single PDF document.',     category: 'pdf', subcategory: 'pdf_merge',    icon: Image,         actionName: 'images_to_pdf', badge: 'Client-side', badgeColor: 'emerald' },
