@@ -32,6 +32,8 @@ import { ConnectionStatusIndicator } from "@/components/ConnectionStatusIndicato
 import { FileNovaAssistant } from "@/components/FileNovaAssistant";
 import { FloatingShortcuts } from "@/components/FloatingShortcuts";
 import { FloatingParticles } from "@/components/AnimatedEffects";
+import { useAuthStore } from "@/store/useAuthStore";
+import { LoadingScreen } from "@/components/LoadingScreen";
 
 const queryClient = new QueryClient();
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
@@ -63,21 +65,47 @@ class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans">
-          <div className="max-w-md w-full bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-6 text-center">
-            <h1 className="text-2xl font-bold text-red-500 mb-4">Something went wrong</h1>
-            <p className="text-slate-600 dark:text-slate-300 mb-6 text-sm">
+        <div className="min-h-screen flex items-center justify-center bg-slate-950 p-4 font-sans">
+          <div className="bg-slate-900/40 border border-white/10 p-8 rounded-3xl shadow-2xl max-w-lg w-full text-center backdrop-blur-2xl">
+            <div className="w-16 h-16 bg-red-550/10 border border-red-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <span className="text-3xl">⚠️</span>
+            </div>
+            <h1 className="text-2xl font-black text-white mb-2">
+              Something went wrong
+            </h1>
+            <p className="text-slate-400 mb-6 text-xs leading-relaxed">
               {this.state.error?.message || "An unexpected application error occurred."}
             </p>
-            <button
-              onClick={() => {
-                this.props.onReset();
-                this.setState({ hasError: false, error: null });
-              }}
-              className="w-full py-2 px-4 bg-sky-500 hover:bg-sky-600 text-white rounded-lg transition-colors font-medium cursor-pointer"
-            >
-              Try again
-            </button>
+            <div className="space-y-3">
+              <button
+                onClick={() => {
+                  this.props.onReset();
+                  this.setState({ hasError: false, error: null });
+                }}
+                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 rounded-xl hover:opacity-90 transition font-bold text-xs cursor-pointer"
+              >
+                🔄 Try again
+              </button>
+              <button
+                onClick={() => {
+                  localStorage.clear();
+                  window.location.href = '/';
+                }}
+                className="w-full bg-slate-800 border border-slate-700 text-slate-200 py-3 rounded-xl hover:bg-slate-750 transition text-xs font-bold cursor-pointer"
+              >
+                🗑️ Clear data & restart
+              </button>
+            </div>
+            {import.meta.env.DEV && this.state.error && (
+              <details className="mt-6 text-left border-t border-white/[0.08] pt-4">
+                <summary className="cursor-pointer text-[10px] text-slate-500 font-bold select-none focus:outline-none">
+                  Error details (Development)
+                </summary>
+                <pre className="mt-2 p-4 bg-slate-950/80 border border-white/5 rounded-xl text-[10px] text-red-400 overflow-auto max-h-40 font-mono">
+                  {this.state.error.stack}
+                </pre>
+              </details>
+            )}
           </div>
         </div>
       );
@@ -114,9 +142,14 @@ function Router() {
 }
 
 function App() {
+  const { initialized, fetchMe } = useAuthStore();
   const [limitModalOpen, setLimitModalOpen] = useState(false);
   const [modalLimit, setModalLimit] = useState(3);
   const [modalUsage, setModalUsage] = useState(3);
+
+  useEffect(() => {
+    fetchMe();
+  }, [fetchMe]);
   const [apiStatus, setApiStatus] = useState<"online" | "offline" | "checking">("checking");
   const [assistantOpen, setAssistantOpen] = useState(false);
 
@@ -196,6 +229,10 @@ function App() {
     });
   }, []);
 
+  if (!initialized) {
+    return <LoadingScreen />;
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <QueryErrorResetBoundary>
@@ -203,12 +240,12 @@ function App() {
           <ErrorBoundary onReset={reset}>
             <LazyMotion features={domAnimation}>
               <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-                <ConnectionStatusIndicator status={apiStatus} />
-                <ScrollToTop />
-                <FloatingParticles />
-                <FloatingShortcuts />
-                <FileNovaAssistant isOpen={assistantOpen} onClose={() => setAssistantOpen(false)} />
                 <LanguageProvider>
+                  <ConnectionStatusIndicator status={apiStatus} />
+                  <ScrollToTop />
+                  <FloatingParticles />
+                  <FloatingShortcuts />
+                  <FileNovaAssistant isOpen={assistantOpen} onClose={() => setAssistantOpen(false)} />
                   <AdminProvider>
                     <Router />
                     <OfflineBanner />

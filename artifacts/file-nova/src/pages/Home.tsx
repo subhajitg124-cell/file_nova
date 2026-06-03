@@ -67,6 +67,8 @@ const languageLabels: Record<AppLanguage, string> = {
   en: "English",
   bn: "বাংলা",
   hi: "हिन्दी",
+  ne: "नेपाली",
+  sat: "ᱥᱟᱱᱛᱟᱲᱤ",
 };
 
 const showcaseSlides = [
@@ -811,7 +813,7 @@ export default function Home() {
             </div>
 
             <div className="hidden md:flex items-center gap-2 rounded-xl border border-border bg-card/60 p-1">
-              {(["en", "bn", "hi"] as AppLanguage[]).map((code) => (
+              {(["en", "bn", "hi", "ne", "sat"] as AppLanguage[]).map((code) => (
                 <button
                   key={code}
                   onClick={() => setLanguage(code)}
@@ -897,7 +899,7 @@ export default function Home() {
           <div className="md:hidden border-t border-border bg-card/95 px-4 py-3">
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
-                {(["en", "bn", "hi"] as AppLanguage[]).map((code) => (
+                {(["en", "bn", "hi", "ne", "sat"] as AppLanguage[]).map((code) => (
                   <button
                     key={code}
                     onClick={() => {
@@ -2341,7 +2343,7 @@ export default function Home() {
         {/* Toggle Language shortcut */}
         <button
           onClick={() => {
-            const langs: AppLanguage[] = ["en", "bn", "hi"];
+            const langs: AppLanguage[] = ["en", "bn", "hi", "ne", "sat"];
             const nextLang = langs[(langs.indexOf(language) + 1) % langs.length];
             setLanguage(nextLang);
           }}

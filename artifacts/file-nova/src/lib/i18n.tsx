@@ -11,7 +11,7 @@ const KEY = "filenova-language";
 const LanguageContext = createContext<LanguageContextValue | undefined>(undefined);
 
 // Comprehensive dictionary for on-the-fly translation of dynamic blocks like rules/documents/quick-actions
-const DYNAMIC_TRANSLATIONS: Record<Exclude<AppLanguage, "en">, Record<string, string>> = {
+const DYNAMIC_TRANSLATIONS: Partial<Record<AppLanguage, Record<string, string>>> = {
   bn: {
     // Rule Titles
     "Scholarship ZIP Maker": "স্কলারশিপ জিপ মেকার",
@@ -256,13 +256,19 @@ const DYNAMIC_TRANSLATIONS: Record<Exclude<AppLanguage, "en">, Record<string, st
   }
 };
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
+export function LanguageProvider({ 
+  children,
+  defaultLanguage = "en"
+}: { 
+  children: React.ReactNode;
+  defaultLanguage?: AppLanguage;
+}) {
   const [language, setLanguageState] = useState<AppLanguage>(() => {
     try {
       const stored = typeof window !== "undefined" ? localStorage.getItem(KEY) : null;
-      return stored === "bn" || stored === "hi" || stored === "en" ? (stored as AppLanguage) : "en";
+      return stored === "bn" || stored === "hi" || stored === "en" || stored === "ne" || stored === "sat" ? (stored as AppLanguage) : defaultLanguage;
     } catch (e) {
-      return "en";
+      return defaultLanguage;
     }
   });
 
