@@ -5,6 +5,7 @@ import React, { Component, ErrorInfo, ReactNode, useState, useEffect } from "rea
 import Home from "@/pages/SimpleHome";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminUpiPayments from "@/pages/AdminUpiPayments";
+import AdminCouponManagement from "@/pages/AdminCouponManagement";
 import AdminLogin from "@/pages/AdminLogin";
 import PremiumSuite from "@/pages/PremiumSuite";
 import PricingPage from "@/pages/PricingPage";
@@ -82,12 +83,13 @@ class ErrorBoundary extends Component<Props, State> {
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/premium" component={PremiumSuite} />
-      <Route path="/pricing" component={PricingPage} />
-      <Route path="/nova-control" component={AdminDashboard} />
-      <Route path="/admin/upi-payments" component={AdminUpiPayments} />
-      <Route path="/nova-login" component={AdminLogin} />
+       <Route path="/" component={Home} />
+       <Route path="/premium" component={PremiumSuite} />
+       <Route path="/pricing" component={PricingPage} />
+       <Route path="/nova-control" component={AdminDashboard} />
+       <Route path="/admin/upi-payments" component={AdminUpiPayments} />
+       <Route path="/admin/coupons" component={AdminCouponManagement} />
+       <Route path="/nova-login" component={AdminLogin} />
       <Route path="/login" component={LoginPage} />
       <Route path="/dashboard" component={DashboardPage} />
       <Route path="/blog" component={BlogPage} />
