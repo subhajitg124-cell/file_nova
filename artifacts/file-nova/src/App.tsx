@@ -146,12 +146,12 @@ function App() {
   const [limitModalOpen, setLimitModalOpen] = useState(false);
   const [modalLimit, setModalLimit] = useState(3);
   const [modalUsage, setModalUsage] = useState(3);
+  const [apiStatus, setApiStatus] = useState<"online" | "offline" | "checking">("checking");
+  const [assistantOpen, setAssistantOpen] = useState(false);
 
   useEffect(() => {
     fetchMe();
   }, [fetchMe]);
-  const [apiStatus, setApiStatus] = useState<"online" | "offline" | "checking">("checking");
-  const [assistantOpen, setAssistantOpen] = useState(false);
 
   useEffect(() => {
     const handleOpenAI = () => setAssistantOpen(true);
@@ -163,8 +163,6 @@ function App() {
     const originalFetch = window.fetch;
     window.fetch = async (...args) => {
       const [input, init] = args;
-      
-      // Add error handling for JSON parsing
       const response = await originalFetch(input, init);
       if (response.status === 403) {
         const clone = response.clone();
@@ -191,27 +189,66 @@ function App() {
 
     window.addEventListener("filenova-limit-reached" as any, handleLimitReached);
 
-    // Check API health periodically
+    return () => {
+      window.fetch = originalFetch;
+      window.removeEventListener("filenova-limit-reached" as any, handleLimitReached);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!BACKEND_URL) {
+      setApiStatus("online");
+      return;
+    }
+    let retryTimer: ReturnType<typeof setTimeout>;
+    let retries = 0;
+    const MAX_RETRIES = 3;
+
     const checkApiHealth = async () => {
-      if (!BACKEND_URL) {
-        setApiStatus("online"); // Standalone mode
-        return;
-      }
       try {
-        const res = await fetch(`${BACKEND_URL}/api/healthz`, { method: "GET" });
+        setApiStatus("checking");
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 6000);
+        const res = await fetch(`${BACKEND_URL}/api/healthz`, {
+          method: "GET",
+          signal: controller.signal,
+          headers: { "Cache-Control": "no-cache" },
+        });
+        clearTimeout(timeout);
         setApiStatus(res.ok ? "online" : "offline");
+        retries = 0;
       } catch {
-        setApiStatus("offline");
+        retries += 1;
+        if (retries <= MAX_RETRIES) {
+          retryTimer = setTimeout(checkApiHealth, 2000);
+        } else {
+          setApiStatus("offline");
+          retries = 0;
+        }
       }
     };
 
     checkApiHealth();
-    const healthCheckInterval = setInterval(checkApiHealth, 60000); // Check every minute
+    const healthCheckInterval = setInterval(() => {
+      retries = 0;
+      checkApiHealth();
+    }, 60000);
+
+    const handleOnline = () => {
+      retries = 0;
+      setApiStatus("checking");
+      checkApiHealth();
+    };
+    const handleOffline = () => setApiStatus("offline");
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
 
     return () => {
-      window.fetch = originalFetch;
-      window.removeEventListener("filenova-limit-reached" as any, handleLimitReached);
+      clearTimeout(retryTimer);
       clearInterval(healthCheckInterval);
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
     };
   }, []);
 

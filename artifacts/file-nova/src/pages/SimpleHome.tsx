@@ -202,7 +202,7 @@ export default function SimpleHome() {
               <UserProfileDropdown />
             ) : (
               <Link href="/login">
-                <a className="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-1.5 px-3.5 rounded-lg transition-all shadow-glow-indigo">
+                <a className="text-xs sm:text-sm bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-5 sm:py-1.5 sm:px-3.5 rounded-lg min-h-[44px] flex items-center justify-center transition-all shadow-glow">
                   Login
                 </a>
               </Link>

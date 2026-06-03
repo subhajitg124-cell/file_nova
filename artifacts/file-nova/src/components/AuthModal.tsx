@@ -181,16 +181,16 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
 
       {/* Centered / bottom sheet content */}
       <div
-        className="auth-modal-content bg-card border border-border rounded-t-3xl sm:rounded-3xl shadow-premium max-h-[92vh] overflow-y-auto animate-scale-in"
+        className="auth-modal-content w-[calc(100vw-2rem)] sm:w-[90vw] sm:max-w-md bg-card border border-border rounded-2xl sm:rounded-3xl shadow-premium max-h-[85vh] sm:max-h-[92vh] overflow-y-auto animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={handleClose}
           title="Close dialog"
           aria-label="Close dialog"
-          className="absolute top-4 right-4 text-muted-foreground hover:text-foreground h-8 w-8 flex items-center justify-center rounded-full bg-background/50 hover:bg-background border border-border transition z-10 cursor-pointer"
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 text-muted-foreground hover:text-foreground h-10 w-10 sm:h-8 sm:w-8 flex items-center justify-center rounded-full bg-background/50 hover:bg-background border border-border transition z-10 cursor-pointer"
         >
-          <X className="h-4 w-4" />
+          <X className="h-5 w-5 sm:h-4 sm:w-4" />
         </button>
 
         <div className="bg-gradient-to-r from-primary via-indigo-650 to-indigo-550 p-6 text-white">
@@ -212,13 +212,13 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
         <div className="flex border border-border/80 bg-muted/40 p-1 m-4 rounded-xl">
           <button
             onClick={() => handleTabChange("login")}
-            className={`flex-grow py-2 text-xs font-bold rounded-lg transition cursor-pointer ${activeTab === "login" ? "bg-card text-foreground shadow-sm border border-border/40" : "text-muted-foreground hover:text-foreground"}`}
+            className={`flex-grow py-3 text-xs font-bold rounded-lg transition cursor-pointer min-h-[44px] ${activeTab === "login" ? "bg-card text-foreground shadow-sm border border-border/40" : "text-muted-foreground hover:text-foreground"}`}
           >
             Sign In
           </button>
           <button
             onClick={() => handleTabChange("signup")}
-            className={`flex-grow py-2 text-xs font-bold rounded-lg transition cursor-pointer ${activeTab === "signup" ? "bg-card text-foreground shadow-sm border border-border/40" : "text-muted-foreground hover:text-foreground"}`}
+            className={`flex-grow py-3 text-xs font-bold rounded-lg transition cursor-pointer min-h-[44px] ${activeTab === "signup" ? "bg-card text-foreground shadow-sm border border-border/40" : "text-muted-foreground hover:text-foreground"}`}
           >
             Create Account
           </button>
@@ -258,7 +258,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                     setEmailError("");
                   }}
                   autoComplete="username"
-                  className="w-full pl-9 pr-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none"
+                  className="w-full pl-9 pr-4 py-3 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none min-h-[44px]"
                 />
               </div>
               {emailError && <p className="text-xs font-bold text-destructive px-1">{emailError}</p>}
@@ -274,7 +274,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                     setPasswordError("");
                   }}
                   autoComplete="new-password"
-                  className="w-full pl-9 pr-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none"
+                  className="w-full pl-9 pr-4 py-3 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none min-h-[44px]"
                 />
               </div>
               {passwordError && <p className="text-xs font-bold text-destructive px-1">{passwordError}</p>}

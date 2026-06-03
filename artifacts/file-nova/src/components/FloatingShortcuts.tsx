@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Phone, MessageSquare, HelpCircle, Bot, X, MessageCircle } from "lucide-react";
+import { Phone, MessageSquare, HelpCircle, Bot, X, MessageCircle, Mail } from "lucide-react";
+import { useAuthStore } from "@/store/useAuthStore";
 
 interface Shortcut {
   id: string;
@@ -9,28 +10,42 @@ interface Shortcut {
   color: string;
   action: () => void;
   tooltip: string;
+  availableFor: "all" | "premium";
 }
 
 export function FloatingShortcuts() {
   const [isOpen, setIsOpen] = useState(false);
+  const { user } = useAuthStore();
+  const isPremiumUser = (user?.premiumTier === 'basic' || user?.premiumTier === 'pro' || user?.premiumTier === 'elite');
 
   const shortcuts: Shortcut[] = [
     {
+      id: "email",
+      icon: <Mail className="h-5 w-5" />,
+      label: "Email Support",
+      color: "bg-blue-500 hover:bg-blue-600",
+      action: () => window.open("mailto:subhajiteditz90@gmail.com?subject=FileNova Support Request&body=Hi, I need help with..."),
+      tooltip: "Email Support (All Users)",
+      availableFor: "all",
+    },
+    ...(isPremiumUser ? [{
+      id: "whatsapp",
+      icon: <MessageCircle className="h-5 w-5 fill-current" />,
+      label: "WhatsApp Support",
+      color: "bg-emerald-500 hover:bg-emerald-600",
+      action: () => window.open("https://wa.me/919064560741?text=Hi! I am a FileNova Premium user and need assistance with..."),
+      tooltip: "WhatsApp Support (Premium Only)",
+      availableFor: "premium" as const,
+    }] : []),
+    ...(isPremiumUser ? [{
       id: "phone",
       icon: <Phone className="h-5 w-5" />,
       label: "Call Us",
-      color: "bg-red-500 hover:bg-red-650",
-      action: () => window.open("tel:+919876543210"),
-      tooltip: "Call Support",
-    },
-    {
-      id: "whatsapp",
-      icon: <MessageCircle className="h-5 w-5 fill-current" />,
-      label: "WhatsApp",
-      color: "bg-emerald-500 hover:bg-emerald-600",
-      action: () => window.open("https://wa.me/919876543210?text=Hi! I need help with FileNova"),
-      tooltip: "Chat on WhatsApp",
-    },
+      color: "bg-red-500 hover:bg-red-600",
+      action: () => window.open("tel:+919064560741"),
+      tooltip: "Call Support (Premium Only)",
+      availableFor: "premium" as const,
+    }] : []),
     {
       id: "document",
       icon: <HelpCircle className="h-5 w-5" />,
@@ -38,6 +53,7 @@ export function FloatingShortcuts() {
       color: "bg-blue-500 hover:bg-blue-600",
       action: () => window.open("/resources", "_self"),
       tooltip: "View Documentation",
+      availableFor: "all" as const,
     },
     {
       id: "ai",
@@ -50,6 +66,7 @@ export function FloatingShortcuts() {
         setIsOpen(false);
       },
       tooltip: "Ask AI Assistant",
+      availableFor: "all" as const,
     },
   ];
 
@@ -128,6 +145,10 @@ export function FloatingShortcuts() {
             }}
             className="absolute inset-0 rounded-full bg-indigo-500 pointer-events-none z-[-1]"
           />
+        )}
+
+        {isPremiumUser && (
+          <span className="absolute -top-1 -right-1 w-5 h-5 bg-yellow-400 rounded-full flex items-center justify-center text-[10px] z-10">⭐</span>
         )}
       </motion.button>
     </div>
