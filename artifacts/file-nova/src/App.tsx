@@ -28,6 +28,9 @@ import { Toaster } from "@/components/ui/sonner";
 import { UpgradeLimitModal } from "@/components/UpgradeLimitModal";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { ConnectionStatusIndicator } from "@/components/ConnectionStatusIndicator";
+import { FileNovaAssistant } from "@/components/FileNovaAssistant";
+import { FloatingShortcuts } from "@/components/FloatingShortcuts";
+import { FloatingParticles } from "@/components/AnimatedEffects";
 
 const queryClient = new QueryClient();
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
@@ -113,6 +116,13 @@ function App() {
   const [modalLimit, setModalLimit] = useState(3);
   const [modalUsage, setModalUsage] = useState(3);
   const [apiStatus, setApiStatus] = useState<"online" | "offline" | "checking">("checking");
+  const [assistantOpen, setAssistantOpen] = useState(false);
+
+  useEffect(() => {
+    const handleOpenAI = () => setAssistantOpen(true);
+    window.addEventListener("openAIAssistant", handleOpenAI);
+    return () => window.removeEventListener("openAIAssistant", handleOpenAI);
+  }, []);
 
   useEffect(() => {
     const originalFetch = window.fetch;
@@ -193,6 +203,9 @@ function App() {
               <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
                 <ConnectionStatusIndicator status={apiStatus} />
                 <ScrollToTop />
+                <FloatingParticles />
+                <FloatingShortcuts />
+                <FileNovaAssistant isOpen={assistantOpen} onClose={() => setAssistantOpen(false)} />
                 <LanguageProvider>
                   <AdminProvider>
                     <Router />
