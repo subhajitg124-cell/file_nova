@@ -206,17 +206,17 @@ export default function DashboardPage() {
 
             {/* Progress bar */}
             <div className="space-y-2">
-              <div className="h-4 w-full bg-secondary border border-border rounded-full overflow-hidden p-0.5">
-                <div 
-                  className={`h-full rounded-full transition-all duration-500 ${
-                    usagePercentage >= 90 
-                      ? "bg-gradient-to-r from-red-500 to-rose-600 shadow-glow-sm" 
-                      : usagePercentage >= 60 
-                      ? "bg-gradient-to-r from-amber-500 to-orange-500" 
-                      : "bg-gradient-to-r from-sky-500 to-indigo-600"
-                  }`} 
-                  style={{ width: `${dailyLimit === Infinity || dailyLimit === -1 ? 100 : usagePercentage}%` }}
-                />
+                <div className="h-4 w-full bg-secondary border border-border rounded-full overflow-hidden p-0.5">
+                  <div 
+                    className={`h-full rounded-full transition-all duration-500 progress-bar-dynamic ${
+                      usagePercentage >= 90 
+                        ? "bg-gradient-to-r from-red-500 to-rose-600 shadow-glow-sm" 
+                        : usagePercentage >= 60 
+                        ? "bg-gradient-to-r from-amber-500 to-orange-500" 
+                        : "bg-gradient-to-r from-sky-500 to-indigo-600"
+                    }`} 
+                    style={{ ['--bar-width' as string]: `${dailyLimit === Infinity || dailyLimit === -1 ? 100 : usagePercentage}%` }}
+                  />
               </div>
               <div className="flex justify-between text-[10px] text-muted-foreground font-bold">
                 <span>0% Usage</span>

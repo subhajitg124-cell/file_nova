@@ -1,5 +1,4 @@
 // artifacts/file-nova/src/components/OfflineBanner.tsx
-// DROP THIS FILE INTO: artifacts/file-nova/src/components/OfflineBanner.tsx
 
 import { useState, useEffect } from "react";
 
@@ -82,127 +81,44 @@ export function OfflineBanner() {
     <>
       {/* Offline warning bar */}
       {!isOnline && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            zIndex: 99999,
-            background: "#78350f",
-            borderBottom: "1px solid #92400e",
-            padding: "8px 16px",
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            fontFamily: "sans-serif",
-          }}
-        >
-          <span style={{ fontSize: 16 }}>📡</span>
-          <div style={{ flex: 1 }}>
-            <span style={{ color: "#fef3c7", fontSize: 13, fontWeight: 600 }}>
-              You're offline
-            </span>
-            <span
-              style={{ color: "#d97706", fontSize: 12, marginLeft: 8 }}
-            >
+        <div className="offline-bar">
+          <span className="offline-bar__icon">📡</span>
+          <div className="offline-bar__body">
+            <span className="offline-bar__title">You're offline</span>
+            <span className="offline-bar__subtitle">
               The app is still usable — file uploads will resume when reconnected.
             </span>
           </div>
-          <div
-            style={{
-              background: "#92400e",
-              color: "#fbbf24",
-              padding: "2px 10px",
-              borderRadius: 99,
-              fontSize: 11,
-            }}
-          >
-            OFFLINE MODE
-          </div>
+          <div className="offline-bar__badge">OFFLINE MODE</div>
         </div>
       )}
 
       {/* Back online toast */}
       {showOnlineToast && (
-        <div
-          style={{
-            position: "fixed",
-            top: 16,
-            right: 16,
-            zIndex: 99999,
-            background: "#14532d",
-            border: "1px solid #166534",
-            borderRadius: 10,
-            padding: "10px 16px",
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            fontFamily: "sans-serif",
-            boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
-            animation: "slideIn 0.3s ease",
-          }}
-        >
-          <span style={{ fontSize: 18 }}>✅</span>
-          <span style={{ color: "#4ade80", fontSize: 13, fontWeight: 600 }}>
-            Back online
-          </span>
+        <div className="online-toast animate-slide-right">
+          <span className="online-toast__icon">✅</span>
+          <span className="online-toast__text">Back online</span>
         </div>
       )}
 
       {/* Update available banner */}
       {canShowUpdate && updateAvailable && (
-        <div
-          style={{
-            position: "fixed",
-            bottom: 70, // above FileExpiryBar
-            right: 16,
-            zIndex: 99998,
-            background: "#1e3a5f",
-            border: "1px solid #1d4ed8",
-            borderRadius: 12,
-            padding: "12px 16px",
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            fontFamily: "sans-serif",
-            boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
-            maxWidth: 300,
-          }}
-        >
-          <span style={{ fontSize: 20 }}>🚀</span>
-          <div style={{ flex: 1 }}>
-            <div style={{ color: "#93c5fd", fontSize: 13, fontWeight: 600 }}>
-              Update available
-            </div>
-            <div style={{ color: "#475569", fontSize: 11, marginTop: 2 }}>
+        <div className="update-banner">
+          <span className="update-banner__icon">🚀</span>
+          <div className="update-banner__body">
+            <div className="update-banner__title">Update available</div>
+            <div className="update-banner__subtitle">
               Reload to get the latest FileNova
             </div>
           </div>
           <button
             onClick={reloadForUpdate}
-            style={{
-              background: "#1d4ed8",
-              color: "#fff",
-              border: "none",
-              borderRadius: 6,
-              padding: "6px 12px",
-              fontSize: 12,
-              cursor: "pointer",
-              whiteSpace: "nowrap",
-            }}
+            className="update-banner__btn"
           >
             Reload
           </button>
         </div>
       )}
-
-      <style>{`
-        @keyframes slideIn {
-          from { opacity: 0; transform: translateX(20px); }
-          to   { opacity: 1; transform: translateX(0); }
-        }
-      `}</style>
     </>
   );
 }

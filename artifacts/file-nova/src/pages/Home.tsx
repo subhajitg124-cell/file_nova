@@ -1047,7 +1047,7 @@ export default function Home() {
               <div className="flex items-center gap-3">
                 <span className="text-sm font-black tabular-nums text-foreground">{Math.round(progress)}%</span>
                 <div className="h-2.5 w-48 overflow-hidden rounded-full bg-background border border-border">
-                  <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${Math.min(100, Math.round(progress))}%` }} />
+                  <div className="h-full rounded-full bg-primary transition-all progress-bar-dynamic" style={{ ['--bar-width' as string]: `${Math.min(100, Math.round(progress))}%` }} />
                 </div>
               </div>
             </div>
@@ -1246,7 +1246,7 @@ export default function Home() {
                           {!isLowBandwidthMode && slide.stickers.map((sticker, idx) => (
                             <div
                               key={idx}
-                              style={{ animationDelay: sticker.delay || "0s" }}
+                              style={{ ['--sticker-delay' as string]: sticker.delay || "0s" }}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 if ('action' in sticker) {
@@ -1525,7 +1525,7 @@ export default function Home() {
                     <span>{completion}%</span>
                   </div>
                   <div className="h-2.5 overflow-hidden rounded-full bg-muted">
-                    <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${completion}%` }} />
+                    <div className="h-full rounded-full bg-primary transition-all duration-500 progress-bar-dynamic" style={{ ['--bar-width' as string]: `${completion}%` }} />
                   </div>
                 </div>
               </div>
@@ -1951,7 +1951,7 @@ export default function Home() {
                     <span>{completion}%</span>
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-muted">
-                    <div className="h-full rounded-full bg-primary" style={{ width: `${completion}%` }} />
+                    <div className="h-full rounded-full bg-primary progress-bar-dynamic" style={{ ['--bar-width' as string]: `${completion}%` }} />
                   </div>
                 </div>
               </div>
