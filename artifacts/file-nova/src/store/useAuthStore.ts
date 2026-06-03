@@ -34,6 +34,9 @@ interface AuthState {
   loginModalMessage: string | null;
   openLoginModal: (message?: unknown) => void;
   closeLoginModal: () => void;
+  updateProfile: (name: string | null, phoneNumber: string | null) => Promise<boolean>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<boolean>;
+  deleteAccount: () => Promise<boolean>;
 }
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
@@ -245,6 +248,83 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } finally {
       localStorage.removeItem(SESSION_TOKEN_KEY);
       set({ user: null, subscription: null, loading: false });
+    }
+  },
+
+  updateProfile: async (name, phoneNumber) => {
+    set({ loading: true, error: null });
+    try {
+      const res = await safeFetch(`${BACKEND_URL}/api/v1/auth/me`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+        credentials: 'include',
+        body: JSON.stringify({ name, phoneNumber }),
+      });
+      const data = await safeJsonParse(res);
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to update profile');
+      }
+      set({
+        user: data.user,
+        subscription: data.subscription,
+      });
+      return true;
+    } catch (err: any) {
+      set({ error: err.message || 'Failed to update profile' });
+      return false;
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  changePassword: async (currentPassword, newPassword) => {
+    set({ loading: true, error: null });
+    try {
+      const res = await safeFetch(`${BACKEND_URL}/api/v1/auth/change-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+        credentials: 'include',
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+      const data = await safeJsonParse(res);
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to change password');
+      }
+      return true;
+    } catch (err: any) {
+      set({ error: err.message || 'Failed to change password' });
+      return false;
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  deleteAccount: async () => {
+    set({ loading: true, error: null });
+    try {
+      const res = await safeFetch(`${BACKEND_URL}/api/v1/auth/me`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: getAuthHeaders(),
+      });
+      const data = await safeJsonParse(res);
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to delete account');
+      }
+      localStorage.removeItem(SESSION_TOKEN_KEY);
+      set({ user: null, subscription: null });
+      return true;
+    } catch (err: any) {
+      set({ error: err.message || 'Failed to delete account' });
+      return false;
+    } finally {
+      set({ loading: false });
     }
   },
 }));

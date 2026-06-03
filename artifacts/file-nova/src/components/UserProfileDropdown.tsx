@@ -89,6 +89,24 @@ export function UserProfileDropdown() {
     }
   };
 
+  const getWidthClass = (days: number | null) => {
+    if (days === null) return "w-0";
+    const percent = Math.min(100, Math.max(0, Math.round((days / 30) * 10) * 10));
+    switch (percent) {
+      case 0: return "w-0";
+      case 10: return "w-[10%]";
+      case 20: return "w-[20%]";
+      case 30: return "w-[30%]";
+      case 40: return "w-[40%]";
+      case 50: return "w-[50%]";
+      case 60: return "w-[60%]";
+      case 70: return "w-[70%]";
+      case 80: return "w-[80%]";
+      case 90: return "w-[90%]";
+      case 100: default: return "w-full";
+    }
+  };
+
   const plan = getPlanDetails();
 
   return (
@@ -148,10 +166,7 @@ export function UserProfileDropdown() {
                 </div>
                 {/* Visual active progress representation */}
                 <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-primary rounded-full transition-all duration-500" 
-                    style={{ width: `${Math.min(100, (plan.days / 30) * 100)}%` }}
-                  />
+                  <div className={`h-full bg-primary rounded-full transition-all duration-500 ${getWidthClass(plan.days)}`} />
                 </div>
               </div>
             ) : (
@@ -169,6 +184,13 @@ export function UserProfileDropdown() {
             >
               <User className="h-3.5 w-3.5 text-primary" />
               <span>Dashboard</span>
+            </button>
+            <button
+              onClick={() => { setLocation("/profile"); setDropdownOpen(false); }}
+              className="w-full text-left py-2 px-3 rounded-lg text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/80 transition flex items-center gap-2 cursor-pointer"
+            >
+              <User className="h-3.5 w-3.5 text-indigo-450" />
+              <span>My Profile</span>
             </button>
             <button
               onClick={() => { setLocation("/pricing"); setDropdownOpen(false); }}

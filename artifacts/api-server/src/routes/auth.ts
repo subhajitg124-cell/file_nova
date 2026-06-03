@@ -371,4 +371,156 @@ router.post("/logout", authMiddleware, async (req: AuthRequest, res): Promise<vo
   }
 });
 
+// ── 6. PUT /me (Update profile) ──
+router.put("/me", authMiddleware, async (req: AuthRequest, res): Promise<void> => {
+  try {
+    if (!req.user) {
+      sendJson(res, { error: "Authentication required" }, 401);
+      return;
+    }
+
+    const bodySchema = z.object({
+      name: z.string().min(1, "Name is required").optional().nullable(),
+      phoneNumber: z.string().min(10, "Phone number must be at least 10 digits").max(15).optional().nullable(),
+    });
+
+    const parsed = bodySchema.parse(req.body);
+
+    const [updatedUser] = await db
+      .update(usersTable)
+      .set({
+        name: parsed.name !== undefined ? parsed.name : undefined,
+        phoneNumber: parsed.phoneNumber !== undefined ? parsed.phoneNumber : undefined,
+        updatedAt: new Date(),
+      })
+      .where(eq(usersTable.id, req.user.id))
+      .returning();
+
+    if (!updatedUser) {
+      sendJson(res, { error: "User not found" }, 404);
+      return;
+    }
+
+    const subscription = await getUserSubscriptionInfo(req.user.id);
+
+    sendJson(res, {
+      success: true,
+      message: "Profile updated successfully",
+      user: {
+        id: updatedUser.id,
+        email: updatedUser.email,
+        name: updatedUser.name,
+        phoneNumber: updatedUser.phoneNumber,
+        role: updatedUser.role,
+        premiumTier: updatedUser.premiumTier,
+        premiumEnabled: updatedUser.premiumEnabled,
+        referralCode: updatedUser.referralCode,
+      },
+      subscription,
+    });
+  } catch (err: any) {
+    logger.error({ err }, "Profile update error");
+    if (err instanceof z.ZodError) {
+      sendJson(res, { error: err.errors[0].message }, 400);
+      return;
+    }
+    sendJson(res, { error: err.message || "Failed to update profile" }, 500);
+  }
+});
+
+// ── 7. POST /change-password ──
+router.post("/change-password", authMiddleware, async (req: AuthRequest, res): Promise<void> => {
+  try {
+    if (!req.user) {
+      sendJson(res, { error: "Authentication required" }, 401);
+      return;
+    }
+
+    const bodySchema = z.object({
+      currentPassword: z.string().min(1, "Current password is required"),
+      newPassword: z.string().min(6, "New password must be at least 6 characters"),
+    });
+
+    const parsed = bodySchema.parse(req.body);
+
+    // Fetch full user record to check passwordHash
+    const [dbUser] = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.id, req.user.id))
+      .limit(1);
+
+    if (!dbUser) {
+      sendJson(res, { error: "User not found" }, 404);
+      return;
+    }
+
+    // If signed up via Google and has no password set
+    if (!dbUser.passwordHash) {
+      sendJson(res, { error: "Google authenticated accounts cannot change password directly" }, 400);
+      return;
+    }
+
+    if (!verifyPassword(parsed.currentPassword, dbUser.passwordHash)) {
+      sendJson(res, { error: "Current password is incorrect" }, 400);
+      return;
+    }
+
+    const newPasswordHash = hashPassword(parsed.newPassword);
+
+    await db
+      .update(usersTable)
+      .set({
+        passwordHash: newPasswordHash,
+        updatedAt: new Date(),
+      })
+      .where(eq(usersTable.id, req.user.id));
+
+    sendJson(res, {
+      success: true,
+      message: "Password changed successfully",
+    });
+  } catch (err: any) {
+    logger.error({ err }, "Change password error");
+    if (err instanceof z.ZodError) {
+      sendJson(res, { error: err.errors[0].message }, 400);
+      return;
+    }
+    sendJson(res, { error: err.message || "Failed to change password" }, 500);
+  }
+});
+
+// ── 8. DELETE /me (Delete account) ──
+router.delete("/me", authMiddleware, async (req: AuthRequest, res): Promise<void> => {
+  try {
+    if (!req.user) {
+      sendJson(res, { error: "Authentication required" }, 401);
+      return;
+    }
+
+    // Delete user
+    await db.delete(usersTable).where(eq(usersTable.id, req.user.id));
+
+    // Clear sessions
+    if (req.sessionToken) {
+      await db.delete(sessionsTable).where(eq(sessionsTable.token, req.sessionToken));
+    }
+
+    res.clearCookie("session_token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+    });
+
+    sendJson(res, {
+      success: true,
+      message: "Account deleted successfully",
+    });
+  } catch (err: any) {
+    logger.error({ err }, "Delete account error");
+    sendJson(res, { error: err.message || "Failed to delete account" }, 500);
+  }
+});
+
 export default router;
