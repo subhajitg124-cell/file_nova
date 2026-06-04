@@ -5,11 +5,11 @@ import SocialMediaLinks from "@/components/SocialMediaLinks";
 import { Lock } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 
-const WhatsAppSupport: React.FC = () => {
+const TelegramSupport: React.FC = () => {
   const { user } = useAuthStore();
-  const isPremiumUser = user?.premiumTier === 'pro' || user?.premiumTier === 'elite';
+  const isProOrHigher = user?.premiumTier === 'pro' || user?.premiumTier === 'elite';
 
-  if (!isPremiumUser) {
+  if (!isProOrHigher) {
     return (
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
@@ -17,17 +17,82 @@ const WhatsAppSupport: React.FC = () => {
         transition={{ delay: 0.2 }}
         className="bg-slate-900/40 border border-slate-900 rounded-2xl p-6 relative overflow-hidden transition-all duration-300"
       >
+        <div className="absolute top-0 right-0 bg-blue-400 text-gray-900 text-xs font-bold px-3 py-1 rounded-bl-lg">
+          PRO+
+        </div>
+        <div className="w-16 h-16 bg-blue-400/10 border border-blue-400/20 rounded-full flex items-center justify-center mb-4 relative">
+          <Lock className="h-8 w-8 text-blue-400/50" />
+        </div>
+        <h3 className="text-xl font-bold text-white mb-2">Telegram Support</h3>
+        <p className="text-slate-400 mb-4">Instant support for PRO users</p>
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center justify-center z-10">
+            <span className="text-sm font-bold text-blue-400 bg-slate-900/80 px-3 py-1 rounded-lg">🔒 Upgrade to PRO for Telegram Support</span>
+          </div>
+          <button
+            disabled
+            className="block w-full bg-blue-500/50 text-white/50 text-center py-3 rounded-lg font-semibold cursor-not-allowed blur-[1px]"
+          >
+            Message on Telegram
+          </button>
+        </div>
+      </motion.div>
+    );
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay: 0.2 }}
+      className="bg-slate-900/40 border border-slate-900 hover:border-blue-400/35 rounded-2xl p-6 relative overflow-hidden transition-all duration-300"
+    >
+      <div className="absolute top-0 right-0 bg-blue-400 text-gray-900 text-xs font-bold px-3 py-1 rounded-bl-lg">
+        PRO+
+      </div>
+      <div className="w-16 h-16 bg-blue-400/10 border border-blue-400/20 rounded-full flex items-center justify-center text-3xl mb-4">
+        📱
+      </div>
+      <h3 className="text-xl font-bold text-white mb-2">Telegram Support</h3>
+      <p className="text-slate-400 mb-4">Instant support for PRO users</p>
+      <a
+        href="https://t.me/filenova_assistant"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block w-full bg-blue-500 text-white text-center py-3 rounded-lg font-semibold hover:bg-blue-400 transition"
+      >
+        Message on Telegram
+      </a>
+      <p className="text-sm text-slate-500 mt-2 text-center">
+        @filenova_assistant
+      </p>
+    </motion.div>
+  );
+};
+
+const WhatsAppSupport: React.FC = () => {
+  const { user } = useAuthStore();
+  const isEliteUser = user?.premiumTier === 'elite';
+
+  if (!isEliteUser) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.3 }}
+        className="bg-slate-900/40 border border-slate-900 rounded-2xl p-6 relative overflow-hidden transition-all duration-300"
+      >
         <div className="absolute top-0 right-0 bg-yellow-400 text-gray-900 text-xs font-bold px-3 py-1 rounded-bl-lg">
-          PREMIUM ONLY
+          ELITE ONLY
         </div>
         <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center mb-4 relative">
           <Lock className="h-8 w-8 text-emerald-500/50" />
         </div>
         <h3 className="text-xl font-bold text-white mb-2">WhatsApp Support</h3>
-        <p className="text-slate-400 mb-4">Priority support for premium users</p>
+        <p className="text-slate-400 mb-4">Priority support for Elite users</p>
         <div className="relative">
           <div className="absolute inset-0 flex items-center justify-center z-10">
-            <span className="text-sm font-bold text-yellow-400 bg-slate-900/80 px-3 py-1 rounded-lg">🔒 Premium Feature - Upgrade to Unlock</span>
+            <span className="text-sm font-bold text-yellow-400 bg-slate-900/80 px-3 py-1 rounded-lg">🔒 Upgrade to Elite for WhatsApp Support</span>
           </div>
           <button
             disabled
@@ -44,19 +109,19 @@ const WhatsAppSupport: React.FC = () => {
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay: 0.2 }}
+      transition={{ delay: 0.3 }}
       className="bg-slate-900/40 border border-slate-900 hover:border-emerald-500/35 rounded-2xl p-6 relative overflow-hidden transition-all duration-300"
     >
       <div className="absolute top-0 right-0 bg-yellow-400 text-gray-900 text-xs font-bold px-3 py-1 rounded-bl-lg">
-        PREMIUM ONLY
+        ELITE ONLY
       </div>
       <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center text-3xl mb-4">
         💬
       </div>
       <h3 className="text-xl font-bold text-white mb-2">WhatsApp Support</h3>
-      <p className="text-slate-400 mb-4">Priority support for premium users</p>
+      <p className="text-slate-400 mb-4">Priority support for Elite users</p>
       <a
-        href="https://wa.me/919064560741?text=Hi! I am a FileNova Premium user and need assistance with..."
+        href="https://wa.me/919064560741?text=Hi! I am a FileNova Elite user and need assistance with..."
         target="_blank"
         rel="noopener noreferrer"
         className="block w-full bg-emerald-600 text-white text-center py-3 rounded-lg font-semibold hover:bg-emerald-500 transition"
@@ -114,6 +179,9 @@ const Contact: React.FC = () => {
             </p>
           </motion.div>
 
+          {/* Telegram Support with Premium Gate */}
+          <TelegramSupport />
+
           {/* WhatsApp Support with Premium Gate */}
           <WhatsAppSupport />
         </div>
@@ -122,7 +190,7 @@ const Contact: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.4 }}
         >
           <SocialMediaLinks />
         </motion.div>
@@ -131,7 +199,7 @@ const Contact: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.5 }}
           className="mt-8 bg-slate-900/40 border border-slate-900 rounded-2xl p-6"
         >
           <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
@@ -155,7 +223,7 @@ const Contact: React.FC = () => {
               className="px-4 py-2 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white rounded-lg font-semibold hover:shadow-lg transition flex items-center gap-2"
             >
               <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current">
-                <path d="M12 2.163c3.204 0 3.595.012 4.85.07 1.206.06 2.178.256 2.924.499.875.292 1.554.654 2.29.999.397-.345.78-.707 1.172-1.074a7.954 7.954 0 00-.999-2.29 7.978 7.978 0 00-.499-1.043c-.243-.437-.516-.85-.818-1.245-.301-.396-.643-.764-1.015-1.096-.372-.332-.78-.62-1.217-.885-.437-.265-.91-.468-1.415-.624a7.84 7.84 0 00-1.57-.21C15.638 2.174 15.244 2.163 12 2.163zm0-2.163C8.741 0 8.337.014 7.052.072a10.076 10.076 0 00-2.494.422 10.115 10.115 0 00-2.153 1.012A10.115 10.115 0 000 4.921a10.076 10.076 0 00-.422 2.494C.014 7.663 0 8.068 0 11.327c0 3.259.014 3.663.072 4.948a10.076 10.076 0 00.422 2.494 10.115 10.115 0 001.012 2.153 10.115 10.115 0 001.096 2.153.711.464 1.322.829.384.446.384.97.253 1.485.436 2.173.391.347.306.756.293 1.309.26.5.243.604a7.99 7.99 0 00.915 3.595C2.172 21.401.062 21.818.07 19.617.06 16.422.07 16.03.07 12.837.07 9.592c0-3.245.012-3.636.07-6.831a7.99 7.99 0 00-.26-1.309 7.99 7.99 0 00-.306-.347 7.99 7.99 0 00-.756-.384A7.99 7.99 0 00-.8.436 7.99 7.99 0 00-1.096-.391 7.99 7.99 0 00-1.485-.436 7.99 7.99 0 00-1.8-.422C5.663.014 5.259.0 1.037.0 1zM12 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 00-6.162-6.162zm0 10.162a3.999 3.999 0 110-7.998 3.999 3.999 0 010 7.998zm6.406-11.845a1.44 1.44 0 100 2.882 1.44 1.44 0 00-1.44-1.44z" />
+                <path d="M12 2.163c3.204 0 3.595.012 4.85.07 1.206.06 2.178.256 2.924.499.875.292 1.554.654 2.29.999.397-.345.78-.707 1.172-1.074a7.954 7.954 0 00-.999-2.29 7.978 7.978 0 00-.499-1.043c-.243-.437-.516-.85-.818-1.245-.301-.396-.643-.764-1.015-1.096-.372-.332-.78-.62-1.217-.885-.437-.265-.91-.468-1.415-.624a7.84 7.84 0 00-1.57-.21C15.638 2.174 15.244 2.163 12 2.163zm0-2.163C8.741 0 8.337.014 7.052.072a10.076 10.076 0 00-2.494.422 10.115 10.115 0 00-2.153 1.012A10.115 10.115 0 000 4.921a10.076 10.076 0 00-.422 2.494C.014 7.663 0 8.068 0 11.327c0 3.259.014 3.663.072 4.948a10.076 10.076 0 00.422 2.494 10.115 10.115 0 001.012 2.153 10.115 10.115 0 001.096 2.153.711.464 1.322.829.384.446.384.97.253 1.485.436 2.173.391.347.306.756.293 1.309.26.5.243.604a7.99 7.99 0 00.915 3.595C2.172 21.401.062 21.818.07 19.617.06 16.422.07 16.03.07 12.837.07 9.592c0-3.245.012-3.636.07-6.831a7.99 7.99 0 00-.26-1.309 7.99 7.99 0 00-.306-.347 7.99 7.99 0 00-.756-.384A7.99 7.99 0 00-1.485-.436 7.99 7.99 0 00-2.173-.391 7.99 7.99 0 00-2.494-.422C5.663.014 5.259.0 1.037.0 1zM12 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 00-6.162-6.162zm0 10.162a3.999 3.999 0 110-7.998 3.999 3.999 0 010 7.998zm6.406-11.845a1.44 1.44 0 100 2.882 1.44 1.44 0 00-1.44-1.44z" />
               </svg>
               Instagram (Developer)
             </a>

@@ -3,16 +3,45 @@ import { Link } from "wouter";
 import SocialMediaLinks from "./SocialMediaLinks";
 import { useAuthStore } from "@/store/useAuthStore";
 
+const TelegramContact: React.FC = () => {
+  const { user } = useAuthStore();
+  const isProOrHigher = user?.premiumTier === 'pro' || user?.premiumTier === 'elite';
+
+  if (!isProOrHigher) {
+    return (
+      <li className="flex items-center gap-2">
+        <span>📱</span>
+        <span className="text-slate-500">Telegram: </span>
+        <span className="text-slate-500">🔒 Upgrade to PRO</span>
+      </li>
+    );
+  }
+
+  return (
+    <li className="flex items-center gap-2">
+      <span>📱</span>
+      <a
+        href="https://t.me/filenova_assistant"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="hover:text-indigo-400 transition-colors"
+      >
+        Telegram: @filenova_assistant
+      </a>
+    </li>
+  );
+};
+
 const WhatsAppContact: React.FC = () => {
   const { user } = useAuthStore();
-  const isPremiumUser = user?.premiumTier === 'pro' || user?.premiumTier === 'elite';
+  const isEliteUser = user?.premiumTier === 'elite';
 
-  if (!isPremiumUser) {
+  if (!isEliteUser) {
     return (
       <li className="flex items-center gap-2">
         <span>💬</span>
         <span className="text-slate-500">WhatsApp: </span>
-        <span className="text-slate-500">🔒 Premium Feature - Upgrade to Unlock</span>
+        <span className="text-slate-500">🔒 Upgrade to Elite</span>
       </li>
     );
   }
@@ -21,7 +50,7 @@ const WhatsAppContact: React.FC = () => {
     <li className="flex items-center gap-2">
       <span>💬</span>
       <a
-        href="https://wa.me/919064560741?text=Hi! I am a FileNova Premium user and need assistance with..."
+        href="https://wa.me/919064560741?text=Hi! I am a FileNova Elite user and need assistance with..."
         target="_blank"
         rel="noopener noreferrer"
         className="hover:text-indigo-400 transition-colors"
@@ -29,7 +58,7 @@ const WhatsAppContact: React.FC = () => {
         WhatsApp: +91 9064560741
       </a>
       <span className="text-xs bg-yellow-400 text-gray-900 px-2 py-0.5 rounded font-semibold">
-        Premium
+        Elite
       </span>
     </li>
   );
@@ -167,6 +196,7 @@ const Footer: React.FC = () => {
                   subhajiteditz90@gmail.com
                 </a>
               </li>
+              <TelegramContact />
               <WhatsAppContact />
             </ul>
 
