@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { BACKEND_URL } from '@/lib/api';
+import { BACKEND_URL, HAS_BACKEND } from '@/lib/api';
 
 export interface UserProfile {
   id: string;
@@ -42,7 +42,65 @@ interface AuthState {
 
 
 const SESSION_TOKEN_KEY = 'filenova_token';
+const LOCAL_USER_KEY = 'filenova_local_user';
+const LOCAL_USERS_KEY = 'filenova_local_users';
 const API_TIMEOUT_MS = 30000;
+
+const freeSubscription: UserSubscription = {
+  plan: 'free',
+  status: 'active',
+  expiresAt: null,
+  daysActive: null,
+};
+
+const createLocalUser = (email: string, name: string | null, phoneNumber: string | null = null): UserProfile => ({
+  id: `local_${email.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
+  email,
+  name,
+  phoneNumber,
+  role: 'user',
+  premiumTier: 'free',
+  premiumEnabled: false,
+  referralCode: null,
+});
+
+const getLocalUsers = (): Record<string, { user: UserProfile; password: string }> => {
+  try {
+    return JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || '{}');
+  } catch {
+    return {};
+  }
+};
+
+const setLocalSession = (user: UserProfile) => {
+  localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(user));
+  localStorage.setItem(SESSION_TOKEN_KEY, `local_${Date.now()}`);
+};
+
+const getLocalSession = (): UserProfile | null => {
+  try {
+    const raw = localStorage.getItem(LOCAL_USER_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+};
+
+const decodeGoogleCredential = (credential: string): { email?: string; name?: string } => {
+  try {
+    const payload = credential.split('.')[1];
+    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const json = decodeURIComponent(
+      atob(normalized)
+        .split('')
+        .map((char) => `%${char.charCodeAt(0).toString(16).padStart(2, '0')}`)
+        .join('')
+    );
+    return JSON.parse(json);
+  } catch {
+    return {};
+  }
+};
 
 const getAuthHeaders = (): Record<string, string> => {
   const token = localStorage.getItem(SESSION_TOKEN_KEY);
@@ -113,6 +171,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   fetchMe: async () => {
     set({ loading: true, error: null });
     try {
+      if (!HAS_BACKEND) {
+        const localUser = getLocalSession();
+        set({
+          user: localUser,
+          subscription: localUser ? freeSubscription : null,
+          initialized: true,
+        });
+        return;
+      }
+
       const res = await safeFetch(`${BACKEND_URL}/api/v1/auth/me`, {
         credentials: 'include',
         headers: getAuthHeaders(),
@@ -141,6 +209,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   login: async (identifier, password) => {
     set({ loading: true, error: null });
     try {
+      if (!HAS_BACKEND) {
+        const key = identifier.trim().toLowerCase();
+        const localUsers = getLocalUsers();
+        const saved = localUsers[key];
+        if (!saved || saved.password !== password) {
+          throw new Error('No local account found with those credentials. Create an account first.');
+        }
+        setLocalSession(saved.user);
+        set({ user: saved.user, subscription: freeSubscription });
+        return true;
+      }
+
       const res = await safeFetch(`${BACKEND_URL}/api/v1/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -170,6 +250,21 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   signup: async (email, phoneNumber, password, name) => {
     set({ loading: true, error: null });
     try {
+      if (!HAS_BACKEND) {
+        const key = email.trim().toLowerCase();
+        const localUsers = getLocalUsers();
+        if (localUsers[key]) {
+          throw new Error('An account already exists with this email.');
+        }
+        const user = createLocalUser(key, name || key.split('@')[0], phoneNumber);
+        localUsers[key] = { user, password };
+        localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(localUsers));
+        setLocalSession(user);
+        localStorage.removeItem('filenova_referral_code');
+        set({ user, subscription: freeSubscription });
+        return true;
+      }
+
       const res = await safeFetch(`${BACKEND_URL}/api/v1/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -206,6 +301,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   loginWithGoogle: async (credential) => {
     set({ loading: true, error: null });
     try {
+      if (!HAS_BACKEND) {
+        const profile = decodeGoogleCredential(credential);
+        if (!profile.email) {
+          throw new Error('Google did not return an email address.');
+        }
+        const user = createLocalUser(profile.email, profile.name || profile.email.split('@')[0]);
+        setLocalSession(user);
+        localStorage.removeItem('filenova_referral_code');
+        set({ user, subscription: freeSubscription });
+        return true;
+      }
+
       const res = await safeFetch(`${BACKEND_URL}/api/v1/auth/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -239,15 +346,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   logout: async () => {
     set({ loading: true });
     try {
-      await safeFetch(`${BACKEND_URL}/api/v1/auth/logout`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: getAuthHeaders(),
-      });
+      if (HAS_BACKEND) {
+        await safeFetch(`${BACKEND_URL}/api/v1/auth/logout`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: getAuthHeaders(),
+        });
+      }
     } catch (_) {
       // Proceed with local logout even if request fails
     } finally {
       localStorage.removeItem(SESSION_TOKEN_KEY);
+      localStorage.removeItem(LOCAL_USER_KEY);
       set({ user: null, subscription: null, loading: false });
     }
   },
@@ -255,6 +365,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   updateProfile: async (name, phoneNumber) => {
     set({ loading: true, error: null });
     try {
+      if (!HAS_BACKEND) {
+        const current = get().user;
+        if (!current) throw new Error('Please log in first.');
+        const updated = { ...current, name, phoneNumber };
+        setLocalSession(updated);
+        set({ user: updated, subscription: freeSubscription });
+        return true;
+      }
+
       const res = await safeFetch(`${BACKEND_URL}/api/v1/auth/me`, {
         method: 'PUT',
         headers: {
@@ -284,6 +403,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   changePassword: async (currentPassword, newPassword) => {
     set({ loading: true, error: null });
     try {
+      if (!HAS_BACKEND) {
+        const current = get().user;
+        if (!current) throw new Error('Please log in first.');
+        const localUsers = getLocalUsers();
+        const saved = localUsers[current.email.toLowerCase()];
+        if (!saved || saved.password !== currentPassword) {
+          throw new Error('Current password is incorrect.');
+        }
+        localUsers[current.email.toLowerCase()] = { ...saved, password: newPassword };
+        localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(localUsers));
+        return true;
+      }
+
       const res = await safeFetch(`${BACKEND_URL}/api/v1/auth/change-password`, {
         method: 'POST',
         headers: {
@@ -309,6 +441,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   deleteAccount: async () => {
     set({ loading: true, error: null });
     try {
+      if (!HAS_BACKEND) {
+        const current = get().user;
+        if (current) {
+          const localUsers = getLocalUsers();
+          delete localUsers[current.email.toLowerCase()];
+          localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(localUsers));
+        }
+        localStorage.removeItem(SESSION_TOKEN_KEY);
+        localStorage.removeItem(LOCAL_USER_KEY);
+        set({ user: null, subscription: null });
+        return true;
+      }
+
       const res = await safeFetch(`${BACKEND_URL}/api/v1/auth/me`, {
         method: 'DELETE',
         credentials: 'include',

@@ -78,10 +78,13 @@ const Footer: React.FC = () => {
           {/* Brand */}
           <div className="col-span-1 sm:col-span-2 lg:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center font-bold text-xl">
-                FN
+              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center overflow-hidden border border-white/10">
+                <img src="/logo.png" alt="FileNova logo" className="h-8 w-auto object-contain" />
               </div>
-              <span className="text-2xl font-bold">FileNova</span>
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="text-2xl font-bold">FileNova</span>
+                <img src="/icon.png" alt="FileNova app icon" className="h-7 w-7 rounded-md border border-white/10 object-cover" />
+              </div>
             </div>
             <p className="text-slate-400 text-sm mb-4">
               {tText("India's most trusted document automation platform.")}

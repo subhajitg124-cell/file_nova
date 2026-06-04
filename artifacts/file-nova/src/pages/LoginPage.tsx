@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { toast } from "sonner";
+import { HAS_BACKEND } from "@/lib/api";
 
 type AuthTab = "login" | "signup";
 
@@ -172,8 +173,11 @@ const isValidationError = (err: string): boolean => {
       return "No account found with this email or phone number.";
     }
     if (msg.includes("fetch") || msg.includes("network") || msg.includes("failed to fetch") || msg.includes("connect") || msg.includes("timeout") || msg.includes("starting up") || msg.includes("offline")) {
+      if (!HAS_BACKEND) {
+        return "This static build uses browser-only login. Create a local account or continue with Google.";
+      }
       if (msg.includes("starting up") || msg.includes("offline") || msg.includes("connect")) {
-        return "Cannot connect to the server. Please verify the Express backend is running on port 4173.";
+        return "Cannot connect to the FileNova API. Please try again shortly.";
       }
       return "Connection failed. Please check your internet and try again.";
     }
@@ -264,6 +268,11 @@ const isValidationError = (err: string): boolean => {
             <p className="text-xs text-muted-foreground mt-1">
               {activeTab === "login" ? "Use Google or enter your credentials to log in." : "Register for free to configure workspaces and remove daily limit gates."}
             </p>
+            {!HAS_BACKEND && (
+              <p className="mt-2 rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-[11px] font-semibold text-amber-500">
+                Static mode: accounts are saved locally in this browser. Add VITE_API_URL to use the live backend.
+              </p>
+            )}
           </div>
 
           <div className="flex border border-border/60 bg-muted/40 p-1 rounded-xl mb-6">
@@ -324,7 +333,7 @@ const isValidationError = (err: string): boolean => {
                       setLoginPassword(e.target.value);
                       setPasswordError("");
                     }}
-                    autoComplete="new-password"
+                    autoComplete="current-password"
                     className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none transition-all focus:ring-1 focus:ring-primary"
                   />
                 </div>

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { motion } from "framer-motion";
 import { useAuthStore } from "@/store/useAuthStore";
-import { Lock } from "lucide-react";
+import { ChevronDown, Facebook, Globe2, Instagram, Linkedin, Send } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 
 const socialLinks = [
@@ -9,38 +8,38 @@ const socialLinks = [
     platform: "Instagram (Developer)",
     handle: "@subhajit.tells",
     url: "https://www.instagram.com/subhajit.tells?igsh=MTFqcm1ycDk1OHQ5eA==",
-    icon: "/assets/icons/instagram.png",
-    color: "#E4405F"
+    icon: Instagram,
+    colorClass: "social-color-instagram",
   },
   {
     platform: "Instagram (Website)",
     handle: "@filenova.in",
     url: "https://www.instagram.com/filenova.in?igsh=MWt2NG1udjRyZXlnYg==",
-    icon: "/assets/icons/instagram.png",
-    color: "#E4405F"
+    icon: Instagram,
+    colorClass: "social-color-instagram",
   },
   {
     platform: "Facebook",
     handle: "Subhajit Ghosh",
     url: "https://www.facebook.com/share/18ypRATS29/",
-    icon: "/assets/icons/facebook.png",
-    color: "#1877F2"
+    icon: Facebook,
+    colorClass: "social-color-facebook",
   },
   {
     platform: "LinkedIn",
     handle: "Subhajit Ghosh",
     url: "https://www.linkedin.com/in/subhajit-ghosh-634968349?utm_source=share_via&utm_content=profile&utm_medium=member_android",
-    icon: "/assets/icons/linkedin.png",
-    color: "#0A66C2"
+    icon: Linkedin,
+    colorClass: "social-color-linkedin",
   },
   {
     platform: "Telegram Support",
     handle: "@filenova_assistant",
     url: "https://t.me/filenova_assistant",
-    icon: "/assets/icons/telegram.png",
-    color: "#0088cc",
-    requiresTier: "PRO"
-  }
+    icon: Send,
+    colorClass: "social-color-telegram",
+    requiresTier: "PRO",
+  },
 ];
 
 export function SocialMediaLinks() {
@@ -53,75 +52,60 @@ export function SocialMediaLinks() {
   const handleMouseEnter = () => {
     if (hoverTimeout) {
       clearTimeout(hoverTimeout);
+      setHoverTimeout(null);
     }
     setIsOpen(true);
   };
 
   const handleMouseLeave = () => {
-    const timeout = setTimeout(() => {
-      setIsOpen(false);
-    }, 300);
+    const timeout = setTimeout(() => setIsOpen(false), 180);
     setHoverTimeout(timeout);
   };
 
   return (
     <div className="social-links-container">
-      <div 
+      <div
         className="contact-trigger-wrapper"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
+        onFocus={handleMouseEnter}
+        onBlur={handleMouseLeave}
       >
-        <button className="contact-trigger-button">
-          <img
-            src="/assets/icons/globe.png"
-            alt="Globe"
-            width={24}
-            height={24}
-          />
+        <button className="contact-trigger-button" type="button" aria-expanded={isOpen ? "true" : "false"}>
+          <Globe2 className="h-4 w-4 text-sky-300" />
           <span>{tText("Connect With Us")}</span>
-          <svg 
-            className={`dropdown-arrow ${isOpen ? "open" : ""}`}
-            width="12" 
-            height="8" 
-            viewBox="0 0 12 8"
-          >
-            <path d="M1 1L6 6L11 1" stroke="currentColor" strokeWidth="2" fill="none"/>
-          </svg>
+          <ChevronDown className={`dropdown-arrow h-3.5 w-3.5 ${isOpen ? "open" : ""}`} />
         </button>
 
         <div className={`social-dropdown ${isOpen ? "open" : ""}`}>
           <div className="dropdown-header">
             <h3>{tText("Connect With Us")}</h3>
-            <p>{tText("Follow us for updates, tips & tricks! 🚀")}</p>
+            <p>{tText("Follow us for updates, tips and tricks.")}</p>
           </div>
 
           <div className="social-links-grid">
-            {socialLinks.map((social, index) => (
-              <a
-                key={index}
-                href={social.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="social-link-card"
-                style={{ ["--social-color"]: social.color } as any}
-              >
-                <div className="social-icon-wrapper">
-                  <img
-                    src={social.icon}
-                    alt={social.platform}
-                    width={32}
-                    height={32}
-                  />
-                </div>
-                <div className="social-info">
-                  <span className="social-platform">{social.platform}</span>
-                  <span className="social-handle">{social.handle}</span>
-                </div>
-                {social.requiresTier && (
-                  <span className="tier-badge">PRO</span>
-                )}
-              </a>
-            ))}
+            {socialLinks.map((social) => {
+              const Icon = social.icon;
+              const locked = social.requiresTier && !isProOrHigher;
+              return (
+                <a
+                  key={social.platform}
+                  href={locked ? "/pricing" : social.url}
+                  target={locked ? undefined : "_blank"}
+                  rel={locked ? undefined : "noopener noreferrer"}
+                  className={`social-link-card ${social.colorClass}`}
+                >
+                  <div className="social-icon-wrapper">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div className="social-info">
+                    <span className="social-platform">{social.platform}</span>
+                    <span className="social-handle">{social.handle}</span>
+                  </div>
+                  {social.requiresTier && <span className="tier-badge">{locked ? "PRO+" : "PRO"}</span>}
+                </a>
+              );
+            })}
           </div>
         </div>
       </div>

@@ -251,8 +251,7 @@ export const DownloadHub: React.FC = () => {
             <div className="flex flex-col gap-2.5">
               <button
                 onClick={handleDownload}
-                className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl font-bold text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/50"
-                style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: 'white' }}
+                className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl font-bold text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/50 download-primary-button"
               >
                 <Download className="h-4 w-4" />
                 Download file

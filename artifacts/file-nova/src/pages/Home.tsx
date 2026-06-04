@@ -163,8 +163,6 @@ export default function Home() {
                 title={isMockMode ? 'Disable standalone mode' : 'Enable standalone mode'}
                 aria-label={isMockMode ? 'Disable standalone mode' : 'Enable standalone mode'}
                 className={`relative inline-flex h-5 w-9 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-70 ${isMockMode ? 'bg-primary' : 'bg-secondary'}`}
-                role="switch"
-                aria-checked={isMockMode ? "true" : "false"}
               >
                 <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ${isMockMode ? 'translate-x-4' : 'translate-x-0'}`} />
               </button>
@@ -203,7 +201,7 @@ export default function Home() {
             <div className="absolute top-1/2 left-0 right-0 h-px bg-border -translate-y-1/2 -z-10" />
             <motion.div
               className="absolute top-1/2 left-0 h-px bg-primary -translate-y-1/2 -z-10 transition-all duration-500"
-              style={{ width: step === 1 ? '0%' : step === 2 ? '50%' : '100%' }}
+              animate={{ width: step === 1 ? '0%' : step === 2 ? '50%' : '100%' }}
             />
             {[{l:'Upload',n:1},{l:'Configure',n:2},{l:'Export',n:3}].map(({l,n}) => (
               <div key={n} className="flex flex-col items-center bg-background px-3 gap-1.5">
