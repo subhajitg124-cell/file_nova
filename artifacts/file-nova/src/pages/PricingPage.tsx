@@ -13,7 +13,8 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
 import { AuthModal } from "@/components/AuthModal";
 import { toast } from "sonner";
-import { BACKEND_URL } from "@/lib/api";
+import { BACKEND_URL, HAS_BACKEND } from "@/lib/api";
+import { FILENOVA_UPI_ID, createUpiQrUrl } from "@/lib/upi";
 
 interface PlanCardProps {
   id: PremiumTier;
@@ -140,7 +141,7 @@ function UpiPaymentBox({
   const [email, setEmail] = React.useState(userEmail || "");
   const [screenshotName, setScreenshotName] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
-  const upiId = "subhajitgho123-1@oksbi";
+  const upiId = FILENOVA_UPI_ID;
 
   React.useEffect(() => {
     if (userEmail && !email) setEmail(userEmail);
@@ -172,6 +173,15 @@ function UpiPaymentBox({
       const headers: Record<string, string> = { "Content-Type": "application/json" };
       if (token) {
         headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      if (!HAS_BACKEND) {
+        toast.info("Payment verification will be confirmed manually. Please WhatsApp or email the UTR after payment.");
+        setUtrId("");
+        setScreenshotName("");
+        setFormOpen(false);
+        setOpen(false);
+        return;
       }
 
       const res = await fetch(`${BACKEND_URL}/api/upi-payment-verify`, {
@@ -225,7 +235,7 @@ function UpiPaymentBox({
 
             <div className="rounded-2xl border border-border bg-background/50 p-4 text-center space-y-4">
               <img
-                src="/upi-qr.png"
+                src={createUpiQrUrl(amount)}
                 alt="FileNova UPI QR code"
                 className="mx-auto h-40 w-40 rounded-xl border border-border bg-white object-contain p-2"
               />

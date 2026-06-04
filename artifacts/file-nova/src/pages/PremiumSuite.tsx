@@ -28,6 +28,7 @@ import { UserProfileDropdown } from "@/components/UserProfileDropdown";
 import { FeatureKey, isFeatureEnabled, enabledFeatureKeys, isLowBandwidthMode } from "@/features.config";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useSubscription } from "@/hooks/useSubscription";
+import { createUpiLink } from "@/lib/upi";
 
 const VoiceAssistant = React.lazy(() => import("@/components/VoiceAssistant").then((mod) => ({ default: mod.VoiceAssistant })));
 const AadhaarMasking = React.lazy(() => import("@/components/AadhaarMasking").then((mod) => ({ default: mod.AadhaarMasking })));
@@ -446,13 +447,13 @@ export default function PremiumSuite() {
         </div>
         <div className="flex flex-wrap justify-center gap-4">
           <a
-            href="upi://pay?pa=subhajitgho123-1@oksbi&pn=FileNova&am=10"
+            href={createUpiLink(10, "Chai for FileNova")}
             className="inline-flex items-center gap-2 rounded-xl bg-card border border-border px-5 py-2.5 text-xs font-black hover:border-amber-500/40 hover:bg-amber-500/5 transition cursor-pointer"
           >
             <span>☕ Buy Chai (₹10)</span>
           </a>
           <a
-            href="upi://pay?pa=subhajitgho123-1@oksbi&pn=FileNova&am=50"
+            href={createUpiLink(50, "Support FileNova")}
             className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-black text-primary-foreground hover:opacity-90 shadow-glow cursor-pointer transition"
           >
             <span>❤️ Support Project (₹50)</span>

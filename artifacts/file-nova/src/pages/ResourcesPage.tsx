@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
 import { Footer } from "@/components/Footer";
+import { createUpiLink } from "@/lib/upi";
 import { useFileStore } from "@/store/useFileStore";
 import { WB_REQUIREMENTS, SchemeRequirement, DocumentSpec } from "@/data/wbRequirements";
 import { Confetti } from "@/components/AnimatedEffects";
@@ -636,13 +637,13 @@ export default function ResourcesPage() {
           </div>
           <div className="flex flex-wrap justify-center gap-4">
             <a
-              href="upi://pay?pa=subhajitgho123-1@oksbi&pn=FileNova&am=10"
+              href={createUpiLink(10, "Chai for FileNova")}
               className="inline-flex items-center gap-2 rounded-xl bg-slate-900 hover:bg-slate-850 border border-slate-850 px-5 py-2.5 text-xs font-black hover:border-amber-500/40 hover:bg-amber-500/5 transition cursor-pointer"
             >
               <span>☕ Buy Chai (₹10)</span>
             </a>
             <a
-              href="upi://pay?pa=subhajitgho123-1@oksbi&pn=FileNova&am=50"
+              href={createUpiLink(50, "Support FileNova")}
               className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 px-5 py-2.5 text-xs font-black text-white shadow-glow-indigo cursor-pointer transition"
             >
               <span>❤️ Support Project (₹50)</span>

@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import SocialMediaLinks from "./SocialMediaLinks";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useTranslation } from "@/lib/i18n";
+import { createUpiLink } from "@/lib/upi";
 
 const TelegramContact: React.FC = () => {
   const { user } = useAuthStore();
@@ -223,13 +224,13 @@ const Footer: React.FC = () => {
             <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{tText("Support FileNova Development")}</p>
             <div className="flex gap-4">
               <a
-                href="upi://pay?pa=subhajitgho123-1@oksbi&pn=Subhajit%20Ghosh&am=10&cu=INR&tn=Buy%20Chai"
+                href={createUpiLink(10, "Chai for FileNova")}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white rounded-xl text-xs font-black shadow-lg transition duration-200 transform hover:scale-105 active:scale-95"
               >
                 {tText("☕ Chai (₹10)")}
               </a>
               <a
-                href="upi://pay?pa=subhajitgho123-1@oksbi&pn=Subhajit%20Ghosh&am=50&cu=INR&tn=Support%20FileNova"
+                href={createUpiLink(50, "Support FileNova")}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-650 text-white rounded-xl text-xs font-black shadow-lg transition duration-200 transform hover:scale-105 active:scale-95 border border-indigo-500/20"
               >
                 {tText("💖 Support (₹50)")}

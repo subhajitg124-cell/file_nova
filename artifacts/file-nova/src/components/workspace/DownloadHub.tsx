@@ -4,6 +4,7 @@ import { useFileStore } from '@/store/useFileStore';
 import { PdfResultPreview } from './PdfResultPreview';
 import { QuickShareButton } from '@/components/WhatsAppShare';
 import { ShareButton } from '@/components/ShareButton';
+import { createUpiLink } from '@/lib/upi';
 
 const getDefaultFilename = (operation: string, format?: string): string => {
   switch (operation) {
@@ -322,7 +323,7 @@ export const DownloadHub: React.FC = () => {
 
             <div className="mt-6 flex flex-col gap-2">
               <a
-                href="upi://pay?pa=subhajitgho123-1@oksbi&pn=FileNova&am=10"
+                href={createUpiLink(10, "Chai for FileNova")}
                 onClick={() => setShowChaiModal(false)}
                 className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white py-3 text-sm font-black shadow-glow cursor-pointer transition"
               >

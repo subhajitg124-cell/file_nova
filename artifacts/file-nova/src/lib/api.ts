@@ -1,7 +1,8 @@
 import { FileRecord, ProcessingSavings } from '@/store/useFileStore';
 
-export const BACKEND_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? '' : 'https://filenova.in');
+export const BACKEND_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || '';
 export const API_BASE = BACKEND_URL;
+export const HAS_BACKEND = Boolean(BACKEND_URL);
 
 export interface HealthCheckResult {
   healthy: boolean;
@@ -27,8 +28,15 @@ const fetchWithRetry = async (input: RequestInfo, init?: RequestInit, retries = 
 
 export const apiClient = {
   async checkHealth(): Promise<HealthCheckResult> {
+    if (!HAS_BACKEND) {
+      return {
+        healthy: false,
+        capabilities: { libreoffice: false, ffmpeg: false }
+      };
+    }
+
     try {
-      const res = await fetchWithRetry(${BACKEND_URL}/api/healthz, {
+      const res = await fetchWithRetry(`${BACKEND_URL}/api/healthz`, {
         signal: AbortSignal.timeout(3000),
       });
       if (!res.ok) throw new Error('Health check status not ok');
@@ -53,7 +61,7 @@ export const apiClient = {
     const formData = new FormData();
     formData.append('job_id', jobId);
     files.forEach((f) => formData.append('files', f));
-    const res = await fetchWithRetry(${BACKEND_URL}/api/v1/upload, {
+    const res = await fetchWithRetry(`${BACKEND_URL}/api/v1/upload`, {
       method: 'POST',
       credentials: 'include',
       body: formData,
@@ -70,12 +78,12 @@ export const apiClient = {
       type: file.mime_type,
       tempPath: file.temp_path,
       tempFilename: file.temp_filename,
-      previewUrl: file.preview_url ? ${BACKEND_URL} : undefined
+      previewUrl: file.preview_url ? `${BACKEND_URL}${file.preview_url}` : undefined
     }));
   },
 
   async startProcessing(jobId: string, operation: string, options: Record<string, any>): Promise<void> {
-    const res = await fetchWithRetry(${BACKEND_URL}/api/v1/process?job_id=, {
+    const res = await fetchWithRetry(`${BACKEND_URL}/api/v1/process?job_id=${jobId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ operation, options }),
@@ -90,7 +98,7 @@ export const apiClient = {
     const formData = new FormData();
     formData.append('operation', operation);
     files.forEach((f) => formData.append('files', f));
-    const res = await fetchWithRetry(${BACKEND_URL}/api/v1/bulk-process, {
+    const res = await fetchWithRetry(`${BACKEND_URL}/api/v1/bulk-process`, {
       method: 'POST',
       credentials: 'include',
       body: formData,
@@ -103,35 +111,35 @@ export const apiClient = {
     return data.results.map((result: any) => ({
       filename: result.filename,
       status: result.status,
-      downloadUrl: ${BACKEND_URL},
+      downloadUrl: `${BACKEND_URL}${result.download_url || ''}`,
     }));
   },
 
   async pollStatus(jobId: string) {
-    const res = await fetchWithRetry(${BACKEND_URL}/api/v1/status/);
+    const res = await fetchWithRetry(`${BACKEND_URL}/api/v1/status/${jobId}`);
     if (!res.ok) throw new Error('Failed to retrieve job status.');
     return await res.json();
   },
 
   getDownloadUrl(jobId: string): string {
-    return ${BACKEND_URL}/api/v1/download/;
+    return `${BACKEND_URL}/api/v1/download/${jobId}`;
   }
 };
 
 const createMockPreviewPlaceholder = (file: File): string => {
   const extension = file.name.split('.').pop()?.toUpperCase() || 'FILE';
   const safeName = file.name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const svg = 
+  const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="300" height="300">
       <rect width="100%" height="100%" fill="#f8fafc" />
       <rect x="30" y="30" width="240" height="90" rx="20" fill="#0ea5e9" />
-      <text x="150" y="80" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Arial,sans-serif" font-size="32" fill="#ffffff"></text>
-      <text x="150" y="220" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Arial,sans-serif" font-size="16" fill="#475569"></text>
+      <text x="150" y="80" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Arial,sans-serif" font-size="32" fill="#ffffff">${safeName.substring(0, 10)}</text>
+      <text x="150" y="220" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Arial,sans-serif" font-size="16" fill="#475569">${extension}</text>
     </svg>
-  .trim();
+  `.trim();
 
   const encoded = window.btoa(unescape(encodeURIComponent(svg)));
-  return data:image/svg+xml;base64,;
+  return `data:image/svg+xml;base64,${encoded}`;
 };
 
 export const apiMock = {

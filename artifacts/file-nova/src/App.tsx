@@ -36,7 +36,7 @@ import { FloatingShortcuts } from "@/components/FloatingShortcuts";
 import { FloatingParticles } from "@/components/AnimatedEffects";
 import { useAuthStore } from "@/store/useAuthStore";
 import { LoadingScreen } from "@/components/LoadingScreen";
-import { BACKEND_URL } from "@/lib/api";
+import { BACKEND_URL, HAS_BACKEND } from "@/lib/api";
 
 const queryClient = new QueryClient();
 
@@ -153,7 +153,7 @@ function App() {
   const [limitModalOpen, setLimitModalOpen] = useState(false);
   const [modalLimit, setModalLimit] = useState(3);
   const [modalUsage, setModalUsage] = useState(3);
-  const [apiStatus, setApiStatus] = useState<"online" | "offline" | "checking">("checking");
+  const [apiStatus, setApiStatus] = useState<"online" | "offline" | "checking">(HAS_BACKEND ? "checking" : "online");
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
@@ -172,7 +172,7 @@ function App() {
     let height = "0px";
     if (!isOnline) {
       height = "38px";
-    } else if (apiStatus === "offline" || apiStatus === "checking") {
+    } else if (HAS_BACKEND && (apiStatus === "offline" || apiStatus === "checking")) {
       height = "40px";
     }
     document.documentElement.style.setProperty("--banner-height", height);
@@ -228,7 +228,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (!BACKEND_URL) {
+    if (!HAS_BACKEND) {
       setApiStatus("online");
       return;
     }
@@ -286,7 +286,7 @@ function App() {
 
   useEffect(() => {
     const refCode = new URLSearchParams(window.location.search).get("ref");
-    if (!refCode) return;
+    if (!refCode || !HAS_BACKEND) return;
 
     localStorage.setItem("filenova_referral_code", refCode);
     fetch(`${BACKEND_URL}/api/v1/referral/track`, {

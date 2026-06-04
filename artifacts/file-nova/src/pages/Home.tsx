@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useFileStore } from '@/store/useFileStore';
-import { apiClient } from '@/lib/api';
+import { apiClient, HAS_BACKEND } from '@/lib/api';
 import { UploadZone } from '@/components/workspace/UploadZone';
 import { PreviewCanvas } from '@/components/workspace/PreviewCanvas';
 import { ToolGrid } from '@/components/workspace/ToolGrid';
@@ -100,6 +100,7 @@ export default function Home() {
       if (!res.healthy) useFileStore.setState({ isMockMode: true });
     };
     fetchHealth();
+    if (!HAS_BACKEND) return;
     const interval = setInterval(fetchHealth, 30000);
     return () => clearInterval(interval);
   }, [setBackendStatus]);
@@ -158,11 +159,12 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => toggleMockMode()}
+                disabled={!HAS_BACKEND}
                 title={isMockMode ? 'Disable standalone mode' : 'Enable standalone mode'}
                 aria-label={isMockMode ? 'Disable standalone mode' : 'Enable standalone mode'}
-                className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ${isMockMode ? 'bg-primary' : 'bg-secondary'}`}
+                className={`relative inline-flex h-5 w-9 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-70 ${isMockMode ? 'bg-primary' : 'bg-secondary'}`}
                 role="switch"
-                aria-checked={!!isMockMode}
+                aria-checked={isMockMode ? "true" : "false"}
               >
                 <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ${isMockMode ? 'translate-x-4' : 'translate-x-0'}`} />
               </button>

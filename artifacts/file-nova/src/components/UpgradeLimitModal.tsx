@@ -1,6 +1,7 @@
 import React from "react";
 import { useLocation } from "wouter";
 import { Sparkles, ShieldAlert, X, ChevronRight, Share2 } from "lucide-react";
+import { FILENOVA_UPI_ID } from "@/lib/upi";
 
 interface UpgradeLimitModalProps {
   isOpen: boolean;
@@ -131,7 +132,7 @@ export function UpgradeLimitModal({ isOpen, onClose, limit = 3, usage = 3 }: Upg
           <div className="border-t border-border pt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-left">
               <p className="text-[10px] font-bold text-indigo-500">⚡ Instant Active UPI payments</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">Pay with UPI ID <code className="font-semibold text-foreground bg-muted px-1 py-0.5 rounded">subhajitgho123-1@oksbi</code> on Pricing Page</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">Pay with UPI ID <code className="font-semibold text-foreground bg-muted px-1 py-0.5 rounded">{FILENOVA_UPI_ID}</code> on Pricing Page</p>
             </div>
             
             <div className="flex gap-2 w-full sm:w-auto shrink-0">

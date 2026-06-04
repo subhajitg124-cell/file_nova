@@ -158,7 +158,7 @@ export default function SimpleHome() {
 
       {/* Header Nav */}
       <header className="sticky top-0 z-40 border-b border-slate-900 bg-slate-950/80 backdrop-blur-xl transition-all">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 h-16 flex items-center justify-between gap-2 sm:gap-4">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 shrink-0">
             <img src="/logo.png" alt="FileNova logo" className="h-9 w-auto" />
@@ -191,9 +191,9 @@ export default function SimpleHome() {
           </div>
 
           {/* Right Action Menu */}
-          <div className="flex items-center gap-4 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Language Selection */}
-            <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-slate-400">
+            <div className="hidden lg:flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-slate-400">
               <Languages className="h-3.5 w-3.5" />
               <select 
                 value={language} 
@@ -219,6 +219,11 @@ export default function SimpleHome() {
               </select>
             </div>
 
+            <Link href="/workspace" className="hidden md:flex items-center gap-1 text-xs text-slate-300 hover:text-white font-bold py-1.5 px-3 rounded-lg border border-slate-800 bg-slate-900/70 hover:border-indigo-500/35 hover:bg-indigo-500/10 transition-all">
+              <FileText className="h-3.5 w-3.5" />
+              {tText("Workspace")}
+            </Link>
+
             {/* Premium billing link */}
             <Link href="/pricing" className="hidden sm:flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300 font-bold py-1.5 px-3 rounded-lg border border-amber-500/20 bg-amber-500/5 hover:bg-amber-500/10 transition-all">
               <Crown className="h-3.5 w-3.5 fill-current" />
@@ -227,7 +232,9 @@ export default function SimpleHome() {
 
             {/* Profile Dropdown & Plan Badge */}
             <div className="flex items-center gap-2 shrink-0">
-              <PlanBadge />
+              <div className="hidden sm:block">
+                <PlanBadge />
+              </div>
               {user ? (
                 <UserProfileDropdown />
               ) : (

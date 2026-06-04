@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { BACKEND_URL, HAS_BACKEND } from "@/lib/api";
 
 type AdminCreds = { username: string; passwordHash: string } | null;
 type Settings = { 
@@ -105,7 +106,13 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
 
   // Load settings from the server on mount
   useEffect(() => {
-    fetch("/api/v1/premium/subscription/settings")
+    if (!HAS_BACKEND) {
+      const autoTheme = getAutomaticEventTheme();
+      setSettingsState((current) => current.eventTheme === "none" ? { ...current, eventTheme: autoTheme } : current);
+      return;
+    }
+
+    fetch(`${BACKEND_URL}/api/v1/premium/subscription/settings`)
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.settings) {
@@ -170,7 +177,11 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         headers["x-admin-username"] = creds.username;
         headers["x-admin-hash"] = creds.passwordHash;
       }
-      const res = await fetch("/api/v1/premium/subscription/settings", {
+      if (!HAS_BACKEND) {
+        return;
+      }
+
+      const res = await fetch(`${BACKEND_URL}/api/v1/premium/subscription/settings`, {
         method: "POST",
         headers,
         body: JSON.stringify(updated),
