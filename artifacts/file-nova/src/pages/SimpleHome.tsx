@@ -507,3 +507,4 @@ export default function SimpleHome() {
     </div>
   );
 }
+import Image from "next/image";
