@@ -11,10 +11,24 @@ export interface HealthCheckResult {
   };
 }
 
+// Fetch with retry logic for network errors
+const fetchWithRetry = async (input: RequestInfo, init?: RequestInit, retries = 3, delay = 2000): Promise<Response> => {
+  try {
+    return await fetch(input, init);
+  } catch (error) {
+    if (retries > 0 && error instanceof TypeError && error.message === 'Failed to fetch') {
+      // Wait for the delay period
+      await new Promise(resolve => setTimeout(resolve, delay));
+      return fetchWithRetry(input, init, retries - 1, delay);
+    }
+    throw error;
+  }
+};
+
 export const apiClient = {
   async checkHealth(): Promise<HealthCheckResult> {
     try {
-      const res = await fetch(`${BACKEND_URL}/api/healthz`, {
+      const res = await fetchWithRetry(${BACKEND_URL}/api/healthz, {
         signal: AbortSignal.timeout(3000),
       });
       if (!res.ok) throw new Error('Health check status not ok');
@@ -39,7 +53,7 @@ export const apiClient = {
     const formData = new FormData();
     formData.append('job_id', jobId);
     files.forEach((f) => formData.append('files', f));
-    const res = await fetch(`${BACKEND_URL}/api/v1/upload`, {
+    const res = await fetchWithRetry(${BACKEND_URL}/api/v1/upload, {
       method: 'POST',
       credentials: 'include',
       body: formData,
@@ -56,12 +70,12 @@ export const apiClient = {
       type: file.mime_type,
       tempPath: file.temp_path,
       tempFilename: file.temp_filename,
-      previewUrl: file.preview_url ? `${BACKEND_URL}${file.preview_url}` : undefined
+      previewUrl: file.preview_url ? ${BACKEND_URL} : undefined
     }));
   },
 
   async startProcessing(jobId: string, operation: string, options: Record<string, any>): Promise<void> {
-    const res = await fetch(`${BACKEND_URL}/api/v1/process?job_id=${jobId}`, {
+    const res = await fetchWithRetry(${BACKEND_URL}/api/v1/process?job_id=, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ operation, options }),
@@ -76,7 +90,7 @@ export const apiClient = {
     const formData = new FormData();
     formData.append('operation', operation);
     files.forEach((f) => formData.append('files', f));
-    const res = await fetch(`${BACKEND_URL}/api/v1/bulk-process`, {
+    const res = await fetchWithRetry(${BACKEND_URL}/api/v1/bulk-process, {
       method: 'POST',
       credentials: 'include',
       body: formData,
@@ -89,35 +103,35 @@ export const apiClient = {
     return data.results.map((result: any) => ({
       filename: result.filename,
       status: result.status,
-      downloadUrl: `${BACKEND_URL}${result.download_url}`,
+      downloadUrl: ${BACKEND_URL},
     }));
   },
 
   async pollStatus(jobId: string) {
-    const res = await fetch(`${BACKEND_URL}/api/v1/status/${jobId}`);
+    const res = await fetchWithRetry(${BACKEND_URL}/api/v1/status/);
     if (!res.ok) throw new Error('Failed to retrieve job status.');
     return await res.json();
   },
 
   getDownloadUrl(jobId: string): string {
-    return `${BACKEND_URL}/api/v1/download/${jobId}`;
+    return ${BACKEND_URL}/api/v1/download/;
   }
 };
 
 const createMockPreviewPlaceholder = (file: File): string => {
   const extension = file.name.split('.').pop()?.toUpperCase() || 'FILE';
   const safeName = file.name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const svg = `
+  const svg = 
     <svg xmlns="http://www.w3.org/2000/svg" width="300" height="300">
       <rect width="100%" height="100%" fill="#f8fafc" />
       <rect x="30" y="30" width="240" height="90" rx="20" fill="#0ea5e9" />
-      <text x="150" y="80" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Arial,sans-serif" font-size="32" fill="#ffffff">${extension}</text>
-      <text x="150" y="220" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Arial,sans-serif" font-size="16" fill="#475569">${safeName}</text>
+      <text x="150" y="80" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Arial,sans-serif" font-size="32" fill="#ffffff"></text>
+      <text x="150" y="220" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Arial,sans-serif" font-size="16" fill="#475569"></text>
     </svg>
-  `.trim();
+  .trim();
 
   const encoded = window.btoa(unescape(encodeURIComponent(svg)));
-  return `data:image/svg+xml;base64,${encoded}`;
+  return data:image/svg+xml;base64,;
 };
 
 export const apiMock = {

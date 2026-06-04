@@ -14,6 +14,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useSubscription } from "@/hooks/useSubscription";
 import { PlanBadge } from "@/components/PlanBadge";
 
+
 // Curated tools to display on the homepage grid
 interface CuratedTool {
   id: string;
@@ -507,4 +508,3 @@ export default function SimpleHome() {
     </div>
   );
 }
-import Image from "next/image";
