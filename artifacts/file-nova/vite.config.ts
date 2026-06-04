@@ -14,6 +14,45 @@ export default defineConfig(() => {
         '@': path.resolve(__dirname, './src'),
       },
     },
+    build: {
+      // Enable code splitting and chunk optimization
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            // Separate vendor chunks for better caching
+            'react-vendor': ['react', 'react-dom'],
+            'ui-vendor': [
+              '@radix-ui/react-dialog',
+              '@radix-ui/react-dropdown-menu',
+              '@radix-ui/react-toast',
+              '@radix-ui/react-tabs',
+              '@radix-ui/react-select',
+              '@radix-ui/react-progress',
+            ],
+            // Heavy libraries in separate chunks (lazy loaded)
+            'pdf-lib': ['pdf-lib'],
+            'pdfjs': ['pdfjs-dist'],
+            'xlsx': ['xlsx'],
+            'jszip': ['jszip'],
+          },
+        },
+      },
+      // Optimize chunk size
+      chunkSizeWarningLimit: 1000,
+      // Enable minification
+      minify: 'terser' as const,
+      terserOptions: {
+        compress: {
+          drop_console: true, // Remove console.logs in production
+          drop_debugger: true,
+        },
+      },
+    },
+    // Optimize dependencies
+    optimizeDeps: {
+      include: ['react', 'react-dom', 'wouter'],
+      exclude: ['@imgly/background-removal', 'onnxruntime-web'], // Don't pre-bundle heavy libs
+    },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
       // Do not modify—file watching is disabled to prevent flickering during agent edits.
