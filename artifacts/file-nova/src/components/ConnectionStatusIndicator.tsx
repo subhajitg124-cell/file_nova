@@ -26,27 +26,13 @@ export function ConnectionStatusIndicator({ status, onRetry }: ConnectionStatusI
     onRetry?.();
   }, [onRetry]);
 
-  const isOffline = !isNavigatorOnline;
-  const isServerDown = isNavigatorOnline && status === "offline";
-  const isChecking = status === "checking" && isNavigatorOnline;
+  if (!isNavigatorOnline) return null;
+  if (status === "online") return null;
 
-  if (isNavigatorOnline && status === "online") return null;
+  const isServerDown = status === "offline";
+  const isChecking = status === "checking";
 
   const getConfig = () => {
-    if (isOffline) {
-      return {
-        bg: "#78350f",
-        borderColor: "#92400e",
-        icon: <WifiOff className="h-4 w-4 text-orange-200" />,
-        titleColor: "#fef3c7",
-        descColor: "#d97706",
-        badgeBg: "#92400e",
-        badgeColor: "#fbbf24",
-        title: "You are offline",
-        desc: "No internet connection detected. Some features may be limited.",
-        badge: "OFFLINE",
-      };
-    }
     if (isServerDown) {
       return {
         bg: "#7f1d1d",

@@ -155,6 +155,31 @@ function App() {
   const [modalUsage, setModalUsage] = useState(3);
   const [apiStatus, setApiStatus] = useState<"online" | "offline" | "checking">("checking");
   const [assistantOpen, setAssistantOpen] = useState(false);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
+  useEffect(() => {
+    let height = "0px";
+    if (!isOnline) {
+      height = "38px";
+    } else if (apiStatus === "offline" || apiStatus === "checking") {
+      height = "40px";
+    }
+    document.documentElement.style.setProperty("--banner-height", height);
+    return () => {
+      document.documentElement.style.setProperty("--banner-height", "0px");
+    };
+  }, [isOnline, apiStatus]);
 
   useEffect(() => {
     fetchMe();
@@ -286,12 +311,12 @@ function App() {
               <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
                 <LanguageProvider>
                   <ConnectionStatusIndicator status={apiStatus} />
+                  <OfflineBanner />
                   <FloatingParticles />
                   <FloatingShortcuts />
                   <FileNovaAssistant isOpen={assistantOpen} onClose={() => setAssistantOpen(false)} />
                   <AdminProvider>
                     <Router />
-                    <OfflineBanner />
                     <FileExpiryBar />
                     <Toaster closeButton position="top-right" richColors />
                     <UpgradeLimitModal 
