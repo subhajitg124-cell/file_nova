@@ -110,7 +110,7 @@ export default function Home() {
     if (sec && ['pdf', 'image', 'video', 'office'].includes(sec)) {
       setSelectedSection(sec as any);
     } else {
-      const last = localStorage.getItem('file-master-last-workspace');
+      const last = localStorage.getItem('file-nova-last-workspace');
       if (last && ['pdf', 'image', 'video', 'office'].includes(last)) setSelectedSection(last as any);
     }
   }, [setSelectedSection]);
@@ -156,11 +156,13 @@ export default function Home() {
             <div className="hidden sm:flex items-center gap-2 bg-card/60 border border-border rounded-xl px-3 py-1.5 text-xs">
               <span className="text-muted-foreground font-medium">Standalone</span>
               <button
-                onClick={toggleMockMode}
+                type="button"
+                onClick={() => toggleMockMode()}
                 title={isMockMode ? 'Disable standalone mode' : 'Enable standalone mode'}
                 aria-label={isMockMode ? 'Disable standalone mode' : 'Enable standalone mode'}
                 className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ${isMockMode ? 'bg-primary' : 'bg-secondary'}`}
-                 role="switch" aria-checked={isMockMode}
+                role="switch"
+                aria-checked={!!isMockMode}
               >
                 <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ${isMockMode ? 'translate-x-4' : 'translate-x-0'}`} />
               </button>
