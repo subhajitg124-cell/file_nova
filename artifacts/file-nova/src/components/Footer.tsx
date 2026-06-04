@@ -2,17 +2,19 @@ import React from "react";
 import { Link } from "wouter";
 import SocialMediaLinks from "./SocialMediaLinks";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useTranslation } from "@/lib/i18n";
 
 const TelegramContact: React.FC = () => {
   const { user } = useAuthStore();
+  const { tText } = useTranslation();
   const isProOrHigher = user?.premiumTier === 'pro' || user?.premiumTier === 'elite';
 
   if (!isProOrHigher) {
     return (
       <li className="flex items-center gap-2">
         <span>📱</span>
-        <span className="text-slate-500">Telegram: </span>
-        <span className="text-slate-500">🔒 Upgrade to PRO</span>
+        <span className="text-slate-500">{tText("Telegram:")} </span>
+        <span className="text-slate-500">🔒 {tText("Upgrade to PRO")}</span>
       </li>
     );
   }
@@ -34,14 +36,15 @@ const TelegramContact: React.FC = () => {
 
 const WhatsAppContact: React.FC = () => {
   const { user } = useAuthStore();
+  const { tText } = useTranslation();
   const isEliteUser = user?.premiumTier === 'elite';
 
   if (!isEliteUser) {
     return (
       <li className="flex items-center gap-2">
         <span>💬</span>
-        <span className="text-slate-500">WhatsApp: </span>
-        <span className="text-slate-500">🔒 Upgrade to Elite</span>
+        <span className="text-slate-500">{tText("WhatsApp:")} </span>
+        <span className="text-slate-500">🔒 {tText("Upgrade to Elite")}</span>
       </li>
     );
   }
@@ -65,6 +68,8 @@ const WhatsAppContact: React.FC = () => {
 };
 
 const Footer: React.FC = () => {
+  const { tText } = useTranslation();
+
   return (
     <footer className="bg-slate-900 text-white relative z-10">
       <div className="max-w-6xl mx-auto px-4 py-16">
@@ -78,8 +83,9 @@ const Footer: React.FC = () => {
               <span className="text-2xl font-bold">FileNova</span>
             </div>
             <p className="text-slate-400 text-sm mb-4">
-              India's most trusted document automation platform.
-              Made with ❤️ for students & CSC operators.
+              {tText("India's most trusted document automation platform.")}
+              <br />
+              {tText("Made with ❤️ for students & CSC operators.")}
             </p>
             <div className="flex gap-3">
               <a
@@ -131,26 +137,26 @@ const Footer: React.FC = () => {
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-semibold mb-4 text-white">Quick Links</h4>
+            <h4 className="font-semibold mb-4 text-white">{tText("Quick Links")}</h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link href="/tools">
-                  <a className="text-slate-400 hover:text-indigo-400 transition-colors">All Tools</a>
+                  <a className="text-slate-400 hover:text-indigo-400 transition-colors">{tText("All Tools")}</a>
                 </Link>
               </li>
               <li>
                 <Link href="/pricing">
-                  <a className="text-slate-400 hover:text-indigo-400 transition-colors">Pricing</a>
+                  <a className="text-slate-400 hover:text-indigo-400 transition-colors">{tText("Pricing")}</a>
                 </Link>
               </li>
               <li>
                 <Link href="/resources">
-                  <a className="text-slate-400 hover:text-indigo-400 transition-colors">Resources</a>
+                  <a className="text-slate-400 hover:text-indigo-400 transition-colors">{tText("Resources")}</a>
                 </Link>
               </li>
               <li>
                 <Link href="/contact">
-                  <a className="text-slate-400 hover:text-indigo-400 transition-colors">Contact</a>
+                  <a className="text-slate-400 hover:text-indigo-400 transition-colors">{tText("Contact")}</a>
                 </Link>
               </li>
             </ul>
@@ -158,26 +164,26 @@ const Footer: React.FC = () => {
 
           {/* Tools */}
           <div>
-            <h4 className="font-semibold mb-4 text-white">Popular Tools</h4>
+            <h4 className="font-semibold mb-4 text-white">{tText("Popular Tools")}</h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link href="/tools/pdf-merge">
-                  <a className="text-slate-400 hover:text-indigo-400 transition-colors">Merge PDF</a>
+                  <a className="text-slate-400 hover:text-indigo-400 transition-colors">{tText("Merge PDF")}</a>
                 </Link>
               </li>
               <li>
                 <Link href="/tools/pdf-compress">
-                  <a className="text-slate-400 hover:text-indigo-400 transition-colors">Compress PDF</a>
+                  <a className="text-slate-400 hover:text-indigo-400 transition-colors">{tText("Compress PDF")}</a>
                 </Link>
               </li>
               <li>
                 <Link href="/tools/image-resize">
-                  <a className="text-slate-400 hover:text-indigo-400 transition-colors">Resize Photo</a>
+                  <a className="text-slate-400 hover:text-indigo-400 transition-colors">{tText("Resize Photo")}</a>
                 </Link>
               </li>
               <li>
                 <Link href="/tools/scholarship-zip">
-                  <a className="text-slate-400 hover:text-indigo-400 transition-colors">Scholarship ZIP</a>
+                  <a className="text-slate-400 hover:text-indigo-400 transition-colors">{tText("Scholarship ZIP")}</a>
                 </Link>
               </li>
             </ul>
@@ -185,7 +191,7 @@ const Footer: React.FC = () => {
 
           {/* Contact & Social */}
           <div>
-            <h4 className="font-semibold mb-4 text-white">Contact & Support</h4>
+            <h4 className="font-semibold mb-4 text-white">{tText("Contact & Support")}</h4>
             <ul className="space-y-2 text-sm text-slate-400">
               <li className="flex items-center gap-2">
                 <span>📧</span>
@@ -214,29 +220,29 @@ const Footer: React.FC = () => {
           </p>
           
           <div className="mt-6 flex flex-col items-center justify-center gap-3">
-            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Support FileNova Development</p>
+            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{tText("Support FileNova Development")}</p>
             <div className="flex gap-4">
               <a
                 href="upi://pay?pa=subhajitgho123-1@oksbi&pn=Subhajit%20Ghosh&am=10&cu=INR&tn=Buy%20Chai"
                 className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white rounded-xl text-xs font-black shadow-lg transition duration-200 transform hover:scale-105 active:scale-95"
               >
-                ☕ Chai (₹10)
+                {tText("☕ Chai (₹10)")}
               </a>
               <a
                 href="upi://pay?pa=subhajitgho123-1@oksbi&pn=Subhajit%20Ghosh&am=50&cu=INR&tn=Support%20FileNova"
                 className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-650 text-white rounded-xl text-xs font-black shadow-lg transition duration-200 transform hover:scale-105 active:scale-95 border border-indigo-500/20"
               >
-                💖 Support (₹50)
+                {tText("💖 Support (₹50)")}
               </a>
             </div>
           </div>
 
           <div className="flex justify-center gap-4 mt-6 text-xs flex-wrap">
-            <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-            <a href="#" className="hover:text-white transition-colors">Cookie Policy</a>
+            <a href="#" className="hover:text-white transition-colors">{tText("Privacy Policy")}</a>
+            <a href="#" className="hover:text-white transition-colors">{tText("Terms of Service")}</a>
+            <a href="#" className="hover:text-white transition-colors">{tText("Cookie Policy")}</a>
             <Link href="/contact">
-              <a className="hover:text-white transition-colors">Contact Us</a>
+              <a className="hover:text-white transition-colors">{tText("Contact Us")}</a>
             </Link>
           </div>
         </div>

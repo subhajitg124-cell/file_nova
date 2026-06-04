@@ -1437,8 +1437,8 @@ export default function Home() {
             ) : (
               <section id="shortcuts-grid-section" className="space-y-4">
               <div className="text-center lg:text-left">
-                <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">Easy Access Tiles</p>
-                <h2 className="text-xl font-black text-foreground">Clickable visual shortcuts for portal uploads</h2>
+                <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">{tText("Easy Access Tiles")}</p>
+                <h2 className="text-xl font-black text-foreground">{tText("Clickable visual shortcuts for portal uploads")}</h2>
               </div>
               <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
                 {quickActions.map(({ label, icon: Icon, category, action }) => {
@@ -1453,7 +1453,7 @@ export default function Home() {
                         <Icon className="h-5 w-5" />
                       </div>
                       <div className="mt-4">
-                        <h3 className="text-sm font-black text-foreground leading-snug group-hover:text-primary transition-colors">{label}</h3>
+                        <h3 className="text-sm font-black text-foreground leading-snug group-hover:text-primary transition-colors">{tText(label)}</h3>
                         <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-wider mt-1">{category.toUpperCase()} TOOL</p>
                       </div>
                     </button>
@@ -1889,7 +1889,7 @@ export default function Home() {
                       >
                         <span className="flex items-center gap-3 text-sm font-bold">
                           <Icon className="h-5 w-5 text-primary" />
-                          <span>{label}</span>
+                          <span>{tText(label)}</span>
                         </span>
                         <ArrowRight className="h-4 w-4 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary" />
                       </button>

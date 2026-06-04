@@ -386,7 +386,7 @@ export const ToolGrid: React.FC = () => {
             onClick={() => handleCategoryChange(category.key as any)}
             className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${activeCategory === category.key ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground border-border hover:border-primary hover:text-foreground'}`}
           >
-            {category.label}
+            {t.tText(category.label)}
           </button>
         ))}
       </div>
@@ -423,7 +423,7 @@ export const ToolGrid: React.FC = () => {
               onClick={() => setActiveSubcategory(sub)}
               className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${activeSubcategory === sub ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground border-border hover:border-primary hover:text-foreground'}`}
             >
-              {meta.label}
+              {t.tText(meta.label)}
             </button>
           );
         })}
@@ -479,7 +479,7 @@ export const ToolGrid: React.FC = () => {
                     <div className={`h-7 w-7 rounded-lg ${meta.iconBg} border ${meta.borderColor} flex items-center justify-center shrink-0`}>
                       <SubIcon className={`h-3.5 w-3.5 ${meta.iconColor}`} />
                     </div>
-                    <span className="text-sm font-bold text-foreground">{meta.label}</span>
+                    <span className="text-sm font-bold text-foreground">{t.tText(meta.label)}</span>
                     <span className="text-xs text-muted-foreground font-medium bg-muted/60 px-2 py-0.5 rounded-full border border-border">
                       {tools.length}
                     </span>
@@ -518,6 +518,7 @@ interface ToolCardProps {
 }
 
 const ToolCard: React.FC<ToolCardProps> = ({ tool, suggested, favorite, onFavorite, onClick, showSubcategory }) => {
+  const t = useTranslation();
   const ToolIcon = tool.icon;
   const iconColor = TOOL_ICON_COLOR[tool.category];
   const iconBg = TOOL_ICON_BG[tool.category];
@@ -554,7 +555,7 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, suggested, favorite, onFavori
         {/* Text */}
         <div className="min-w-0 flex-1 space-y-0.5">
           <div className="flex items-start justify-between gap-1">
-            <h3 className="text-sm font-semibold text-foreground leading-tight truncate">{tool.title}</h3>
+            <h3 className="text-sm font-semibold text-foreground leading-tight truncate">{t.tText(tool.title)}</h3>
             <div className="flex flex-col items-end gap-1 shrink-0 ml-1">
               <span
                 role="button"
@@ -580,21 +581,21 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, suggested, favorite, onFavori
                 <Star className={`h-3.5 w-3.5 ${favorite ? 'fill-current' : ''}`} />
               </span>
               {suggested && (
-                <span className="text-[9px] bg-primary/10 text-primary border border-primary/25 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wide whitespace-nowrap">Suggested</span>
+                <span className="text-[9px] bg-primary/10 text-primary border border-primary/25 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wide whitespace-nowrap">{t.tText("Suggested")}</span>
               )}
               {tool.badge && !suggested && (
                 <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wide border whitespace-nowrap ${
                   (BADGE_COLORS as any)[tool.badgeColor || 'emerald']
                 }`}>
-                  {tool.badge}
+                  {t.tText(tool.badge)}
                 </span>
               )}
             </div>
           </div>
-          <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2">{tool.description}</p>
+          <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2">{t.tText(tool.description)}</p>
           {showSubcategory && subcatMeta && (
             <span className={`inline-flex items-center gap-1 text-[10px] font-semibold mt-1 ${subcatMeta.iconColor}`}>
-              {tool.category.toUpperCase()} · {subcatMeta.label}
+              {tool.category.toUpperCase()} · {t.tText(subcatMeta.label)}
             </span>
           )}
         </div>

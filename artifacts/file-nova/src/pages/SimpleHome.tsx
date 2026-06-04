@@ -29,7 +29,7 @@ export default function SimpleHome() {
   const { user } = useAuthStore();
   const { premiumTier, useCount } = useSubscription();
   const { language, setLanguage } = useLanguage();
-  const t = useTranslation();
+  const { tText } = useTranslation();
   
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -171,7 +171,7 @@ export default function SimpleHome() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 h-4 w-4 pointer-events-none" />
             <input
               type="text"
-              placeholder="Search 30+ document tools..."
+              placeholder={tText("Search 30+ document tools...")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-4 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-600 text-white"
@@ -220,7 +220,7 @@ export default function SimpleHome() {
             {/* Premium billing link */}
             <Link href="/pricing" className="hidden sm:flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300 font-bold py-1.5 px-3 rounded-lg border border-amber-500/20 bg-amber-500/5 hover:bg-amber-500/10 transition-all">
               <Crown className="h-3.5 w-3.5 fill-current" />
-              Premium Suite
+              {tText("Premium Suite")}
             </Link>
 
             {/* Profile Dropdown */}
@@ -238,7 +238,7 @@ export default function SimpleHome() {
               </div>
             ) : (
               <Link href="/login" className="text-xs sm:text-sm bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-5 sm:py-1.5 sm:px-3.5 rounded-lg min-h-[44px] flex items-center justify-center transition-all shadow-glow">
-                Login
+                {tText("Login")}
               </Link>
             )}
 
@@ -262,7 +262,7 @@ export default function SimpleHome() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 h-4 w-4 pointer-events-none" />
             <input
               type="text"
-              placeholder="Search tools..."
+              placeholder={tText("Search tools...")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 text-white"
@@ -271,13 +271,13 @@ export default function SimpleHome() {
           <div className="flex flex-col gap-2 pt-2 border-t border-slate-900">
             <Link onClick={() => setMobileMenuOpen(false)} href="/pricing" className="flex items-center justify-center gap-2 text-sm text-amber-400 font-bold py-2 border border-amber-500/20 bg-amber-500/5 rounded-lg">
               <Crown className="h-4 w-4 fill-current" />
-              Premium Suite Billing
+              {tText("Premium Suite Billing")}
             </Link>
             <Link onClick={() => setMobileMenuOpen(false)} href="/workspace" className="text-center text-sm bg-slate-900 border border-slate-800 text-slate-300 font-bold py-2 rounded-lg">
-              Open Document Workspace
+              {tText("Open Document Workspace")}
             </Link>
             <Link onClick={() => setMobileMenuOpen(false)} href="/contact" className="text-center text-sm border border-slate-800 text-slate-300 font-bold py-2 rounded-lg">
-              📞 Contact Support
+              {tText("📞 Contact Support")}
             </Link>
           </div>
         </div>
@@ -285,7 +285,7 @@ export default function SimpleHome() {
 
       {premiumTier === "free" && showUpgradeBanner && (
         <div className="bg-gradient-to-r from-indigo-900 via-indigo-950 to-indigo-900 border-b border-indigo-500/20 py-2 px-4 text-center text-xs font-bold text-slate-200 flex items-center justify-center gap-2 relative z-20">
-          <span>⚡ Free plan: {Math.max(0, 3 - useCount)} of 3 uses remaining today → <Link href="/pricing" className="text-indigo-400 hover:text-indigo-300 underline">Upgrade to Pro ₹99/month</Link></span>
+          <span>{tText("Free plan:")} {Math.max(0, 3 - useCount)} {tText("of 3 uses remaining today")} → <Link href="/pricing" className="text-indigo-400 hover:text-indigo-300 underline">{tText("Upgrade to Pro ₹99/month")}</Link></span>
           <button
             onClick={() => setShowUpgradeBanner(false)}
             className="absolute right-4 text-slate-400 hover:text-slate-200 cursor-pointer"
@@ -301,14 +301,14 @@ export default function SimpleHome() {
         <div className="max-w-3xl mx-auto">
           <div className="inline-flex items-center gap-1.5 bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 rounded-full text-xs font-bold text-indigo-400 mb-6 uppercase tracking-wider animate-pulse">
             <Sparkles className="h-3.5 w-3.5 fill-current" />
-            Smart Document Automation for India
+            {tText("Smart Document Automation for India")}
           </div>
           <h1 className="text-4xl md:text-6xl font-black tracking-tight text-white mb-6 leading-tight">
-            What do you want to <br />
-            <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">do today?</span>
+            {tText("What do you want to")} <br />
+            <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">{tText("do today?")}</span>
           </h1>
           <p className="text-slate-400 text-sm md:text-lg mb-12 max-w-xl mx-auto">
-            Process certificates, passport photos, and PDFs safely in your local browser. Ideal for CSC kiosks, cyber cafes, and students.
+            {tText("Process certificates, passport photos, and PDFs safely in your local browser. Ideal for CSC kiosks, cyber cafes, and students.")}
           </p>
 
           {/* Quick-Link Cards */}
@@ -321,8 +321,8 @@ export default function SimpleHome() {
                 <GraduationCap className="h-6 w-6" />
               </div>
               <div className="text-center">
-                <span className="font-extrabold text-sm text-white block">Scholarship ZIP</span>
-                <span className="text-[11px] text-slate-500 block mt-1">Compile portal ZIPs</span>
+                <span className="font-extrabold text-sm text-white block">{tText("Scholarship ZIP")}</span>
+                <span className="text-[11px] text-slate-500 block mt-1">{tText("Compile portal ZIPs")}</span>
               </div>
               <ArrowRight className="h-4 w-4 text-slate-600 group-hover:text-indigo-400 group-hover:translate-x-1 transition-all mt-4" />
             </button>
@@ -335,8 +335,8 @@ export default function SimpleHome() {
                 <ImageIcon className="h-6 w-6" />
               </div>
               <div className="text-center">
-                <span className="font-extrabold text-sm text-white block">Resize Photo</span>
-                <span className="text-[11px] text-slate-500 block mt-1">Selfies to exact dimensions</span>
+                <span className="font-extrabold text-sm text-white block">{tText("Resize Photo")}</span>
+                <span className="text-[11px] text-slate-500 block mt-1">{tText("Selfies to exact dimensions")}</span>
               </div>
               <ArrowRight className="h-4 w-4 text-slate-600 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all mt-4" />
             </button>
@@ -349,8 +349,8 @@ export default function SimpleHome() {
                 <FileText className="h-6 w-6" />
               </div>
               <div className="text-center">
-                <span className="font-extrabold text-sm text-white block">Compress PDF</span>
-                <span className="text-[11px] text-slate-500 block mt-1">Fit portal file limits</span>
+                <span className="font-extrabold text-sm text-white block">{tText("Compress PDF")}</span>
+                <span className="text-[11px] text-slate-500 block mt-1">{tText("Fit portal file limits")}</span>
               </div>
               <ArrowRight className="h-4 w-4 text-slate-600 group-hover:text-purple-400 group-hover:translate-x-1 transition-all mt-4" />
             </button>
@@ -361,13 +361,13 @@ export default function SimpleHome() {
       {/* Flat horizontal Quick Actions */}
       <section className="py-6 border-y border-slate-900 bg-slate-950/40 relative z-10 overflow-x-auto whitespace-nowrap scrollbar-none">
         <div className="max-w-6xl mx-auto px-4 flex items-center gap-3.5">
-          <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wider shrink-0 mr-2">Quick Actions:</span>
+          <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wider shrink-0 mr-2">{tText("Quick Actions:")}</span>
           {[
-            { label: "Aadhaar Card Mask", action: handleAadhaarClick },
-            { label: "NSDL PAN Resize", action: handlePanClick },
-            { label: "Merge PDF", action: handleMergePdfClick },
-            { label: "OCR Extraction", action: handleOcrClick },
-            { label: "Signature Scale", action: handleResizeClick }
+            { label: tText("Aadhaar Card Mask"), action: handleAadhaarClick },
+            { label: tText("NSDL PAN Resize"), action: handlePanClick },
+            { label: tText("Merge PDF"), action: handleMergePdfClick },
+            { label: tText("OCR Extraction"), action: handleOcrClick },
+            { label: tText("Signature Scale"), action: handleResizeClick }
           ].map((act, i) => (
             <button
               key={i}
@@ -388,25 +388,25 @@ export default function SimpleHome() {
             <div>
               <h2 className="text-2xl font-black text-white flex items-center gap-2">
                 <LayoutGrid className="h-5 w-5 text-indigo-400" />
-                Featured Document Automation Tools
+                {tText("Featured Document Automation Tools")}
               </h2>
-              <p className="text-slate-400 text-xs mt-1">Our client-side processors require zero file uploads to servers. Fast, secure, and private.</p>
+              <p className="text-slate-400 text-xs mt-1">{tText("Our client-side processors require zero file uploads to servers. Fast, secure, and private.")}</p>
             </div>
             
             <Link href="/tools" className="text-xs text-indigo-400 hover:text-indigo-300 font-bold flex items-center gap-1 hover:underline">
-              Explore all 30+ tools <ChevronRight className="h-4 w-4" />
+              {tText("Explore all 30+ tools")} <ChevronRight className="h-4 w-4" />
             </Link>
           </div>
 
           {/* Grid Filters */}
           <div className="flex flex-wrap gap-2 mb-8">
             {[
-              { key: "all", label: "All Curated" },
-              { key: "india", label: "Indian Portals" },
-              { key: "pdf", label: "PDF Tools" },
-              { key: "image", label: "Image Tools" },
-              { key: "office", label: "Office & Docs" },
-              { key: "ai", label: "AI Suite" }
+              { key: "all", label: tText("All Curated") },
+              { key: "india", label: tText("Indian Portals") },
+              { key: "pdf", label: tText("PDF Tools") },
+              { key: "image", label: tText("Image Tools") },
+              { key: "office", label: tText("Office & Docs") },
+              { key: "ai", label: tText("AI Suite") }
             ].map((cat) => (
               <button
                 key={cat.key}
@@ -449,14 +449,14 @@ export default function SimpleHome() {
                       )}
                     </div>
                     <h3 className="font-bold text-sm text-white mb-1.5 group-hover:text-indigo-400 transition-colors">
-                      {tool.title}
+                      {tText(tool.title)}
                     </h3>
                     <p className="text-xs text-slate-400 leading-relaxed">
-                      {tool.description}
+                      {tText(tool.description)}
                     </p>
                   </div>
                   <div className="mt-4 pt-3 border-t border-slate-900/60 flex items-center justify-between text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-                    <span>{tool.category === "india" ? "India Portal" : tool.category}</span>
+                    <span>{tText(tool.category === "india" ? "Indian Portals" : tool.category === "pdf" ? "PDF Tools" : tool.category === "image" ? "Image Tools" : tool.category === "office" ? "Office & Docs" : tool.category === "ai" ? "AI Suite" : tool.category)}</span>
                     <span className="flex items-center gap-0.5 text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity">
                       Open <ChevronRight className="h-3 w-3" />
                     </span>
@@ -472,10 +472,10 @@ export default function SimpleHome() {
       <section className="py-20 bg-slate-950 border-t border-slate-900 relative z-10">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-xl md:text-2xl font-black text-white mb-3">
-            Why 10,000+ Cyber Cafes & CSC Centers Trust FileNova
+            {tText("Why 10,000+ Cyber Cafes & CSC Centers Trust FileNova")}
           </h2>
           <p className="text-slate-400 text-xs max-w-md mx-auto mb-12">
-            Secure client-side utilities engineered for maximum confidentiality and offline capabilities.
+            {tText("Secure client-side utilities engineered for maximum confidentiality and offline capabilities.")}
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
@@ -483,24 +483,24 @@ export default function SimpleHome() {
               <div className="h-10 w-10 mx-auto rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold">
                 ✓
               </div>
-              <h3 className="font-bold text-sm text-white">100% Free & Unlimited</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">No registrations, no watermarks, completely free for student scholarship packing.</p>
+              <h3 className="font-bold text-sm text-white">{tText("100% Free & Unlimited")}</h3>
+              <p className="text-xs text-slate-500 leading-relaxed">{tText("No registrations, no watermarks, completely free for student scholarship packing.")}</p>
             </div>
             
             <div className="space-y-2">
               <div className="h-10 w-10 mx-auto rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold">
                 ✓
               </div>
-              <h3 className="font-bold text-sm text-white">Instant Auto-Delete</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">Processed files are cleared immediately from the browser storage in 1 hour.</p>
+              <h3 className="font-bold text-sm text-white">{tText("Instant Auto-Delete")}</h3>
+              <p className="text-xs text-slate-500 leading-relaxed">{tText("Processed files are cleared immediately from the browser storage in 1 hour.")}</p>
             </div>
 
             <div className="space-y-2">
               <div className="h-10 w-10 mx-auto rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold">
                 ✓
               </div>
-              <h3 className="font-bold text-sm text-white">Client-Side Security</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">Conversions occur in your browser cache. Documents never upload to servers.</p>
+              <h3 className="font-bold text-sm text-white">{tText("Client-Side Security")}</h3>
+              <p className="text-xs text-slate-500 leading-relaxed">{tText("Conversions occur in your browser cache. Documents never upload to servers.")}</p>
             </div>
           </div>
         </div>
