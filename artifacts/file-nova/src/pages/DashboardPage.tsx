@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
+import { PlanBadge } from "@/components/PlanBadge";
 import { 
   Sparkles, 
   ShieldCheck, 
@@ -149,14 +150,7 @@ export default function DashboardPage() {
             Back to Tools
           </Link>
           <div className="flex items-center gap-3">
-            <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${
-              premiumTier === "elite" ? "badge-elite" :
-              premiumTier === "pro" ? "badge-pro" :
-              premiumTier === "basic" ? "badge-basic" :
-              "badge-free"
-            }`}>
-              {premiumTier}
-            </span>
+            <PlanBadge />
             <UserProfileDropdown />
           </div>
         </div>

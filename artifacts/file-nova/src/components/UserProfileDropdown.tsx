@@ -111,7 +111,6 @@ export function UserProfileDropdown() {
 
   return (
     <div className="relative flex items-center gap-2" ref={dropdownRef}>
-      {user && getNavbarBadge()}
       {user ? (
         <button
           onClick={() => setDropdownOpen(!dropdownOpen)}

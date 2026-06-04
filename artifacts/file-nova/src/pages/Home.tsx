@@ -39,6 +39,7 @@ import {
 } from "lucide-react";
 import { useFileStore } from "@/store/useFileStore";
 import { useAuthStore } from "@/store/useAuthStore";
+import { PlanBadge } from "@/components/PlanBadge";
 import { useAdmin } from "@/lib/admin";
 import { apiClient } from "@/lib/api";
 import { DownloadHub } from "@/components/workspace/DownloadHub";
@@ -725,14 +726,14 @@ export default function Home() {
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-card border border-border">
                   <img src={logoUrl} alt="FileNova logo" className="h-8 w-auto" />
                 </div>
-                <div className="hidden sm:block">
-                  <p className="text-base font-black leading-none">{t.logoTitle}</p>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{t.logoSubtitle}</p>
+                <div className="hidden sm:block shrink-0">
+                  <p className="text-base font-black leading-none whitespace-nowrap">{t.logoTitle}</p>
+                  <p className="text-[10px] font-bold text-muted-foreground whitespace-nowrap tracking-wide">{t.logoSubtitle}</p>
                 </div>
               </button>
-              <div className="hidden lg:block border-l border-border pl-3 ml-1">
-                <span className="inline-flex items-center rounded-full bg-blue-550/10 border border-blue-500/20 px-2.5 py-0.5 text-[10px] font-black text-blue-500">
-                  Trusted by 10,000+ users
+              <div className="hidden lg:block border-l border-border pl-3 ml-1 shrink-0">
+                <span className="inline-flex items-center gap-1 rounded-full bg-blue-500/10 border border-blue-500/20 px-2.5 py-0.5 text-[10px] font-black text-blue-500 whitespace-nowrap">
+                  ✅ Trusted by 10,000+ users
                 </span>
               </div>
             </div>
@@ -908,14 +909,7 @@ export default function Home() {
                   <Moon className="h-4 w-4 text-indigo-550 transition-all hover:rotate-12 duration-300" />
                 )}
               </button>
-              <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border mr-2 ${
-                premiumTier === "elite" ? "badge-elite" :
-                premiumTier === "pro" ? "badge-pro" :
-                premiumTier === "basic" ? "badge-basic" :
-                "badge-free"
-              }`}>
-                {premiumTier}
-              </span>
+              <PlanBadge />
               <UserProfileDropdown />
             </div>
 
@@ -984,14 +978,7 @@ export default function Home() {
               </Link>
               <div className="pt-1.5 border-t border-border mt-1">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${
-                    premiumTier === "elite" ? "badge-elite" :
-                    premiumTier === "pro" ? "badge-pro" :
-                    premiumTier === "basic" ? "badge-basic" :
-                    "badge-free"
-                  }`}>
-                    {premiumTier}
-                  </span>
+                  <PlanBadge />
                 </div>
                 <UserProfileDropdown />
               </div>

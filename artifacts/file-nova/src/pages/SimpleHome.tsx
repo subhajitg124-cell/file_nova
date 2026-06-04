@@ -12,6 +12,7 @@ import { UserProfileDropdown } from "@/components/UserProfileDropdown";
 import Footer from "@/components/Footer";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useSubscription } from "@/hooks/useSubscription";
+import { PlanBadge } from "@/components/PlanBadge";
 
 // Curated tools to display on the homepage grid
 interface CuratedTool {
@@ -223,24 +224,17 @@ export default function SimpleHome() {
               {tText("Premium Suite")}
             </Link>
 
-            {/* Profile Dropdown */}
-            {user ? (
-              <div className="flex items-center gap-2">
-                <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${
-                  premiumTier === "elite" ? "badge-elite" :
-                  premiumTier === "pro" ? "badge-pro" :
-                  premiumTier === "basic" ? "badge-basic" :
-                  "badge-free"
-                }`}>
-                  {premiumTier}
-                </span>
+            {/* Profile Dropdown & Plan Badge */}
+            <div className="flex items-center gap-2">
+              <PlanBadge />
+              {user ? (
                 <UserProfileDropdown />
-              </div>
-            ) : (
-              <Link href="/login" className="text-xs sm:text-sm bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-5 sm:py-1.5 sm:px-3.5 rounded-lg min-h-[44px] flex items-center justify-center transition-all shadow-glow">
-                {tText("Login")}
-              </Link>
-            )}
+              ) : (
+                <Link href="/login" className="text-xs sm:text-sm bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-5 sm:py-1.5 sm:px-3.5 rounded-lg min-h-[44px] flex items-center justify-center transition-all shadow-glow">
+                  {tText("Login")}
+                </Link>
+              )}
+            </div>
 
             {/* Mobile Nav Toggle */}
             <button 
