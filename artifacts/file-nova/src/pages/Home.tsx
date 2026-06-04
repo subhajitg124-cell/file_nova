@@ -160,7 +160,7 @@ export default function Home() {
                 title={isMockMode ? 'Disable standalone mode' : 'Enable standalone mode'}
                 aria-label={isMockMode ? 'Disable standalone mode' : 'Enable standalone mode'}
                 className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ${isMockMode ? 'bg-primary' : 'bg-secondary'}`}
-                role="switch" aria-checked={isMockMode ? 'true' : 'false'}
+                 role="switch" aria-checked={isMockMode}
               >
                 <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ${isMockMode ? 'translate-x-4' : 'translate-x-0'}`} />
               </button>
