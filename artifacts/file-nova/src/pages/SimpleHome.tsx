@@ -225,12 +225,15 @@ export default function SimpleHome() {
             </Link>
 
             {/* Profile Dropdown & Plan Badge */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               <PlanBadge />
               {user ? (
                 <UserProfileDropdown />
               ) : (
-                <Link href="/login" className="text-xs sm:text-sm bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-5 sm:py-1.5 sm:px-3.5 rounded-lg min-h-[44px] flex items-center justify-center transition-all shadow-glow">
+                <Link
+                  href="/login"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 px-4 py-2 text-xs font-black text-white transition-all duration-300 shadow-glow whitespace-nowrap shrink-0 border border-indigo-500/30 hover:scale-[1.02] active:scale-95"
+                >
                   {tText("Login")}
                 </Link>
               )}

@@ -110,24 +110,24 @@ export function UserProfileDropdown() {
   const plan = getPlanDetails();
 
   return (
-    <div className="relative flex items-center gap-2" ref={dropdownRef}>
+    <div className="relative flex items-center gap-2 shrink-0" ref={dropdownRef}>
       {user ? (
         <button
           onClick={() => setDropdownOpen(!dropdownOpen)}
-          className="inline-flex items-center gap-2 rounded-xl border border-border bg-card hover:bg-muted/50 px-3.5 py-2 text-xs font-bold text-foreground transition duration-300 cursor-pointer shadow-sm select-none"
+          className="inline-flex items-center gap-2 rounded-xl border border-border bg-card hover:bg-muted/50 px-3.5 py-2 text-xs font-bold text-foreground transition duration-300 cursor-pointer shadow-sm select-none whitespace-nowrap"
         >
-          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-primary shrink-0">
             <User className="h-3 w-3" />
           </div>
           <span className="max-w-[100px] truncate">{user.name || user.email}</span>
-          <ChevronDown className={`h-3 w-3 text-muted-foreground transition-transform duration-300 ${dropdownOpen ? "rotate-180" : ""}`} />
+          <ChevronDown className={`h-3 w-3 text-muted-foreground transition-transform duration-300 shrink-0 ${dropdownOpen ? "rotate-180" : ""}`} />
         </button>
       ) : (
         <button
           onClick={openLoginModal}
-          className="inline-flex items-center gap-2 rounded-xl bg-primary hover:opacity-90 px-4 py-2 text-xs font-black text-primary-foreground transition duration-300 cursor-pointer shadow-glow"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 px-4 py-2 text-xs font-black text-white transition-all duration-300 cursor-pointer shadow-glow whitespace-nowrap shrink-0 border border-indigo-500/30 hover:scale-[1.02] active:scale-95"
         >
-          <Key className="h-3.5 w-3.5" />
+          <Key className="h-3.5 w-3.5 shrink-0" />
           <span>Sign In</span>
         </button>
       )}

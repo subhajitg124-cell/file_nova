@@ -721,7 +721,7 @@ export default function Home() {
             </div>
           ) : (
             /* Standard logo presentation */
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 shrink-0">
               <button onClick={startFixMode} className="flex items-center gap-3 text-left">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-card border border-border">
                   <img src={logoUrl} alt="FileNova logo" className="h-8 w-auto" />
@@ -740,7 +740,7 @@ export default function Home() {
           )}
 
           {/* ── Search Bar (Desktop only) ─────────────────────────────────────────────── */}
-          <div ref={searchRef} className="relative flex-1 max-w-sm hidden md:block">
+          <div ref={searchRef} className="relative flex-1 min-w-0 max-w-sm hidden md:block">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
               <input
@@ -794,7 +794,7 @@ export default function Home() {
             )}
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 shrink-0">
             {/* Shortcuts Dropdown */}
             <div className="relative inline-block text-left">
               <button
@@ -847,7 +847,7 @@ export default function Home() {
               )}
             </div>
 
-            <div className="hidden md:flex items-center gap-1.5 rounded-xl border border-border bg-card/60 px-2.5 py-1.5 text-xs text-muted-foreground">
+            <div className="hidden lg:flex items-center gap-1.5 rounded-xl border border-border bg-card/60 px-2.5 py-1.5 text-xs text-muted-foreground">
               <Languages className="h-3.5 w-3.5 text-muted-foreground" />
               <select
                 value={language}
@@ -863,7 +863,7 @@ export default function Home() {
               </select>
             </div>
 
-            <div className="hidden md:flex items-center gap-2">
+            <div className="hidden xl:flex items-center gap-2">
               <Link href="/blog" className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-bold transition ${location.startsWith("/blog") ? "border-sky-500/30 bg-sky-500/10 text-sky-500" : "border-border bg-card text-muted-foreground hover:text-foreground"}`}>
                 <BookOpen className="h-4 w-4 text-sky-500" />
                 <span>Blog</span>
