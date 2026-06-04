@@ -2,15 +2,8 @@ export const FILENOVA_UPI_ID = "9064560741@slc";
 export const FILENOVA_PAYEE_NAME = "Subhajit Ghosh";
 
 export function createUpiLink(amount: number, note: string) {
-  const params = new URLSearchParams({
-    pa: FILENOVA_UPI_ID,
-    pn: FILENOVA_PAYEE_NAME,
-    am: String(amount),
-    cu: "INR",
-    tn: note,
-  });
-
-  return `upi://pay?${params.toString()}`;
+  // Avoid URL-encoding the '@' symbol in the UPI ID as it breaks some UPI apps
+  return `upi://pay?pa=${FILENOVA_UPI_ID}&pn=${encodeURIComponent(FILENOVA_PAYEE_NAME)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
 }
 
 export function createUpiQrUrl(amount: number) {

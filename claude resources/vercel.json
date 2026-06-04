@@ -1,7 +1,7 @@
 {
   "framework": null,
-  "buildCommand": "pnpm run build",
-  "outputDirectory": "artifacts/file-nova/dist",
+  "buildCommand": "pnpm --filter file-nova run build",
+  "outputDirectory": "artifacts/file-nova/dist/public",
   "installCommand": "pnpm install",
   "functions": {
     "api/*.ts": {
