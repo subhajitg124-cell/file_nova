@@ -203,11 +203,74 @@ export const blogPosts: BlogPost[] = [
         heading: "Final checks before submission",
         body: [
           "Open the final PDF and verify every field. Check spelling of name, date of birth, address, mobile number, and email. Make sure no text is cut off. If you added a signature image, confirm it is not blurry or oversized. If you compressed the PDF, confirm the details remain readable after compression.",
-          "The best online workflow is careful, not rushed. FileNova can help with format conversion, PDF merge, compression, and privacy preparation, but official Aadhaar rules and submission instructions always come first. When a physical signature or in-person verification is required, use the online tools only to prepare cleaner documents before printing or visiting the center."
         ],
       },
     ],
   },
+  {
+    title: "Aadhaar Masking: How to Protect Your Privacy Online in India",
+    slug: "aadhaar-masking-privacy-india",
+    description: "Understand why you should mask your Aadhaar card numbers before uploading them online, and how FileNova does this securely in the browser.",
+    date: "2026-02-15",
+    readTime: "6 min read",
+    thumbnail: "/aadhaar_privacy_guide.png",
+    keywords: "aadhaar masking, mask aadhaar card online, download masked aadhaar, privacy india, FileNova aadhaar tool",
+    sections: [
+      {
+        heading: "What is Aadhaar Masking and why is it crucial?",
+        body: [
+          "Your Aadhaar card is one of your most sensitive identity documents in India. It contains your 12-digit unique identity number, your biometric data links, your photograph, address, and demographic information. While many government portals, college admission boards, and employers require Aadhaar as proof of identity, sharing the full 12-digit number openly creates a significant risk of identity theft and unauthorized profiling.",
+          "To mitigate this risk, the Unique Identification Authority of India (UIDAI) highly recommends using a 'Masked Aadhaar'. A masked Aadhaar displays only the last 4 digits of the Aadhaar number, replacing the first 8 digits with cross marks (e.g., XXXX-XXXX-1234). This satisfies legal verification requirements while protecting your core identity credentials from leakage."
+        ]
+      },
+      {
+        heading: "How to mask your Aadhaar card safely using FileNova",
+        body: [
+          "FileNova provides a client-side Aadhaar masking utility that runs directly in your browser. This means your private identity card is processed locally on your device and never uploaded to any remote server, ensuring 100% privacy.",
+          "To mask your card: open the Aadhaar Masking tool in FileNova's Premium Suite, upload a clear picture of your Aadhaar card, and let the local AI utility automatically detect and blur or overlay the first 8 digits of your ID. After processing, download your secure, masked PDF or image copy, ready for submission to any educational or job portal."
+        ]
+      },
+      {
+        heading: "Official guidelines on sharing Aadhaar copies",
+        body: [
+          "UIDAI guidelines state that organizations must not store paper or digital copies of the full Aadhaar card unless they are licensed Aadhaar user agencies. For general verification—such as checking into a hotel, renting a flat, or buying a SIM card—providing a masked Aadhaar is legally sufficient and highly encouraged.",
+          "By adopting the habit of masking your card before sharing it on email or WhatsApp, you block potential data brokers and malicious entities from harvesting your credentials. FileNova makes this step instantaneous and completely private."
+        ]
+      }
+    ]
+  },
+  {
+    title: "Optimizing Document Photos for Indian Portals (WBJEE, NEET, Scholarships)",
+    slug: "optimize-photos-indian-portals",
+    description: "A comprehensive guide on resizing, compressing, and cropping photos and signatures to match the exact criteria of Indian examination and scholarship websites.",
+    date: "2026-03-01",
+    readTime: "7 min read",
+    thumbnail: "/portal_photo_resize_guide.png",
+    keywords: "resize passport photo online, signature size compressor, wbjee photo crop, neet application photo, scholarship document utility",
+    sections: [
+      {
+        heading: "The frustration of strict portal requirements",
+        body: [
+          "Every student in India who has filled out entrance exam forms (like WBJEE, JEE Main, NEET, CUET) or applied for state scholarships (such as SVMCM, Oasis, Kanyashree) knows the frustration of document uploads. These portals enforce strict and often archaic rules on photo and signature dimensions, file formats, and file sizes.",
+          "For instance, a portal might demand a passport photograph of exactly 3.5cm x 4.5cm, in JPG format, with a file size strictly between 10KB and 50KB. A signature might need to be between 4KB and 20KB. If your file is 51KB or has the wrong aspect ratio, the upload fails with an unhelpful error message, leading to missed deadlines and unnecessary stress."
+        ]
+      },
+      {
+        heading: "Using FileNova to resize photo and signature files",
+        body: [
+          "FileNova's Exam Toolkit is custom-tailored to resolve this issue. Instead of manually guessing compression settings, you can select the preset for your specific portal or enter your custom dimensions and KB target.",
+          "Simply upload your captured photo or scan, adjust the cropping box to frame your face or signature cleanly, set the slider to your desired maximum file size, and click process. The tool handles the cropping, pixel resizing, and JPEG quality optimization simultaneously to export a file that meets the target portal's requirements on the first try."
+        ]
+      },
+      {
+        heading: "Tips for clean scans and photos",
+        body: [
+          "Ensure your photos are taken against a plain, light-colored background (preferably white) with balanced lighting to avoid shadows on your face. For signatures, sign on a plain white paper using a dark blue or black pen, and ensure the photo is taken in bright light without camera angles.",
+          "Processing a clean, well-lit image ensures that even after compressing it down to 10KB, the text of your signature or details of your face remain crisp and recognizable by automated portal validators."
+        ]
+      }
+    ]
+  }
 ];
 
 export const getBlogPost = (slug: string) => blogPosts.find((post) => post.slug === slug);
