@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || process.env.NEXT_PUBLIC_API_URL || '/api';
 
 // Create axios instance with better configuration
 const apiClient = axios.create({
@@ -54,7 +54,7 @@ export const checkServerHealth = async () => {
   const urlsToTry = [
     API_BASE_URL,
     import.meta.env.VITE_API_URL_FALLBACK || process.env.NEXT_PUBLIC_API_URL_FALLBACK,
-    'http://localhost:5000/api',
+    '/api',
     'https://api.filenova.in/api'
   ].filter(Boolean);
 

@@ -43,7 +43,7 @@ export async function initDatabase() {
     // Users table
     await client.query(`
       CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         email VARCHAR(255) UNIQUE NOT NULL,
         password_hash VARCHAR(255) NOT NULL,
         name VARCHAR(255),
@@ -57,7 +57,7 @@ export async function initDatabase() {
     await client.query(`
       CREATE TABLE IF NOT EXISTS files (
         id SERIAL PRIMARY KEY,
-        user_id INTEGER REFERENCES users(id),
+        user_id UUID REFERENCES users(id),
         filename VARCHAR(255) NOT NULL,
         original_name VARCHAR(255),
         size INTEGER,
@@ -72,7 +72,7 @@ export async function initDatabase() {
     await client.query(`
       CREATE TABLE IF NOT EXISTS subscriptions (
         id SERIAL PRIMARY KEY,
-        user_id INTEGER REFERENCES users(id),
+        user_id UUID REFERENCES users(id),
         plan VARCHAR(50) NOT NULL,
         amount DECIMAL(10, 2),
         status VARCHAR(50) DEFAULT 'active',

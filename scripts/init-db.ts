@@ -1,4 +1,6 @@
-import { initDatabase } from "../lib/vercel-db";
+import * as vercelDb from "../lib/vercel-db";
+
+const initDatabase = vercelDb.initDatabase || (vercelDb as any).default?.initDatabase;
 
 async function main() {
   console.log("🚀 Initializing FileNova database...");
