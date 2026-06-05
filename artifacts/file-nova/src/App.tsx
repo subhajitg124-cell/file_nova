@@ -35,6 +35,7 @@ import { FileNovaAssistant } from "@/components/FileNovaAssistant";
 import { FloatingShortcuts } from "@/components/FloatingShortcuts";
 import { FloatingParticles } from "@/components/AnimatedEffects";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useFileStore } from "@/store/useFileStore";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { BACKEND_URL, HAS_BACKEND } from "@/lib/api";
 
@@ -150,12 +151,14 @@ function Router() {
 
 function App() {
   const { initialized, fetchMe } = useAuthStore();
+  const { isMockMode } = useFileStore();
   const [limitModalOpen, setLimitModalOpen] = useState(false);
   const [modalLimit, setModalLimit] = useState(3);
   const [modalUsage, setModalUsage] = useState(3);
   const [apiStatus, setApiStatus] = useState<"online" | "offline" | "checking">(HAS_BACKEND ? "checking" : "online");
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [retryTrigger, setRetryTrigger] = useState(0);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -172,14 +175,14 @@ function App() {
     let height = "0px";
     if (!isOnline) {
       height = "38px";
-    } else if (HAS_BACKEND && (apiStatus === "offline" || apiStatus === "checking")) {
+    } else if (!isMockMode && HAS_BACKEND && (apiStatus === "offline" || apiStatus === "checking")) {
       height = "40px";
     }
     document.documentElement.style.setProperty("--banner-height", height);
     return () => {
       document.documentElement.style.setProperty("--banner-height", "0px");
     };
-  }, [isOnline, apiStatus]);
+  }, [isOnline, apiStatus, isMockMode]);
 
   useEffect(() => {
     fetchMe();
@@ -247,7 +250,11 @@ function App() {
           headers: { "Cache-Control": "no-cache" },
         });
         clearTimeout(timeout);
-        setApiStatus(res.ok ? "online" : "offline");
+        const isHealthy = res.ok;
+        setApiStatus(isHealthy ? "online" : "offline");
+        if (!isHealthy) {
+          useFileStore.setState({ isMockMode: true });
+        }
         retries = 0;
       } catch {
         retries += 1;
@@ -255,6 +262,7 @@ function App() {
           retryTimer = setTimeout(checkApiHealth, 2000);
         } else {
           setApiStatus("offline");
+          useFileStore.setState({ isMockMode: true });
           retries = 0;
         }
       }
@@ -282,7 +290,7 @@ function App() {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
     };
-  }, []);
+  }, [retryTrigger]);
 
   useEffect(() => {
     const refCode = new URLSearchParams(window.location.search).get("ref");
@@ -310,7 +318,12 @@ function App() {
             <LazyMotion features={domAnimation}>
               <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
                 <LanguageProvider>
-                  <ConnectionStatusIndicator status={apiStatus} />
+                  {!isMockMode && (
+                    <ConnectionStatusIndicator 
+                      status={apiStatus} 
+                      onRetry={() => setRetryTrigger(prev => prev + 1)} 
+                    />
+                  )}
                   <OfflineBanner />
                   <FloatingParticles />
                   <FloatingShortcuts />
