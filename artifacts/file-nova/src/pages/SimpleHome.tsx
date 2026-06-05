@@ -9,6 +9,7 @@ import {
 import { useFileStore } from "@/store/useFileStore";
 import { useLanguage, useTranslation } from "@/lib/i18n";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import Footer from "@/components/Footer";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -151,32 +152,32 @@ export default function SimpleHome() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-indigo-500 selection:text-white">
+    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-indigo-500 selection:text-white transition-colors duration-300">
       {/* Background Gradients */}
       <div className="absolute top-0 left-0 right-0 h-[600px] bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.15),_transparent_60%)] pointer-events-none z-0" />
       <div className="absolute top-[800px] right-0 w-[500px] h-[500px] bg-[radial-gradient(circle_at_right,_rgba(168,85,247,0.08),_transparent_70%)] pointer-events-none z-0" />
 
       {/* Header Nav */}
-      <header className="sticky top-0 z-40 border-b border-slate-900 bg-slate-950/80 backdrop-blur-xl transition-all">
+      <header className="sticky top-0 z-40 border-b border-border/40 bg-background/80 backdrop-blur-xl transition-all">
         <div className="max-w-6xl mx-auto px-3 sm:px-4 h-16 flex items-center justify-between gap-2 sm:gap-4">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 shrink-0">
             <img src="/logo.png" alt="FileNova logo" className="h-9 w-auto" />
             <div className="hidden sm:block">
-              <span className="font-extrabold text-sm text-white block">FileNova.in</span>
-              <span className="text-[10px] text-slate-500 block leading-none font-bold uppercase tracking-wider">CSC & STUDENT PORTAL</span>
+              <span className="font-extrabold text-sm text-foreground block">FileNova.in</span>
+              <span className="text-[10px] text-muted-foreground block leading-none font-bold uppercase tracking-wider">CSC & STUDENT PORTAL</span>
             </div>
           </Link>
 
           {/* Search bar inside header */}
           <div className="relative max-w-sm w-full hidden md:block">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 h-4 w-4 pointer-events-none" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
             <input
               type="text"
               placeholder={tText("Search 30+ document tools...")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-600 text-white"
+              className="w-full pl-9 pr-4 py-1.5 bg-card border border-border rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-muted-foreground/60 text-foreground"
             />
             {searchQuery && (
               <button 
@@ -193,33 +194,35 @@ export default function SimpleHome() {
           {/* Right Action Menu */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Language Selection */}
-            <div className="hidden lg:flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-slate-400">
+            <div className="hidden lg:flex items-center gap-1 bg-card border border-border rounded-lg px-2.5 py-1 text-xs text-muted-foreground">
               <Languages className="h-3.5 w-3.5" />
               <select 
                 value={language} 
                 onChange={(e) => setLanguage(e.target.value as any)}
-                className="bg-transparent border-none outline-none text-slate-300 font-bold focus:ring-0 cursor-pointer"
+                className="bg-transparent border-none outline-none text-foreground font-bold focus:ring-0 cursor-pointer"
                 title="Select language"
               >
-                <option value="en" className="bg-slate-900 text-slate-300">English</option>
-                <option value="hi" className="bg-slate-900 text-slate-300">हिन्दी</option>
-                <option value="bn" className="bg-slate-900 text-slate-300">বাংলা</option>
-                <option value="te" className="bg-slate-900 text-slate-300">తెలుగు</option>
-                <option value="mr" className="bg-slate-900 text-slate-300">मराठी</option>
-                <option value="ta" className="bg-slate-900 text-slate-300">தமிழ்</option>
-                <option value="gu" className="bg-slate-900 text-slate-300">ગુજરાતી</option>
-                <option value="kn" className="bg-slate-900 text-slate-300">ಕನ್ನಡ</option>
-                <option value="ml" className="bg-slate-900 text-slate-300">മലയാളം</option>
-                <option value="pa" className="bg-slate-900 text-slate-300">ਪੰਜਾਬੀ</option>
-                <option value="or" className="bg-slate-900 text-slate-300">ଓଡ଼ିଆ</option>
-                <option value="as" className="bg-slate-900 text-slate-300">অসমীয়া</option>
-                <option value="ur" className="bg-slate-900 text-slate-300">اردو</option>
-                <option value="ne" className="bg-slate-900 text-slate-300">नेपाली</option>
-                <option value="sat" className="bg-slate-900 text-slate-300">ᱥᱟᱱᱛᱟᱲᱤ</option>
+                <option value="en" className="bg-card text-foreground">English</option>
+                <option value="hi" className="bg-card text-foreground">हिन्दी</option>
+                <option value="bn" className="bg-card text-foreground">বাংলা</option>
+                <option value="te" className="bg-card text-foreground">తెలుగు</option>
+                <option value="mr" className="bg-card text-foreground">मराठी</option>
+                <option value="ta" className="bg-card text-foreground">தமிழ்</option>
+                <option value="gu" className="bg-card text-foreground">ગુજરાતી</option>
+                <option value="kn" className="bg-card text-foreground">ಕನ್ನಡ</option>
+                <option value="ml" className="bg-card text-foreground">മലയാളം</option>
+                <option value="pa" className="bg-card text-foreground">ਪੰਜਾਬੀ</option>
+                <option value="or" className="bg-card text-foreground">ଓଡ଼ିଆ</option>
+                <option value="as" className="bg-card text-foreground">অসমীয়া</option>
+                <option value="ur" className="bg-card text-foreground">اردو</option>
+                <option value="ne" className="bg-card text-foreground">नेपाली</option>
+                <option value="sat" className="bg-card text-foreground">ᱥᱟᱱᱛᱟᱲᱤ</option>
               </select>
             </div>
 
-            <Link href="/workspace" className="hidden md:flex items-center gap-1 text-xs text-slate-300 hover:text-white font-bold py-1.5 px-3 rounded-lg border border-slate-800 bg-slate-900/70 hover:border-indigo-500/35 hover:bg-indigo-500/10 transition-all">
+            <ThemeToggle />
+
+            <Link href="/workspace" className="hidden md:flex items-center gap-1 text-xs text-foreground hover:text-primary font-bold py-1.5 px-3 rounded-lg border border-border bg-card hover:border-indigo-500/35 hover:bg-indigo-500/10 transition-all">
               <FileText className="h-3.5 w-3.5" />
               {tText("Workspace")}
             </Link>
@@ -262,28 +265,32 @@ export default function SimpleHome() {
 
       {/* Mobile Menu Panel */}
       {mobileMenuOpen && (
-        <div className="mobile-menu-panel md:hidden border-b border-slate-900 bg-slate-950 p-4 space-y-3 animate-fadeIn relative z-30">
+        <div className="mobile-menu-panel md:hidden border-b border-border bg-background p-4 space-y-3 animate-fadeIn relative z-30">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 h-4 w-4 pointer-events-none" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
             <input
               type="text"
               placeholder={tText("Search tools...")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 text-white"
+              className="w-full pl-9 pr-4 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 text-foreground"
             />
           </div>
-          <div className="flex flex-col gap-2 pt-2 border-t border-slate-900">
+          <div className="flex flex-col gap-2 pt-2 border-t border-border">
             <Link onClick={() => setMobileMenuOpen(false)} href="/pricing" className="flex items-center justify-center gap-2 text-sm text-amber-400 font-bold py-2 border border-amber-500/20 bg-amber-500/5 rounded-lg">
               <Crown className="h-4 w-4 fill-current" />
               {tText("Premium Suite Billing")}
             </Link>
-            <Link onClick={() => setMobileMenuOpen(false)} href="/workspace" className="text-center text-sm bg-slate-900 border border-slate-800 text-slate-300 font-bold py-2 rounded-lg">
+            <Link onClick={() => setMobileMenuOpen(false)} href="/workspace" className="text-center text-sm bg-card border border-border text-foreground font-bold py-2 rounded-lg">
               {tText("Open Document Workspace")}
             </Link>
-            <Link onClick={() => setMobileMenuOpen(false)} href="/contact" className="text-center text-sm border border-slate-800 text-slate-300 font-bold py-2 rounded-lg">
+            <Link onClick={() => setMobileMenuOpen(false)} href="/contact" className="text-center text-sm border border-border text-foreground font-bold py-2 rounded-lg">
               {tText("📞 Contact Support")}
             </Link>
+            <div className="flex items-center justify-between px-4 py-2 border border-border bg-card rounded-xl">
+              <span className="text-xs font-bold text-muted-foreground">{tText("Theme Mode")}</span>
+              <ThemeToggle />
+            </div>
           </div>
         </div>
       )}

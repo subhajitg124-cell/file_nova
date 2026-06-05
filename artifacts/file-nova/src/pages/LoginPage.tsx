@@ -6,6 +6,7 @@ import {
   ArrowRight, Loader, ShieldCheck, Zap, Files
 } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useFileStore } from "@/store/useFileStore";
 import { toast } from "sonner";
 import { HAS_BACKEND } from "@/lib/api";
 
@@ -84,6 +85,14 @@ const isValidationError = (err: string): boolean => {
     const success = await loginWithGoogle(response.credential);
     if (success) {
       finishAuth("Signed in with Google.");
+    } else if (isNetworkError(useAuthStore.getState().error || "")) {
+      useFileStore.setState({ isMockMode: true });
+      const retrySuccess = await loginWithGoogle(response.credential);
+      if (retrySuccess) {
+        finishAuth("Backend offline. Signed in locally with Google profile!");
+      } else {
+        toast.error("Google authentication failed.");
+      }
     } else {
       toast.error(useAuthStore.getState().error || "Google authentication failed.");
     }
@@ -119,10 +128,17 @@ const isValidationError = (err: string): boolean => {
     if (success) {
       finishAuth("Successfully logged in!");
     } else if (isNetworkError(useAuthStore.getState().error || "")) {
-      const currentRetry = retryCount;
-      setRetryCount(currentRetry + 1);
-      if (currentRetry < 2) {
-        toast.info("Connection issue detected, please try again.");
+      useFileStore.setState({ isMockMode: true });
+      const retrySuccess = await login(loginIdentifier, loginPassword);
+      if (retrySuccess) {
+        finishAuth("Backend offline. Logged in locally (standalone mode)!");
+      } else {
+        const signupSuccess = await signup(loginIdentifier, null, loginPassword, "Demo User");
+        if (signupSuccess) {
+          finishAuth("Backend offline. Auto-created a local account for you!");
+        } else {
+          toast.error("Failed to authenticate locally.");
+        }
       }
     }
   };
@@ -155,10 +171,12 @@ const isValidationError = (err: string): boolean => {
     if (success) {
       finishAuth("Account created successfully!");
     } else if (isNetworkError(useAuthStore.getState().error || "")) {
-      const currentRetry = retryCount;
-      setRetryCount(currentRetry + 1);
-      if (currentRetry < 2) {
-        toast.info("Connection issue detected, please try again.");
+      useFileStore.setState({ isMockMode: true });
+      const retrySuccess = await signup(signupEmail, signupPhone || null, signupPassword, signupName || null);
+      if (retrySuccess) {
+        finishAuth("Backend offline. Account created locally (standalone mode)!");
+      } else {
+        toast.error("Failed to register locally.");
       }
     }
   };

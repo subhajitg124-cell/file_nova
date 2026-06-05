@@ -1,5 +1,10 @@
 import { create } from 'zustand';
 import { BACKEND_URL, HAS_BACKEND } from '@/lib/api';
+import { useFileStore } from './useFileStore';
+
+const isMockActive = () => {
+  return !HAS_BACKEND || useFileStore.getState().isMockMode;
+};
 
 export interface UserProfile {
   id: string;
@@ -171,7 +176,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   fetchMe: async () => {
     set({ loading: true, error: null });
     try {
-      if (!HAS_BACKEND) {
+      if (isMockActive()) {
         const localUser = getLocalSession();
         set({
           user: localUser,
@@ -209,7 +214,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   login: async (identifier, password) => {
     set({ loading: true, error: null });
     try {
-      if (!HAS_BACKEND) {
+      if (isMockActive()) {
         const key = identifier.trim().toLowerCase();
         const localUsers = getLocalUsers();
         const saved = localUsers[key];
@@ -250,7 +255,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   signup: async (email, phoneNumber, password, name) => {
     set({ loading: true, error: null });
     try {
-      if (!HAS_BACKEND) {
+      if (isMockActive()) {
         const key = email.trim().toLowerCase();
         const localUsers = getLocalUsers();
         if (localUsers[key]) {
@@ -301,7 +306,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   loginWithGoogle: async (credential) => {
     set({ loading: true, error: null });
     try {
-      if (!HAS_BACKEND) {
+      if (isMockActive()) {
         const profile = decodeGoogleCredential(credential);
         if (!profile.email) {
           throw new Error('Google did not return an email address.');
@@ -346,7 +351,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   logout: async () => {
     set({ loading: true });
     try {
-      if (HAS_BACKEND) {
+      if (!isMockActive()) {
         await safeFetch(`${BACKEND_URL}/api/v1/auth/logout`, {
           method: 'POST',
           credentials: 'include',
@@ -365,7 +370,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   updateProfile: async (name, phoneNumber) => {
     set({ loading: true, error: null });
     try {
-      if (!HAS_BACKEND) {
+      if (isMockActive()) {
         const current = get().user;
         if (!current) throw new Error('Please log in first.');
         const updated = { ...current, name, phoneNumber };
@@ -403,7 +408,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   changePassword: async (currentPassword, newPassword) => {
     set({ loading: true, error: null });
     try {
-      if (!HAS_BACKEND) {
+      if (isMockActive()) {
         const current = get().user;
         if (!current) throw new Error('Please log in first.');
         const localUsers = getLocalUsers();
@@ -441,7 +446,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   deleteAccount: async () => {
     set({ loading: true, error: null });
     try {
-      if (!HAS_BACKEND) {
+      if (isMockActive()) {
         const current = get().user;
         if (current) {
           const localUsers = getLocalUsers();
