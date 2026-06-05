@@ -4,18 +4,16 @@
   "outputDirectory": "artifacts/file-nova/dist",
   "installCommand": "pnpm install",
   "functions": {
-    "api/*.ts": {
-      "runtime": "@vercel/node@3"
+    "api/**/*.ts": {
+      "runtime": "@vercel/node@3",
+      "maxDuration": 60,
+      "memory": 1024
     }
   },
   "rewrites": [
     {
-      "source": "/api/health",
-      "destination": "/api/health"
-    },
-    {
-      "source": "/api/server-status",
-      "destination": "/api/server-status"
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
     },
     {
       "source": "/((?!api/).*)",
@@ -26,8 +24,8 @@
     {
       "source": "/api/(.*)",
       "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "https://filenova.in" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, OPTIONS" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, PUT, DELETE, OPTIONS" },
         { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization" }
       ]
     },

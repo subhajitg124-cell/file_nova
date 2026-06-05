@@ -1,38 +1,47 @@
-// =====================================================================
-// FILE: api/health.ts
-// PLACE THIS AT YOUR PROJECT ROOT: /api/health.ts
-// Vercel auto-detects this as a Serverless Function.
-// This makes the "Server Unavailable" banner disappear immediately.
-// =====================================================================
-
 import type { VercelRequest, VercelResponse } from "@vercel/node";
+import pool from "../lib/vercel-db";
 
-export default function handler(req: VercelRequest, res: VercelResponse) {
-  // Allow CORS from your own domain
-  res.setHeader("Access-Control-Allow-Origin", "https://filenova.in");
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // Handle CORS (already covered by vercel.json headers, but kept here for safety)
+  res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
 
-  return res.status(200).json({
-    status: "ok",
-    service: "FileNova API",
-    timestamp: new Date().toISOString(),
-    version: "1.0.0",
-    environment: process.env.NODE_ENV || "production",
-    // These will show as "Unavailable" in admin until you deploy the full backend
-    features: {
-      libreOffice: false,   // needs full server deployment
-      ffmpeg: false,         // needs full server deployment
-      database: false,       // set to true after Railway deployment
-      mimeValidation: true,  // client-side, always active
-      rateLimit: true,       // client-side, always active
-      adminGuard: true,      // client-side, always active
-      secureFileDeletion: true, // client-side, always active
-    },
-    message: "FileNova static services are running. Full backend coming soon.",
-  });
+  try {
+    // Test database connection
+    const start = Date.now();
+    await pool.query("SELECT 1");
+    const dbLatency = Date.now() - start;
+
+    res.status(200).json({
+      status: "healthy",
+      timestamp: new Date().toISOString(),
+      version: "2.0.0",
+      services: {
+        database: "connected",
+        database_latency_ms: dbLatency,
+        storage: "available",
+        api: "operational",
+      },
+      uptime: process.uptime(),
+      environment: process.env.NODE_ENV || "development",
+    });
+  } catch (error: any) {
+    console.error("Health check failed:", error);
+
+    res.status(503).json({
+      status: "unhealthy",
+      timestamp: new Date().toISOString(),
+      error: error.message,
+      services: {
+        database: "disconnected",
+        storage: "unavailable",
+        api: "degraded",
+      },
+    });
+  }
 }

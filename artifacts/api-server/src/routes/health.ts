@@ -5,7 +5,7 @@ const router: IRouter = Router();
 
 // Health check - basic liveness probe (no auth required for load balancers)
 router.get("/healthz", (_req, res) => {
-  const data = HealthCheckResponse.parse({ status: "ok" });
+  const data = HealthCheckResponse.parse({ status: "healthy" });
   res.json(data);
 });
 

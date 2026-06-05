@@ -1,35 +1,41 @@
-// =====================================================================
-// FILE: api/server-status.ts
-// PLACE AT: /api/server-status.ts
-// Used by the Admin Dashboard "Backend Status" card
-// =====================================================================
-
 import type { VercelRequest, VercelResponse } from "@vercel/node";
+import pool from "../lib/vercel-db";
 
-export default function handler(req: VercelRequest, res: VercelResponse) {
-  res.setHeader("Access-Control-Allow-Origin", "https://filenova.in");
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-  res.setHeader("Cache-Control", "no-store");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-  if (req.method === "OPTIONS") return res.status(200).end();
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
 
-  const hasFullBackend = !!process.env.DATABASE_URL;
+  try {
+    // Get stats
+    const userCount = await pool.query("SELECT COUNT(*) FROM users");
+    const fileCount = await pool.query("SELECT COUNT(*) FROM files");
+    const revenue = await pool.query(`
+      SELECT COALESCE(SUM(amount), 0) as total 
+      FROM subscriptions 
+      WHERE status = 'active'
+    `);
 
-  return res.status(200).json({
-    online: true,
-    backendMode: hasFullBackend ? "full" : "static",
-    backendStatus: hasFullBackend ? "Online" : "Static Mode",
-    systemHealth: {
-      mimeValidation: { status: "active" },
-      rateLimit: { status: "active" },
-      adminGuard: { status: "active" },
-      secureFileDeletion: { status: "active" },
-      libreOffice: { status: hasFullBackend ? "active" : "unavailable" },
-      ffmpeg: { status: hasFullBackend ? "active" : "unavailable" },
-    },
-    registeredUsers: hasFullBackend ? null : 0,
-    activeSubscribers: hasFullBackend ? null : 0,
-    mtdRevenue: hasFullBackend ? null : 0,
-    timestamp: new Date().toISOString(),
-  });
+    res.status(200).json({
+      status: "online",
+      backend: "operational",
+      stats: {
+        total_users: parseInt(userCount.rows[0].count),
+        total_files: parseInt(fileCount.rows[0].count),
+        total_revenue: parseFloat(revenue.rows[0].total),
+        uptime: process.uptime(),
+      },
+      last_check: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      status: "offline",
+      backend: "error",
+      error: error.message,
+    });
+  }
 }

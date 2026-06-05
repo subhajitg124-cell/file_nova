@@ -6,10 +6,20 @@
     "build": "pnpm --filter @workspace/api-spec run codegen && pnpm run typecheck && pnpm -r --if-present run build",
     "test": "node --import tsx --test lib/db/src/db.test.ts artifacts/api-server/src/app.test.ts",
     "typecheck:libs": "tsc --build",
-    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck"
+    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck",
+    "init-db": "tsx scripts/init-db.ts"
   },
   "private": true,
+  "dependencies": {
+    "@vercel/blob": "^0.27.2",
+    "bcryptjs": "^3.0.2",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.13.3"
+  },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/pg": "^8.11.11",
     "@vercel/node": "^5.8.9",
     "prettier": "^3.8.3",
     "tsx": "catalog:",
