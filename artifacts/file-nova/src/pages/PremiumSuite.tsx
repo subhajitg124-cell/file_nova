@@ -29,6 +29,7 @@ import { FeatureKey, isFeatureEnabled, enabledFeatureKeys, isLowBandwidthMode } 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useSubscription } from "@/hooks/useSubscription";
 import { createUpiLink } from "@/lib/upi";
+import { UpiSupportModal } from "@/components/UpiSupportModal";
 
 const VoiceAssistant = React.lazy(() => import("@/components/VoiceAssistant").then((mod) => ({ default: mod.VoiceAssistant })));
 const AadhaarMasking = React.lazy(() => import("@/components/AadhaarMasking").then((mod) => ({ default: mod.AadhaarMasking })));
@@ -85,6 +86,20 @@ export default function PremiumSuite() {
 
   const [, setLocation] = useLocation();
   const { setSelectedSection, setOperation } = useFileStore();
+
+  const [upiOpen, setUpiOpen] = useState(false);
+  const [upiAmount, setUpiAmount] = useState(10);
+  const [upiNote, setUpiNote] = useState("Chai for FileNova");
+
+  const triggerUpi = (e: React.MouseEvent, amount: number, note: string) => {
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (!isMobile) {
+      e.preventDefault();
+      setUpiAmount(amount);
+      setUpiNote(note);
+      setUpiOpen(true);
+    }
+  };
 
   const handleVoiceCommand = (action: string, target: string) => {
     if (action === "compress") {
@@ -448,18 +463,27 @@ export default function PremiumSuite() {
         <div className="flex flex-wrap justify-center gap-4">
           <a
             href={createUpiLink(10, "Chai for FileNova")}
+            onClick={(e) => triggerUpi(e, 10, "Chai for FileNova")}
             className="inline-flex items-center gap-2 rounded-xl bg-card border border-border px-5 py-2.5 text-xs font-black hover:border-amber-500/40 hover:bg-amber-500/5 transition cursor-pointer"
           >
             <span>☕ Buy Chai (₹10)</span>
           </a>
           <a
             href={createUpiLink(50, "Support FileNova")}
+            onClick={(e) => triggerUpi(e, 50, "Support FileNova")}
             className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-black text-primary-foreground hover:opacity-90 shadow-glow cursor-pointer transition"
           >
             <span>❤️ Support Project (₹50)</span>
           </a>
         </div>
       </div>
+
+      <UpiSupportModal
+        isOpen={upiOpen}
+        onClose={() => setUpiOpen(false)}
+        amount={upiAmount}
+        note={upiNote}
+      />
     </section>
     </div>
   );

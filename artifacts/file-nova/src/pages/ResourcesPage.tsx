@@ -9,6 +9,7 @@ import {
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
 import { Footer } from "@/components/Footer";
 import { createUpiLink } from "@/lib/upi";
+import { UpiSupportModal } from "@/components/UpiSupportModal";
 import { useFileStore } from "@/store/useFileStore";
 import { WB_REQUIREMENTS, SchemeRequirement, DocumentSpec } from "@/data/wbRequirements";
 import { Confetti } from "@/components/AnimatedEffects";
@@ -37,6 +38,20 @@ export default function ResourcesPage() {
   const [isDragOver, setIsDragOver] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [upiOpen, setUpiOpen] = useState(false);
+  const [upiAmount, setUpiAmount] = useState(10);
+  const [upiNote, setUpiNote] = useState("Chai for FileNova");
+
+  const triggerUpi = (e: React.MouseEvent, amount: number, note: string) => {
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (!isMobile) {
+      e.preventDefault();
+      setUpiAmount(amount);
+      setUpiNote(note);
+      setUpiOpen(true);
+    }
+  };
 
   // Filter schemes
   const filteredSchemes = WB_REQUIREMENTS.filter((scheme) => {
@@ -638,12 +653,14 @@ export default function ResourcesPage() {
           <div className="flex flex-wrap justify-center gap-4">
             <a
               href={createUpiLink(10, "Chai for FileNova")}
+              onClick={(e) => triggerUpi(e, 10, "Chai for FileNova")}
               className="inline-flex items-center gap-2 rounded-xl bg-slate-900 hover:bg-slate-850 border border-slate-850 px-5 py-2.5 text-xs font-black hover:border-amber-500/40 hover:bg-amber-500/5 transition cursor-pointer"
             >
               <span>☕ Buy Chai (₹10)</span>
             </a>
             <a
               href={createUpiLink(50, "Support FileNova")}
+              onClick={(e) => triggerUpi(e, 50, "Support FileNova")}
               className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 px-5 py-2.5 text-xs font-black text-white shadow-glow-indigo cursor-pointer transition"
             >
               <span>❤️ Support Project (₹50)</span>
@@ -651,6 +668,13 @@ export default function ResourcesPage() {
           </div>
         </div>
       </section>
+
+      <UpiSupportModal
+        isOpen={upiOpen}
+        onClose={() => setUpiOpen(false)}
+        amount={upiAmount}
+        note={upiNote}
+      />
 
       <Footer />
     </div>

@@ -4,6 +4,7 @@ import SocialMediaLinks from "./SocialMediaLinks";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useTranslation } from "@/lib/i18n";
 import { createUpiLink } from "@/lib/upi";
+import { UpiSupportModal } from "./UpiSupportModal";
 
 const TelegramContact: React.FC = () => {
   const { user } = useAuthStore();
@@ -70,6 +71,19 @@ const WhatsAppContact: React.FC = () => {
 
 const Footer: React.FC = () => {
   const { tText } = useTranslation();
+  const [upiOpen, setUpiOpen] = React.useState(false);
+  const [upiAmount, setUpiAmount] = React.useState(10);
+  const [upiNote, setUpiNote] = React.useState("Chai for FileNova");
+
+  const triggerUpi = (e: React.MouseEvent, amount: number, note: string) => {
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (!isMobile) {
+      e.preventDefault();
+      setUpiAmount(amount);
+      setUpiNote(note);
+      setUpiOpen(true);
+    }
+  };
 
   return (
     <footer className="bg-slate-900 text-white relative z-10">
@@ -228,18 +242,27 @@ const Footer: React.FC = () => {
             <div className="flex gap-4">
               <a
                 href={createUpiLink(10, "Chai for FileNova")}
+                onClick={(e) => triggerUpi(e, 10, "Chai for FileNova")}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white rounded-xl text-xs font-black shadow-lg transition duration-200 transform hover:scale-105 active:scale-95"
               >
                 {tText("☕ Chai (₹10)")}
               </a>
               <a
                 href={createUpiLink(50, "Support FileNova")}
+                onClick={(e) => triggerUpi(e, 50, "Support FileNova")}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-650 text-white rounded-xl text-xs font-black shadow-lg transition duration-200 transform hover:scale-105 active:scale-95 border border-indigo-500/20"
               >
                 {tText("💖 Support (₹50)")}
               </a>
             </div>
           </div>
+
+          <UpiSupportModal
+            isOpen={upiOpen}
+            onClose={() => setUpiOpen(false)}
+            amount={upiAmount}
+            note={upiNote}
+          />
 
           <div className="flex justify-center gap-4 mt-6 text-xs flex-wrap">
             <a href="#" className="hover:text-white transition-colors">{tText("Privacy Policy")}</a>

@@ -5,6 +5,7 @@ import { PdfResultPreview } from './PdfResultPreview';
 import { QuickShareButton } from '@/components/WhatsAppShare';
 import { ShareButton } from '@/components/ShareButton';
 import { createUpiLink } from '@/lib/upi';
+import { UpiSupportModal } from '@/components/UpiSupportModal';
 
 const getDefaultFilename = (operation: string, format?: string): string => {
   switch (operation) {
@@ -57,6 +58,20 @@ export const DownloadHub: React.FC = () => {
   const [customFilename, setCustomFilename] = useState('');
   const [isEditingName, setIsEditingName] = useState(false);
   const [showChaiModal, setShowChaiModal] = useState(false);
+  const [upiOpen, setUpiOpen] = useState(false);
+  const [upiAmount, setUpiAmount] = useState(10);
+  const [upiNote, setUpiNote] = useState("Chai for FileNova");
+
+  const triggerUpi = (e: React.MouseEvent, amount: number, note: string) => {
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (!isMobile) {
+      e.preventDefault();
+      setUpiAmount(amount);
+      setUpiNote(note);
+      setUpiOpen(true);
+      setShowChaiModal(false);
+    }
+  };
 
   useEffect(() => {
     if (downloadUrl) {
@@ -323,7 +338,12 @@ export const DownloadHub: React.FC = () => {
             <div className="mt-6 flex flex-col gap-2">
               <a
                 href={createUpiLink(10, "Chai for FileNova")}
-                onClick={() => setShowChaiModal(false)}
+                onClick={(e) => {
+                  triggerUpi(e, 10, "Chai for FileNova");
+                  if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                    setShowChaiModal(false);
+                  }
+                }}
                 className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white py-3 text-sm font-black shadow-glow cursor-pointer transition"
               >
                 <span>☕ Buy Chai (₹10)</span>
@@ -338,6 +358,13 @@ export const DownloadHub: React.FC = () => {
           </div>
         </div>
       )}
+
+      <UpiSupportModal
+        isOpen={upiOpen}
+        onClose={() => setUpiOpen(false)}
+        amount={upiAmount}
+        note={upiNote}
+      />
     </div>
   );
 };
