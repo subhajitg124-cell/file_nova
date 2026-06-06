@@ -38,9 +38,9 @@ export function FloatingShortcuts() {
     {
       id: "resources",
       icon: <FolderOpen className="h-5.5 w-5.5" />,
-      label: tText("Resources"),
+      label: tText("WB Schemes & Exams Guide"),
       color: "#14b8a6",
-      onClick: () => window.open("/resources", "_self"),
+      onClick: () => window.open("/resources?tab=guide", "_self"),
     },
     {
       id: "help",
