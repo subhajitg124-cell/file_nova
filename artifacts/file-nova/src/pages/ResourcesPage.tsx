@@ -69,6 +69,18 @@ export default function ResourcesPage() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   }, [selectedScheme]);
 
+  // Set active tab based on query param or hash on mount/location change
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tabParam = params.get("tab");
+    const hash = window.location.hash;
+    if (tabParam === "operator" || hash === "#operator") {
+      setActiveTab("operator");
+    } else if (tabParam === "guide" || hash === "#guide") {
+      setActiveTab("guide");
+    }
+  }, []);
+
   // Check if all mandatory documents are valid
   const checkOverallSuccess = (results: Record<string, ValidationResult>) => {
     const mandatoryDocs = selectedScheme.documents.filter(d => d.mandatory);

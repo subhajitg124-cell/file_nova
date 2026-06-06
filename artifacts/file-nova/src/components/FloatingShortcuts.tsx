@@ -50,12 +50,12 @@ export function FloatingShortcuts() {
       onClick: () => window.open("/contact", "_self"),
     },
     {
-      id: "hostinger",
+      id: "deals",
       icon: <Gift className="h-5.5 w-5.5" />,
-      label: tText("Get Hosting Deal (75% Off)"),
+      label: tText("CSC Operator Toolkit"),
       color: "#5046e4",
       badge: 3,
-      onClick: () => window.open("https://www.hostinger.in/", "_blank"),
+      onClick: () => window.open("/resources?tab=operator", "_self"),
     },
     {
       id: "email",
