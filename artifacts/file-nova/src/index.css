@@ -98,6 +98,21 @@
   @supports (scrollbar-width: none) {
     .no-scrollbar { scrollbar-width: none; }
   }
+
+  /* ── Autofill overrides ─ defeat browser yellow tint ──────────────────── */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active,
+  textarea:-webkit-autofill,
+  select:-webkit-autofill {
+    -webkit-text-fill-color: var(--foreground) !important;
+    -webkit-box-shadow: 0 0 0 1000px var(--card) inset !important;
+    box-shadow: 0 0 0 1000px var(--card) inset !important;
+    border-color: var(--border) !important;
+    caret-color: var(--foreground);
+    transition: background-color 9999s ease-in-out 0s;
+  }
 }
 
 /* ── Keyframes ───────────────────────────────────────────────────────────── */
@@ -144,6 +159,10 @@
 @keyframes shimmer {
   from { background-position: -200% center; }
   to   { background-position:  200% center; }
+}
+@keyframes skeleton-shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
 }
 @keyframes shimmer-border {
   0%   { background-position: 0% 50%; }
@@ -429,6 +448,20 @@
     background-position: 0 0, 0 100%, 0 0, 100% 0;
     background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
     animation: march 0.4s linear infinite;
+  }
+
+  /* ── Skeleton loader ─────────────────────────────────────────────────────── */
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--muted)                  0%,
+      color-mix(in srgb, var(--muted) 60%, var(--border)) 40%,
+      color-mix(in srgb, var(--muted) 60%, var(--border)) 60%,
+      var(--muted)                  100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.6s ease-in-out infinite;
+    border-radius: var(--radius-sm, 6px);
   }
 }
 
@@ -1009,11 +1042,16 @@ header[class*="sticky"] {
   font-weight: 600;
   padding: 6px 12px;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
   white-space: nowrap;
   pointer-events: none;
   z-index: 9999;
-  animation: fab-tooltip-fade-in 0.15s ease forwards;
+  animation: fab-tooltip-fade-in 150ms ease forwards;
+}
+
+.dark .fab-tooltip {
+  background: #1f2937;
+  color: #ffffff;
 }
 
 .fab-arrow {
@@ -1023,6 +1061,10 @@ header[class*="sticky"] {
   transform: translateY(-50%);
   border: 5px solid transparent;
   border-left-color: #ffffff;
+}
+
+.dark .fab-arrow {
+  border-left-color: #1f2937;
 }
 
 .fab-badge {
@@ -1042,3 +1084,20 @@ header[class*="sticky"] {
   justify-content: center;
   line-height: 1;
 }
+
+/* ── Custom Animations ── */
+@keyframes progress {
+  0% { width: 0%; }
+  70% { width: 75%; }
+  100% { width: 75%; }
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeSlideUp {
+  animation: fadeSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+

@@ -63,6 +63,11 @@ app.use(apiLimiter);
 app.use("/api/v1", requestTimeout(30000), apiV1Router);
 app.use("/api", requestTimeout(30000), router);
 
+// Redirect fallback for short URLs /s/:id
+app.get("/s/:id", (req, res) => {
+  res.redirect(`/api/share/${req.params.id}`);
+});
+
 // ── Global error handler ─────────────────────────────────────────────────────
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   logger.error({ err, stack: err.stack }, "Unhandled error in API");

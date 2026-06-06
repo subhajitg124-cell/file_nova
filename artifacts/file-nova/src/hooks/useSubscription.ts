@@ -120,7 +120,8 @@ export function useSubscription() {
     elite: 19900,
   };
 
-  const startCheckout = async (plan: "basic" | "pro" | "elite", coupon?: string) => {
+  const startCheckout = async (plan: "basic" | "pro" | "elite" | "pro_monthly", coupon?: string) => {
+    const targetPlan = plan === "pro_monthly" ? "basic" : plan;
     setLoading(true);
     try {
       const isLoaded = await loadRazorpayScript();
@@ -134,11 +135,11 @@ export function useSubscription() {
       if (coupon) {
         const code = coupon.toUpperCase().trim();
         if (code === "STUDENT20") discountPercentage = 20;
-        else if (code === "CYBER50" && plan === "elite") discountPercentage = 50;
+        else if (code === "CYBER50" && targetPlan === "elite") discountPercentage = 50;
         else if (code === "FIRST30") discountPercentage = 30;
         else if (code === "WB10") discountPercentage = 10;
       }
-      let amount = PLAN_PRICES_PAISE[plan];
+      let amount = PLAN_PRICES_PAISE[targetPlan];
       if (discountPercentage > 0) {
         amount = Math.round(amount * (1 - discountPercentage / 100));
       }
@@ -152,7 +153,7 @@ export function useSubscription() {
       const res = await fetch(`${BACKEND_URL}/api/payments/create-order`, {
         method: "POST",
         headers,
-        body: JSON.stringify({ plan, amount, coupon }),
+        body: JSON.stringify({ plan: targetPlan, amount, coupon }),
       });
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
@@ -162,7 +163,7 @@ export function useSubscription() {
         amount: data.amount,
         currency: data.currency,
         name: "FileNova Premium",
-        description: `Upgrade to ${plan.toUpperCase()}`,
+        description: `Upgrade to ${targetPlan.toUpperCase()}`,
         order_id: data.orderId,
         handler: async (response: any) => {
           setLoading(true);
@@ -180,7 +181,7 @@ export function useSubscription() {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
-                plan,
+                plan: targetPlan,
               }),
             });
             if (!verifyRes.ok) throw new Error("Payment verification failed");
@@ -224,7 +225,7 @@ export function useSubscription() {
               body: JSON.stringify({
                 razorpay_order_id: data.orderId,
                 razorpay_payment_id: `pay_mock_${Math.random().toString(36).slice(2)}`,
-                plan,
+                plan: targetPlan,
               }),
             });
             if (!verifyRes.ok) throw new Error("Mock verification failed");

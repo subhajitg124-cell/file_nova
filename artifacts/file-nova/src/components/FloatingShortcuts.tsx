@@ -98,7 +98,7 @@ export function FloatingShortcuts() {
             aria-label={s.label}
             title={s.label}
             className="fab-btn"
-            style={{ background: hoveredIndex === i ? '#4338ca' : s.color }}
+            style={{ background: hoveredIndex === i ? '#4338ca' : '#5046e4' }}
             onMouseEnter={() => setHoveredIndex(i)}
             onMouseLeave={() => setHoveredIndex(null)}
             onClick={s.onClick}

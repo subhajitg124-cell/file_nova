@@ -6,6 +6,7 @@
 import React, { useState, useRef, useCallback } from "react";
 import { Mic, MicOff, Volume2, VolumeX, Globe2, Zap } from "lucide-react";
 import { toast } from "sonner";
+import { useLocation } from "wouter";
 
 type VoiceLang = "en" | "hi" | "bn";
 
@@ -107,12 +108,20 @@ const ACTION_LABELS: Record<string, string> = {
 };
 
 export function VoiceAssistant({ onCommand }: VoiceAssistantProps) {
+  const [, setLocation] = useLocation();
   const [language, setLanguage] = useState<VoiceLang>("en");
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [lastCommand, setLastCommand] = useState<ParsedCommand | null>(null);
   const recognitionRef = useRef<any>(null);
+
+  // Guard: if browser doesn't support SpeechRecognition, render nothing
+  const SpeechRecognitionAPI =
+    typeof window !== "undefined"
+      ? (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+      : null;
+  if (!SpeechRecognitionAPI) return null;
 
   const initializeSpeechRecognition = useCallback(() => {
     // Always recreate to update language
@@ -151,6 +160,11 @@ export function VoiceAssistant({ onCommand }: VoiceAssistantProps) {
       if (parsed) {
         setLastCommand(parsed);
         onCommand?.(parsed.action, parsed.target);
+        // Route workspace commands to /workspace
+        const workspaceActions = ["compress", "merge", "resize", "ocr", "convert", "split", "watermark", "enhance", "upload", "aadhaar-mask"];
+        if (workspaceActions.includes(parsed.action)) {
+          setLocation("/workspace");
+        }
         toast.success(`Voice command: ${parsed.action} → ${parsed.target}`);
         speak(
           language === "hi"

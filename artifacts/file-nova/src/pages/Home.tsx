@@ -8,6 +8,8 @@ import { OptionsPanel } from '@/components/workspace/OptionsPanel';
 import { ProgressTracker } from '@/components/workspace/ProgressTracker';
 import { DownloadHub } from '@/components/workspace/DownloadHub';
 import { motion } from 'framer-motion';
+import { BulkProcessor } from '@/components/BulkProcessor';
+import { useLocation } from 'wouter';
 import {
   Sun, Moon, ShieldCheck, Zap, AlertTriangle, FileText, Sparkles,
   Video, FileSpreadsheet, ArrowLeft, FolderOpen, Cpu, Lock
@@ -87,9 +89,11 @@ const TRUST_BADGES = [
 ];
 
 export default function Home() {
+  const [, setLocation] = useLocation();
   const {
     files, selectedOperation, isProcessing, downloadUrl, isMockMode, toggleMockMode,
-    backendHealthy, backendCapabilities, setBackendStatus, selectedSection, setSelectedSection, clearStore
+    backendHealthy, backendCapabilities, setBackendStatus, selectedSection, setSelectedSection, clearStore,
+    rawFiles
   } = useFileStore();
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
 
@@ -139,7 +143,7 @@ export default function Home() {
       <header className="sticky top-0 z-50 glass border-b border-border/60">
         <div className="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between">
           <button
-            onClick={() => clearStore()}
+            onClick={() => { clearStore(); setLocation('/'); }}
             className="flex items-center gap-2.5 group focus:outline-none"
             aria-label="Back to home"
           >
@@ -393,7 +397,22 @@ export default function Home() {
             {/* Step 2: configure + process */}
             {step === 2 && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-                {isProcessing ? (
+                {rawFiles.length > 1 ? (
+                  <div className="max-w-4xl mx-auto space-y-6">
+                    <div className="flex items-center justify-between border-b border-border pb-4">
+                      <button
+                        onClick={() => useFileStore.setState({ selectedOperation: null })}
+                        className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground font-bold uppercase tracking-wider transition-colors"
+                      >
+                        <ArrowLeft className="h-3 w-3" /> Change Operation
+                      </button>
+                      <span className="text-xs font-bold bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 px-3 py-1 rounded-full uppercase tracking-wider">
+                        Ready to process
+                      </span>
+                    </div>
+                    <BulkProcessor />
+                  </div>
+                ) : isProcessing ? (
                   <ProgressTracker />
                 ) : (
                   <div className="space-y-8">
