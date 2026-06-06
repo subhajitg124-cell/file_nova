@@ -46,7 +46,7 @@ FileMaster AI is a document automation platform for Indian government, scholarsh
 
 ## Processing flow
 
-1. User selects an event such as Scholarship ZIP Maker or Lakshmir Bhandar.
+1. User selects an event such as Scholarship ZIP Maker or Annapurna Bhandar Scheme.
 2. Frontend loads the event rule and shows required documents.
 3. User uploads files through resumable upload.
 4. API creates a processing job and stores raw uploads in temporary encrypted storage.

@@ -262,26 +262,22 @@ export const WB_REQUIREMENTS: SchemeRequirement[] = [
     ]
   },
   {
-    id: "lakshmir-bhandar",
-    name: "Lakshmir Bhandar Yojna",
-    bengaliName: "লক্ষ্মীর ভান্ডার প্রকল্প",
+    id: "annapurna-bhandar",
+    name: "Annapurna Bhandar Scheme",
+    bengaliName: "অন্নপূর্ণা ভান্ডার প্রকল্প",
     category: "scheme",
-    department: "Women & Child Development, West Bengal",
-    officialWebsite: "https://socialsecurity.wb.gov.in",
-    portalLink: "https://socialsecurity.wb.gov.in",
+    department: "Women and Child Welfare Department, West Bengal",
+    officialWebsite: "https://socialsecurity.wb.gov.in/login",
+    portalLink: "https://socialsecurity.wb.gov.in/login",
     eligibility: [
-      "Female head of family aged between 25 and 60 years",
-      "Resident of West Bengal",
-      "Should not be a permanent government employee"
+      "Must be a woman",
+      "Permanent resident of West Bengal",
+      "Aged between 25 and 60 years",
+      "Not an income taxpayer",
+      "Not a permanent/retired government employee",
+      "Not receiving salary/pension from state/central govt, panchayat, municipality, or government-aided institution"
     ],
     documents: [
-      {
-        name: "Swasthya Sathi Card",
-        format: "PDF",
-        maxSizeKB: 400,
-        description: "Copy of the Swasthya Sathi Card showing applicant name",
-        mandatory: true
-      },
       {
         name: "Aadhaar Card",
         format: "PDF",
@@ -290,17 +286,24 @@ export const WB_REQUIREMENTS: SchemeRequirement[] = [
         mandatory: true
       },
       {
-        name: "Caste Certificate",
+        name: "Voter ID Card",
         format: "PDF",
         maxSizeKB: 300,
-        description: "SC/ST Caste certificate to receive enhanced financial aid (₹1200 instead of ₹1000)",
-        mandatory: false
+        description: "Copy of Voter ID card",
+        mandatory: true
       },
       {
-        name: "Single Savings Bank Account Passbook",
+        name: "Residence Proof",
         format: "PDF",
         maxSizeKB: 400,
-        description: "DBT-enabled bank account details",
+        description: "Proof of permanent residence in West Bengal",
+        mandatory: true
+      },
+      {
+        name: "Bank Passbook / Account Statement",
+        format: "PDF",
+        maxSizeKB: 400,
+        description: "Aadhaar-linked bank account passbook copy or statement",
         mandatory: true
       },
       {
@@ -308,11 +311,11 @@ export const WB_REQUIREMENTS: SchemeRequirement[] = [
         format: "JPG",
         maxSizeKB: 50,
         dimensions: { width: 150, height: 180, unit: "px" },
-        description: "Recent colored passport photo of the female applicant",
+        description: "Recent colored passport photo of the applicant",
         mandatory: true
       }
     ],
-    notes: "Swasthya Sathi card is mandatory unless an exemption is declared at Duare Sarkar camps."
+    notes: "Annapurna Bhandar Scheme is a West Bengal government initiative providing ₹3,000 per month directly to eligible women's Aadhaar-linked bank accounts. Launched on 3 June 2026, it replaces the earlier Lakshmir Bhandar Scheme and covers women aged 25–60 years who are permanent residents of West Bengal and not government employees or income taxpayers."
   },
 
   // --- ENTRANCE EXAMS ---
