@@ -52,7 +52,7 @@ export function FloatingShortcuts() {
     {
       id: "hostinger",
       icon: <Gift className="h-5.5 w-5.5" />,
-      label: tText("Deals & Promos"),
+      label: tText("Get Hosting Deal (75% Off)"),
       color: "#5046e4",
       badge: 3,
       onClick: () => window.open("https://www.hostinger.in/", "_blank"),
