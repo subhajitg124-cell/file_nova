@@ -24,6 +24,41 @@ interface Shortcut {
   tooltip: string;
 }
 
+interface FloatingShortcutButtonProps {
+  shortcut: Shortcut;
+}
+
+function FloatingShortcutButton({ shortcut }: FloatingShortcutButtonProps) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <motion.div
+      whileHover={{ scale: 1.18, y: -4 }}
+      whileTap={{ scale: 0.95 }}
+      className="relative flex items-center shrink-0"
+    >
+      <AnimatePresence>
+        {hovered && (
+          <div className="absolute right-14 whitespace-nowrap bg-white dark:bg-gray-800 text-gray-800 dark:text-white text-sm font-medium px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-lg animate-fadeInRight z-[120]">
+            {shortcut.tooltip}
+            <span className="absolute -right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 bg-white dark:bg-gray-800 border-r border-t border-gray-200 dark:border-gray-700 rotate-45" />
+          </div>
+        )}
+      </AnimatePresence>
+      <button
+        onClick={shortcut.action}
+        aria-label={shortcut.tooltip}
+        title={shortcut.tooltip}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        className={`w-10 h-10 rounded-xl ${shortcut.color} text-white flex items-center justify-center shadow-lg transition-all cursor-pointer`}
+      >
+        {shortcut.icon}
+      </button>
+    </motion.div>
+  );
+}
+
 export function FloatingShortcuts() {
   const [isOpen, setIsOpen] = useState(false);
   const { user } = useAuthStore();
@@ -112,12 +147,12 @@ export function FloatingShortcuts() {
           borderRadius: 20,
         }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        className="hidden md:flex items-center bg-slate-900/35 backdrop-blur-xl border border-white/10 p-1.5 shadow-[0_8px_32px_rgba(0,0,0,0.37)] gap-2 select-none overflow-hidden"
+        className="hidden md:flex items-center bg-white/75 dark:bg-slate-900/35 backdrop-blur-xl border border-slate-200/80 dark:border-white/10 p-1.5 shadow-[0_8px_32px_rgba(99,102,241,0.05)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.37)] gap-2 select-none overflow-hidden"
       >
         {/* Toggle Button */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="w-11 h-11 rounded-full bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 hover:from-indigo-500/30 hover:to-purple-500/30 border border-white/10 hover:border-white/20 flex items-center justify-center text-white cursor-pointer transition-all shadow-inner shrink-0"
+          className="w-11 h-11 rounded-full bg-gradient-to-tr from-indigo-500/10 to-purple-500/10 dark:from-indigo-500/20 dark:to-purple-500/20 hover:from-indigo-500/20 hover:to-purple-500/20 dark:hover:from-indigo-500/30 dark:hover:to-purple-500/30 border border-indigo-100 dark:border-white/10 hover:border-indigo-200 dark:hover:border-white/20 flex items-center justify-center text-indigo-650 dark:text-white cursor-pointer transition-all shadow-inner shrink-0"
           title={isOpen ? tText("Collapse menu") : tText("Expand shortcuts")}
           aria-label={isOpen ? tText("Collapse menu") : tText("Expand shortcuts")}
         >
@@ -128,7 +163,7 @@ export function FloatingShortcuts() {
 
         {/* Divider */}
         {isOpen && (
-          <div className="h-6 w-px bg-white/10 shrink-0 animate-fade-in" />
+          <div className="h-6 w-px bg-slate-200 dark:bg-white/10 shrink-0 animate-fade-in" />
         )}
 
         {/* Expanded Horizontal Icons */}
@@ -141,26 +176,7 @@ export function FloatingShortcuts() {
               className="flex items-center gap-2 pr-2 overflow-hidden whitespace-nowrap"
             >
               {shortcuts.map((s) => (
-                <motion.div
-                  key={s.id}
-                  whileHover={{ scale: 1.18, y: -4 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="relative group shrink-0"
-                >
-                  <button
-                    onClick={s.action}
-                    className={`w-10 h-10 rounded-xl ${s.color} text-white flex items-center justify-center shadow-lg transition-all cursor-pointer`}
-                    title={s.tooltip}
-                    aria-label={s.tooltip}
-                  >
-                    {s.icon}
-                  </button>
-                  {/* Tooltip */}
-                  <div className="absolute bottom-14 left-1/2 -translate-x-1/2 bg-slate-950/90 backdrop-blur-md border border-white/10 text-white px-2.5 py-1.5 rounded-xl text-[10px] font-bold whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity shadow-xl z-[120]">
-                    {s.tooltip}
-                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-950 border-r border-b border-white/10 rotate-45"></div>
-                  </div>
-                </motion.div>
+                <FloatingShortcutButton key={s.id} shortcut={s} />
               ))}
             </motion.div>
           )}
@@ -209,7 +225,7 @@ export function FloatingShortcuts() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setIsOpen(false)}
-                className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-[104]"
+                className="fixed inset-0 bg-black/25 dark:bg-slate-950/40 backdrop-blur-sm z-[104]"
               />
 
               <motion.div
@@ -217,18 +233,18 @@ export function FloatingShortcuts() {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.92, y: 15 }}
                 transition={{ type: "spring", stiffness: 350, damping: 25 }}
-                className="fixed left-4 right-4 bottom-24 z-[105] backdrop-blur-2xl bg-slate-950/80 border border-white/10 p-5 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col gap-4"
+                className="fixed left-4 right-4 bottom-24 z-[105] backdrop-blur-2xl bg-white/95 dark:bg-slate-950/80 border border-slate-200 dark:border-white/10 p-5 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col gap-4"
               >
-                <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/5 pb-2">
                   <div>
-                    <h3 className="text-xs font-black text-white/90 tracking-wide uppercase">{tText("Quick Navigation")}</h3>
-                    <p className="text-[10px] text-slate-400 mt-0.5">{tText("Access features instantly")}</p>
+                    <h3 className="text-xs font-black text-slate-800 dark:text-white/90 tracking-wide uppercase">{tText("Quick Navigation")}</h3>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{tText("Access features instantly")}</p>
                   </div>
                   <button 
                     onClick={() => setIsOpen(false)} 
                     title={tText("Close menu")}
                     aria-label={tText("Close menu")}
-                    className="w-7 h-7 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-white/60 hover:text-white cursor-pointer"
+                    className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-500 dark:text-white/60 hover:text-slate-800 dark:hover:text-white cursor-pointer"
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -239,12 +255,12 @@ export function FloatingShortcuts() {
                     <button
                       key={s.id}
                       onClick={() => { s.action(); setIsOpen(false); }}
-                      className="flex flex-col items-center justify-center gap-2 p-3 rounded-2xl bg-white/5 hover:bg-white/10 active:bg-white/15 border border-white/5 active:scale-95 transition-all text-center group cursor-pointer"
+                      className="flex flex-col items-center justify-center gap-2 p-3 rounded-2xl bg-slate-50 hover:bg-slate-100/80 dark:bg-white/5 dark:hover:bg-white/10 active:bg-slate-100 dark:active:bg-white/15 border border-slate-200/60 dark:border-white/5 active:scale-95 transition-all text-center group cursor-pointer"
                     >
                       <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-white shadow-lg ${s.color}`}>
                         {s.icon}
                       </div>
-                      <span className="text-[10px] font-bold text-slate-200 group-hover:text-white leading-tight truncate w-full">{s.label}</span>
+                      <span className="text-[10px] font-bold text-slate-600 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white leading-tight truncate w-full">{s.label}</span>
                     </button>
                   ))}
                 </div>

@@ -227,7 +227,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
         <div className="px-6 pb-6 space-y-4">
           {hasGoogleClientId && (
             <>
-              <div className="flex justify-center rounded-xl bg-white p-1 shadow-sm">
+              <div className="flex justify-center rounded-[12px] bg-white p-1 shadow-sm overflow-hidden">
                 <GoogleLogin
                   onSuccess={handleGoogleSuccess}
                   onError={() => toast.error("Google sign in was cancelled or failed.")}
@@ -246,7 +246,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
           )}
 
           {activeTab === "login" ? (
-            <form onSubmit={handleLoginSubmit} className="space-y-3.5">
+            <form onSubmit={handleLoginSubmit} className="space-y-3.5" autoComplete="off">
               <div className="relative">
                 <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <input
@@ -257,8 +257,11 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                     setLoginIdentifier(e.target.value);
                     setEmailError("");
                   }}
-                  autoComplete="username"
-                  className="w-full pl-9 pr-4 py-3 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none min-h-[44px]"
+                  autoComplete="off"
+                  name="login-email"
+                  readOnly
+                  onFocus={(e) => e.target.removeAttribute('readonly')}
+                  className="w-full pl-9 pr-4 py-3 bg-background border border-border rounded-[12px] text-sm focus:border-primary focus:outline-none min-h-[44px]"
                 />
               </div>
               {emailError && <p className="text-xs font-bold text-destructive px-1">{emailError}</p>}
@@ -274,7 +277,10 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                     setPasswordError("");
                   }}
                   autoComplete="new-password"
-                  className="w-full pl-9 pr-4 py-3 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none min-h-[44px]"
+                  name="login-password"
+                  readOnly
+                  onFocus={(e) => e.target.removeAttribute('readonly')}
+                  className="w-full pl-9 pr-4 py-3 bg-background border border-border rounded-[12px] text-sm focus:border-primary focus:outline-none min-h-[44px]"
                 />
               </div>
               {passwordError && <p className="text-xs font-bold text-destructive px-1">{passwordError}</p>}
@@ -294,13 +300,13 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 bg-primary text-primary-foreground font-black text-sm rounded-xl shadow-glow transition hover:opacity-90 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full py-3.5 bg-primary text-primary-foreground font-black text-sm rounded-[12px] shadow-glow transition hover:opacity-90 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {loading ? <Loader className="h-4 w-4 animate-spin" /> : <><span>Sign In</span><ArrowRight className="h-4 w-4" /></>}
               </button>
             </form>
           ) : (
-            <form onSubmit={handleSignupSubmit} className="space-y-3">
+            <form onSubmit={handleSignupSubmit} className="space-y-3" autoComplete="off">
               <div className="relative">
                 <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <input
@@ -308,8 +314,11 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                   placeholder="Full Name"
                   value={signupName}
                   onChange={(e) => setSignupName(e.target.value)}
-                  autoComplete="name"
-                  className="w-full pl-9 pr-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none"
+                  autoComplete="off"
+                  name="signup-name"
+                  readOnly
+                  onFocus={(e) => e.target.removeAttribute('readonly')}
+                  className="w-full pl-9 pr-4 py-2.5 bg-background border border-border rounded-[12px] text-sm focus:border-primary focus:outline-none"
                 />
               </div>
 
@@ -323,8 +332,11 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                     setSignupEmail(e.target.value);
                     setEmailError("");
                   }}
-                  autoComplete="email"
-                  className="w-full pl-9 pr-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none"
+                  autoComplete="off"
+                  name="signup-email"
+                  readOnly
+                  onFocus={(e) => e.target.removeAttribute('readonly')}
+                  className="w-full pl-9 pr-4 py-2.5 bg-background border border-border rounded-[12px] text-sm focus:border-primary focus:outline-none"
                 />
               </div>
               {emailError && <p className="text-xs font-bold text-destructive px-1">{emailError}</p>}
@@ -336,8 +348,11 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                   placeholder="Phone Number (e.g. 9876543210)"
                   value={signupPhone}
                   onChange={(e) => setSignupPhone(e.target.value)}
-                  autoComplete="tel"
-                  className="w-full pl-9 pr-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none"
+                  autoComplete="off"
+                  name="signup-phone"
+                  readOnly
+                  onFocus={(e) => e.target.removeAttribute('readonly')}
+                  className="w-full pl-9 pr-4 py-2.5 bg-background border border-border rounded-[12px] text-sm focus:border-primary focus:outline-none"
                 />
               </div>
 
@@ -352,7 +367,10 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                     setPasswordError("");
                   }}
                   autoComplete="new-password"
-                  className="w-full pl-9 pr-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none"
+                  name="signup-password"
+                  readOnly
+                  onFocus={(e) => e.target.removeAttribute('readonly')}
+                  className="w-full pl-9 pr-4 py-2.5 bg-background border border-border rounded-[12px] text-sm focus:border-primary focus:outline-none"
                 />
               </div>
               {passwordError && <p className="text-xs font-bold text-destructive px-1">{passwordError}</p>}
@@ -362,7 +380,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 bg-primary text-primary-foreground font-black text-sm rounded-xl shadow-glow transition hover:opacity-90 flex items-center justify-center gap-2 cursor-pointer mt-1 disabled:opacity-50"
+                className="w-full py-3.5 bg-primary text-primary-foreground font-black text-sm rounded-[12px] shadow-glow transition hover:opacity-90 flex items-center justify-center gap-2 cursor-pointer mt-1 disabled:opacity-50"
               >
                 {loading ? <Loader className="h-4 w-4 animate-spin" /> : <><span>Create Account</span><ArrowRight className="h-4 w-4" /></>}
               </button>

@@ -305,7 +305,7 @@ const isValidationError = (err: string): boolean => {
           <div className="space-y-4">
             {hasGoogleClientId && (
               <>
-                <div className="flex justify-center rounded-xl bg-white p-1 shadow-sm">
+                <div className="flex justify-center rounded-[12px] bg-white p-1 shadow-sm overflow-hidden">
                   <GoogleLogin
                     onSuccess={handleGoogleSuccess}
                     onError={() => toast.error("Google sign in was cancelled or failed.")}
@@ -324,7 +324,7 @@ const isValidationError = (err: string): boolean => {
             )}
 
             {activeTab === "login" ? (
-              <form onSubmit={handleLoginSubmit} className="space-y-3.5">
+              <form onSubmit={handleLoginSubmit} className="space-y-3.5" autoComplete="off">
                 <div className="relative">
                   <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
                   <input
@@ -335,8 +335,11 @@ const isValidationError = (err: string): boolean => {
                       setLoginIdentifier(e.target.value);
                       setEmailError("");
                     }}
-                    autoComplete="username"
-                    className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none transition-all focus:ring-1 focus:ring-primary"
+                    autoComplete="off"
+                    name="login-email"
+                    readOnly
+                    onFocus={(e) => e.target.removeAttribute('readonly')}
+                    className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-[12px] text-sm focus:border-primary focus:outline-none transition-all focus:ring-1 focus:ring-primary"
                   />
                 </div>
                 {emailError && <p className="text-xs font-bold text-destructive px-1">{emailError}</p>}
@@ -351,8 +354,11 @@ const isValidationError = (err: string): boolean => {
                       setLoginPassword(e.target.value);
                       setPasswordError("");
                     }}
-                    autoComplete="current-password"
-                    className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none transition-all focus:ring-1 focus:ring-primary"
+                    autoComplete="new-password"
+                    name="login-password"
+                    readOnly
+                    onFocus={(e) => e.target.removeAttribute('readonly')}
+                    className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-[12px] text-sm focus:border-primary focus:outline-none transition-all focus:ring-1 focus:ring-primary"
                   />
                 </div>
                 {passwordError && <p className="text-xs font-bold text-destructive px-1">{passwordError}</p>}
@@ -372,13 +378,13 @@ const isValidationError = (err: string): boolean => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 bg-primary text-primary-foreground font-black text-sm rounded-xl shadow-glow transition hover:opacity-90 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="w-full py-3 bg-primary text-primary-foreground font-black text-sm rounded-[12px] shadow-glow transition hover:opacity-90 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {loading ? <Loader className="h-4 w-4 animate-spin" /> : <><span>Sign In</span><ArrowRight className="h-4 w-4" /></>}
                 </button>
               </form>
             ) : (
-              <form onSubmit={handleSignupSubmit} className="space-y-3.5">
+              <form onSubmit={handleSignupSubmit} className="space-y-3.5" autoComplete="off">
                 <div className="relative">
                   <User className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
                   <input
@@ -386,8 +392,11 @@ const isValidationError = (err: string): boolean => {
                     placeholder="Full Name"
                     value={signupName}
                     onChange={(e) => setSignupName(e.target.value)}
-                    autoComplete="name"
-                    className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none transition-all focus:ring-1 focus:ring-primary"
+                    autoComplete="off"
+                    name="signup-name"
+                    readOnly
+                    onFocus={(e) => e.target.removeAttribute('readonly')}
+                    className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-[12px] text-sm focus:border-primary focus:outline-none transition-all focus:ring-1 focus:ring-primary"
                   />
                 </div>
 
@@ -401,8 +410,11 @@ const isValidationError = (err: string): boolean => {
                       setSignupEmail(e.target.value);
                       setEmailError("");
                     }}
-                    autoComplete="email"
-                    className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none transition-all focus:ring-1 focus:ring-primary"
+                    autoComplete="off"
+                    name="signup-email"
+                    readOnly
+                    onFocus={(e) => e.target.removeAttribute('readonly')}
+                    className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-[12px] text-sm focus:border-primary focus:outline-none transition-all focus:ring-1 focus:ring-primary"
                   />
                 </div>
                 {emailError && <p className="text-xs font-bold text-destructive px-1">{emailError}</p>}
@@ -414,8 +426,11 @@ const isValidationError = (err: string): boolean => {
                     placeholder="Phone (e.g. 9876543210)"
                     value={signupPhone}
                     onChange={(e) => setSignupPhone(e.target.value)}
-                    autoComplete="tel"
-                    className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none transition-all focus:ring-1 focus:ring-primary"
+                    autoComplete="off"
+                    name="signup-phone"
+                    readOnly
+                    onFocus={(e) => e.target.removeAttribute('readonly')}
+                    className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-[12px] text-sm focus:border-primary focus:outline-none transition-all focus:ring-1 focus:ring-primary"
                   />
                 </div>
 
@@ -430,7 +445,10 @@ const isValidationError = (err: string): boolean => {
                       setPasswordError("");
                     }}
                     autoComplete="new-password"
-                    className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none transition-all focus:ring-1 focus:ring-primary"
+                    name="signup-password"
+                    readOnly
+                    onFocus={(e) => e.target.removeAttribute('readonly')}
+                    className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-[12px] text-sm focus:border-primary focus:outline-none transition-all focus:ring-1 focus:ring-primary"
                   />
                 </div>
                 {passwordError && <p className="text-xs font-bold text-destructive px-1">{passwordError}</p>}
@@ -440,7 +458,7 @@ const isValidationError = (err: string): boolean => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 bg-primary text-primary-foreground font-black text-sm rounded-xl shadow-glow transition hover:opacity-90 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="w-full py-3 bg-primary text-primary-foreground font-black text-sm rounded-[12px] shadow-glow transition hover:opacity-90 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {loading ? <Loader className="h-4 w-4 animate-spin" /> : <><span>Create Account</span><ArrowRight className="h-4 w-4" /></>}
                 </button>

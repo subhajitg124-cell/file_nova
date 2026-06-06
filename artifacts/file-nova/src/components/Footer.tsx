@@ -91,14 +91,9 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="col-span-1 sm:col-span-2 lg:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center overflow-hidden border border-white/10">
-                <img src="/logo.png" alt="FileNova logo" className="h-8 w-auto object-contain" />
-              </div>
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="text-2xl font-bold">FileNova</span>
-                <img src="/icon.png" alt="FileNova app icon" className="h-7 w-7 rounded-md border border-white/10 object-cover" />
-              </div>
+            <div className="flex items-center gap-3 mb-4">
+              <img src="/logo.png" alt="FileNova" className="w-9 h-9 rounded-xl" />
+              <span className="text-white font-bold text-lg">FileNova</span>
             </div>
             <p className="text-slate-400 text-sm mb-4">
               {tText("India's most trusted document automation platform.")}

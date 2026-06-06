@@ -253,7 +253,7 @@ export default function SimpleHome() {
             {/* Mobile Nav Toggle */}
             <button 
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 hover:bg-slate-900 rounded-lg text-slate-400 hover:text-white md:hidden"
+              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg text-slate-500 hover:text-slate-950 dark:text-slate-400 dark:hover:text-white md:hidden cursor-pointer"
               aria-label="Toggle mobile menu"
               title="Toggle mobile menu"
             >
@@ -315,11 +315,11 @@ export default function SimpleHome() {
             <Sparkles className="h-3.5 w-3.5 fill-current" />
             {tText("Smart Document Automation for India")}
           </div>
-          <h1 className="text-4xl md:text-6xl font-black tracking-tight text-white mb-6 leading-tight">
+          <h1 className="text-4xl md:text-6xl font-black tracking-tight text-slate-900 dark:text-white mb-6 leading-tight">
             {tText("What do you want to")} <br />
-            <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">{tText("do today?")}</span>
+            <span className="bg-gradient-to-r from-indigo-650 via-purple-600 to-indigo-650 dark:from-indigo-400 dark:via-purple-400 dark:to-indigo-400 bg-clip-text text-transparent">{tText("do today?")}</span>
           </h1>
-          <p className="text-slate-400 text-sm md:text-lg mb-12 max-w-xl mx-auto">
+          <p className="text-slate-650 dark:text-slate-400 text-sm md:text-lg mb-12 max-w-xl mx-auto">
             {tText("Process certificates, passport photos, and PDFs safely in your local browser. Ideal for CSC kiosks, cyber cafes, and students.")}
           </p>
 
@@ -327,51 +327,51 @@ export default function SimpleHome() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
             <button
               onClick={handleScholarshipClick}
-              className="flex flex-col items-center justify-between p-6 bg-slate-900/40 hover:bg-slate-900/80 border border-slate-900 hover:border-indigo-500/35 rounded-2xl transition-all duration-300 group shadow-lg hover:shadow-glow-indigo-subtle"
+              className="flex flex-col items-center justify-between p-6 bg-card hover:bg-slate-50 dark:bg-slate-900/40 dark:hover:bg-slate-900/80 border border-border dark:border-slate-900 hover:border-indigo-500/35 rounded-2xl transition-all duration-300 group shadow-lg hover:shadow-glow-indigo-subtle cursor-pointer"
             >
-              <div className="h-12 w-12 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <div className="h-12 w-12 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <GraduationCap className="h-6 w-6" />
               </div>
               <div className="text-center">
-                <span className="font-extrabold text-sm text-white block">{tText("Scholarship ZIP")}</span>
-                <span className="text-[11px] text-slate-500 block mt-1">{tText("Compile portal ZIPs")}</span>
+                <span className="font-extrabold text-sm text-slate-900 dark:text-white block">{tText("Scholarship ZIP")}</span>
+                <span className="text-[11px] text-slate-600 dark:text-slate-500 block mt-1">{tText("Compile portal ZIPs")}</span>
               </div>
-              <ArrowRight className="h-4 w-4 text-slate-600 group-hover:text-indigo-400 group-hover:translate-x-1 transition-all mt-4" />
+              <ArrowRight className="h-4 w-4 text-slate-400 dark:text-slate-600 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 group-hover:translate-x-1 transition-all mt-4" />
             </button>
 
             <button
               onClick={handleResizeClick}
-              className="flex flex-col items-center justify-between p-6 bg-slate-900/40 hover:bg-slate-900/80 border border-slate-900 hover:border-emerald-500/35 rounded-2xl transition-all duration-300 group shadow-lg hover:shadow-glow-emerald-subtle"
+              className="flex flex-col items-center justify-between p-6 bg-card hover:bg-slate-50 dark:bg-slate-900/40 dark:hover:bg-slate-900/80 border border-border dark:border-slate-900 hover:border-emerald-500/35 rounded-2xl transition-all duration-300 group shadow-lg hover:shadow-glow-emerald-subtle cursor-pointer"
             >
-              <div className="h-12 w-12 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <div className="h-12 w-12 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <ImageIcon className="h-6 w-6" />
               </div>
               <div className="text-center">
-                <span className="font-extrabold text-sm text-white block">{tText("Resize Photo")}</span>
-                <span className="text-[11px] text-slate-500 block mt-1">{tText("Selfies to exact dimensions")}</span>
+                <span className="font-extrabold text-sm text-slate-900 dark:text-white block">{tText("Resize Photo")}</span>
+                <span className="text-[11px] text-slate-600 dark:text-slate-500 block mt-1">{tText("Selfies to exact dimensions")}</span>
               </div>
-              <ArrowRight className="h-4 w-4 text-slate-600 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all mt-4" />
+              <ArrowRight className="h-4 w-4 text-slate-400 dark:text-slate-600 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 group-hover:translate-x-1 transition-all mt-4" />
             </button>
 
             <button
               onClick={handleCompressPdfClick}
-              className="flex flex-col items-center justify-between p-6 bg-slate-900/40 hover:bg-slate-900/80 border border-slate-900 hover:border-purple-500/35 rounded-2xl transition-all duration-300 group shadow-lg hover:shadow-glow-purple-subtle"
+              className="flex flex-col items-center justify-between p-6 bg-card hover:bg-slate-50 dark:bg-slate-900/40 dark:hover:bg-slate-900/80 border border-border dark:border-slate-900 hover:border-purple-500/35 rounded-2xl transition-all duration-300 group shadow-lg hover:shadow-glow-purple-subtle cursor-pointer"
             >
-              <div className="h-12 w-12 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <div className="h-12 w-12 rounded-xl bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <FileText className="h-6 w-6" />
               </div>
               <div className="text-center">
-                <span className="font-extrabold text-sm text-white block">{tText("Compress PDF")}</span>
-                <span className="text-[11px] text-slate-500 block mt-1">{tText("Fit portal file limits")}</span>
+                <span className="font-extrabold text-sm text-slate-900 dark:text-white block">{tText("Compress PDF")}</span>
+                <span className="text-[11px] text-slate-600 dark:text-slate-500 block mt-1">{tText("Fit portal file limits")}</span>
               </div>
-              <ArrowRight className="h-4 w-4 text-slate-600 group-hover:text-purple-400 group-hover:translate-x-1 transition-all mt-4" />
+              <ArrowRight className="h-4 w-4 text-slate-400 dark:text-slate-600 group-hover:text-purple-600 dark:group-hover:text-purple-400 group-hover:translate-x-1 transition-all mt-4" />
             </button>
           </div>
         </div>
       </section>
 
       {/* Flat horizontal Quick Actions */}
-      <section className="py-6 border-y border-slate-900 bg-slate-950/40 relative z-10 overflow-x-auto whitespace-nowrap scrollbar-none">
+      <section className="py-6 border-y border-border dark:border-slate-900 bg-card/40 dark:bg-slate-950/40 relative z-10 overflow-x-auto whitespace-nowrap scrollbar-none">
         <div className="max-w-6xl mx-auto px-4 flex items-center gap-3.5">
           <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wider shrink-0 mr-2">{tText("Quick Actions:")}</span>
           {[
@@ -384,7 +384,7 @@ export default function SimpleHome() {
             <button
               key={i}
               onClick={act.action}
-              className="inline-flex items-center bg-slate-900 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 text-slate-300 font-bold text-xs py-1.5 px-3.5 rounded-full transition-all"
+              className="inline-flex items-center bg-card hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-850 border border-border dark:border-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs py-1.5 px-3.5 rounded-full transition-all cursor-pointer"
             >
               {act.label}
             </button>
@@ -398,14 +398,14 @@ export default function SimpleHome() {
           {/* Header */}
           <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 mb-10">
             <div>
-              <h2 className="text-2xl font-black text-white flex items-center gap-2">
-                <LayoutGrid className="h-5 w-5 text-indigo-400" />
+              <h2 className="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+                <LayoutGrid className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                 {tText("Featured Document Automation Tools")}
               </h2>
-              <p className="text-slate-400 text-xs mt-1">{tText("Our client-side processors require zero file uploads to servers. Fast, secure, and private.")}</p>
+              <p className="text-slate-600 dark:text-slate-400 text-xs mt-1">{tText("Our client-side processors require zero file uploads to servers. Fast, secure, and private.")}</p>
             </div>
             
-            <Link href="/tools" className="text-xs text-indigo-400 hover:text-indigo-300 font-bold flex items-center gap-1 hover:underline">
+            <Link href="/tools" className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-bold flex items-center gap-1 hover:underline">
               {tText("Explore all 30+ tools")} <ChevronRight className="h-4 w-4" />
             </Link>
           </div>
@@ -423,10 +423,10 @@ export default function SimpleHome() {
               <button
                 key={cat.key}
                 onClick={() => setActiveCategoryFilter(cat.key as any)}
-                className={`py-1.5 px-3.5 rounded-lg border text-xs font-bold transition-all ${
+                className={`py-1.5 px-3.5 rounded-lg border text-xs font-bold transition-all cursor-pointer ${
                   activeCategoryFilter === cat.key
-                    ? "bg-indigo-600 border-indigo-500 text-white"
-                    : "bg-slate-900/60 border-slate-850 text-slate-400 hover:border-slate-800 hover:text-slate-200"
+                    ? "bg-indigo-600 border-indigo-500 text-white shadow-glow-indigo"
+                    : "bg-card border-border dark:bg-slate-900/60 dark:border-slate-850 text-slate-600 dark:text-slate-400 hover:border-slate-350 dark:hover:border-slate-800 hover:text-slate-900 dark:hover:text-slate-200"
                 }`}
               >
                 {cat.label}
@@ -442,34 +442,34 @@ export default function SimpleHome() {
                 <div
                   key={tool.id}
                   onClick={tool.action}
-                  className="group bg-slate-900/30 hover:bg-slate-900/60 border border-slate-900 hover:border-indigo-500/25 rounded-2xl p-5 cursor-pointer transition-all duration-300 flex flex-col justify-between"
+                  className="group bg-card hover:bg-slate-50 dark:bg-slate-900/30 dark:hover:bg-slate-900/60 border border-border dark:border-slate-900 hover:border-indigo-500/25 rounded-2xl p-5 cursor-pointer transition-all duration-300 flex flex-col justify-between"
                 >
                   <div>
                     <div className="flex items-start justify-between mb-4">
-                      <div className="h-10 w-10 rounded-xl bg-slate-950 border border-slate-850 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
+                      <div className="h-10 w-10 rounded-xl bg-white dark:bg-slate-950 border border-border dark:border-slate-850 flex items-center justify-center text-indigo-655 dark:text-indigo-400 group-hover:scale-110 transition-transform">
                         <ToolIcon className="h-5 w-5" />
                       </div>
                       {tool.badge && (
                         <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border ${
-                          tool.badge === "Popular" ? "bg-indigo-500/10 text-indigo-400 border-indigo-500/25" :
-                          tool.badge === "Secure" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/25" :
-                          tool.badge === "AI" ? "bg-purple-500/10 text-purple-400 border-purple-500/25" :
-                          "bg-slate-800 text-slate-400 border-slate-700"
+                          tool.badge === "Popular" ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/25" :
+                          tool.badge === "Secure" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25" :
+                          tool.badge === "AI" ? "bg-purple-500/10 text-purple-650 dark:text-purple-400 border-purple-500/25" :
+                          "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-border dark:border-slate-700"
                         }`}>
                           {tool.badge}
                         </span>
                       )}
                     </div>
-                    <h3 className="font-bold text-sm text-white mb-1.5 group-hover:text-indigo-400 transition-colors">
+                    <h3 className="font-bold text-sm text-slate-900 dark:text-white mb-1.5 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                       {tText(tool.title)}
                     </h3>
-                    <p className="text-xs text-slate-400 leading-relaxed">
+                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                       {tText(tool.description)}
                     </p>
                   </div>
-                  <div className="mt-4 pt-3 border-t border-slate-900/60 flex items-center justify-between text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                  <div className="mt-4 pt-3 border-t border-border dark:border-slate-900/60 flex items-center justify-between text-[10px] text-slate-500 font-bold uppercase tracking-wider">
                     <span>{tText(tool.category === "india" ? "Indian Portals" : tool.category === "pdf" ? "PDF Tools" : tool.category === "image" ? "Image Tools" : tool.category === "office" ? "Office & Docs" : tool.category === "ai" ? "AI Suite" : tool.category)}</span>
-                    <span className="flex items-center gap-0.5 text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="flex items-center gap-0.5 text-indigo-650 dark:text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity">
                       Open <ChevronRight className="h-3 w-3" />
                     </span>
                   </div>
@@ -481,38 +481,38 @@ export default function SimpleHome() {
       </section>
 
       {/* Trust & Features Section */}
-      <section className="py-20 bg-slate-950 border-t border-slate-900 relative z-10">
+      <section className="py-20 bg-card/30 dark:bg-slate-950 border-t border-border dark:border-slate-900 relative z-10">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-xl md:text-2xl font-black text-white mb-3">
+          <h2 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white mb-3">
             {tText("Why 10,000+ Cyber Cafes & CSC Centers Trust FileNova")}
           </h2>
-          <p className="text-slate-400 text-xs max-w-md mx-auto mb-12">
+          <p className="text-slate-650 dark:text-slate-400 text-xs max-w-md mx-auto mb-12">
             {tText("Secure client-side utilities engineered for maximum confidentiality and offline capabilities.")}
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
             <div className="space-y-2">
-              <div className="h-10 w-10 mx-auto rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold">
+              <div className="h-10 w-10 mx-auto rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
                 ✓
               </div>
-              <h3 className="font-bold text-sm text-white">{tText("100% Free & Unlimited")}</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">{tText("No registrations, no watermarks, completely free for student scholarship packing.")}</p>
+              <h3 className="font-bold text-sm text-slate-900 dark:text-white">{tText("100% Free & Unlimited")}</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-500 leading-relaxed">{tText("No registrations, no watermarks, completely free for student scholarship packing.")}</p>
             </div>
             
             <div className="space-y-2">
-              <div className="h-10 w-10 mx-auto rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold">
+              <div className="h-10 w-10 mx-auto rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
                 ✓
               </div>
-              <h3 className="font-bold text-sm text-white">{tText("Instant Auto-Delete")}</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">{tText("Processed files are cleared immediately from the browser storage in 1 hour.")}</p>
+              <h3 className="font-bold text-sm text-slate-900 dark:text-white">{tText("Instant Auto-Delete")}</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-500 leading-relaxed">{tText("Processed files are cleared immediately from the browser storage in 1 hour.")}</p>
             </div>
 
             <div className="space-y-2">
-              <div className="h-10 w-10 mx-auto rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold">
+              <div className="h-10 w-10 mx-auto rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
                 ✓
               </div>
-              <h3 className="font-bold text-sm text-white">{tText("Client-Side Security")}</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">{tText("Conversions occur in your browser cache. Documents never upload to servers.")}</p>
+              <h3 className="font-bold text-sm text-slate-900 dark:text-white">{tText("Client-Side Security")}</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-500 leading-relaxed">{tText("Conversions occur in your browser cache. Documents never upload to servers.")}</p>
             </div>
           </div>
         </div>
