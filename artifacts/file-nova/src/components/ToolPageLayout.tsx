@@ -4,6 +4,7 @@ import {
   ChevronRight, ChevronLeft, Languages, Sparkles, FileText, Image as ImageIcon,
   Crown, User, Menu, X, ArrowLeft, Upload, HelpCircle, AlertTriangle, BookOpen, PlayCircle, CheckCircle2, ArrowDown, Settings2, Download, Zap
 } from "lucide-react";
+import { motion } from "framer-motion";
 import { useFileStore } from "@/store/useFileStore";
 import { useLanguage, useTranslation } from "@/lib/i18n";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
@@ -31,7 +32,6 @@ import { EstimatedOutputSize } from "@/components/shared/EstimatedOutputSize";
 import { ToolPreview } from "@/components/shared/ToolPreview";
 import { StepByStepGuide } from "@/components/shared/StepByStepGuide";
 import { ToolSettingsPanel } from "@/components/shared/ToolSettingsPanel";
-import { PopularTools } from "@/components/shared/PopularTools";
 
 interface ToolPageLayoutProps {
   slug: string;
@@ -185,35 +185,81 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
 
 {/* Right Action Menu */}
            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+             {/* Popular Tools Shortcuts */}
+             <motion.div 
+               className="hidden md:flex items-center gap-1 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-2 border-amber-500/30 rounded-xl px-3 py-1.5 text-xs text-muted-foreground shadow-lg backdrop-blur-sm"
+               whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(245,158,66,0.4)" }}
+               whileTap={{ scale: 0.98 }}
+               animate={{ opacity: [0.9, 1, 0.9] }}
+               transition={{ duration: 3, repeat: Infinity }}
+             >
+               <Zap className="h-4 w-4 text-amber-500 fill-amber-500 animate-pulse" />
+               <select 
+                 value=""
+                 onChange={(e) => {
+                   if (e.target.value) {
+                     setLocation(`/${e.target.value}`);
+                   }
+                 }}
+                 className="bg-transparent border-none outline-none text-foreground font-black focus:ring-0 cursor-pointer max-w-[140px] text-xs tracking-wider"
+                 title="Popular Tools Shortcuts"
+                 style={{ textShadow: "0 1px 2px rgba(0,0,0,0.1)" }}
+               >
+                 <option value="" disabled className="bg-card text-foreground font-bold">⚡ Popular Tools</option>
+                 <option value="merge-pdf" className="bg-card text-foreground">📄 Merge PDF</option>
+                 <option value="split-pdf" className="bg-card text-foreground">✂️ Split PDF</option>
+                 <option value="compress-pdf" className="bg-card text-foreground">🗜️ Compress PDF</option>
+                 <option value="rotate-pdf" className="bg-card text-foreground">🔄 Rotate PDF</option>
+                 <option value="protect-pdf" className="bg-card text-foreground">🔒 Protect PDF</option>
+                 <option value="unlock-pdf" className="bg-card text-foreground">🔓 Unlock PDF</option>
+                 <option value="pan-card-resize" className="bg-card text-foreground">💳 PAN Card Resize</option>
+                 <option value="aadhaar-mask-pdf" className="bg-card text-foreground">🪪 Aadhaar Mask PDF</option>
+                 <option value="government-form-fill" className="bg-card text-foreground">📝 Govt Form Fill</option>
+                 <option value="compress-pdf-for-upload" className="bg-card text-foreground">📤 Compress for Upload</option>
+                 <option value="scholarship-zip" className="bg-card text-foreground">🎓 Scholarship ZIP</option>
+                 <option value="ocr" className="bg-card text-foreground">🔍 OCR Scanner</option>
+                 <option value="remove-background" className="bg-card text-foreground">🧹 Background Remover</option>
+                 <option value="ai-pdf-summary" className="bg-card text-foreground">🤖 AI PDF Summary</option>
+                 <option value="pdf-to-word" className="bg-card text-foreground">📝 PDF to Word</option>
+                 <option value="pdf-to-jpg" className="bg-card text-foreground">🖼️ PDF to JPG</option>
+                 <option value="jpg-to-pdf" className="bg-card text-foreground">📋 JPG to PDF</option>
+                 <option value="word-to-pdf" className="bg-card text-foreground">📄 Word to PDF</option>
+               </select>
+             </motion.div>
 
-            {/* Language Selection */}
-            <div className="hidden lg:flex items-center gap-1 bg-card border border-border rounded-lg px-2.5 py-1 text-xs text-muted-foreground">
-              <Languages className="h-3.5 w-3.5" />
-              <select 
-                value={language} 
-                onChange={(e) => setLanguage(e.target.value as any)}
-                className="bg-transparent border-none outline-none text-foreground font-bold focus:ring-0 cursor-pointer"
-                title="Select language"
-              >
-                <option value="en" className="bg-card text-foreground">English</option>
-                <option value="hi" className="bg-card text-foreground">हिन्दी</option>
-                <option value="bn" className="bg-card text-foreground">বাংলা</option>
-                <option value="te" className="bg-card text-foreground">తెలుగు</option>
-                <option value="mr" className="bg-card text-foreground">मराठी</option>
-                <option value="ta" className="bg-card text-foreground">தமிழ்</option>
-                <option value="gu" className="bg-card text-foreground">ગુજરાતી</option>
-                <option value="kn" className="bg-card text-foreground">ಕನ್ನಡ</option>
-                <option value="ml" className="bg-card text-foreground">മലയാളം</option>
-                <option value="pa" className="bg-card text-foreground">ਪੰਜਾਬੀ</option>
-                <option value="or" className="bg-card text-foreground">ଓଡ଼ିଆ</option>
-                <option value="as" className="bg-card text-foreground">অসমীয়া</option>
-                <option value="ur" className="bg-card text-foreground">اردو</option>
-                <option value="ne" className="bg-card text-foreground">नेपाली</option>
-                <option value="sat" className="bg-card text-foreground">ᱥᱟᱱᱛᱟᱲᱤ</option>
-              </select>
-            </div>
+             {/* Language Selection */}
+             <motion.div 
+               className="hidden lg:flex items-center gap-1 bg-gradient-to-r from-indigo-500/10 to-violet-500/10 border-2 border-indigo-500/30 rounded-xl px-3 py-1.5 text-xs text-muted-foreground shadow-lg backdrop-blur-sm"
+               whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(99,102,241,0.4)" }}
+               whileTap={{ scale: 0.98 }}
+             >
+               <Languages className="h-4 w-4 text-indigo-500" />
+               <select 
+                 value={language} 
+                 onChange={(e) => setLanguage(e.target.value as any)}
+                 className="bg-transparent border-none outline-none text-foreground font-black focus:ring-0 cursor-pointer text-xs tracking-wider"
+                 title="Select language"
+                 style={{ textShadow: "0 1px 2px rgba(0,0,0,0.1)" }}
+               >
+                 <option value="en" className="bg-card text-foreground font-bold">🇬🇧 English</option>
+                 <option value="hi" className="bg-card text-foreground">🇮🇳 हिन्दी</option>
+                 <option value="bn" className="bg-card text-foreground font-bold">🇧🇩 বাংলা</option>
+                 <option value="te" className="bg-card text-foreground">🇹🇨 తెలుగు</option>
+                 <option value="mr" className="bg-card text-foreground font-bold">🇮🇳 मराठी</option>
+                 <option value="ta" className="bg-card text-foreground font-bold">🇮🇳 தமிழ்</option>
+                 <option value="gu" className="bg-card text-foreground font-bold">🇮🇳 ગુજરાતી</option>
+                 <option value="kn" className="bg-card text-foreground font-bold">🇮🇳 ಕನ್ನಡ</option>
+                 <option value="ml" className="bg-card text-foreground font-bold">🇮🇳 മലയാളം</option>
+                 <option value="pa" className="bg-card text-foreground font-bold">🇮🇳 ਪੰਜਾਬੀ</option>
+                 <option value="or" className="bg-card text-foreground font-bold">🇮🇳 ଓଡ଼ିଆ</option>
+                 <option value="as" className="bg-card text-foreground font-bold">🇮🇳 অসমীয়া</option>
+                 <option value="ur" className="bg-card text-foreground font-bold">🇵🇰 اردو</option>
+                 <option value="ne" className="bg-card text-foreground font-bold">🇳🇵 नेपाली</option>
+                 <option value="sat" className="bg-card text-foreground font-bold">🇮🇳 ᱥᱟᱱᱛᱟᱲᱤ</option>
+               </select>
+             </motion.div>
 
-            <ThemeToggle />
+             <ThemeToggle />
 
             <Link href="/workspace" className="hidden md:flex items-center gap-1 text-xs text-foreground hover:text-primary font-bold py-1.5 px-3 rounded-lg border border-border bg-card hover:border-indigo-500/35 hover:bg-indigo-500/10 transition-all">
               <FileText className="h-3.5 w-3.5" />

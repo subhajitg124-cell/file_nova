@@ -42,6 +42,16 @@ export function GlobalNotice() {
     }
   };
 
+  const handleDismissYtPopup = () => {
+    setYtPopupVisible(false);
+    sessionStorage.setItem("dismissed-yt-popup", "true");
+  };
+
+  useEffect(() => {
+    const dismissedYtPopup = sessionStorage.getItem("dismissed-yt-popup");
+    setYtPopupVisible(!dismissedYtPopup);
+  }, []);
+
   if (!settings) return null;
 
   // Banner Styles based on Notice Type
@@ -114,66 +124,98 @@ export function GlobalNotice() {
                 {settings.popupMessageText}
               </div>
 
-<div className="flex justify-end pt-2">
-                 <Button
-                   onClick={handleDismissPopup}
-                   className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl cursor-pointer"
-                 >
-                   Understood
-                 </Button>
-               </div>
-             </motion.div>
-           </div>
-         )}
-       </AnimatePresence>
+              <div className="flex justify-end pt-2">
+                <Button
+                  onClick={handleDismissPopup}
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl cursor-pointer"
+                >
+                  Understood
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
-       {/* ── YouTube Channel Promotion Pop-up ── */}
-       <AnimatePresence>
-         {!settings.popupMessageActive && new Date() < POPUP_EXPIRY_DATE && (
-           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-             <motion.div
-               initial={{ opacity: 0, scale: 0.9, y: 20 }}
-               animate={{ opacity: 1, scale: 1, y: 0 }}
-               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-               className="relative max-w-md w-full bg-card border border-border p-6 rounded-3xl shadow-2xl space-y-4"
-             >
-               <button
-                 onClick={() => {}}
-                 className="absolute right-4 top-4 text-muted-foreground hover:text-foreground p-1.5 rounded-lg hover:bg-muted/50 transition-colors"
-                 aria-label="Close Modal"
-               >
-                 <X className="h-4 w-4" />
-               </button>
+      {/* ── YouTube Channel Promotion Pop-up ── */}
+      <AnimatePresence>
+        {!settings.popupMessageActive && ytPopupVisible && new Date() < POPUP_EXPIRY_DATE && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: -50, rotate: -2 }}
+              animate={{ opacity: 1, scale: 1, y: 0, rotate: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: 50, rotate: 2 }}
+              transition={{ type: "spring", stiffness: 200, damping: 20 }}
+              whileHover={{ scale: 1.02 }}
+              className="relative max-w-md w-full bg-gradient-to-br from-slate-900 to-slate-950 border-2 border-red-500/30 p-6 rounded-3xl shadow-2xl shadow-red-500/20 space-y-4"
+            >
+              {/* Animated glow border */}
+              <motion.div
+                className="absolute inset-0 rounded-3xl border-2 border-red-500/20 pointer-events-none"
+                animate={{ opacity: [0.3, 0.6, 0.3] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              />
 
-               <motion.div
-                 initial={{ rotate: -5 }}
-                 animate={{ rotate: 5 }}
-                 transition={{ repeat: Infinity, repeatType: "reverse", duration: 2 }}
-                 className="flex items-center justify-center"
-               >
-                 <Youtube className="h-12 w-12 text-red-500" />
-               </motion.div>
+              <button
+                onClick={handleDismissYtPopup}
+                className="absolute right-4 top-4 text-red-300 hover:text-red-100 p-1.5 rounded-lg hover:bg-red-500/20 transition-colors"
+                aria-label="Close Modal"
+              >
+                <X className="h-4 w-4" />
+              </button>
 
-               <h3 className="text-base font-black text-foreground text-center">Subscribe Our Channel!</h3>
+              <motion.div
+                initial={{ y: -10, scale: 0.9 }}
+                animate={{ y: [0, -5, 0], scale: [1, 1.05, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="flex items-center justify-center"
+              >
+                <Youtube className="h-14 w-14 text-red-500 drop-shadow-lg" />
+              </motion.div>
 
-               <p className="text-sm text-center text-muted-foreground">
-                 Check out <span className="text-primary font-bold">@CoverDriveBangla</span> on YouTube for more helpful content.
-               </p>
+              <motion.h3 
+                className="text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600 text-center"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                🎥 Subscribe Our Channel!
+              </motion.h3>
 
-               <div className="flex flex-col gap-2 pt-2">
-                 <Button
-                   onClick={() => window.open(YOUTUBE_CHANNEL_URL, "_blank")}
-                   className="bg-red-600 hover:bg-red-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl cursor-pointer flex items-center justify-center gap-2"
-                 >
-                   <Youtube className="h-4 w-4" />
-                   Subscribe Now
-                 </Button>
-               </div>
-             </motion.div>
-           </div>
-         )}
-       </AnimatePresence>
-     </>
-   );
- }
+              <motion.p 
+                className="text-sm text-center text-slate-300"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                Join <span className="text-red-400 font-black text-base">@CoverDriveBangla</span> on YouTube for exclusive content!
+              </motion.p>
+
+              <motion.div 
+                className="flex flex-col gap-3 pt-3"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+              >
+                <Button
+                  onClick={() => window.open(YOUTUBE_CHANNEL_URL, "_blank")}
+                  className="bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-600 text-white font-black text-sm px-6 py-3 rounded-2xl cursor-pointer flex items-center justify-center gap-2 shadow-lg shadow-red-500/30 transform transition-transform hover:scale-105"
+                >
+                  <Youtube className="h-5 w-5" />
+                  🔔 SUBSCRIBE NOW
+                </Button>
+                <Button
+                  onClick={handleDismissYtPopup}
+                  variant="ghost"
+                  className="text-slate-400 font-bold text-xs cursor-pointer hover:text-slate-200"
+                >
+                  Maybe Later
+                </Button>
+              </motion.div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
