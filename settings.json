@@ -1,0 +1,14 @@
+{
+  "standaloneMode": true,
+  "editingEnabled": true,
+  "activeOffer": "",
+  "discountPercentage": 0,
+  "eventTheme": "scholarship",
+  "libreofficeAvailableOverride": true,
+  "ffmpegAvailableOverride": true,
+  "globalNoticeActive": false,
+  "globalNoticeText": "",
+  "globalNoticeType": "info",
+  "popupMessageActive": false,
+  "popupMessageText": ""
+}

@@ -9,6 +9,13 @@ type Settings = {
   activeOffer?: string;
   discountPercentage?: number;
   eventTheme?: "none" | "warm" | "cool" | "tricolor" | "diwali" | "holi" | "newYear" | "scholarship";
+  libreofficeAvailableOverride?: boolean;
+  ffmpegAvailableOverride?: boolean;
+  globalNoticeActive?: boolean;
+  globalNoticeText?: string;
+  globalNoticeType?: "info" | "warning" | "error" | "success";
+  popupMessageActive?: boolean;
+  popupMessageText?: string;
 };
 
 const CRED_KEY = "filenova-admin";
@@ -23,6 +30,13 @@ const defaultSettings: Settings = {
   activeOffer: "",
   discountPercentage: 0,
   eventTheme: "none",
+  libreofficeAvailableOverride: true,
+  ffmpegAvailableOverride: true,
+  globalNoticeActive: false,
+  globalNoticeText: "",
+  globalNoticeType: "info",
+  popupMessageActive: false,
+  popupMessageText: "",
 };
 
 const AdminContext = createContext<{

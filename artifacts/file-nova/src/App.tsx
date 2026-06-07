@@ -43,7 +43,7 @@ import ResourcesPage from "@/pages/ResourcesPage";
 import ContactPage from "@/pages/Contact";
 import ProfilePage from "@/pages/ProfilePage";
 import { LanguageProvider } from "@/lib/i18n";
-import { AdminProvider } from "@/lib/admin";
+import { AdminProvider, useAdmin } from "@/lib/admin";
 import { FileExpiryBar } from "@/components/FileExpiryBar";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { Toaster } from "@/components/ui/sonner";
@@ -59,6 +59,8 @@ import { LoadingScreen } from "@/components/LoadingScreen";
 import { BACKEND_URL, HAS_BACKEND } from "@/lib/api";
 
 import { GlobalNotice } from "@/components/GlobalNotice";
+import { EditingWindow } from "@/components/EditingWindow";
+import { apiClient, apiMock } from "@/lib/api";
 
 const queryClient = new QueryClient();
 
@@ -140,6 +142,17 @@ class ErrorBoundary extends Component<Props, State> {
 }
 
 function Router() {
+  const { settings } = useAdmin();
+  
+  useEffect(() => {
+    const classesToRemove = Array.from(document.documentElement.classList).filter(c => c.startsWith('event-theme-'));
+    classesToRemove.forEach(c => document.documentElement.classList.remove(c));
+    
+    if (settings.eventTheme && settings.eventTheme !== 'none') {
+      document.documentElement.classList.add(`event-theme-${settings.eventTheme}`);
+    }
+  }, [settings.eventTheme]);
+
   return (
     <>
       <ScrollToTop />
@@ -274,7 +287,19 @@ function Router() {
 
 function App() {
   const { initialized, fetchMe } = useAuthStore();
-  const { isMockMode } = useFileStore();
+  const { 
+    isMockMode, 
+    editorOpen, 
+    editorFile, 
+    editorFileType, 
+    closeEditor, 
+    jobId, 
+    setJobId, 
+    addRawFiles, 
+    addFiles, 
+    setError, 
+    setProcessing 
+  } = useFileStore();
   const [limitModalOpen, setLimitModalOpen] = useState(false);
   const [modalLimit, setModalLimit] = useState(3);
   const [modalUsage, setModalUsage] = useState(3);
@@ -462,6 +487,32 @@ function App() {
                       limit={modalLimit}
                       usage={modalUsage}
                     />
+                    {editorOpen && editorFile && (
+                      <EditingWindow
+                        file={editorFile}
+                        fileType={editorFileType}
+                        onClose={closeEditor}
+                        onDone={async (resultBlob) => {
+                          const editedFile = new File([resultBlob], editorFile.name, { type: resultBlob.type });
+                          closeEditor();
+                          
+                          setProcessing(true);
+                          try {
+                            const activeJobId = jobId || Math.random().toString(36).substring(2, 15);
+                            setJobId(activeJobId);
+                            addRawFiles([editedFile]);
+                            const uploaded = isMockMode
+                              ? await apiMock.uploadFiles([editedFile], activeJobId)
+                              : await apiClient.uploadFiles([editedFile], activeJobId);
+                            addFiles(uploaded);
+                          } catch (err: any) {
+                            setError(err.message || 'Upload failed.');
+                          } finally {
+                            setProcessing(false);
+                          }
+                        }}
+                      />
+                    )}
                   </AdminProvider>
                 </LanguageProvider>
               </WouterRouter>

@@ -144,20 +144,29 @@ const SETTINGS_FILE = path.join(__dirname, "../../../settings.json");
 
 // Helper to read settings
 function getSettings() {
-  try {
-    if (fs.existsSync(SETTINGS_FILE)) {
-      return JSON.parse(fs.readFileSync(SETTINGS_FILE, "utf-8"));
-    }
-  } catch (e) {
-    logger.error("Failed to read settings file");
-  }
-  return {
+  const defaults = {
     standaloneMode: false,
     editingEnabled: true,
     activeOffer: "",
     discountPercentage: 0,
     eventTheme: "none",
+    libreofficeAvailableOverride: true,
+    ffmpegAvailableOverride: true,
+    globalNoticeActive: false,
+    globalNoticeText: "",
+    globalNoticeType: "info",
+    popupMessageActive: false,
+    popupMessageText: "",
   };
+  try {
+    if (fs.existsSync(SETTINGS_FILE)) {
+      const parsed = JSON.parse(fs.readFileSync(SETTINGS_FILE, "utf-8"));
+      return { ...defaults, ...parsed };
+    }
+  } catch (e) {
+    logger.error("Failed to read settings file");
+  }
+  return defaults;
 }
 
 // Helper to write settings

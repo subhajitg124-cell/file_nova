@@ -92,7 +92,7 @@ export default function AdminLogin() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Enter admin username"
-                autoComplete="username"
+                autoComplete="off"
                 className="w-full rounded-2xl border border-border bg-background/50 pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all placeholder:text-muted-foreground/50"
                 required
               />
@@ -113,7 +113,7 @@ export default function AdminLogin() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter admin password"
-                autoComplete="current-password"
+                autoComplete="new-password"
                 className="w-full rounded-2xl border border-border bg-background/50 pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all placeholder:text-muted-foreground/50"
                 required
               />
