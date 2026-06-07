@@ -542,7 +542,7 @@ export default function ResourcesPage() {
                                   )}
                                   {selectedScheme.toolId === "scholarship-zip" && (
                                     <button
-                                      onClick={() => setLocation("/tools/scholarship-zip")}
+                                      onClick={() => setLocation("/scholarship-zip")}
                                       className="py-1 px-2.5 bg-slate-900 hover:bg-slate-850 border border-slate-850 rounded-lg text-[10px] font-black text-indigo-400 transition"
                                     >
                                       Sikshashree ZIP Maker

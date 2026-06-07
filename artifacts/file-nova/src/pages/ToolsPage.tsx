@@ -31,8 +31,34 @@ export default function ToolsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<"all" | "pdf" | "image" | "office" | "video" | "india" | "ai">("all");
 
-  const handleSelectTool = (actionName: string) => {
-    setLocation(`/tools/${actionName}`);
+  const getCanonicalUrl = (actionName: string) => {
+    const canonicalMap: Record<string, string> = {
+      "compress-pdf": "compress-pdf",
+      "merge-pdf": "merge-pdf",
+      "image-to-pdf": "image-to-pdf",
+      "images-to-pdf": "image-to-pdf",
+      "pdf-to-image": "pdf-to-image",
+      "pdf-to-images": "pdf-to-image",
+      "ocr": "ocr",
+      "pdf-ocr": "ocr",
+      "resize-photo": "resize-image",
+      "resize-image": "resize-image",
+      "remove-bg": "remove-background",
+      "remove-background": "remove-background",
+      "aadhaar-masking": "aadhaar-mask",
+      "aadhaar-mask": "aadhaar-mask",
+      "pan-card": "pan-card-resize",
+      "pan-card-resize": "pan-card-resize",
+      "docx-to-pdf": "word-to-pdf",
+      "word-to-pdf": "word-to-pdf",
+      "scholarship-zip-maker": "scholarship-zip",
+      "scholarship-zip": "scholarship-zip",
+      "scholarship": "scholarship-zip",
+      "ai-summarize": "ai-pdf-summary",
+      "ai-pdf-summary": "ai-pdf-summary"
+    };
+    const slug = canonicalMap[actionName];
+    return slug ? `/${slug}` : `/tools/${actionName}`;
   };
 
   // Convert standard TOOLS list to fit the CustomTool interface
@@ -166,10 +192,10 @@ export default function ToolsPage() {
             {filteredTools.map((tool) => {
               const ToolIcon = tool.icon || HelpCircle;
               return (
-                <div
+                <Link
                   key={`${tool.actionName}-${tool.title}`}
-                  onClick={() => handleSelectTool(tool.actionName)}
-                  className="group relative bg-card hover:bg-slate-50 dark:bg-slate-900/30 dark:hover:bg-slate-900/60 border border-border dark:border-slate-900 hover:border-indigo-500/35 rounded-2xl p-5 cursor-pointer transition-all duration-300 flex flex-col justify-between hover:shadow-glow-indigo-subtle"
+                  href={getCanonicalUrl(tool.actionName)}
+                  className="group relative bg-card hover:bg-slate-50 dark:bg-slate-900/30 dark:hover:bg-slate-900/60 border border-border dark:border-slate-900 hover:border-indigo-500/35 rounded-2xl p-5 cursor-pointer transition-all duration-300 flex flex-col justify-between hover:shadow-glow-indigo-subtle block text-left"
                 >
                   <div>
                     {/* Header: Icon + Badge */}
@@ -203,7 +229,7 @@ export default function ToolsPage() {
                       Launch <ChevronRight className="h-3 w-3" />
                     </span>
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>

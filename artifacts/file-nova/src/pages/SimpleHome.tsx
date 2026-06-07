@@ -39,8 +39,71 @@ export default function SimpleHome() {
   
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeCategoryFilter, setActiveCategoryFilter] = useState<"all" | "india" | "pdf" | "image" | "office" | "ai">("all");
   const [showUpgradeBanner, setShowUpgradeBanner] = useState(true);
+  const [recentToolItems, setRecentToolItems] = useState<any[]>([]);
+
+  const pdfToolsList = [
+    { id: "merge-pdf", title: tText("Merge PDF Files"), description: tText("Combine multiple PDF documents into a single organized file."), icon: FileText, canonical: "/merge-pdf", category: "pdf", tags: ["merge", "combine", "pdf", "join"] },
+    { id: "compress-pdf", title: tText("Compress PDF"), description: tText("Shrink PDF size to under 200KB to fit portal size restrictions."), icon: FileText, canonical: "/compress-pdf", category: "pdf", tags: ["compress", "pdf", "shrink", "size", "under 200kb"] },
+    { id: "image-to-pdf", title: tText("Image to PDF"), description: tText("Convert JPG, PNG, and WebP images into a single PDF document."), icon: ImageIcon, canonical: "/image-to-pdf", category: "pdf", tags: ["image", "jpg", "png", "webp", "pdf", "convert"] },
+    { id: "pdf-to-image", title: tText("PDF to Image"), description: tText("Convert PDF pages into high-quality JPG or PNG images."), icon: ImageIcon, canonical: "/pdf-to-image", category: "pdf", tags: ["pdf", "image", "jpg", "png", "webp", "convert"] }
+  ];
+
+  const imageToolsList = [
+    { id: "resize-photo", title: tText("Resize Photo & Signature"), description: tText("Resize images to custom width/height and format specifications."), icon: ImageIcon, canonical: "/resize-image", category: "image", tags: ["resize", "photo", "signature", "width", "height", "crop", "scale"] },
+    { id: "remove-bg", title: tText("AI Background Remover"), description: tText("Remove image background automatically to output a transparent PNG."), icon: Sparkles, canonical: "/remove-background", badge: "New", category: "image", tags: ["bg", "background", "remove", "transparent", "png", "ai"] },
+    { id: "aadhaar-masking", title: tText("Aadhaar Card Masking"), description: tText("Mask the first 8 digits of your Aadhaar card scan for secure UIDAI uploads."), icon: ShieldCheck, canonical: "/aadhaar-mask", badge: "Secure", category: "image", tags: ["aadhaar", "mask", "uidai", "card", "security"] },
+    { id: "pan-card", title: tText("PAN Card Upload Fix"), description: tText("Resize and optimize signature & photo scans for NSDL/UTI forms."), icon: IdCard, canonical: "/pan-card-resize", badge: "CSC Special", category: "image", tags: ["pan", "signature", "photo", "nsdl", "uti"] }
+  ];
+
+  const aiToolsList = [
+    { id: "pdf-ocr", title: tText("OCR Scan-to-Text"), description: tText("Extract editable text from scanned certificate images and PDFs."), icon: Sparkles, canonical: "/ocr", badge: "AI", category: "ai", tags: ["ocr", "scan", "text", "extract", "image", "pdf"] },
+    { id: "ai-summarize", title: tText("AI PDF Summarizer"), description: tText("Generate structured, concise summaries from long PDF documents."), icon: Sparkles, canonical: "/ai-pdf-summary", badge: "AI", category: "ai", tags: ["summarize", "summary", "ai", "pdf", "long"] }
+  ];
+
+  const officeToolsList = [
+    { id: "docx-to-pdf", title: tText("DOCX to PDF Converter"), description: tText("Convert Microsoft Word document (.docx) into standard readable PDF."), icon: Settings2, canonical: "/word-to-pdf", category: "office", tags: ["docx", "word", "pdf", "convert"] },
+    { id: "scholarship-zip", title: tText("Scholarship ZIP Maker"), description: tText("Income, marksheet, bank passbook, photo & signature compiled in one ZIP."), icon: GraduationCap, canonical: "/scholarship-zip", badge: "Popular", category: "office", tags: ["scholarship", "zip", "svmcm", "oasis", "kanyashree", "annapurna"] }
+  ];
+
+  const allSearchableTools = [
+    ...pdfToolsList,
+    ...imageToolsList,
+    ...aiToolsList,
+    ...officeToolsList
+  ];
+
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem("filenova-recent-tools") || "[]");
+      if (Array.isArray(stored) && stored.length > 0) {
+        const allItems = [...pdfToolsList, ...imageToolsList, ...aiToolsList, ...officeToolsList];
+        const matched = stored
+          .map((key: string) => {
+            const parts = key.split(":");
+            if (parts.length < 3) return null;
+            const actionName = parts[1];
+            return allItems.find(t => {
+              if (t.id === "compress-pdf" && actionName === "compress") return true;
+              if (t.id === "merge-pdf" && actionName === "merge") return true;
+              if (t.id === "resize-photo" && actionName === "resize") return true;
+              if (t.id === "remove-bg" && actionName === "remove_bg") return true;
+              if (t.id === "docx-to-pdf" && actionName === "docx_to_pdf") return true;
+              if (t.id === "pdf-ocr" && actionName === "pdf_ocr") return true;
+              if (t.id === "ai-summarize" && actionName === "pdf_summarize") return true;
+              if (t.id === "pan-card" && actionName === "pancard") return true;
+              return false;
+            });
+          })
+          .filter((t): t is any => t !== null && t !== undefined);
+        
+        const unique = Array.from(new Set(matched)).slice(0, 4);
+        setRecentToolItems(unique);
+      }
+    } catch (e) {
+      console.error("Failed to load recent tools", e);
+    }
+  }, []);
 
   // Homepage SEO
   useEffect(() => {
@@ -193,76 +256,66 @@ export default function SimpleHome() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [mobileMenuOpen]);
 
-  const handleScholarshipClick = () => {
-    setLocation("/scholarship-zip");
-  };
-
-  const handleAadhaarClick = () => {
-    setLocation("/aadhaar-mask");
-  };
-
-  const handlePanClick = () => {
-    setLocation("/pan-card-resize");
-  };
-
-  const handleResizeClick = () => {
-    setLocation("/resize-image");
-  };
-
-  const handleCompressPdfClick = () => {
-    setLocation("/compress-pdf");
-  };
-
-  const handleMergePdfClick = () => {
-    setLocation("/merge-pdf");
-  };
-
-  const handleOcrClick = () => {
-    setLocation("/ocr");
-  };
-
-  const handleDocxToPdfClick = () => {
-    setLocation("/word-to-pdf");
-  };
-
-  const handleRemoveBgClick = () => {
-    setLocation("/remove-background");
-  };
-
-  const handleAiSummarizeClick = () => {
-    setLocation("/ai-pdf-summary");
-  };
-
-  const curatedTools: CuratedTool[] = [
-    // India-Specific
-    { id: "scholarship-zip", title: "Scholarship ZIP Maker", description: "Income, marksheet, bank passbook, photo & signature compiled in one ZIP.", category: "india", action: handleScholarshipClick, badge: "Popular", icon: GraduationCap, tags: ["scholarship", "zip", "svmcm", "oasis", "kanyashree", "annapurna"] },
-    { id: "aadhaar-masking", title: "Aadhaar Card Masking", description: "Mask the first 8 digits of your Aadhaar card scan for secure uploads.", category: "india", action: handleAadhaarClick, badge: "Secure", icon: ShieldCheck, tags: ["aadhaar", "mask", "uidai", "card", "security"] },
-    { id: "pan-card", title: "PAN Card Upload Fix", description: "Resize and optimize signature & photo scans for NSDL/UTI forms.", category: "india", action: handlePanClick, badge: "CSC Special", icon: IdCard, tags: ["pan", "signature", "photo", "nsdl", "uti"] },
-    
-    // PDF
-    { id: "merge-pdf", title: "Merge PDF Files", description: "Combine multiple PDF documents into a single organized file.", category: "pdf", action: handleMergePdfClick, icon: FileText, tags: ["merge", "combine", "pdf", "join"] },
-    { id: "compress-pdf", title: "Compress PDF", description: "Shrink PDF size to under 200KB to fit portal size restrictions.", category: "pdf", action: handleCompressPdfClick, icon: FileText, tags: ["compress", "pdf", "shrink", "size", "under 200kb"] },
-    
-    // Image
-    { id: "resize-photo", title: "Resize Photo & Signature", description: "Resize images to custom width/height and format specifications.", category: "image", action: handleResizeClick, icon: ImageIcon, tags: ["resize", "photo", "signature", "width", "height", "crop"] },
-    { id: "remove-bg", title: "AI Background Remover", description: "Remove image background automatically to output a transparent PNG.", category: "image", action: handleRemoveBgClick, badge: "New", icon: Sparkles, tags: ["bg", "background", "remove", "transparent", "png", "ai"] },
-    
-    // Office
-    { id: "docx-to-pdf", title: "DOCX to PDF Converter", description: "Convert Microsoft Word document (.docx) into standard readable PDF.", category: "office", action: handleDocxToPdfClick, icon: Settings2, tags: ["docx", "word", "pdf", "convert"] },
-    
-    // AI
-    { id: "pdf-ocr", title: "OCR Scan-to-Text", description: "Extract editable text from scanned certificate images and PDFs.", category: "ai", action: handleOcrClick, badge: "AI", icon: Sparkles, tags: ["ocr", "scan", "text", "extract", "image"] },
-    { id: "ai-summarize", title: "AI PDF Summarizer", description: "Generate structured, concise summaries from long PDF documents.", category: "ai", action: handleAiSummarizeClick, badge: "AI", icon: Sparkles, tags: ["summarize", "summary", "ai", "pdf", "long"] }
-  ];
-
-  const filteredTools = curatedTools.filter(tool => {
-    const matchesCategory = activeCategoryFilter === "all" || tool.category === activeCategoryFilter;
-    const matchesSearch = !searchQuery || 
-      tool.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      tool.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (tool.tags && tool.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())));
-    return matchesCategory && matchesSearch;
+  const filteredTools = allSearchableTools.filter(tool => {
+    const query = searchQuery.toLowerCase().trim();
+    if (!query) return true;
+    return (
+      tool.title.toLowerCase().includes(query) ||
+      tool.description.toLowerCase().includes(query) ||
+      tool.id.toLowerCase().includes(query) ||
+      (tool.tags && tool.tags.some(tag => tag.toLowerCase().includes(query)))
+    );
   });
+
+  const renderToolCard = (tool: any, categoryOverride?: string) => {
+    const ToolIcon = tool.icon || HelpCircle;
+    const cat = categoryOverride || tool.category || "pdf";
+    const displayCategory = 
+      cat === "india" ? tText("Indian Portals") :
+      cat === "pdf" ? tText("PDF Tools") :
+      cat === "image" ? tText("Image Tools") :
+      cat === "office" ? tText("Office & Docs") :
+      cat === "ai" ? tText("AI Suite") :
+      tText(cat);
+
+    return (
+      <Link
+        key={tool.id}
+        href={tool.canonical}
+        className="group bg-white dark:bg-slate-900/30 hover:bg-slate-50 dark:hover:bg-slate-900/60 border border-gray-200 dark:border-slate-800 hover:border-indigo-400/40 dark:hover:border-indigo-500/25 rounded-2xl p-5 cursor-pointer transition-all duration-300 flex flex-col justify-between shadow-sm hover:shadow-md text-left block"
+      >
+        <div>
+          <div className="flex items-start justify-between mb-4">
+            <div className="h-10 w-10 rounded-xl bg-indigo-50 dark:bg-slate-950 border border-indigo-100 dark:border-slate-850 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
+              <ToolIcon className="h-5 w-5" />
+            </div>
+            {tool.badge && (
+              <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border ${
+                tool.badge === "Popular" ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/25" :
+                tool.badge === "Secure" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25" :
+                tool.badge === "AI" ? "bg-purple-500/10 text-purple-650 dark:text-purple-400 border-purple-500/25" :
+                "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-border dark:border-slate-700"
+              }`}>
+                {tool.badge}
+              </span>
+            )}
+          </div>
+          <h3 className="font-bold text-sm text-gray-900 dark:text-white mb-1.5 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+            {tool.title}
+          </h3>
+          <p className="text-xs text-gray-600 dark:text-slate-400 leading-relaxed">
+            {tool.description}
+          </p>
+        </div>
+        <div className="mt-4 pt-3 border-t border-gray-100 dark:border-slate-900/60 flex items-center justify-between text-[10px] text-gray-500 dark:text-slate-500 font-bold uppercase tracking-wider">
+          <span>{displayCategory}</span>
+          <span className="flex items-center gap-0.5 text-indigo-600 dark:text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity">
+            {tText("Open")} <ChevronRight className="h-3 w-3" />
+          </span>
+        </div>
+      </Link>
+    );
+  };
 
   return (
     <div 
@@ -528,86 +581,100 @@ export default function SimpleHome() {
             </Link>
           </div>
 
-          {/* Grid Filters */}
-          <div className="flex flex-wrap gap-2 mb-8">
-            {[
-              { key: "all", label: tText("All Curated") },
-              { key: "india", label: tText("Indian Portals") },
-              { key: "pdf", label: tText("PDF Tools") },
-              { key: "image", label: tText("Image Tools") },
-              { key: "office", label: tText("Office & Docs") },
-              { key: "ai", label: tText("AI Suite") }
-            ].map((cat) => (
-              <button
-                key={cat.key}
-                onClick={() => setActiveCategoryFilter(cat.key as any)}
-                className={`py-1.5 px-3.5 rounded-lg border text-xs font-bold transition-all cursor-pointer ${
-                  activeCategoryFilter === cat.key
-                    ? "bg-indigo-600 border-indigo-500 text-white shadow-glow-indigo"
-                    : "bg-white dark:bg-slate-900/60 border-gray-200 dark:border-slate-800 text-gray-700 dark:text-slate-400 hover:border-indigo-300 dark:hover:border-slate-700 hover:text-gray-900 dark:hover:text-slate-200"
-                }`}
-              >
-                {cat.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Tools Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredTools.map((tool) => {
-              const ToolIcon = tool.icon || HelpCircle;
-              const canonicalUrl = 
-                tool.id === "scholarship-zip" ? "/scholarship-zip" :
-                tool.id === "aadhaar-masking" ? "/aadhaar-mask" :
-                tool.id === "pan-card" ? "/pan-card-resize" :
-                tool.id === "merge-pdf" ? "/merge-pdf" :
-                tool.id === "compress-pdf" ? "/compress-pdf" :
-                tool.id === "resize-photo" ? "/resize-image" :
-                tool.id === "remove-bg" ? "/remove-background" :
-                tool.id === "docx-to-pdf" ? "/word-to-pdf" :
-                tool.id === "pdf-ocr" ? "/ocr" :
-                tool.id === "ai-summarize" ? "/ai-pdf-summary" :
-                `/tools/${tool.id}`;
-
-              return (
-                <Link
-                  key={tool.id}
-                  href={canonicalUrl}
-                  className="group bg-white dark:bg-slate-900/30 hover:bg-slate-50 dark:hover:bg-slate-900/60 border border-gray-200 dark:border-slate-800 hover:border-indigo-400/40 dark:hover:border-indigo-500/25 rounded-2xl p-5 cursor-pointer transition-all duration-300 flex flex-col justify-between shadow-sm hover:shadow-md text-left block"
-                >
-                  <div>
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="h-10 w-10 rounded-xl bg-indigo-50 dark:bg-slate-950 border border-indigo-100 dark:border-slate-850 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
-                        <ToolIcon className="h-5 w-5" />
-                      </div>
-                      {tool.badge && (
-                        <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border ${
-                          tool.badge === "Popular" ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/25" :
-                          tool.badge === "Secure" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25" :
-                          tool.badge === "AI" ? "bg-purple-500/10 text-purple-650 dark:text-purple-400 border-purple-500/25" :
-                          "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-border dark:border-slate-700"
-                        }`}>
-                          {tool.badge}
-                        </span>
-                      )}
-                    </div>
-                    <h3 className="font-bold text-sm text-gray-900 dark:text-white mb-1.5 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                      {tText(tool.title)}
+          {searchQuery ? (
+            <div className="space-y-6">
+              <div className="border-b border-border pb-2 flex items-center justify-between">
+                <h3 className="text-base font-black text-gray-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                  <Search className="h-4 w-4 text-indigo-500" />
+                  {tText("Search Results")}
+                </h3>
+                {filteredTools.length > 0 && (
+                  <span className="text-xs text-muted-foreground font-bold">
+                    {filteredTools.length} {tText("tools found")}
+                  </span>
+                )}
+              </div>
+              {filteredTools.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {filteredTools.map((tool) => renderToolCard(tool))}
+                </div>
+              ) : (
+                <div className="text-center py-12 bg-card border border-border rounded-2xl">
+                  <p className="text-sm text-muted-foreground">{tText("No tools match your search query.")}</p>
+                  <button 
+                    onClick={() => setSearchQuery("")}
+                    className="mt-4 inline-flex items-center justify-center text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer bg-transparent border-0 outline-none"
+                  >
+                    {tText("Clear Search")}
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-16">
+              {recentToolItems.length > 0 && (
+                <div className="space-y-4">
+                  <div className="border-b border-border pb-2">
+                    <h3 className="text-base font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-wider flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+                      {tText("Recently Used Tools")}
                     </h3>
-                    <p className="text-xs text-gray-600 dark:text-slate-400 leading-relaxed">
-                      {tText(tool.description)}
-                    </p>
                   </div>
-                  <div className="mt-4 pt-3 border-t border-gray-100 dark:border-slate-900/60 flex items-center justify-between text-[10px] text-gray-500 dark:text-slate-500 font-bold uppercase tracking-wider">
-                    <span>{tText(tool.category === "india" ? "Indian Portals" : tool.category === "pdf" ? "PDF Tools" : tool.category === "image" ? "Image Tools" : tool.category === "office" ? "Office & Docs" : tool.category === "ai" ? "AI Suite" : tool.category)}</span>
-                    <span className="flex items-center gap-0.5 text-indigo-600 dark:text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                      Open <ChevronRight className="h-3 w-3" />
-                    </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {recentToolItems.map((tool) => renderToolCard(tool))}
                   </div>
-                </Link>
-              );
-            })}
-          </div>
+                </div>
+              )}
+
+              <div className="space-y-6">
+                <div className="border-b border-border pb-2">
+                  <h3 className="text-base font-black text-gray-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                    <FileText className="h-4.5 w-4.5 text-indigo-500" />
+                    {tText("Popular PDF Tools")}
+                  </h3>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {pdfToolsList.map((tool) => renderToolCard(tool, "pdf"))}
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <div className="border-b border-border pb-2">
+                  <h3 className="text-base font-black text-gray-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                    <ImageIcon className="h-4.5 w-4.5 text-indigo-500" />
+                    {tText("Image & ID Formatting Lab")}
+                  </h3>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {imageToolsList.map((tool) => renderToolCard(tool, "image"))}
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <div className="border-b border-border pb-2">
+                  <h3 className="text-base font-black text-gray-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                    <Sparkles className="h-4.5 w-4.5 text-indigo-500" />
+                    {tText("AI-Powered Suite")}
+                  </h3>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {aiToolsList.map((tool) => renderToolCard(tool, "ai"))}
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <div className="border-b border-border pb-2">
+                  <h3 className="text-base font-black text-gray-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                    <GraduationCap className="h-4.5 w-4.5 text-indigo-500" />
+                    {tText("Office & Document Suite")}
+                  </h3>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {officeToolsList.map((tool) => renderToolCard(tool, "office"))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
