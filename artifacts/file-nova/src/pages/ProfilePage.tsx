@@ -110,11 +110,9 @@ export default function ProfilePage() {
 
       {/* Back button */}
       <div className="max-w-4xl mx-auto px-4 pt-8 pb-4 relative z-10">
-        <Link href="/">
-          <a className="inline-flex items-center gap-2 rounded-xl border border-slate-900 bg-slate-950/65 backdrop-blur-md px-4 py-2 text-xs font-bold text-slate-400 hover:text-white transition-all hover:scale-105">
-            <ChevronLeft className="h-4 w-4" />
-            Back to Home
-          </a>
+        <Link href="/" className="inline-flex items-center gap-2 rounded-xl border border-slate-900 bg-slate-950/65 backdrop-blur-md px-4 py-2 text-xs font-bold text-slate-400 hover:text-white transition-all hover:scale-105">
+          <ChevronLeft className="h-4 w-4" />
+          Back to Home
         </Link>
       </div>
 

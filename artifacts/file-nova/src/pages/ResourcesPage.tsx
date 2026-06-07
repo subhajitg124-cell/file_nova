@@ -275,11 +275,9 @@ export default function ResourcesPage() {
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-border dark:border-slate-900 bg-card/85 dark:bg-slate-950/80 backdrop-blur-xl transition-all">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
-          <Link href="/">
-            <a className="inline-flex items-center gap-2 rounded-xl border border-border bg-card/65 backdrop-blur-md px-3.5 py-1.5 text-xs font-bold text-muted-foreground hover:text-foreground transition-all hover:scale-105">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Home
-            </a>
+          <Link href="/" className="inline-flex items-center gap-2 rounded-xl border border-border bg-card/65 backdrop-blur-md px-3.5 py-1.5 text-xs font-bold text-muted-foreground hover:text-foreground transition-all hover:scale-105">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Home
           </Link>
 
           <UserProfileDropdown />

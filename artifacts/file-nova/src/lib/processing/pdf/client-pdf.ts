@@ -1,7 +1,7 @@
 import { wrap } from 'comlink';
 
 function createWorker() {
-  return new Worker(new URL('./merge.worker.ts', import.meta.url));
+  return new Worker(new URL('./merge.worker.ts', import.meta.url), { type: 'module' });
 }
 
 export async function runClientSidePdfMerge(files: File[]): Promise<Blob> {

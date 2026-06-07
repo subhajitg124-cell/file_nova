@@ -1,5 +1,11 @@
 import { Router, type IRouter } from "express";
 import { HealthCheckResponse } from "@workspace/api-zod";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const router: IRouter = Router();
 
@@ -28,6 +34,25 @@ router.get("/live", (_req, res) => {
 
 // Comprehensive health check with service status
 router.get("/health", async (_req, res) => {
+  // Default to available (or load overrides from settings.json)
+  let libreofficeAvailable = true;
+  let ffmpegAvailable = true;
+
+  try {
+    const settingsFile = path.join(__dirname, "../../../settings.json");
+    if (fs.existsSync(settingsFile)) {
+      const settings = JSON.parse(fs.readFileSync(settingsFile, "utf-8"));
+      if (settings.libreofficeAvailableOverride !== undefined) {
+        libreofficeAvailable = settings.libreofficeAvailableOverride;
+      }
+      if (settings.ffmpegAvailableOverride !== undefined) {
+        ffmpegAvailable = settings.ffmpegAvailableOverride;
+      }
+    }
+  } catch (e) {
+    // Ignore error
+  }
+
   const healthStatus = {
     status: "healthy",
     timestamp: new Date().toISOString(),
@@ -37,8 +62,8 @@ router.get("/health", async (_req, res) => {
     services: {
       database: "unknown",
       redis: process.env.REDIS_URL ? "configured" : "disabled",
-      libreoffice_headless: "available",
-      ffmpeg: "available",
+      libreoffice_headless: libreofficeAvailable ? "available" : "unavailable",
+      ffmpeg: ffmpegAvailable ? "available" : "unavailable",
     },
   };
 

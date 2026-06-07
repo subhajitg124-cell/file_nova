@@ -209,11 +209,13 @@ export default function AdminDashboard() {
 
           {/* Settings */}
           <div className="rounded-xl border border-border bg-card p-3 space-y-3">
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-muted-foreground">Settings</p>
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-muted-foreground">Settings Panel</p>
 
+            {/* System Engine Status */}
             <div className="space-y-2">
+              <p className="text-[10px] font-black uppercase tracking-wider text-primary">System Engine</p>
               <label className="flex items-center justify-between cursor-pointer">
-                <span className="text-xs font-semibold">Standalone mode</span>
+                <span className="text-xs font-semibold">Standalone Simulator</span>
                 <input
                   type="checkbox"
                   checked={admin.settings.standaloneMode}
@@ -222,7 +224,7 @@ export default function AdminDashboard() {
                 />
               </label>
               <label className="flex items-center justify-between cursor-pointer">
-                <span className="text-xs font-semibold">Editing enabled</span>
+                <span className="text-xs font-semibold">Editing Enabled</span>
                 <input
                   type="checkbox"
                   checked={admin.settings.editingEnabled}
@@ -232,10 +234,97 @@ export default function AdminDashboard() {
               </label>
             </div>
 
+            {/* Capabilities Override Controls */}
             <div className="border-t border-border pt-3 space-y-2">
-              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Offers & Events</p>
+              <p className="text-[10px] font-black uppercase tracking-wider text-primary">Manual Server Overrides</p>
+              <label className="flex items-center justify-between cursor-pointer" title="Force LibreOffice availability to render DOCX/PPTX converters Available">
+                <span className="text-xs font-semibold">LibreOffice (Office Convert)</span>
+                <input
+                  type="checkbox"
+                  checked={admin.settings.libreofficeAvailableOverride !== false}
+                  onChange={(e) => admin.setSettings({ libreofficeAvailableOverride: e.target.checked })}
+                  className="accent-primary"
+                />
+              </label>
+              <label className="flex items-center justify-between cursor-pointer" title="Force FFmpeg availability to render Video/Audio tools Available">
+                <span className="text-xs font-semibold">FFmpeg (Video Process)</span>
+                <input
+                  type="checkbox"
+                  checked={admin.settings.ffmpegAvailableOverride !== false}
+                  onChange={(e) => admin.setSettings({ ffmpegAvailableOverride: e.target.checked })}
+                  className="accent-primary"
+                />
+              </label>
+            </div>
+
+            {/* Global Notice Banner Controls */}
+            <div className="border-t border-border pt-3 space-y-2">
+              <p className="text-[10px] font-black uppercase tracking-wider text-primary">Global Notice Banner</p>
+              <label className="flex items-center justify-between cursor-pointer">
+                <span className="text-xs font-semibold">Active Banner</span>
+                <input
+                  type="checkbox"
+                  checked={admin.settings.globalNoticeActive || false}
+                  onChange={(e) => admin.setSettings({ globalNoticeActive: e.target.checked })}
+                  className="accent-primary"
+                />
+              </label>
               <div>
-                <label htmlFor="active-offer-input" className="block text-[11px] font-bold text-muted-foreground mb-1">Announced Offer</label>
+                <label htmlFor="global-notice-text-input" className="block text-[9px] font-bold text-muted-foreground mb-1">Notice Banner Text</label>
+                <input
+                  id="global-notice-text-input"
+                  value={admin.settings.globalNoticeText || ""}
+                  onChange={(e) => admin.setSettings({ globalNoticeText: e.target.value })}
+                  placeholder="e.g. Server maintenance scheduled at 10 PM IST"
+                  className="w-full rounded-md border border-border bg-background p-2 text-xs"
+                />
+              </div>
+              <div>
+                <label htmlFor="global-notice-type-select" className="block text-[9px] font-bold text-muted-foreground mb-1">Warning Level Type</label>
+                <select
+                  id="global-notice-type-select"
+                  value={admin.settings.globalNoticeType || "info"}
+                  onChange={(e) => admin.setSettings({ globalNoticeType: e.target.value as any })}
+                  className="w-full rounded-md border border-border bg-background p-2 text-xs"
+                >
+                  <option value="info">Info (Blue)</option>
+                  <option value="warning">Warning (Amber)</option>
+                  <option value="error">Error/Danger (Red)</option>
+                  <option value="success">Success (Green)</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Global Pop-up Notice Controls */}
+            <div className="border-t border-border pt-3 space-y-2">
+              <p className="text-[10px] font-black uppercase tracking-wider text-primary">Announcement Pop-up</p>
+              <label className="flex items-center justify-between cursor-pointer">
+                <span className="text-xs font-semibold">Active Pop-up</span>
+                <input
+                  type="checkbox"
+                  checked={admin.settings.popupMessageActive || false}
+                  onChange={(e) => admin.setSettings({ popupMessageActive: e.target.checked })}
+                  className="accent-primary"
+                />
+              </label>
+              <div>
+                <label htmlFor="popup-message-text-area" className="block text-[9px] font-bold text-muted-foreground mb-1">Pop-up Modal Text</label>
+                <textarea
+                  id="popup-message-text-area"
+                  value={admin.settings.popupMessageText || ""}
+                  onChange={(e) => admin.setSettings({ popupMessageText: e.target.value })}
+                  placeholder="Type full announcement message here..."
+                  rows={3}
+                  className="w-full rounded-md border border-border bg-background p-2 text-xs font-sans resize-none"
+                />
+              </div>
+            </div>
+
+            {/* Offers & Themes */}
+            <div className="border-t border-border pt-3 space-y-2">
+              <p className="text-[10px] font-black uppercase tracking-wider text-primary">Offers & Event Themes</p>
+              <div>
+                <label htmlFor="active-offer-input" className="block text-[9px] font-bold text-muted-foreground mb-1">Announced Offer</label>
                 <input
                   id="active-offer-input"
                   value={admin.settings.activeOffer || ""}
@@ -245,7 +334,7 @@ export default function AdminDashboard() {
                 />
               </div>
               <div>
-                <label htmlFor="discount-input" className="block text-[11px] font-bold text-muted-foreground mb-1">Discount %</label>
+                <label htmlFor="discount-input" className="block text-[9px] font-bold text-muted-foreground mb-1">Discount %</label>
                 <input
                   id="discount-input"
                   type="number" min="0" max="100"
@@ -255,32 +344,32 @@ export default function AdminDashboard() {
                 />
               </div>
               <div>
-                <label htmlFor="event-theme-select" className="block text-[11px] font-bold text-muted-foreground mb-1">Event Theme</label>
+                <label htmlFor="event-theme-select" className="block text-[9px] font-bold text-muted-foreground mb-1">Theme Change</label>
                 <select
                   id="event-theme-select"
                   value={admin.settings.eventTheme || "none"}
                   onChange={(e) => admin.setSettings({ eventTheme: e.target.value as any })}
-                  className="w-full rounded-md border border-border bg-background p-2 text-xs"
+                  className="w-full rounded-md border border-border bg-background p-2 text-xs font-semibold"
                 >
-                  <option value="none">Standard (Default)</option>
+                  <option value="none">Standard Dark (Default)</option>
                   <option value="warm">Warm/Festival</option>
                   <option value="cool">Cool/Tech</option>
                   <option value="tricolor">Indian Tri-color</option>
-                  <option value="diwali">Diwali</option>
-                  <option value="holi">Holi</option>
-                  <option value="newYear">New Year</option>
+                  <option value="diwali">Diwali (Golden/Purple)</option>
+                  <option value="holi">Holi (Vibrant Gradient)</option>
+                  <option value="newYear">New Year (Sparkles)</option>
                   <option value="scholarship">Scholarship</option>
                 </select>
               </div>
             </div>
 
             <div className="border-t border-border pt-3 space-y-2">
-              <p className="text-xs font-bold text-muted-foreground">Change Credentials</p>
+              <p className="text-[10px] font-black uppercase tracking-wider text-primary">Admin Credentials</p>
               <input value={newUser} onChange={(e) => setNewUser(e.target.value)} placeholder="New username" aria-label="New username" className="w-full rounded-md border border-border bg-background p-2 text-xs" />
               <input value={newPass} onChange={(e) => setNewPass(e.target.value)} placeholder="New password" type="password" aria-label="New password" className="w-full rounded-md border border-border bg-background p-2 text-xs" />
               <button
                 onClick={() => { if (newUser && newPass) { admin.setCredentials(newUser, newPass); toast.success("Credentials updated"); setNewUser(""); setNewPass(""); } }}
-                className="w-full rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground cursor-pointer"
+                className="w-full rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground cursor-pointer hover:opacity-90 transition"
               >
                 Update Credentials
               </button>

@@ -36,7 +36,7 @@ export const apiClient = {
     }
 
     try {
-      const res = await fetchWithRetry(`${BACKEND_URL}/api/healthz`, {
+      const res = await fetchWithRetry(`${BACKEND_URL}/api/health`, {
         signal: AbortSignal.timeout(3000),
       });
       if (!res.ok) throw new Error('Health check status not ok');

@@ -153,23 +153,23 @@ const Footer: React.FC = () => {
             <h4 className="font-semibold mb-4 text-white">{tText("Quick Links")}</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/tools">
-                  <a className="text-slate-400 hover:text-indigo-400 transition-colors">{tText("All Tools")}</a>
+                <Link href="/tools" className="text-slate-400 hover:text-indigo-400 transition-colors">
+                  {tText("All Tools")}
                 </Link>
               </li>
               <li>
-                <Link href="/pricing">
-                  <a className="text-slate-400 hover:text-indigo-400 transition-colors">{tText("Pricing")}</a>
+                <Link href="/pricing" className="text-slate-400 hover:text-indigo-400 transition-colors">
+                  {tText("Pricing")}
                 </Link>
               </li>
               <li>
-                <Link href="/resources">
-                  <a className="text-slate-400 hover:text-indigo-400 transition-colors">{tText("Resources")}</a>
+                <Link href="/resources" className="text-slate-400 hover:text-indigo-400 transition-colors">
+                  {tText("Resources")}
                 </Link>
               </li>
               <li>
-                <Link href="/contact">
-                  <a className="text-slate-400 hover:text-indigo-400 transition-colors">{tText("Contact")}</a>
+                <Link href="/contact" className="text-slate-400 hover:text-indigo-400 transition-colors">
+                  {tText("Contact")}
                 </Link>
               </li>
             </ul>
@@ -180,23 +180,23 @@ const Footer: React.FC = () => {
             <h4 className="font-semibold mb-4 text-white">{tText("Popular Tools")}</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/merge-pdf">
-                  <a className="text-slate-400 hover:text-indigo-400 transition-colors">{tText("Merge PDF")}</a>
+                <Link href="/merge-pdf" className="text-slate-400 hover:text-indigo-400 transition-colors">
+                  {tText("Merge PDF")}
                 </Link>
               </li>
               <li>
-                <Link href="/compress-pdf">
-                  <a className="text-slate-400 hover:text-indigo-400 transition-colors">{tText("Compress PDF")}</a>
+                <Link href="/compress-pdf" className="text-slate-400 hover:text-indigo-400 transition-colors">
+                  {tText("Compress PDF")}
                 </Link>
               </li>
               <li>
-                <Link href="/resize-image">
-                  <a className="text-slate-400 hover:text-indigo-400 transition-colors">{tText("Resize Photo")}</a>
+                <Link href="/resize-image" className="text-slate-400 hover:text-indigo-400 transition-colors">
+                  {tText("Resize Photo")}
                 </Link>
               </li>
               <li>
-                <Link href="/scholarship-zip">
-                  <a className="text-slate-400 hover:text-indigo-400 transition-colors">{tText("Scholarship ZIP")}</a>
+                <Link href="/scholarship-zip" className="text-slate-400 hover:text-indigo-400 transition-colors">
+                  {tText("Scholarship ZIP")}
                 </Link>
               </li>
             </ul>
@@ -263,8 +263,8 @@ const Footer: React.FC = () => {
             <a href="#" className="hover:text-white transition-colors">{tText("Privacy Policy")}</a>
             <a href="#" className="hover:text-white transition-colors">{tText("Terms of Service")}</a>
             <a href="#" className="hover:text-white transition-colors">{tText("Cookie Policy")}</a>
-            <Link href="/contact">
-              <a className="hover:text-white transition-colors">{tText("Contact Us")}</a>
+            <Link href="/contact" className="hover:text-white transition-colors">
+              {tText("Contact Us")}
             </Link>
           </div>
         </div>

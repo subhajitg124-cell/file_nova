@@ -58,6 +58,8 @@ import { useFileStore } from "@/store/useFileStore";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { BACKEND_URL, HAS_BACKEND } from "@/lib/api";
 
+import { GlobalNotice } from "@/components/GlobalNotice";
+
 const queryClient = new QueryClient();
 
 interface Props {
@@ -450,6 +452,7 @@ function App() {
                   <FloatingShortcuts />
                   <FileNovaAssistant isOpen={assistantOpen} onClose={() => setAssistantOpen(false)} />
                   <AdminProvider>
+                    <GlobalNotice />
                     <Router />
                     <FileExpiryBar />
                     <Toaster closeButton position="top-right" richColors />
