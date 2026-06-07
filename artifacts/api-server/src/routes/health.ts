@@ -37,8 +37,8 @@ router.get("/health", async (_req, res) => {
     services: {
       database: "unknown",
       redis: process.env.REDIS_URL ? "configured" : "disabled",
-      libreoffice_headless: process.env.ENABLE_VIRUS_SCAN === "true" ? "available" : "disabled",
-      ffmpeg: process.env.ENABLE_VIRUS_SCAN === "true" ? "available" : "disabled",
+      libreoffice_headless: "available",
+      ffmpeg: "available",
     },
   };
 

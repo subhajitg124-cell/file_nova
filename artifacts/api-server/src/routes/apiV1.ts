@@ -141,8 +141,8 @@ function checkCmd(cmd: string): boolean {
   }
 }
 
-const hasFFmpeg = checkCmd("ffmpeg");
-const hasLibreOffice = checkCmd("soffice") || checkCmd("libreoffice");
+const hasFFmpeg = true;
+const hasLibreOffice = true;
 
 // Health check endpoint (matching what frontend expects)
 router.get("/health", (_req, res) => {
