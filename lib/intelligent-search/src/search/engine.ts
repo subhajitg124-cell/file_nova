@@ -34,7 +34,7 @@ export class IntelligentSearchEngine {
     this.synonyms = new SynonymMapper();
     this.analytics = new SearchAnalytics();
     this.cache = new SearchCache(config?.cacheMaxAge ?? 5000);
-    this.config = { ...config };
+    this.config = { maxResults: 10, fuzzyThreshold: 0.35, prefixMinLength: 1, debounceMs: 120, cacheEnabled: true, cacheMaxAge: 5000, normalizeCase: true, removeStopwords: true, weights: { prefixWeight: 0.4, popularityWeight: 0.25, fuzzyWeight: 0.15, clickWeight: 0.1, recentUsageWeight: 0.1, exactMatchBonus: 1.5 }, synonyms: new Map(), ...config };
     if (initialTools.length > 0) this.indexTools(initialTools);
   }
 

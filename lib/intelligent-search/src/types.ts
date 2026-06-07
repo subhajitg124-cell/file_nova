@@ -102,6 +102,7 @@ export const DEFAULT_CONFIG: SearchConfig = {
     recentUsageWeight: 0.1,
     exactMatchBonus: 1.5,
   },
+  synonyms: new Map(),
 };
 
 export const STOPWORDS = new Set([

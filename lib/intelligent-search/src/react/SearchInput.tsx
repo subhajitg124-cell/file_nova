@@ -1,6 +1,7 @@
 'use client';
 
-import type { SearchResult, UseSearchReturn } from './useSearch.js';
+import type { UseSearchReturn } from './useSearch.js';
+import type { SearchResult } from '../types.js';
 import { SearchDropdown } from './SearchDropdown.js';
 import { highlightText } from '../features/highlight.js';
 
@@ -45,10 +46,10 @@ export function SearchInput({
   const handleInputKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setSelectedIndex(prev => Math.min(prev + 1, visibleItemCount - 1));
+      setSelectedIndex(Math.min(selectedIndex + 1, visibleItemCount - 1));
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      setSelectedIndex(prev => Math.max(prev - 1, 0));
+      setSelectedIndex(Math.max(selectedIndex - 1, 0));
     } else if (e.key === 'Enter') {
       e.preventDefault();
       if (selectedIndex >= 0 && selectedIndex < results.length) {
@@ -86,7 +87,7 @@ export function SearchInput({
     lg: 'h-13 px-5 text-lg',
   };
 
-  const itemCount = getVisibleItemCount();
+  const itemCount = visibleItemCount;
 
   return (
     <div className={`relative w-full max-w-2xl ${containerClassName}`}>
@@ -144,6 +145,8 @@ export function SearchInput({
         isLoading={isLoading}
         query={query}
         selectedIndex={selectedIndex}
+        latency={latency}
+        resultCount={resultCount}
         onSelect={handleSelect}
         onHover={setSelectedIndex}
         onSelectHistory={(item) => {

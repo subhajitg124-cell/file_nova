@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { IntelligentSearchEngine } from '../search/engine.js';
-import type { SearchResult, SearchConfig, SearchHistoryItem, ToolMetadata } from '../types.js';
+import type { SearchResult, SearchConfig, SearchHistory, ToolMetadata } from '../types.js';
 
 export interface UseSearchOptions extends Partial<SearchConfig> {
   initialTools?: ToolMetadata[];
@@ -16,7 +16,7 @@ export interface UseSearchReturn {
   setIsOpen: (open: boolean) => void;
   selectedIndex: number;
   setSelectedIndex: (idx: number) => void;
-  history: SearchHistoryItem[];
+  history: SearchHistory[];
   popularQueries: { query: string; count: number }[];
   engine: IntelligentSearchEngine;
   selectResult: (result: SearchResult) => void;
@@ -32,7 +32,7 @@ export function useSearch(options: UseSearchOptions = {}): UseSearchReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  const [history, setHistory] = useState<SearchHistoryItem[]>([]);
+  const [history, setHistory] = useState<SearchHistory[]>([]);
   const [popularQueries, setPopularQueries] = useState<{ query: string; count: number }[]>([]);
   const [latency, setLatency] = useState(0);
   const [resultCount, setResultCount] = useState(0);

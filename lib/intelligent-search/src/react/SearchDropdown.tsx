@@ -1,19 +1,21 @@
 'use client';
 
-import type { SearchResult, SearchHistoryItem } from '../../types.js';
+import type { SearchResult, SearchHistory } from '../types.js';
 import { SearchSuggestion } from './SearchSuggestion.js';
 
 export interface SearchDropdownProps {
   isOpen: boolean;
   results: SearchResult[];
-  history: SearchHistoryItem[];
+  history: SearchHistory[];
   popularQueries: { query: string; count: number }[];
   isLoading: boolean;
   query: string;
   selectedIndex: number;
+  latency: number;
+  resultCount: number;
   onSelect: (result: SearchResult) => void;
   onHover?: (idx: number) => void;
-  onSelectHistory?: (item: SearchHistoryItem) => void;
+  onSelectHistory?: (item: SearchHistory) => void;
   onSelectPopularQuery?: (q: string) => void;
   onClose?: () => void;
   renderItem?: (result: SearchResult, isSelected: boolean) => React.ReactNode;
@@ -34,6 +36,8 @@ export function SearchDropdown({
   selectedIndex,
   onSelect,
   onHover,
+  latency: _latency,
+  resultCount: _resultCount,
   onSelectHistory,
   onSelectPopularQuery,
   onClose,
@@ -180,7 +184,7 @@ export function SearchDropdown({
       {showResults && results.length > 0 && (
         <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs text-gray-400 dark:text-gray-500 bg-gray-50/50 dark:bg-gray-800/30">
           <span>{results.length} result{results.length !== 1 ? 's' : ''}</span>
-          <span>{Math.round(latency || 0)}ms</span>
+          <span>{Math.round(_latency || 0)}ms</span>
         </div>
       )}
     </div>
