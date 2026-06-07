@@ -12,7 +12,7 @@ export interface PageMeta {
   description: string;
   canonical?: string;
   keywords?: string;
-  jsonLd?: Record<string, unknown>;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 /** Upsert a <meta> tag by name or property */
@@ -37,16 +37,20 @@ function upsertLink(rel: string, href: string) {
   el.href = href;
 }
 
-/** Inject / replace JSON-LD <script> for structured data */
-function upsertJsonLd(data: Record<string, unknown>) {
-  let el = document.querySelector<HTMLScriptElement>('script[type="application/ld+json"][data-filenova]');
-  if (!el) {
-    el = document.createElement("script");
+/** Inject / replace JSON-LD <script> tags for structured data */
+function upsertJsonLd(data: Record<string, unknown> | Record<string, unknown>[]) {
+  // Remove all existing data-filenova JSON-LD scripts to avoid stale tags on page transition
+  const existing = document.querySelectorAll('script[type="application/ld+json"][data-filenova]');
+  existing.forEach(el => el.remove());
+
+  const items = Array.isArray(data) ? data : [data];
+  items.forEach((item, index) => {
+    const el = document.createElement("script");
     el.type = "application/ld+json";
-    el.setAttribute("data-filenova", "1");
+    el.setAttribute("data-filenova", String(index));
+    el.textContent = JSON.stringify(item);
     document.head.appendChild(el);
-  }
-  el.textContent = JSON.stringify(data);
+  });
 }
 
 /** Main entry point — call this from a useEffect in any page component */
@@ -70,10 +74,12 @@ export function setPageMeta({ title, description, canonical, keywords, jsonLd }:
   upsertMeta("name", "twitter:title", title);
   upsertMeta("name", "twitter:description", description);
 
-  // Canonical
+  // Canonical & og:url
   if (canonical) {
     const base = "https://filenova.in";
-    upsertLink("canonical", `${base}${canonical}`);
+    const fullUrl = `${base}${canonical}`;
+    upsertLink("canonical", fullUrl);
+    upsertMeta("property", "og:url", fullUrl);
   }
 
   // JSON-LD
@@ -107,6 +113,36 @@ export function toolJsonLd(opts: {
       name: "FileNova",
       url: "https://filenova.in",
     },
+  };
+}
+
+/** Prebuilt JSON-LD for a BreadcrumbList */
+export function breadcrumbJsonLd(items: { name: string; url: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: item.url.startsWith("http") ? item.url : `https://filenova.in${item.url}`,
+    })),
+  };
+}
+
+/** Prebuilt JSON-LD for FAQPage */
+export function faqJsonLd(faqs: { question: string; answer: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map(faq => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
   };
 }
 

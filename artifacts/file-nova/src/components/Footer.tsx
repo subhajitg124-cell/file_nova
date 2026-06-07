@@ -180,22 +180,22 @@ const Footer: React.FC = () => {
             <h4 className="font-semibold mb-4 text-white">{tText("Popular Tools")}</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/tools/pdf-merge">
+                <Link href="/merge-pdf">
                   <a className="text-slate-400 hover:text-indigo-400 transition-colors">{tText("Merge PDF")}</a>
                 </Link>
               </li>
               <li>
-                <Link href="/tools/pdf-compress">
+                <Link href="/compress-pdf">
                   <a className="text-slate-400 hover:text-indigo-400 transition-colors">{tText("Compress PDF")}</a>
                 </Link>
               </li>
               <li>
-                <Link href="/tools/image-resize">
+                <Link href="/resize-image">
                   <a className="text-slate-400 hover:text-indigo-400 transition-colors">{tText("Resize Photo")}</a>
                 </Link>
               </li>
               <li>
-                <Link href="/tools/scholarship-zip">
+                <Link href="/scholarship-zip">
                   <a className="text-slate-400 hover:text-indigo-400 transition-colors">{tText("Scholarship ZIP")}</a>
                 </Link>
               </li>

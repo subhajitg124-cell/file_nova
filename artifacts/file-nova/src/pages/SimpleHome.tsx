@@ -103,7 +103,34 @@ export default function SimpleHome() {
   };
 
   const routeToTool = (toolId: string, file: File) => {
-    window.history.pushState({ droppedFile: file }, "", `/tools/${toolId}`);
+    const canonicalMap: Record<string, string> = {
+      "compress-pdf": "compress-pdf",
+      "merge-pdf": "merge-pdf",
+      "image-to-pdf": "image-to-pdf",
+      "images-to-pdf": "image-to-pdf",
+      "pdf-to-image": "pdf-to-image",
+      "pdf-to-images": "pdf-to-image",
+      "ocr": "ocr",
+      "pdf-ocr": "ocr",
+      "resize-photo": "resize-image",
+      "resize-image": "resize-image",
+      "remove-bg": "remove-background",
+      "remove-background": "remove-background",
+      "aadhaar-masking": "aadhaar-mask",
+      "aadhaar-mask": "aadhaar-mask",
+      "pan-card": "pan-card-resize",
+      "pan-card-resize": "pan-card-resize",
+      "docx-to-pdf": "word-to-pdf",
+      "word-to-pdf": "word-to-pdf",
+      "scholarship-zip-maker": "scholarship-zip",
+      "scholarship-zip": "scholarship-zip",
+      "scholarship": "scholarship-zip",
+      "ai-summarize": "ai-pdf-summary",
+      "ai-pdf-summary": "ai-pdf-summary"
+    };
+
+    const targetSlug = canonicalMap[toolId] || `tools/${toolId}`;
+    window.history.pushState({ droppedFile: file }, "", `/${targetSlug}`);
     window.dispatchEvent(new Event("popstate"));
   };
 
@@ -113,7 +140,7 @@ export default function SimpleHome() {
     
     if (ext === 'docx' || ext === 'doc') {
       return [
-        { id: 'docx-to-pdf', title: 'DOCX to PDF Converter', desc: 'Convert Word document to PDF' }
+        { id: 'word-to-pdf', title: 'Word to PDF Converter', desc: 'Convert Word document to PDF' }
       ];
     }
     if (ext === 'xlsx' || ext === 'xls') {
@@ -145,7 +172,7 @@ export default function SimpleHome() {
     return [
       { id: 'compress-pdf', title: 'Compress PDF', desc: 'Reduce PDF file size' },
       { id: 'merge-pdf', title: 'Merge PDF Files', desc: 'Combine multiple PDFs' },
-      { id: 'resize-photo', title: 'Resize Photo', desc: 'Resize to exact dimensions' },
+      { id: 'resize-image', title: 'Resize Photo', desc: 'Resize to exact dimensions' },
       { id: 'scholarship-zip', title: 'Scholarship ZIP', desc: 'Compile student docs' }
     ];
   };
@@ -167,69 +194,43 @@ export default function SimpleHome() {
   }, [mobileMenuOpen]);
 
   const handleScholarshipClick = () => {
-    setLocation("/tools/scholarship-zip");
+    setLocation("/scholarship-zip");
   };
 
   const handleAadhaarClick = () => {
-    setLocation("/tools/aadhaar-masking");
+    setLocation("/aadhaar-mask");
   };
 
   const handlePanClick = () => {
-    setLocation("/tools/pan-card");
+    setLocation("/pan-card-resize");
   };
 
   const handleResizeClick = () => {
-    // Setup store for default resize and redirect
-    useFileStore.getState().clearStore();
-    useFileStore.getState().setSelectedSection("image");
-    useFileStore.getState().setOperation("resize");
-    setLocation("/workspace");
+    setLocation("/resize-image");
   };
 
   const handleCompressPdfClick = () => {
-    useFileStore.getState().clearStore();
-    useFileStore.getState().setSelectedSection("pdf");
-    useFileStore.getState().setOperation("compress");
-    setLocation("/workspace");
+    setLocation("/compress-pdf");
   };
 
   const handleMergePdfClick = () => {
-    useFileStore.getState().clearStore();
-    useFileStore.getState().setSelectedSection("pdf");
-    useFileStore.getState().setOperation("merge");
-    setLocation("/workspace");
+    setLocation("/merge-pdf");
   };
 
   const handleOcrClick = () => {
-    useFileStore.getState().clearStore();
-    useFileStore.getState().setSelectedSection("pdf");
-    useFileStore.getState().setOperation("edit");
-    useFileStore.getState().updateOptions({ operation: "pdf_ocr" });
-    setLocation("/workspace");
+    setLocation("/ocr");
   };
 
   const handleDocxToPdfClick = () => {
-    useFileStore.getState().clearStore();
-    useFileStore.getState().setSelectedSection("office");
-    useFileStore.getState().setOperation("convert");
-    useFileStore.getState().updateOptions({ operation: "docx_to_pdf" });
-    setLocation("/workspace");
+    setLocation("/word-to-pdf");
   };
 
   const handleRemoveBgClick = () => {
-    useFileStore.getState().clearStore();
-    useFileStore.getState().setSelectedSection("image");
-    useFileStore.getState().setOperation("edit");
-    useFileStore.getState().updateOptions({ operation: "remove_bg" });
-    setLocation("/workspace");
+    setLocation("/remove-background");
   };
 
   const handleAiSummarizeClick = () => {
-    useFileStore.getState().clearStore();
-    useFileStore.getState().setSelectedSection("pdf");
-    useFileStore.getState().setOperation("edit");
-    useFileStore.getState().updateOptions({ operation: "pdf_summarize" });
-    setLocation("/workspace");
+    setLocation("/ai-pdf-summary");
   };
 
   const curatedTools: CuratedTool[] = [
@@ -442,9 +443,9 @@ export default function SimpleHome() {
 
           {/* Quick-Link Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
-            <button
-              onClick={handleScholarshipClick}
-              className="flex flex-col items-center justify-between p-6 bg-card hover:bg-slate-50 dark:bg-slate-900/40 dark:hover:bg-slate-900/80 border border-border dark:border-slate-900 hover:border-indigo-500/35 rounded-2xl transition-all duration-300 group shadow-lg hover:shadow-glow-indigo-subtle cursor-pointer"
+            <Link
+              href="/scholarship-zip"
+              className="flex flex-col items-center justify-between p-6 bg-card hover:bg-slate-50 dark:bg-slate-900/40 dark:hover:bg-slate-900/80 border border-border dark:border-slate-900 hover:border-indigo-500/35 rounded-2xl transition-all duration-300 group shadow-lg hover:shadow-glow-indigo-subtle cursor-pointer text-left block"
             >
               <div className="h-12 w-12 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <GraduationCap className="h-6 w-6" />
@@ -454,11 +455,11 @@ export default function SimpleHome() {
                 <span className="text-[11px] text-slate-600 dark:text-slate-500 block mt-1">{tText("Compile portal ZIPs")}</span>
               </div>
               <ArrowRight className="h-4 w-4 text-slate-400 dark:text-slate-600 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 group-hover:translate-x-1 transition-all mt-4" />
-            </button>
+            </Link>
 
-            <button
-              onClick={handleResizeClick}
-              className="flex flex-col items-center justify-between p-6 bg-card hover:bg-slate-50 dark:bg-slate-900/40 dark:hover:bg-slate-900/80 border border-border dark:border-slate-900 hover:border-emerald-500/35 rounded-2xl transition-all duration-300 group shadow-lg hover:shadow-glow-emerald-subtle cursor-pointer"
+            <Link
+              href="/resize-image"
+              className="flex flex-col items-center justify-between p-6 bg-card hover:bg-slate-50 dark:bg-slate-900/40 dark:hover:bg-slate-900/80 border border-border dark:border-slate-900 hover:border-emerald-500/35 rounded-2xl transition-all duration-300 group shadow-lg hover:shadow-glow-emerald-subtle cursor-pointer text-left block"
             >
               <div className="h-12 w-12 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <ImageIcon className="h-6 w-6" />
@@ -468,11 +469,11 @@ export default function SimpleHome() {
                 <span className="text-[11px] text-slate-600 dark:text-slate-500 block mt-1">{tText("Selfies to exact dimensions")}</span>
               </div>
               <ArrowRight className="h-4 w-4 text-slate-400 dark:text-slate-600 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 group-hover:translate-x-1 transition-all mt-4" />
-            </button>
+            </Link>
 
-            <button
-              onClick={handleCompressPdfClick}
-              className="flex flex-col items-center justify-between p-6 bg-card hover:bg-slate-50 dark:bg-slate-900/40 dark:hover:bg-slate-900/80 border border-border dark:border-slate-900 hover:border-purple-500/35 rounded-2xl transition-all duration-300 group shadow-lg hover:shadow-glow-purple-subtle cursor-pointer"
+            <Link
+              href="/compress-pdf"
+              className="flex flex-col items-center justify-between p-6 bg-card hover:bg-slate-50 dark:bg-slate-900/40 dark:hover:bg-slate-900/80 border border-border dark:border-slate-900 hover:border-purple-500/35 rounded-2xl transition-all duration-300 group shadow-lg hover:shadow-glow-purple-subtle cursor-pointer text-left block"
             >
               <div className="h-12 w-12 rounded-xl bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <FileText className="h-6 w-6" />
@@ -482,7 +483,7 @@ export default function SimpleHome() {
                 <span className="text-[11px] text-slate-600 dark:text-slate-500 block mt-1">{tText("Fit portal file limits")}</span>
               </div>
               <ArrowRight className="h-4 w-4 text-slate-400 dark:text-slate-600 group-hover:text-purple-600 dark:group-hover:text-purple-400 group-hover:translate-x-1 transition-all mt-4" />
-            </button>
+            </Link>
           </div>
         </div>
       </section>
@@ -492,19 +493,19 @@ export default function SimpleHome() {
         <div className="max-w-6xl mx-auto px-4 flex items-center gap-3.5">
           <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wider shrink-0 mr-2">{tText("Quick Actions:")}</span>
           {[
-            { label: tText("Aadhaar Card Mask"), action: handleAadhaarClick },
-            { label: tText("NSDL PAN Resize"), action: handlePanClick },
-            { label: tText("Merge PDF"), action: handleMergePdfClick },
-            { label: tText("OCR Extraction"), action: handleOcrClick },
-            { label: tText("Signature Scale"), action: handleResizeClick }
+            { label: tText("Aadhaar Card Mask"), href: "/aadhaar-mask" },
+            { label: tText("NSDL PAN Resize"), href: "/pan-card-resize" },
+            { label: tText("Merge PDF"), href: "/merge-pdf" },
+            { label: tText("OCR Extraction"), href: "/ocr" },
+            { label: tText("Signature Scale"), href: "/resize-image" }
           ].map((act, i) => (
-            <button
+            <Link
               key={i}
-              onClick={act.action}
-              className="inline-flex items-center bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-850 border border-gray-200 dark:border-slate-800 text-gray-700 dark:text-slate-300 font-bold text-xs py-1.5 px-3.5 rounded-full transition-all cursor-pointer shadow-sm"
+              href={act.href}
+              className="inline-flex items-center bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-850 border border-gray-200 dark:border-slate-800 text-gray-700 dark:text-slate-300 font-bold text-xs py-1.5 px-3.5 rounded-full transition-all cursor-pointer shadow-sm animate-pulse-hover"
             >
               {act.label}
-            </button>
+            </Link>
           ))}
         </div>
       </section>
@@ -555,11 +556,24 @@ export default function SimpleHome() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredTools.map((tool) => {
               const ToolIcon = tool.icon || HelpCircle;
+              const canonicalUrl = 
+                tool.id === "scholarship-zip" ? "/scholarship-zip" :
+                tool.id === "aadhaar-masking" ? "/aadhaar-mask" :
+                tool.id === "pan-card" ? "/pan-card-resize" :
+                tool.id === "merge-pdf" ? "/merge-pdf" :
+                tool.id === "compress-pdf" ? "/compress-pdf" :
+                tool.id === "resize-photo" ? "/resize-image" :
+                tool.id === "remove-bg" ? "/remove-background" :
+                tool.id === "docx-to-pdf" ? "/word-to-pdf" :
+                tool.id === "pdf-ocr" ? "/ocr" :
+                tool.id === "ai-summarize" ? "/ai-pdf-summary" :
+                `/tools/${tool.id}`;
+
               return (
-                <div
+                <Link
                   key={tool.id}
-                  onClick={tool.action}
-                  className="group bg-white dark:bg-slate-900/30 hover:bg-slate-50 dark:hover:bg-slate-900/60 border border-gray-200 dark:border-slate-800 hover:border-indigo-400/40 dark:hover:border-indigo-500/25 rounded-2xl p-5 cursor-pointer transition-all duration-300 flex flex-col justify-between shadow-sm hover:shadow-md"
+                  href={canonicalUrl}
+                  className="group bg-white dark:bg-slate-900/30 hover:bg-slate-50 dark:hover:bg-slate-900/60 border border-gray-200 dark:border-slate-800 hover:border-indigo-400/40 dark:hover:border-indigo-500/25 rounded-2xl p-5 cursor-pointer transition-all duration-300 flex flex-col justify-between shadow-sm hover:shadow-md text-left block"
                 >
                   <div>
                     <div className="flex items-start justify-between mb-4">
@@ -590,7 +604,7 @@ export default function SimpleHome() {
                       Open <ChevronRight className="h-3 w-3" />
                     </span>
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>

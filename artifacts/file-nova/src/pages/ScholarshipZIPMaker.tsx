@@ -21,7 +21,7 @@ interface DocumentField {
   sampleName: string;
 }
 
-export default function ScholarshipZIPMaker() {
+export default function ScholarshipZIPMaker({ isEmbedded = false }: { isEmbedded?: boolean }) {
   const [, setLocation] = useLocation();
   const { premiumTier } = useSubscription();
   const [activeTab, setActiveTab] = useState<"upload" | "customize" | "preview">("upload");
@@ -296,32 +296,34 @@ export default function ScholarshipZIPMaker() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-indigo-500 selection:text-white pb-16">
+    <div className={isEmbedded ? "text-slate-100 font-sans pb-16" : "min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-indigo-500 selection:text-white pb-16"}>
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-indigo-900/40 via-purple-900/40 to-slate-950 border-b border-indigo-900/20 py-4 px-6 sticky top-0 z-30 backdrop-blur-xl">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => setLocation("/")}
-              className="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors"
-              aria-label="Back to home"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </button>
-            <div>
-              <h1 className="text-lg font-black bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
-                Scholarship ZIP Studio
-              </h1>
-              <p className="text-xs text-slate-400">Compile & compress portal-ready packs in 3 clicks</p>
+      {!isEmbedded && (
+        <div className="bg-gradient-to-r from-indigo-900/40 via-purple-900/40 to-slate-950 border-b border-indigo-900/20 py-4 px-6 sticky top-0 z-30 backdrop-blur-xl">
+          <div className="max-w-6xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => setLocation("/")}
+                className="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors"
+                aria-label="Back to home"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </button>
+              <div>
+                <h1 className="text-lg font-black bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                  Scholarship ZIP Studio
+                </h1>
+                <p className="text-xs text-slate-400">Compile & compress portal-ready packs in 3 clicks</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 text-xs">
+              <span className="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider">
+                100% Offline
+              </span>
             </div>
           </div>
-          <div className="flex items-center gap-4 text-xs">
-            <span className="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider">
-              100% Offline
-            </span>
-          </div>
         </div>
-      </div>
+      )}
 
       <div className="max-w-5xl mx-auto px-4 mt-8">
         {/* Navigation Tabs */}

@@ -10,6 +10,31 @@
       "memory": 1024
     }
   },
+  "redirects": [
+    { "source": "/tools/compress-pdf", "destination": "/compress-pdf", "permanent": true },
+    { "source": "/tools/merge-pdf", "destination": "/merge-pdf", "permanent": true },
+    { "source": "/tools/images-to-pdf", "destination": "/image-to-pdf", "permanent": true },
+    { "source": "/tools/image-to-pdf", "destination": "/image-to-pdf", "permanent": true },
+    { "source": "/tools/pdf-to-images", "destination": "/pdf-to-image", "permanent": true },
+    { "source": "/tools/pdf-to-image", "destination": "/pdf-to-image", "permanent": true },
+    { "source": "/tools/pdf-ocr", "destination": "/ocr", "permanent": true },
+    { "source": "/tools/ocr", "destination": "/ocr", "permanent": true },
+    { "source": "/tools/resize-photo", "destination": "/resize-image", "permanent": true },
+    { "source": "/tools/resize-image", "destination": "/resize-image", "permanent": true },
+    { "source": "/tools/remove-bg", "destination": "/remove-background", "permanent": true },
+    { "source": "/tools/remove-background", "destination": "/remove-background", "permanent": true },
+    { "source": "/tools/aadhaar-masking", "destination": "/aadhaar-mask", "permanent": true },
+    { "source": "/tools/aadhaar-mask", "destination": "/aadhaar-mask", "permanent": true },
+    { "source": "/tools/pan-card", "destination": "/pan-card-resize", "permanent": true },
+    { "source": "/tools/pan-card-resize", "destination": "/pan-card-resize", "permanent": true },
+    { "source": "/tools/docx-to-pdf", "destination": "/word-to-pdf", "permanent": true },
+    { "source": "/tools/word-to-pdf", "destination": "/word-to-pdf", "permanent": true },
+    { "source": "/tools/scholarship-zip-maker", "destination": "/scholarship-zip", "permanent": true },
+    { "source": "/tools/scholarship-zip", "destination": "/scholarship-zip", "permanent": true },
+    { "source": "/tools/scholarship", "destination": "/scholarship-zip", "permanent": true },
+    { "source": "/tools/ai-summarize", "destination": "/ai-pdf-summary", "permanent": true },
+    { "source": "/tools/ai-pdf-summary", "destination": "/ai-pdf-summary", "permanent": true }
+  ],
   "rewrites": [
     {
       "source": "/api/(.*)",
