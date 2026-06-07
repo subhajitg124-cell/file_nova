@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useAdmin } from "@/lib/admin";
-import { Megaphone, AlertTriangle, CheckCircle, Info, X } from "lucide-react";
+import { Megaphone, AlertTriangle, CheckCircle, Info, X, Youtube } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
+
+const YOUTUBE_CHANNEL_URL = "https://www.youtube.com/@CoverDriveBangla";
+const POPUP_EXPIRY_DATE = new Date("2026-06-21");
 
 export function GlobalNotice() {
   const { settings } = useAdmin();
   const [bannerVisible, setBannerVisible] = useState(true);
   const [popupVisible, setPopupVisible] = useState(false);
+  const [ytPopupVisible, setYtPopupVisible] = useState(true);
 
   // Load dismissal states from sessionStorage
   useEffect(() => {
@@ -110,18 +114,66 @@ export function GlobalNotice() {
                 {settings.popupMessageText}
               </div>
 
-              <div className="flex justify-end pt-2">
-                <Button
-                  onClick={handleDismissPopup}
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl cursor-pointer"
-                >
-                  Understood
-                </Button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-    </>
-  );
-}
+<div className="flex justify-end pt-2">
+                 <Button
+                   onClick={handleDismissPopup}
+                   className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl cursor-pointer"
+                 >
+                   Understood
+                 </Button>
+               </div>
+             </motion.div>
+           </div>
+         )}
+       </AnimatePresence>
+
+       {/* ── YouTube Channel Promotion Pop-up ── */}
+       <AnimatePresence>
+         {!settings.popupMessageActive && new Date() < POPUP_EXPIRY_DATE && (
+           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+             <motion.div
+               initial={{ opacity: 0, scale: 0.9, y: 20 }}
+               animate={{ opacity: 1, scale: 1, y: 0 }}
+               exit={{ opacity: 0, scale: 0.9, y: 20 }}
+               transition={{ type: "spring", stiffness: 300, damping: 30 }}
+               className="relative max-w-md w-full bg-card border border-border p-6 rounded-3xl shadow-2xl space-y-4"
+             >
+               <button
+                 onClick={() => {}}
+                 className="absolute right-4 top-4 text-muted-foreground hover:text-foreground p-1.5 rounded-lg hover:bg-muted/50 transition-colors"
+                 aria-label="Close Modal"
+               >
+                 <X className="h-4 w-4" />
+               </button>
+
+               <motion.div
+                 initial={{ rotate: -5 }}
+                 animate={{ rotate: 5 }}
+                 transition={{ repeat: Infinity, repeatType: "reverse", duration: 2 }}
+                 className="flex items-center justify-center"
+               >
+                 <Youtube className="h-12 w-12 text-red-500" />
+               </motion.div>
+
+               <h3 className="text-base font-black text-foreground text-center">Subscribe Our Channel!</h3>
+
+               <p className="text-sm text-center text-muted-foreground">
+                 Check out <span className="text-primary font-bold">@CoverDriveBangla</span> on YouTube for more helpful content.
+               </p>
+
+               <div className="flex flex-col gap-2 pt-2">
+                 <Button
+                   onClick={() => window.open(YOUTUBE_CHANNEL_URL, "_blank")}
+                   className="bg-red-600 hover:bg-red-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl cursor-pointer flex items-center justify-center gap-2"
+                 >
+                   <Youtube className="h-4 w-4" />
+                   Subscribe Now
+                 </Button>
+               </div>
+             </motion.div>
+           </div>
+         )}
+       </AnimatePresence>
+     </>
+   );
+ }
