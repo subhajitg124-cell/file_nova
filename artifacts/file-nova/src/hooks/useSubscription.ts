@@ -96,12 +96,25 @@ export function useSubscription() {
   useEffect(() => {
     fetchStatus();
     syncLocalMetrics();
+
+    const handleSync = () => {
+      syncLocalMetrics();
+    };
+
+    window.addEventListener("storage", handleSync);
+    window.addEventListener("filenova-metrics-sync", handleSync);
+
     // Periodically update to detect changes
     const timer = setInterval(() => {
       syncLocalMetrics();
       fetchStatus();
     }, 4000);
-    return () => clearInterval(timer);
+
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener("storage", handleSync);
+      window.removeEventListener("filenova-metrics-sync", handleSync);
+    };
   }, [fetchStatus, syncLocalMetrics]);
 
   // Dynamic script loader for Razorpay
@@ -304,8 +317,26 @@ export function useSubscription() {
   // Max daily limit rules
   const getDailyLimit = useCallback((): number => {
     if (isTestingPeriodActive()) return Infinity;
-    return dbLimit === -1 ? Infinity : dbLimit;
-  }, [dbLimit]);
+    if (dbLimit === -1) return Infinity;
+    try {
+      const today = getTodayKey();
+      const hasYt = localStorage.getItem("fn_youtube_subscribed_at") === today;
+      const hasInsta = localStorage.getItem("fn_instagram_followed_at") === today;
+      const hasFb = localStorage.getItem("fn_facebook_followed_at") === today;
+
+      let activeCount = 0;
+      if (hasYt) activeCount++;
+      if (hasInsta) activeCount++;
+      if (hasFb) activeCount++;
+
+      if (premiumTier === "free") {
+        if (activeCount === 1) return 6;
+        if (activeCount === 2) return 8;
+        if (activeCount >= 3) return 12;
+      }
+    } catch (_) {}
+    return dbLimit;
+  }, [dbLimit, premiumTier]);
 
   const isLimitReached = useCallback((): boolean => {
     if (isTestingPeriodActive()) return false;

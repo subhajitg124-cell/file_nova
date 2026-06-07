@@ -33,7 +33,7 @@ interface CuratedTool {
 export default function SimpleHome() {
   const [, setLocation] = useLocation();
   const { user } = useAuthStore();
-  const { premiumTier, useCount } = useSubscription();
+  const { premiumTier, useCount, getDailyLimit } = useSubscription();
   const { language, setLanguage } = useLanguage();
   const { tText } = useTranslation();
   
@@ -464,7 +464,7 @@ export default function SimpleHome() {
 
       {premiumTier === "free" && showUpgradeBanner && (
         <div className="bg-gradient-to-r from-indigo-900 via-indigo-950 to-indigo-900 border-b border-indigo-500/20 py-2 px-4 text-center text-xs font-bold text-slate-200 flex items-center justify-center gap-2 relative z-20">
-          <span>{tText("Free plan:")} {Math.max(0, 3 - useCount)} {tText("of 3 uses remaining today")} → <Link href="/pricing" className="text-indigo-400 hover:text-indigo-300 underline">{tText("Upgrade to Pro ₹99/month")}</Link></span>
+          <span>{tText("Free plan:")} {Math.max(0, getDailyLimit() - useCount)} {tText("of")} {getDailyLimit()} {tText("uses remaining today")} → <Link href="/pricing" className="text-indigo-400 hover:text-indigo-300 underline">{tText("Upgrade to Pro ₹99/month")}</Link></span>
           <button
             onClick={() => setShowUpgradeBanner(false)}
             className="absolute right-4 text-slate-400 hover:text-slate-200 cursor-pointer"

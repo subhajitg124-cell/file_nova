@@ -355,7 +355,38 @@ function App() {
     const originalFetch = window.fetch;
     window.fetch = async (...args) => {
       const [input, init] = args;
-      const response = await originalFetch(input, init);
+      const url = typeof input === "string" ? input : (input instanceof URL ? input.toString() : (input && (input as Request).url ? (input as Request).url : ""));
+      
+      if (url && (url.includes("/api/") || url.startsWith("/api/"))) {
+        try {
+          const d = new Date();
+          const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+          const hasYt = localStorage.getItem("fn_youtube_subscribed_at") === today;
+          const hasInsta = localStorage.getItem("fn_instagram_followed_at") === today;
+          const hasFb = localStorage.getItem("fn_facebook_followed_at") === today;
+
+          let activeCount = 0;
+          if (hasYt) activeCount++;
+          if (hasInsta) activeCount++;
+          if (hasFb) activeCount++;
+
+          let bonusLimit = "";
+          if (activeCount === 1) bonusLimit = "6";
+          else if (activeCount === 2) bonusLimit = "8";
+          else if (activeCount >= 3) bonusLimit = "12";
+
+          if (bonusLimit) {
+            const newInit = { ...(init || {}) };
+            const newHeaders = { ...(newInit.headers || {}) };
+            // @ts-ignore
+            newHeaders["x-filenova-bonus-limit"] = bonusLimit;
+            newInit.headers = newHeaders;
+            args[1] = newInit;
+          }
+        } catch (_) {}
+      }
+
+      const response = await originalFetch(...args);
       if (response.status === 403) {
         const clone = response.clone();
         try {

@@ -40,7 +40,13 @@ export async function checkUsageLimit(req: AuthRequest, res: Response, next: Nex
         return next();
       }
 
-      const limit = tier === "pro" ? 100 : (tier === "basic" ? 20 : 3);
+      let limit = tier === "pro" ? 100 : (tier === "basic" ? 20 : 3);
+      if (tier === "free") {
+        const bonusHeader = req.headers["x-filenova-bonus-limit"];
+        if (bonusHeader === "6" || bonusHeader === "8" || bonusHeader === "12") {
+          limit = parseInt(bonusHeader as string, 10);
+        }
+      }
       let usage = req.user.usageToday;
       let lastReset = req.user.lastUsageReset;
 
@@ -106,12 +112,18 @@ export async function checkUsageLimit(req: AuthRequest, res: Response, next: Nex
       return next();
     }
 
-    if (ipUsage >= 3) {
+    let limit = 3;
+    const bonusHeader = req.headers["x-filenova-bonus-limit"];
+    if (bonusHeader === "6" || bonusHeader === "8" || bonusHeader === "12") {
+      limit = parseInt(bonusHeader as string, 10);
+    }
+
+    if (ipUsage >= limit) {
       return res.status(403).json({
         error: "LIMIT_EXCEEDED",
         message: "Daily limit reached",
         plan: "free",
-        limit: 3,
+        limit,
         upgradeUrl: "/pricing"
       });
     }
