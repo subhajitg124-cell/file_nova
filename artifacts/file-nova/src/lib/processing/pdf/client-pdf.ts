@@ -219,8 +219,7 @@ export async function runClientSidePdfInsertShapes(file: File, shapes: PdfShape[
 // ── PDF → Images (uses pdfjs-dist, returns a ZIP blob) ─────────────────────
 export async function runClientSidePdfToImages(file: File, dpi = 150): Promise<Blob> {
   const pdfjsLib = await import('pdfjs-dist');
-  pdfjsLib.GlobalWorkerOptions.workerSrc =
-    `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+  pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
   const JSZip = (await import('jszip')).default;
   const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
   const scale = dpi / 72;

@@ -25,8 +25,7 @@ export const PdfResultPreview: React.FC<Props> = ({ url, maxPages = 8 }) => {
     (async () => {
       try {
         const pdfjsLib = await import('pdfjs-dist');
-        pdfjsLib.GlobalWorkerOptions.workerSrc =
-          `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
         const pdf = await pdfjsLib.getDocument(url).promise;
         if (cancelRef.current) return;
         setTotalPages(pdf.numPages);

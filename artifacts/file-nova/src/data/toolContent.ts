@@ -1,1456 +1,719 @@
-/**
- * toolContent.ts
- * ──────────────────────────────────────────────────────────────
- * Central SEO content store for every dedicated tool landing page.
- * Edit this file to update tool copy, FAQs, steps, or related links
- * without touching any component code.
- *
- * Each key maps to a canonical URL slug:
- *   "compress-pdf"   →  filenova.in/compress-pdf
- *   "merge-pdf"      →  filenova.in/merge-pdf
- *   ... etc.
- */
-
-export interface ToolStep {
-  step: number;
-  title: string;
-  description: string;
-}
-
-export interface ToolFaq {
-  question: string;
-  answer: string;
-}
-
-export interface ToolBenefit {
-  icon: string;
-  title: string;
-  description: string;
-}
+import type { FAQItem } from "../hooks/useSEO";
 
 export interface RelatedTool {
-  slug: string;         // canonical slug, e.g. "merge-pdf"
-  title: string;
-  description: string;
-  icon: string;         // emoji or lucide icon name hint
+  label: string;
+  slug: string;
+  icon: string;
 }
 
 export interface ToolContent {
-  /** canonical slug — matches the URL path segment */
   slug: string;
-  /** Exact H1 text */
-  h1: string;
-  /** 1-sentence tool title for meta title tag */
-  metaTitle: string;
-  /** 150-160 char meta description */
+  title: string;               // <title> tag
+  h1: string;                  // <h1> on page
   metaDescription: string;
-  /** Comma-separated keywords */
   keywords: string;
-  /** Short intro paragraph shown directly below H1 */
-  intro: string;
-  /** Breadcrumb parent label + slug, e.g. ["PDF Tools", "/tools"] */
-  breadcrumb: [string, string];
-  /** Tool colour theme accent for the page */
-  accentColor: "indigo" | "purple" | "emerald" | "amber" | "rose" | "sky";
-  /** 3-4 benefit bullets */
-  benefits: ToolBenefit[];
-  /** 3-5 numbered steps */
-  steps: ToolStep[];
-  /** 4-6 FAQ items — rendered inline in HTML (no lazy load) */
-  faqs: ToolFaq[];
-  /** 3-4 related tools shown at bottom */
+  toolName: string;            // schema toolName
+  toolDescription: string;     // schema description
+  seoBody: string[];           // paragraphs (200+ words total)
+  faqs: FAQItem[];
   relatedTools: RelatedTool[];
-  /** Schema.org applicationCategory for SoftwareApplication */
-  schemaCategory: string;
+  badge?: string;              // e.g. "India Exclusive"
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// TOOL CATALOG
-// ─────────────────────────────────────────────────────────────────────────────
+export const toolContentMap: Record<string, ToolContent> = {
 
-export const TOOL_CONTENT: Record<string, ToolContent> = {
-
-  // ── 1. COMPRESS PDF ────────────────────────────────────────────────────────
-  "compress-pdf": {
-    slug: "compress-pdf",
-    h1: "Compress PDF Online — Free, Fast & Secure",
-    metaTitle: "Compress PDF Online Free — Reduce PDF Size Instantly | FileNova",
-    metaDescription:
-      "Compress PDF files to under 200KB instantly — no uploads, 100% browser-based. Perfect for OASIS, Banglar Shiksha, and government portals. Free forever.",
-    keywords:
-      "compress pdf, reduce pdf size, pdf compressor online, free pdf compressor, compress pdf under 200kb, pdf size reducer india, oasis pdf upload, banglar shiksha pdf",
-    intro:
-      "Need to fit a PDF into a government portal's strict file-size limit? FileNova's PDF compressor reduces any PDF to under 200KB — entirely inside your browser, with zero uploads to any server. Your documents stay private, processing is instant, and it's 100% free.",
-    breadcrumb: ["PDF Tools", "/tools"],
-    accentColor: "indigo",
-    benefits: [
-      {
-        icon: "🔒",
-        title: "100% Private",
-        description: "All compression happens inside your browser. Your files never leave your device.",
-      },
-      {
-        icon: "⚡",
-        title: "Instant Results",
-        description: "No queue, no wait. PDF compressed in seconds using client-side processing.",
-      },
-      {
-        icon: "📱",
-        title: "Works on Mobile",
-        description: "Optimised for Android & iOS. Compress PDFs straight from your phone.",
-      },
-      {
-        icon: "🆓",
-        title: "Completely Free",
-        description: "No sign-up, no watermarks, no limits. Always free for Indian students & CSC operators.",
-      },
-    ],
-    steps: [
-      {
-        step: 1,
-        title: "Upload your PDF",
-        description:
-          "Click 'Upload PDF' or drag and drop your file into the workspace. Supports PDFs up to 50MB.",
-      },
-      {
-        step: 2,
-        title: "Choose compression level",
-        description:
-          "Select Low, Medium, or High compression. For portal uploads, 'High' typically outputs files under 200KB.",
-      },
-      {
-        step: 3,
-        title: "Click Compress",
-        description:
-          "Hit the Compress button. The PDF is processed instantly in your browser — no internet needed after load.",
-      },
-      {
-        step: 4,
-        title: "Download your file",
-        description:
-          "Download the compressed PDF directly. Check the new file size shown — ready for any portal upload.",
-      },
-    ],
-    faqs: [
-      {
-        question: "How small can FileNova compress a PDF?",
-        answer:
-          "FileNova can typically reduce scanned PDFs by 60–80%. Most government documents that start at 2–5MB will compress to under 200KB on 'High' mode. Results vary based on the original content type (scanned images compress more than text-heavy PDFs).",
-      },
-      {
-        question: "Is my PDF data safe?",
-        answer:
-          "Yes. FileNova processes everything inside your browser using JavaScript and WebAssembly. Your PDF is never uploaded to any server. Once you close the tab, no trace of your file remains.",
-      },
-      {
-        question: "Which portals require compressed PDFs?",
-        answer:
-          "Common Indian government portals with file-size limits include OASIS Scholarship (West Bengal), Banglar Shiksha, NSP National Scholarship Portal, Kanyashree, SVMCM, and most state-level e-district portals. The 200KB limit is the most common restriction.",
-      },
-      {
-        question: "Will compressing reduce PDF quality?",
-        answer:
-          "Text-based PDFs retain full quality. Scanned image PDFs will see slight image quality reduction at higher compression, but text remains readable. Use 'Medium' compression for the best quality-to-size ratio.",
-      },
-      {
-        question: "Does this work offline?",
-        answer:
-          "Yes, once the page loads. FileNova uses service workers, so after the first visit you can compress PDFs even without an internet connection.",
-      },
-    ],
-    relatedTools: [
-      {
-        slug: "merge-pdf",
-        title: "Merge PDF",
-        description: "Combine multiple PDFs into one file",
-        icon: "📄",
-      },
-      {
-        slug: "image-to-pdf",
-        title: "Image to PDF",
-        description: "Convert JPG/PNG photos to PDF",
-        icon: "🖼️",
-      },
-      {
-        slug: "ocr",
-        title: "OCR PDF Scanner",
-        description: "Extract text from scanned PDFs",
-        icon: "🔍",
-      },
-      {
-        slug: "word-to-pdf",
-        title: "Word to PDF",
-        description: "Convert DOCX files to PDF",
-        icon: "📝",
-      },
-    ],
-    schemaCategory: "UtilitiesApplication",
-  },
-
-  // ── 2. MERGE PDF ───────────────────────────────────────────────────────────
   "merge-pdf": {
     slug: "merge-pdf",
-    h1: "Merge PDF Files Online — Free & Instant",
-    metaTitle: "Merge PDF Files Free Online — Combine PDFs in Seconds | FileNova",
+    title: "Merge PDF – Free Online PDF Merger | FileNova",
+    h1: "Merge PDF – Free Online PDF Merger",
     metaDescription:
-      "Merge multiple PDF files into one document instantly. 100% free, browser-based, no file uploads. Reorder pages, combine certificates, and download in seconds.",
+      "Merge PDF files online for free. Combine multiple PDF documents into one in seconds. No signup needed. Works on any device — try FileNova's free PDF merger now.",
     keywords:
-      "merge pdf, combine pdf files, join pdf online, pdf merger free, merge pdf online india, combine pdf without upload, free pdf joiner",
-    intro:
-      "Combine any number of PDF documents into a single, organised file — instantly, for free, and without uploading anything to a server. Perfect for combining income certificates, marksheets, Aadhaar cards, and bank passbooks into one PDF for scholarship applications.",
-    breadcrumb: ["PDF Tools", "/tools"],
-    accentColor: "purple",
-    benefits: [
-      {
-        icon: "📦",
-        title: "Combine unlimited files",
-        description: "Merge 2, 5, or 20 PDFs into a single document with drag-to-reorder support.",
-      },
-      {
-        icon: "🔒",
-        title: "No server uploads",
-        description: "Merging happens 100% locally in your browser. Documents are never exposed.",
-      },
-      {
-        icon: "↕️",
-        title: "Reorder freely",
-        description: "Drag and drop files to set your exact page order before merging.",
-      },
-      {
-        icon: "🆓",
-        title: "Forever free",
-        description: "No registration, no watermarks, no hidden costs. Just merge and download.",
-      },
-    ],
-    steps: [
-      {
-        step: 1,
-        title: "Upload your PDF files",
-        description:
-          "Click 'Upload PDFs' or drag multiple PDF files into the workspace. You can add as many as needed.",
-      },
-      {
-        step: 2,
-        title: "Arrange page order",
-        description:
-          "Drag the files into the order you want them to appear in the merged document.",
-      },
-      {
-        step: 3,
-        title: "Click Merge PDF",
-        description:
-          "Hit the Merge button. All PDFs are combined instantly in your browser.",
-      },
-      {
-        step: 4,
-        title: "Download merged PDF",
-        description:
-          "Download your merged PDF file. File is automatically cleared after 1 hour for privacy.",
-      },
+      "merge pdf, combine pdf online, pdf merger free, merge pdf files, combine pdf files, merge pdf online india",
+    toolName: "FileNova PDF Merger",
+    toolDescription:
+      "Free online tool to merge multiple PDF files into one combined document instantly, with no signup required.",
+    seoBody: [
+      "Merging PDF files is one of the most common document tasks — whether you're combining scanned pages, joining chapters of a report, or assembling multiple invoices into a single file for submission.",
+      "FileNova's free PDF merger lets you upload multiple PDF files, arrange them in any order using drag-and-drop, and download the merged result instantly. No account creation, no watermarks, no file size tricks.",
+      "This tool is especially useful for Indian users who need to combine documents for government portal submissions — like clubbing your Aadhaar, PAN, and income proof into a single PDF for scholarship or loan applications.",
+      "All files are processed securely in your browser or on our encrypted servers, and permanently deleted after download. FileNova never stores your documents.",
     ],
     faqs: [
       {
-        question: "How many PDFs can I merge at once?",
-        answer:
-          "FileNova supports merging unlimited PDFs in a single session, though performance is best for files totalling under 100MB. For scholarship applications, you rarely need more than 5–10 documents.",
+        q: "How do I merge PDF files online for free?",
+        a: "Upload your PDF files to FileNova's Merge PDF tool, drag to arrange them in the order you want, then click 'Merge PDF'. Your combined file downloads instantly — no account needed.",
       },
       {
-        question: "Can I reorder pages in the merged PDF?",
-        answer:
-          "Yes. Before merging, you can drag and drop the uploaded files to reorder them. The final PDF will follow exactly the order you set.",
+        q: "Is there a limit on how many PDFs I can merge?",
+        a: "Free users can merge up to 5 PDF files per task. FileNova Pro users get unlimited file merging with no size restrictions.",
       },
       {
-        question: "Is this useful for scholarship applications?",
-        answer:
-          "Absolutely. Many portals like NSP, OASIS, and SVMCM require all documents submitted as a single PDF. Use FileNova to merge your income certificate, Aadhaar, marksheet, and bank passbook into one file.",
+        q: "Is FileNova's PDF merger safe to use?",
+        a: "Yes. Files are processed using encrypted connections and deleted from our servers immediately after your download. We never share or store your documents.",
       },
       {
-        question: "Will the merged PDF maintain the original quality?",
-        answer:
-          "Yes. FileNova merges PDFs without re-encoding content, so text sharpness, image quality, and embedded fonts remain unchanged.",
+        q: "Can I merge PDFs on my phone?",
+        a: "Yes. FileNova works on Android, iPhone, tablet, and desktop browsers. No app download is required — just open the website and use it.",
       },
       {
-        question: "Can I merge password-protected PDFs?",
-        answer:
-          "Currently FileNova does not support merging password-protected PDFs. You'll need to unlock them first using the PDF Unlock tool, then merge.",
+        q: "Can I reorder pages after merging?",
+        a: "You can reorder the input PDF files before merging. For page-level reordering within a merged document, use FileNova's PDF editor after merging.",
       },
     ],
     relatedTools: [
-      {
-        slug: "compress-pdf",
-        title: "Compress PDF",
-        description: "Reduce PDF size after merging",
-        icon: "📉",
-      },
-      {
-        slug: "image-to-pdf",
-        title: "Image to PDF",
-        description: "Convert photos to PDF before merging",
-        icon: "🖼️",
-      },
-      {
-        slug: "scholarship-zip",
-        title: "Scholarship ZIP",
-        description: "Pack all docs into a portal-ready ZIP",
-        icon: "🎓",
-      },
-      {
-        slug: "ocr",
-        title: "OCR Scanner",
-        description: "Extract text from scanned certificates",
-        icon: "🔍",
-      },
+      { label: "Split PDF", slug: "split-pdf", icon: "scissors" },
+      { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
+      { label: "PDF to Word", slug: "pdf-to-word", icon: "file-word" },
+      { label: "Rotate PDF", slug: "rotate-pdf", icon: "rotate" },
     ],
-    schemaCategory: "UtilitiesApplication",
   },
 
-  // ── 3. IMAGE TO PDF ────────────────────────────────────────────────────────
-  "image-to-pdf": {
-    slug: "image-to-pdf",
-    h1: "Convert Images to PDF Online — JPG, PNG & WebP",
-    metaTitle: "Image to PDF Converter Free — JPG PNG to PDF Online | FileNova",
+  "split-pdf": {
+    slug: "split-pdf",
+    title: "Split PDF – Free Online PDF Splitter | FileNova",
+    h1: "Split PDF – Split PDF Files Online Free",
     metaDescription:
-      "Convert multiple JPG, PNG, or WebP images into a single PDF file in seconds. Free, browser-based, no uploads. Perfect for combining scanned certificates.",
+      "Split a PDF into multiple files online for free. Extract specific pages or divide large PDFs instantly. No signup. Works on any device.",
     keywords:
-      "image to pdf, jpg to pdf, png to pdf, convert image to pdf, photos to pdf, multiple images to pdf, free image pdf converter online",
-    intro:
-      "Turn your scanned photos, certificates, and ID images into a clean, single PDF — instantly, in your browser. Whether you photographed your marksheet on your phone or scanned an income certificate, FileNova converts and combines images to PDF without any upload.",
-    breadcrumb: ["PDF Tools", "/tools"],
-    accentColor: "emerald",
-    benefits: [
-      {
-        icon: "📸",
-        title: "Multiple image formats",
-        description: "Supports JPG, JPEG, PNG, WebP, and BMP. Mix formats in a single PDF.",
-      },
-      {
-        icon: "📐",
-        title: "Auto-fit to A4",
-        description: "Images are automatically fitted to A4 page dimensions for standard document output.",
-      },
-      {
-        icon: "🔒",
-        title: "Browser-only processing",
-        description: "Images never leave your device. All conversion happens locally.",
-      },
-      {
-        icon: "🆓",
-        title: "Free & unlimited",
-        description: "No registration required. Convert as many images as you need.",
-      },
-    ],
-    steps: [
-      {
-        step: 1,
-        title: "Upload your images",
-        description:
-          "Click 'Upload Images' or drag your JPG/PNG/WebP files. You can select multiple images at once.",
-      },
-      {
-        step: 2,
-        title: "Arrange image order",
-        description:
-          "Drag images to set the order they'll appear as pages in the final PDF.",
-      },
-      {
-        step: 3,
-        title: "Convert to PDF",
-        description:
-          "Click 'Convert to PDF'. Each image becomes a page in your new PDF document.",
-      },
-      {
-        step: 4,
-        title: "Download your PDF",
-        description:
-          "Download the ready-to-submit PDF. Compress it next if a size limit applies.",
-      },
+      "split pdf, split pdf online free, pdf splitter, extract pdf pages, divide pdf, split pdf india",
+    toolName: "FileNova PDF Splitter",
+    toolDescription:
+      "Free online PDF splitter to divide a single PDF into multiple files or extract specific page ranges.",
+    seoBody: [
+      "Need to extract just a few pages from a large PDF report? Or split a combined document into separate files for different recipients? FileNova's Split PDF tool makes this instant and free.",
+      "Choose from three split modes: split every page into a separate PDF, split by page ranges (e.g. pages 1–5, 6–12), or extract specific individual pages. Download all output files as a ZIP.",
+      "This is especially handy for Indian students and professionals who receive combined mark sheets, certificates, or government letters in a single PDF and need to share specific pages separately.",
+      "No installation required. Works entirely in your browser on any device — Android phone, iPhone, Windows PC, or Mac.",
     ],
     faqs: [
       {
-        question: "Which image formats are supported?",
-        answer:
-          "FileNova supports JPG, JPEG, PNG, WebP, and BMP. You can mix different formats in a single conversion — for example, combine a JPG photo with PNG screenshots.",
+        q: "How do I split a PDF into multiple files?",
+        a: "Upload your PDF to FileNova's Split PDF tool, choose your split method (by page range, every page, or custom pages), and click Split. Download the resulting files as a ZIP archive.",
       },
       {
-        question: "How many images can I convert at once?",
-        answer:
-          "There is no hard limit. Practically, converting up to 30–40 images works smoothly on most devices. For very large batches, processing may take 10–20 seconds.",
+        q: "Can I extract just one page from a PDF?",
+        a: "Yes. Use the 'Extract pages' option, enter the page number you want, and FileNova will create a new PDF with only that page.",
       },
       {
-        question: "Will the image quality be preserved in the PDF?",
-        answer:
-          "Yes. FileNova embeds your images at their original resolution. No automatic quality downgrade happens during conversion unless you apply compression separately.",
+        q: "Is splitting PDFs free on FileNova?",
+        a: "Yes, splitting PDFs is completely free. Free users can split PDFs up to a certain file size. Pro users get unlimited splitting with no restrictions.",
       },
       {
-        question: "Can I convert a single photo to PDF?",
-        answer:
-          "Yes. Upload just one image and convert it to a single-page PDF. This is commonly used to make phone-photographed certificates submission-ready.",
-      },
-      {
-        question: "What should I do if the PDF file size is too large after conversion?",
-        answer:
-          "Use the Compress PDF tool after converting. You can compress the resulting PDF to meet portal file-size limits like 200KB or 500KB.",
+        q: "Will splitting a PDF reduce its quality?",
+        a: "No. FileNova splits PDFs without re-rendering or compressing the content, so all text, images, and formatting remain identical to the original.",
       },
     ],
     relatedTools: [
-      {
-        slug: "compress-pdf",
-        title: "Compress PDF",
-        description: "Shrink the converted PDF to fit portal limits",
-        icon: "📉",
-      },
-      {
-        slug: "merge-pdf",
-        title: "Merge PDF",
-        description: "Combine this PDF with other documents",
-        icon: "📄",
-      },
-      {
-        slug: "resize-image",
-        title: "Resize Image",
-        description: "Resize photos to exact dimensions first",
-        icon: "🖼️",
-      },
-      {
-        slug: "pdf-to-image",
-        title: "PDF to Image",
-        description: "Convert PDF pages back to images",
-        icon: "🔄",
-      },
+      { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
+      { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
+      { label: "Rotate PDF", slug: "rotate-pdf", icon: "rotate" },
+      { label: "PDF to JPG", slug: "pdf-to-jpg", icon: "photo" },
     ],
-    schemaCategory: "UtilitiesApplication",
   },
 
-  // ── 4. PDF TO IMAGE ────────────────────────────────────────────────────────
-  "pdf-to-image": {
-    slug: "pdf-to-image",
-    h1: "Convert PDF to Image Online — Free PDF to JPG/PNG",
-    metaTitle: "PDF to Image Converter Free — PDF to JPG/PNG Online | FileNova",
+  "compress-pdf": {
+    slug: "compress-pdf",
+    title: "Compress PDF – Reduce PDF File Size Free | FileNova",
+    h1: "Compress PDF – Reduce PDF File Size Online Free",
     metaDescription:
-      "Convert PDF pages to high-quality JPG or PNG images online. 100% free, browser-based, no sign-up. Extract individual pages or convert entire PDFs to images.",
+      "Compress PDF files online and reduce file size without losing quality. Shrink PDFs for email, WhatsApp, or government portal uploads. Free, fast, no signup.",
     keywords:
-      "pdf to image, pdf to jpg, pdf to png, convert pdf to image, pdf page to image, extract pdf pages as images, free pdf image converter",
-    intro:
-      "Extract any page from a PDF as a high-quality JPG or PNG image — without any software or server upload. Use this to grab a certificate page, extract a signature, or convert a scanned PDF into editable image files.",
-    breadcrumb: ["PDF Tools", "/tools"],
-    accentColor: "sky",
-    benefits: [
-      {
-        icon: "📄",
-        title: "Page-by-page extraction",
-        description: "Convert all pages or select specific pages to extract as individual images.",
-      },
-      {
-        icon: "🎯",
-        title: "High resolution output",
-        description: "Get crisp 150dpi+ images suitable for printing or re-uploading.",
-      },
-      {
-        icon: "🔒",
-        title: "Private & local",
-        description: "PDFs are processed in your browser. No files sent to any server.",
-      },
-      {
-        icon: "🆓",
-        title: "No registration",
-        description: "Completely free. No account, no watermarks, no limits.",
-      },
-    ],
-    steps: [
-      {
-        step: 1,
-        title: "Upload your PDF",
-        description: "Click 'Upload PDF' or drag your PDF file into the workspace.",
-      },
-      {
-        step: 2,
-        title: "Select pages to convert",
-        description: "Choose to convert all pages or select specific page numbers.",
-      },
-      {
-        step: 3,
-        title: "Choose output format",
-        description: "Select JPG for smaller file size or PNG for transparency support.",
-      },
-      {
-        step: 4,
-        title: "Download your images",
-        description: "Download images individually or as a ZIP file if converting multiple pages.",
-      },
+      "compress pdf, reduce pdf size, compress pdf online free, shrink pdf, pdf compressor india, compress pdf under 100kb",
+    toolName: "FileNova PDF Compressor",
+    toolDescription:
+      "Free online PDF compressor that reduces file size without significant quality loss, ideal for email attachments and government portal uploads.",
+    seoBody: [
+      "Large PDF files are a constant headache — email attachments get rejected, WhatsApp has a 100MB limit, and government portals like DigiLocker or IRCTC often cap uploads at 200KB or 1MB.",
+      "FileNova's PDF compressor intelligently reduces file size by optimizing embedded images, removing redundant metadata, and compressing fonts — while preserving the readability of your document.",
+      "You can choose your compression level: Low (best quality), Medium (balanced), or High (smallest file size). For most government document uploads, Medium compression will bring a 2–3MB PDF down to under 500KB.",
+      "No watermarks. No quality surprise. No account needed. Just upload, compress, and download.",
     ],
     faqs: [
       {
-        question: "What image formats can I export to?",
-        answer:
-          "FileNova currently exports PDF pages as JPG (smaller file size, great for photos) or PNG (supports transparency, better for text-heavy documents).",
+        q: "How do I compress a PDF without losing quality?",
+        a: "Upload your PDF to FileNova's Compress PDF tool and select 'Low' compression for maximum quality preservation. The tool optimizes the file without visibly degrading text or images.",
       },
       {
-        question: "Can I convert only specific pages?",
-        answer:
-          "Yes. You can specify a page range (e.g., pages 1–3) or select individual pages to extract instead of converting the entire document.",
+        q: "Can I compress a PDF to under 100KB?",
+        a: "Yes, for most scanned or image-heavy PDFs, selecting 'High' compression will reduce the file to under 200KB, and often under 100KB. For text-only PDFs, results vary.",
       },
       {
-        question: "What resolution are the output images?",
-        answer:
-          "Output images are generated at 150dpi by default, which provides good quality for most purposes. This is sufficient for re-uploading to government portals.",
+        q: "Will compressing a PDF remove text or images?",
+        a: "No. FileNova's compressor does not remove content. It compresses the encoding of images and fonts to reduce file size while keeping all content intact.",
       },
       {
-        question: "Is there a limit on PDF file size?",
-        answer:
-          "FileNova handles PDFs up to ~50MB efficiently in-browser. Very large PDFs may take longer to process depending on your device's RAM.",
-      },
-      {
-        question: "Can I use this to extract a signature from a PDF?",
-        answer:
-          "Yes. Convert the relevant PDF page to a PNG image, then crop the signature using any image editor. This is commonly done for signature extraction from bank documents.",
+        q: "Is PDF compression free on FileNova?",
+        a: "Yes. Compressing PDFs is completely free for all users. Pro users get batch compression and higher upload size limits.",
       },
     ],
     relatedTools: [
-      {
-        slug: "image-to-pdf",
-        title: "Image to PDF",
-        description: "Convert images back to PDF",
-        icon: "🖼️",
-      },
-      {
-        slug: "compress-pdf",
-        title: "Compress PDF",
-        description: "Reduce PDF size before conversion",
-        icon: "📉",
-      },
-      {
-        slug: "resize-image",
-        title: "Resize Image",
-        description: "Resize the extracted images to required dimensions",
-        icon: "📐",
-      },
-      {
-        slug: "ocr",
-        title: "OCR Scanner",
-        description: "Extract text from PDF pages directly",
-        icon: "🔍",
-      },
+      { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
+      { label: "Compress for Upload", slug: "compress-pdf-for-upload", icon: "cloud-upload" },
+      { label: "PDF to JPG", slug: "pdf-to-jpg", icon: "photo" },
+      { label: "Resize PDF", slug: "resize-pdf", icon: "resize" },
     ],
-    schemaCategory: "UtilitiesApplication",
   },
 
-  // ── 5. OCR ─────────────────────────────────────────────────────────────────
-  "ocr": {
-    slug: "ocr",
-    h1: "OCR PDF Scanner — Extract Text from Scanned Documents",
-    metaTitle: "OCR PDF Online Free — Extract Text from Scanned Certificates | FileNova",
+  "pdf-to-word": {
+    slug: "pdf-to-word",
+    title: "PDF to Word – Convert PDF to DOC/DOCX Free | FileNova",
+    h1: "PDF to Word – Convert PDF to Editable Word Document",
     metaDescription:
-      "Extract editable text from scanned PDFs, Aadhaar cards, and certificates using AI-powered OCR. Free, browser-based, no server upload required.",
+      "Convert PDF to Word (DOCX) online for free. Preserve formatting, tables, and images. Edit your PDF content in Microsoft Word or Google Docs instantly.",
     keywords:
-      "ocr pdf, ocr online free, extract text from pdf, scan to text, pdf text extraction, aadhaar ocr, certificate text extraction, ocr tool india",
-    intro:
-      "Pull editable text out of any scanned PDF, certificate image, or photo using AI-powered OCR (Optical Character Recognition). No server uploads, no subscription — just accurate text extraction in seconds. Ideal for digitising Aadhaar cards, mark sheets, and government certificates.",
-    breadcrumb: ["AI Tools", "/tools"],
-    accentColor: "purple",
-    benefits: [
-      {
-        icon: "🤖",
-        title: "AI-powered accuracy",
-        description: "Advanced OCR engine handles handwritten notes, printed certificates, and stamps.",
-      },
-      {
-        icon: "📋",
-        title: "Copy-ready text",
-        description: "Extracted text is formatted and ready to copy-paste into any form or document.",
-      },
-      {
-        icon: "🔒",
-        title: "Zero server upload",
-        description: "OCR processing happens locally. Your scanned documents stay on your device.",
-      },
-      {
-        icon: "🌐",
-        title: "Multi-language support",
-        description: "Works with English and Hindi text in scanned documents.",
-      },
-    ],
-    steps: [
-      {
-        step: 1,
-        title: "Upload your scanned PDF or image",
-        description: "Upload any scanned document — PDF, JPG, or PNG — using the upload button.",
-      },
-      {
-        step: 2,
-        title: "Select language (if needed)",
-        description: "Choose English or Hindi for better accuracy on regional documents.",
-      },
-      {
-        step: 3,
-        title: "Run OCR scan",
-        description: "Click 'Extract Text'. The AI engine analyses every character on the page.",
-      },
-      {
-        step: 4,
-        title: "Copy or download the text",
-        description: "Review the extracted text, copy it directly, or download as a .txt file.",
-      },
+      "pdf to word, pdf to docx, convert pdf to word online free, pdf to word converter, pdf to editable word",
+    toolName: "FileNova PDF to Word Converter",
+    toolDescription:
+      "Convert PDF files to editable Word DOCX format online for free, preserving formatting and layout.",
+    seoBody: [
+      "Need to edit a PDF but only have Microsoft Word or Google Docs? FileNova's PDF to Word converter extracts all text, tables, and formatting from your PDF and produces a fully editable DOCX file.",
+      "This is essential for editing scanned government letters, updating resume PDFs, or repurposing report content without retyping everything from scratch.",
+      "FileNova uses advanced layout analysis to preserve multi-column layouts, embedded tables, bullet points, and headings — giving you a Word document that closely mirrors the original PDF structure.",
+      "Works with Hindi and regional language PDFs too (Unicode-supported fonts). Converted files can be opened directly in MS Word, LibreOffice, or uploaded to Google Docs.",
     ],
     faqs: [
       {
-        question: "What types of documents work best with OCR?",
-        answer:
-          "Printed documents with clear contrast work best — certificates, Aadhaar cards, bank statements, and mark sheets. Handwritten content can be extracted but with lower accuracy.",
+        q: "How do I convert a PDF to Word for free?",
+        a: "Upload your PDF to FileNova's PDF to Word tool and click Convert. Your DOCX file will be ready to download in seconds — no account or payment required.",
       },
       {
-        question: "Does OCR work on Hindi or regional language PDFs?",
-        answer:
-          "Yes. FileNova's OCR supports English and Hindi. Other regional Indian languages are partially supported. For best results, use clean, high-contrast scans.",
+        q: "Will the formatting be preserved when converting PDF to Word?",
+        a: "FileNova does its best to preserve layout, tables, fonts, and images. Complex multi-column or heavily formatted PDFs may need minor manual adjustments after conversion.",
       },
       {
-        question: "How accurate is the OCR?",
-        answer:
-          "For standard printed documents, accuracy is typically 90–98%. For low-quality scans, faded ink, or handwriting, accuracy may be lower. You can edit the extracted text before copying.",
+        q: "Can I convert a scanned PDF to Word?",
+        a: "Yes. FileNova uses OCR (optical character recognition) to convert scanned PDFs into editable Word documents. For best results, use a high-resolution scan.",
       },
       {
-        question: "Can I extract text from a photographed document?",
-        answer:
-          "Yes. Upload a JPG or PNG photo of a document. For best results, photograph in good lighting and ensure the document is flat and fully in frame.",
-      },
-      {
-        question: "Is the extracted text searchable?",
-        answer:
-          "The extracted text is plain text that you can copy, paste, search through, or export as a .txt file. It is not embedded back into the PDF as searchable text (PDF/A format) in the current version.",
+        q: "Is PDF to Word conversion free on FileNova?",
+        a: "Yes, up to a certain number of conversions per day for free users. Pro users get unlimited conversions with priority processing.",
       },
     ],
     relatedTools: [
-      {
-        slug: "compress-pdf",
-        title: "Compress PDF",
-        description: "Compress the scanned PDF after extraction",
-        icon: "📉",
-      },
-      {
-        slug: "pdf-to-image",
-        title: "PDF to Image",
-        description: "Convert PDF pages to images for editing",
-        icon: "🖼️",
-      },
-      {
-        slug: "ai-pdf-summary",
-        title: "AI PDF Summarizer",
-        description: "Summarise the extracted text with AI",
-        icon: "🤖",
-      },
-      {
-        slug: "merge-pdf",
-        title: "Merge PDF",
-        description: "Combine scanned PDFs into one document",
-        icon: "📄",
-      },
+      { label: "PDF to JPG", slug: "pdf-to-jpg", icon: "photo" },
+      { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
+      { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
+      { label: "OCR PDF", slug: "ocr", icon: "scan" },
     ],
-    schemaCategory: "UtilitiesApplication",
   },
 
-  // ── 6. RESIZE IMAGE ────────────────────────────────────────────────────────
-  "resize-image": {
-    slug: "resize-image",
-    h1: "Resize Image Online Free — Photo & Signature Resizer",
-    metaTitle: "Resize Image Online Free — Resize Photo & Signature for Portals | FileNova",
+  "pdf-to-jpg": {
+    slug: "pdf-to-jpg",
+    title: "PDF to JPG – Convert PDF Pages to Images Free | FileNova",
+    h1: "PDF to JPG – Convert PDF Pages to Images Online",
     metaDescription:
-      "Resize passport photos, signatures, and ID images to exact dimensions for government, scholarship, and job portals. Free, instant, no uploads.",
+      "Convert PDF pages to JPG images online for free. Extract high-quality images from any PDF. No signup needed. Download individually or as a ZIP.",
     keywords:
-      "resize image online, resize photo free, resize signature online, passport photo resize, photo resize kb, government portal photo size, resize image to kb",
-    intro:
-      "Resize any photo or signature image to the exact pixel dimensions or file size required by government portals, job applications, and scholarship forms. Supports custom width/height, preset portal sizes, and file-size compression — all in your browser.",
-    breadcrumb: ["Image Tools", "/tools"],
-    accentColor: "emerald",
-    benefits: [
-      {
-        icon: "📏",
-        title: "Exact pixel dimensions",
-        description: "Set precise width and height in pixels to match any portal's requirements.",
-      },
-      {
-        icon: "🎯",
-        title: "Portal presets",
-        description: "One-click presets for passport photo (200×230px), signature (280×80px), and Aadhaar (856×540px).",
-      },
-      {
-        icon: "📦",
-        title: "File-size control",
-        description: "Compress the output to a target file size like 20KB, 50KB, or 100KB.",
-      },
-      {
-        icon: "🔒",
-        title: "No upload needed",
-        description: "Resizing is done entirely in your browser. Your photos are never sent anywhere.",
-      },
-    ],
-    steps: [
-      {
-        step: 1,
-        title: "Upload your image",
-        description: "Click 'Upload Image' or drag a JPG, PNG, or WebP file into the workspace.",
-      },
-      {
-        step: 2,
-        title: "Set target dimensions",
-        description:
-          "Enter the required width and height in pixels, or choose a preset like 'Passport Photo 200×230'.",
-      },
-      {
-        step: 3,
-        title: "Choose output format",
-        description: "Select JPG, PNG, or WebP. JPG is recommended for photos; PNG for signatures.",
-      },
-      {
-        step: 4,
-        title: "Download resized image",
-        description: "Download your resized image. Check the KB file size — compress further if needed.",
-      },
+      "pdf to jpg, pdf to image, convert pdf to jpg online free, extract images from pdf, pdf to jpeg",
+    toolName: "FileNova PDF to JPG Converter",
+    toolDescription:
+      "Convert PDF pages to high-quality JPG images online for free, with options for resolution and output quality.",
+    seoBody: [
+      "Converting PDF pages to JPG images is useful when you need to share a specific page as an image, embed PDF content in a presentation, or upload a document page to a portal that only accepts image files.",
+      "FileNova converts each page of your PDF to a separate JPG or PNG image at your chosen resolution — 72 DPI for web use or 300 DPI for print-quality output.",
+      "Indian users frequently need this for uploading signature pages, certificates, or photo IDs as image files for scholarship portals, bank KYC, or college admissions.",
+      "All pages are converted in bulk and available as individual downloads or packaged in a ZIP file for convenience.",
     ],
     faqs: [
       {
-        question: "What is the standard passport photo size for Indian portals?",
-        answer:
-          "Most Indian government portals require passport photos at 200×230 pixels with a file size under 100KB in JPG format. FileNova has a one-click preset for this.",
+        q: "How do I convert a PDF to JPG online?",
+        a: "Upload your PDF to FileNova's PDF to JPG tool, choose the output resolution, and click Convert. Download individual page images or all pages as a ZIP file.",
       },
       {
-        question: "What is the standard signature size for online applications?",
-        answer:
-          "The most common signature requirement is 280×80 pixels or 280×90 pixels, under 30KB in JPG or PNG format. Use the 'Signature' preset in FileNova.",
+        q: "What resolution are the output JPG images?",
+        a: "You can choose from 72 DPI (web quality) or 300 DPI (print quality). Higher DPI gives sharper images but larger file sizes.",
       },
       {
-        question: "Can I resize an image to a specific file size (KB)?",
-        answer:
-          "Yes. After setting dimensions, you can also specify a maximum file size target in KB. FileNova will adjust JPEG quality automatically to meet that target.",
-      },
-      {
-        question: "Does resizing reduce image quality?",
-        answer:
-          "Resizing to smaller dimensions does reduce pixel count, which may soften very fine detail. For most application photo use-cases, the quality reduction is not noticeable.",
-      },
-      {
-        question: "Can I resize a signature image from a scanned document?",
-        answer:
-          "Yes. Upload a photo or scan of your physical signature, resize it to the required dimensions, and save as PNG with a transparent or white background. This is ready for form upload.",
+        q: "Can I convert just one page of a PDF to JPG?",
+        a: "Yes. After uploading, you can select specific pages to convert rather than converting the entire document.",
       },
     ],
     relatedTools: [
-      {
-        slug: "image-to-pdf",
-        title: "Image to PDF",
-        description: "Convert resized images to PDF",
-        icon: "📄",
-      },
-      {
-        slug: "remove-background",
-        title: "Remove Background",
-        description: "Get a transparent background for passport photos",
-        icon: "✂️",
-      },
-      {
-        slug: "aadhaar-mask",
-        title: "Aadhaar Masking",
-        description: "Mask your Aadhaar card for secure uploads",
-        icon: "🛡️",
-      },
-      {
-        slug: "compress-pdf",
-        title: "Compress PDF",
-        description: "Compress documents after creating PDFs",
-        icon: "📉",
-      },
+      { label: "JPG to PDF", slug: "jpg-to-pdf", icon: "file-text" },
+      { label: "PDF to Word", slug: "pdf-to-word", icon: "file-word" },
+      { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
+      { label: "Remove Background", slug: "remove-background", icon: "eraser" },
     ],
-    schemaCategory: "UtilitiesApplication",
   },
 
-  // ── 7. REMOVE BACKGROUND ──────────────────────────────────────────────────
-  "remove-background": {
-    slug: "remove-background",
-    h1: "Remove Image Background Online Free — AI Background Remover",
-    metaTitle: "Remove Image Background Free Online — AI BG Remover | FileNova",
+  "jpg-to-pdf": {
+    slug: "jpg-to-pdf",
+    title: "JPG to PDF – Convert Images to PDF Free | FileNova",
+    h1: "JPG to PDF – Convert Images to PDF Online Free",
     metaDescription:
-      "Remove photo backgrounds instantly with AI. Get a transparent PNG in seconds — no sign-up, no Photoshop needed. Perfect for passport photos and product images.",
+      "Convert JPG, PNG, or any image to PDF online for free. Combine multiple images into one PDF. Perfect for documents, certificates, and forms.",
     keywords:
-      "remove background online, ai background remover, remove bg free, transparent background, photo background removal, remove image background free, passport photo transparent",
-    intro:
-      "Instantly remove the background from any photo using AI — no Photoshop, no design skills needed. Get a clean transparent PNG in seconds. Perfect for passport photo creation, product images, profile pictures, and scholarship portal uploads.",
-    breadcrumb: ["Image Tools", "/tools"],
-    accentColor: "rose",
-    benefits: [
-      {
-        icon: "🤖",
-        title: "AI-powered precision",
-        description: "Our AI model handles hair, fingers, and complex edges with remarkable accuracy.",
-      },
-      {
-        icon: "⚡",
-        title: "Seconds, not minutes",
-        description: "Background removal completes in under 10 seconds for most photos.",
-      },
-      {
-        icon: "🎨",
-        title: "Replace with any colour",
-        description: "Add a white, red, blue, or custom background colour after removal.",
-      },
-      {
-        icon: "🆓",
-        title: "No watermarks",
-        description: "Download the full-resolution result without any watermark, completely free.",
-      },
-    ],
-    steps: [
-      {
-        step: 1,
-        title: "Upload your photo",
-        description: "Click 'Upload Image' or drag your JPG/PNG photo into the workspace.",
-      },
-      {
-        step: 2,
-        title: "AI removes the background",
-        description: "FileNova's AI model analyses the image and removes the background automatically.",
-      },
-      {
-        step: 3,
-        title: "Optionally add a new background",
-        description: "Choose a solid colour (e.g., white for passport photos) or keep it transparent.",
-      },
-      {
-        step: 4,
-        title: "Download your image",
-        description: "Download the result as a high-quality PNG with transparent or coloured background.",
-      },
+      "jpg to pdf, image to pdf, convert jpg to pdf online free, png to pdf, photo to pdf",
+    toolName: "FileNova JPG to PDF Converter",
+    toolDescription:
+      "Convert JPG, PNG, and other image formats to PDF online for free. Combine multiple images into a single PDF document.",
+    seoBody: [
+      "Need to send multiple scanned photos or images as a single PDF document? FileNova's JPG to PDF converter lets you upload multiple images and combine them into one professional PDF in seconds.",
+      "Supports JPG, PNG, WebP, and BMP formats. You can reorder the images before converting, and choose the output page size — A4, Letter, or auto-fit to image dimensions.",
+      "This is the go-to tool for Indian students scanning handwritten assignments, or anyone needing to submit photo proofs as a single PDF to government portals, colleges, or employers.",
     ],
     faqs: [
       {
-        question: "What types of images work best?",
-        answer:
-          "Photos with a clear subject (person, product, animal) against a relatively uniform background work best. Studio-style photos on plain backgrounds yield near-perfect results.",
+        q: "How do I convert JPG to PDF for free?",
+        a: "Upload your JPG or image files to FileNova's JPG to PDF tool, arrange them in order, and click Convert. Your PDF downloads instantly.",
       },
       {
-        question: "Can I add a white background for passport photos?",
-        answer:
-          "Yes. After removing the background, select 'White' in the background colour picker. This creates a standard passport photo background required by most Indian government portals.",
+        q: "Can I convert multiple images to one PDF?",
+        a: "Yes. Upload multiple images at once and FileNova will combine them into a single PDF, one image per page, in your chosen order.",
       },
       {
-        question: "Is the background removal 100% accurate?",
-        answer:
-          "For most subject types, accuracy is very high (85–99%). Complex backgrounds, camouflage clothing, or very fine hair may require minor manual touch-up.",
-      },
-      {
-        question: "Does my photo get uploaded to a server?",
-        answer:
-          "Background removal runs through an on-device AI model (ONNX Runtime). Your image never leaves your browser. This is completely private.",
-      },
-      {
-        question: "What resolution is the output?",
-        answer:
-          "The output PNG is at the same resolution as your input photo. No quality is lost during the background removal process.",
+        q: "What image formats does FileNova support for PDF conversion?",
+        a: "FileNova supports JPG, JPEG, PNG, WebP, and BMP image formats for conversion to PDF.",
       },
     ],
     relatedTools: [
-      {
-        slug: "resize-image",
-        title: "Resize Image",
-        description: "Resize to passport photo dimensions after removal",
-        icon: "📐",
-      },
-      {
-        slug: "image-to-pdf",
-        title: "Image to PDF",
-        description: "Convert the result to PDF",
-        icon: "📄",
-      },
-      {
-        slug: "compress-pdf",
-        title: "Compress PDF",
-        description: "Compress documents for portal upload",
-        icon: "📉",
-      },
-      {
-        slug: "aadhaar-mask",
-        title: "Aadhaar Masking",
-        description: "Secure your Aadhaar card for submission",
-        icon: "🛡️",
-      },
+      { label: "PDF to JPG", slug: "pdf-to-jpg", icon: "photo" },
+      { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
+      { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
+      { label: "Remove Background", slug: "remove-background", icon: "eraser" },
     ],
-    schemaCategory: "UtilitiesApplication",
   },
 
-  // ── 8. AADHAAR MASKING ────────────────────────────────────────────────────
-  "aadhaar-mask": {
-    slug: "aadhaar-mask",
-    h1: "Aadhaar Card Masking Tool — Hide First 8 Digits Online",
-    metaTitle: "Aadhaar Card Masking Free Online — UIDAI Compliant | FileNova",
+  "rotate-pdf": {
+    slug: "rotate-pdf",
+    title: "Rotate PDF – Rotate PDF Pages Online Free | FileNova",
+    h1: "Rotate PDF – Rotate PDF Pages Online",
     metaDescription:
-      "Mask the first 8 digits of your Aadhaar card for safe portal uploads. UIDAI-compliant, 100% browser-based, zero server uploads. Trusted by 10,000+ users.",
+      "Rotate PDF pages online for free. Fix upside-down or sideways pages easily. Rotate all pages or individual pages in any direction.",
     keywords:
-      "aadhaar masking, aadhaar card mask online, hide aadhaar number, uidai masked aadhaar, masked aadhaar download, aadhaar privacy, aadhaar first 8 digits hide",
-    intro:
-      "Protect your Aadhaar card privacy by masking the first 8 of 12 digits — exactly as required by UIDAI guidelines. This masked version is accepted by all government portals for identity verification. Processing is 100% local; your Aadhaar image never reaches any server.",
-    breadcrumb: ["Indian Portal Tools", "/tools"],
-    accentColor: "amber",
-    benefits: [
-      {
-        icon: "🛡️",
-        title: "UIDAI-compliant masking",
-        description: "Masks exactly the first 8 digits, leaving the last 4 visible as per UIDAI norms.",
-      },
-      {
-        icon: "🔒",
-        title: "Zero data exposure",
-        description: "Your Aadhaar is processed entirely in your browser. No image is ever uploaded.",
-      },
-      {
-        icon: "✅",
-        title: "Accepted by all portals",
-        description: "The masked output is accepted by NSP, OASIS, Banglar Shiksha, and all state portals.",
-      },
-      {
-        icon: "⚡",
-        title: "Instant download",
-        description: "Download your masked Aadhaar card image in under 5 seconds.",
-      },
-    ],
-    steps: [
-      {
-        step: 1,
-        title: "Upload your Aadhaar card image",
-        description: "Upload a JPG or PNG photo or scan of your Aadhaar card (front side).",
-      },
-      {
-        step: 2,
-        title: "Automatic digit detection",
-        description: "FileNova detects the 12-digit Aadhaar number and highlights the first 8 digits.",
-      },
-      {
-        step: 3,
-        title: "Confirm masking area",
-        description:
-          "Review the auto-detected masking. Manually adjust the mask position if needed.",
-      },
-      {
-        step: 4,
-        title: "Download masked Aadhaar",
-        description: "Download your masked Aadhaar card image in the original format (JPG or PNG).",
-      },
+      "rotate pdf, rotate pdf pages online, fix pdf orientation, rotate pdf free, flip pdf pages",
+    toolName: "FileNova PDF Rotator",
+    toolDescription:
+      "Rotate individual or all pages of a PDF file clockwise or counter-clockwise online for free.",
+    seoBody: [
+      "Scanned documents often end up with pages rotated the wrong way. FileNova's Rotate PDF tool lets you fix any page orientation without converting or editing the content.",
+      "Rotate all pages at once, or select individual pages to rotate in different directions. Supports 90°, 180°, and 270° rotations clockwise and counter-clockwise.",
+      "Particularly useful when you've scanned physical documents using your phone camera and some pages are landscape while others are portrait.",
     ],
     faqs: [
       {
-        question: "Why should I mask my Aadhaar?",
-        answer:
-          "UIDAI (the Aadhaar authority) recommends sharing only a 'masked' Aadhaar where the first 8 digits are hidden, especially for online submissions. This reduces the risk of identity theft if the document is intercepted.",
+        q: "How do I rotate pages in a PDF online?",
+        a: "Upload your PDF to FileNova's Rotate PDF tool, select the pages to rotate and the direction, then click Rotate. Download the corrected PDF instantly.",
       },
       {
-        question: "Is masked Aadhaar accepted by government portals?",
-        answer:
-          "Yes. All major portals — NSP, OASIS, Banglar Shiksha, Kanyashree, SVMCM, and e-district portals — accept masked Aadhaar for identity verification purposes.",
-      },
-      {
-        question: "Does this tool upload my Aadhaar anywhere?",
-        answer:
-          "Absolutely not. The entire masking process runs in your browser using client-side JavaScript and Canvas API. Your Aadhaar image is never transmitted to any server.",
-      },
-      {
-        question: "What if the tool doesn't detect my Aadhaar number correctly?",
-        answer:
-          "You can manually drag to position the black masking rectangle over the first 8 digits. This always works regardless of the scan quality or Aadhaar card version.",
-      },
-      {
-        question: "Can I mask both front and back of Aadhaar?",
-        answer:
-          "Yes. Process each side separately. Most portals only require the front side with masked digits, but you can mask both for extra security.",
+        q: "Can I rotate just one page in a PDF?",
+        a: "Yes. You can rotate individual pages independently — for example, rotate only page 3 by 90° while keeping all other pages unchanged.",
       },
     ],
     relatedTools: [
-      {
-        slug: "compress-pdf",
-        title: "Compress PDF",
-        description: "Compress Aadhaar PDF for portal upload",
-        icon: "📉",
-      },
-      {
-        slug: "resize-image",
-        title: "Resize Image",
-        description: "Resize Aadhaar image to portal dimensions",
-        icon: "📐",
-      },
-      {
-        slug: "scholarship-zip",
-        title: "Scholarship ZIP",
-        description: "Pack Aadhaar with other docs into a ZIP",
-        icon: "🎓",
-      },
-      {
-        slug: "image-to-pdf",
-        title: "Image to PDF",
-        description: "Convert masked Aadhaar image to PDF",
-        icon: "📄",
-      },
+      { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
+      { label: "Split PDF", slug: "split-pdf", icon: "scissors" },
+      { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
+      { label: "PDF to JPG", slug: "pdf-to-jpg", icon: "photo" },
     ],
-    schemaCategory: "UtilitiesApplication",
   },
 
-  // ── 9. PAN CARD RESIZE ────────────────────────────────────────────────────
+  "unlock-pdf": {
+    slug: "unlock-pdf",
+    title: "Unlock PDF – Remove PDF Password Free | FileNova",
+    h1: "Unlock PDF – Remove PDF Password Online",
+    metaDescription:
+      "Remove password from PDF files online for free. Unlock protected PDFs instantly if you know the password. No software needed.",
+    keywords:
+      "unlock pdf, remove pdf password, pdf password remover, unlock protected pdf free, decrypt pdf",
+    toolName: "FileNova PDF Unlocker",
+    toolDescription:
+      "Remove the password from a password-protected PDF file online for free, once the correct password is provided.",
+    seoBody: [
+      "Received a password-protected PDF and need to save it without the password prompt? FileNova's Unlock PDF tool removes restrictions from PDFs once you provide the correct password.",
+      "This is completely legal — you're simply decrypting a file you're authorized to access. Common use cases include bank statements, salary slips, and government letters that are automatically password-protected.",
+      "Note: FileNova does not crack or brute-force unknown passwords. You must provide the correct password — we simply remove the lock so you don't have to enter it every time.",
+    ],
+    faqs: [
+      {
+        q: "How do I remove a password from a PDF?",
+        a: "Upload your password-protected PDF to FileNova's Unlock PDF tool, enter the correct password when prompted, and click Unlock. The unlocked PDF downloads immediately.",
+      },
+      {
+        q: "Can FileNova crack a PDF password I've forgotten?",
+        a: "No. FileNova can only unlock PDFs if you provide the correct password. We do not crack or brute-force passwords.",
+      },
+      {
+        q: "Why are PDFs from banks password protected?",
+        a: "Banks password-protect PDFs like bank statements and salary slips for security. The password is often your date of birth or account number — check the document source for instructions.",
+      },
+    ],
+    relatedTools: [
+      { label: "Protect PDF", slug: "protect-pdf", icon: "lock" },
+      { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
+      { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
+      { label: "PDF to Word", slug: "pdf-to-word", icon: "file-word" },
+    ],
+  },
+
+  "protect-pdf": {
+    slug: "protect-pdf",
+    title: "Protect PDF – Add Password to PDF Free | FileNova",
+    h1: "Protect PDF – Add Password to PDF Online",
+    metaDescription:
+      "Add a password to your PDF files online for free. Protect sensitive documents before sharing. Set open password or restrict editing and printing.",
+    keywords:
+      "protect pdf, add password to pdf, pdf password protect free, encrypt pdf, secure pdf online",
+    toolName: "FileNova PDF Protector",
+    toolDescription:
+      "Add password protection to PDF files online for free to secure sensitive documents before sharing.",
+    seoBody: [
+      "Need to share a sensitive document but want to control who can open it? FileNova's Protect PDF tool lets you add a password to any PDF so it can only be opened by people who know the password.",
+      "You can set an 'open' password (required to view the file) and/or a permissions password (to restrict printing, copying, or editing). Ideal for salary slips, legal agreements, and personal documents.",
+      "The encryption used is AES 128-bit, the same standard used by banks and government portals across India.",
+    ],
+    faqs: [
+      {
+        q: "How do I add a password to a PDF?",
+        a: "Upload your PDF to FileNova's Protect PDF tool, enter a password of your choice, and click Protect. Your password-encrypted PDF downloads immediately.",
+      },
+      {
+        q: "Can I restrict printing or editing of a PDF?",
+        a: "Yes. FileNova lets you set a permissions password that restricts printing, copying text, or making edits — separate from the open password.",
+      },
+    ],
+    relatedTools: [
+      { label: "Unlock PDF", slug: "unlock-pdf", icon: "lock-open" },
+      { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
+      { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
+      { label: "Aadhaar Mask", slug: "aadhaar-mask-pdf", icon: "id-badge" },
+    ],
+  },
+
+  "resize-pdf": {
+    slug: "resize-pdf",
+    title: "Resize PDF – Change PDF Page Size Online Free | FileNova",
+    h1: "Resize PDF – Change PDF Page Size Online",
+    metaDescription:
+      "Resize PDF pages to A4, A3, Letter, or custom dimensions online for free. Change PDF page size without losing content quality.",
+    keywords:
+      "resize pdf, change pdf page size, pdf resize online, pdf to a4, resize pdf pages free",
+    toolName: "FileNova PDF Resizer",
+    toolDescription:
+      "Change the page size of a PDF to A4, A3, Letter, or custom dimensions online for free.",
+    seoBody: [
+      "PDF page size mismatches cause printing issues and look unprofessional when submitting documents. FileNova's Resize PDF tool lets you convert any PDF to a standard page size — A4, A3, Letter, or custom dimensions.",
+      "This is particularly useful when you have a PDF exported from a web page or design tool with odd dimensions and need it in A4 format for printing or government submission.",
+      "Content is automatically scaled or repositioned to fit the new page size. You can choose to scale content proportionally or maintain its original size within the new page.",
+    ],
+    faqs: [
+      {
+        q: "How do I resize a PDF page to A4?",
+        a: "Upload your PDF to FileNova's Resize PDF tool, select A4 as the target page size, and click Resize. The converted PDF downloads with all pages in A4 format.",
+      },
+      {
+        q: "Will resizing a PDF change its content?",
+        a: "Resizing adjusts the page dimensions. You can choose to scale the content proportionally, so nothing gets cut off.",
+      },
+    ],
+    relatedTools: [
+      { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
+      { label: "Rotate PDF", slug: "rotate-pdf", icon: "rotate" },
+      { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
+      { label: "Compress for Upload", slug: "compress-pdf-for-upload", icon: "cloud-upload" },
+    ],
+  },
+
   "pan-card-resize": {
     slug: "pan-card-resize",
-    h1: "PAN Card Photo & Signature Resize for NSDL/UTI Upload",
-    metaTitle: "PAN Card Photo Resize Free — NSDL UTI Upload Ready | FileNova",
+    title: "PAN Card Photo Resize Online Free – Passport Size | FileNova",
+    h1: "PAN Card Photo Resize – Resize PAN Card Photo Online Free",
     metaDescription:
-      "Resize PAN card photos and signatures to exact NSDL/UTI specifications instantly. Free, browser-based. 200×230px photo and 280×80px signature ready in seconds.",
+      "Resize PAN card photo to exact required dimensions online for free. Get passport-size or application-size PAN card photo in seconds. No signup needed.",
     keywords:
-      "pan card photo resize, nsdl photo size, uti pan signature size, pan application photo size, resize pan card photo online, nsdl upload photo size",
-    intro:
-      "Resize your photo and signature to the exact pixel dimensions required by NSDL and UTI PAN card application portals. No guesswork — just upload, auto-resize, and download. Your file never leaves your browser.",
-    breadcrumb: ["Indian Portal Tools", "/tools"],
-    accentColor: "amber",
-    benefits: [
-      {
-        icon: "📋",
-        title: "Pre-configured NSDL specs",
-        description: "One-click resize to 200×230px (photo) and 280×80px (signature) — NSDL/UTI ready.",
-      },
-      {
-        icon: "⚡",
-        title: "Instant processing",
-        description: "Resize and compress both photo and signature in under 3 seconds.",
-      },
-      {
-        icon: "🔒",
-        title: "Local processing",
-        description: "Files processed in-browser. Your PAN card photos are never uploaded to a server.",
-      },
-      {
-        icon: "🆓",
-        title: "Completely free",
-        description: "Free for all users. No sign-up, no watermarks.",
-      },
-    ],
-    steps: [
-      {
-        step: 1,
-        title: "Upload your photo",
-        description:
-          "Upload a clear, white-background passport photo in JPG or PNG format.",
-      },
-      {
-        step: 2,
-        title: "Select NSDL or UTI preset",
-        description: "Choose the 'NSDL Photo' or 'UTI Photo' preset. Dimensions are applied automatically.",
-      },
-      {
-        step: 3,
-        title: "Upload and resize your signature",
-        description: "Separately upload your signature image and apply the signature resize preset (280×80px).",
-      },
-      {
-        step: 4,
-        title: "Download both files",
-        description: "Download your resized photo and signature. Both are now PAN portal upload-ready.",
-      },
+      "pan card photo resize, pan card photo size, resize pan card photo online, pan card passport size photo, pan card photo dimensions",
+    toolName: "FileNova PAN Card Photo Resizer",
+    toolDescription:
+      "Resize and crop photos to the exact PAN card application dimensions online for free, with live preview.",
+    badge: "India Exclusive",
+    seoBody: [
+      "PAN card applications through NSDL or UTIITSL require photos in a specific size — typically 3.5cm × 2.5cm at 200 DPI, or equivalent pixel dimensions. Getting this wrong means your application gets rejected.",
+      "FileNova's PAN Card Photo Resizer lets you upload any photo and instantly crop and resize it to the exact PAN card specifications. You get a live preview before downloading, so you know exactly what you're submitting.",
+      "This tool is especially useful for first-time PAN card applicants, name-change applications, and duplicate PAN card requests where fresh photos are needed. Works on Android phone photos, selfies, or scanned photographs.",
+      "No photography studio visit needed. Upload your photo, adjust the crop, and download the correctly sized image — ready to attach to your PAN application form.",
     ],
     faqs: [
       {
-        question: "What size should a PAN card application photo be?",
-        answer:
-          "NSDL requires photos at 200×230 pixels, in JPG format, under 50KB. UTI requires a similar specification. FileNova's NSDL preset handles all of this automatically.",
+        q: "What is the required photo size for a PAN card application?",
+        a: "The NSDL/UTIITSL PAN card application requires a color photograph of 3.5cm × 2.5cm (width × height) at 200 DPI. In pixels this is approximately 276 × 354 pixels.",
       },
       {
-        question: "What size should the PAN card signature be?",
-        answer:
-          "The standard PAN signature dimension is 280×80 pixels, under 30KB in JPG/PNG format. The Signature preset in FileNova sets this up in one click.",
+        q: "Can I use a selfie for my PAN card photo?",
+        a: "Yes, as long as it has a plain white or light background, your face is clearly visible, and there are no glasses or head coverings. FileNova's tool will crop and resize it to the required dimensions.",
       },
       {
-        question: "What if my signature has a dark background?",
-        answer:
-          "Remove the background first using the Remove Background tool, then resize the resulting transparent PNG. This gives a clean white-background signature as required.",
+        q: "Is FileNova's PAN card resizer free?",
+        a: "Yes, completely free. No account, no watermark, no payment required.",
       },
       {
-        question: "Will the resized photo pass portal validation?",
-        answer:
-          "Yes, as long as the original photo has good lighting, a plain white or off-white background, and the face is clearly visible. Portal validation checks dimensions and file size — both of which FileNova sets correctly.",
+        q: "What format should the PAN card photo be?",
+        a: "JPEG/JPG format is preferred for PAN card applications. FileNova outputs JPEG files by default.",
       },
     ],
     relatedTools: [
-      {
-        slug: "remove-background",
-        title: "Remove Background",
-        description: "Get white-background passport photos",
-        icon: "✂️",
-      },
-      {
-        slug: "resize-image",
-        title: "Resize Image",
-        description: "Custom dimension resizing for any portal",
-        icon: "📐",
-      },
-      {
-        slug: "aadhaar-mask",
-        title: "Aadhaar Masking",
-        description: "Mask your Aadhaar for PAN application",
-        icon: "🛡️",
-      },
-      {
-        slug: "compress-pdf",
-        title: "Compress PDF",
-        description: "Compress your PAN application PDF",
-        icon: "📉",
-      },
+      { label: "Aadhaar Mask PDF", slug: "aadhaar-mask-pdf", icon: "id-badge" },
+      { label: "JPG to PDF", slug: "jpg-to-pdf", icon: "file-text" },
+      { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
+      { label: "Government Form Fill", slug: "government-form-fill", icon: "clipboard" },
     ],
-    schemaCategory: "UtilitiesApplication",
   },
 
-  // ── 10. WORD TO PDF ───────────────────────────────────────────────────────
-  "word-to-pdf": {
-    slug: "word-to-pdf",
-    h1: "Convert Word to PDF Online — DOCX to PDF Free",
-    metaTitle: "Word to PDF Converter Free Online — DOCX to PDF | FileNova",
+  "aadhaar-mask-pdf": {
+    slug: "aadhaar-mask-pdf",
+    title: "Mask Aadhaar Number in PDF – Free Aadhaar Masking Tool | FileNova",
+    h1: "Aadhaar Mask PDF – Mask Aadhaar Number Online Free",
     metaDescription:
-      "Convert Microsoft Word DOCX files to PDF instantly in your browser. Free, no upload, no software needed. Preserve formatting, fonts, and images.",
+      "Mask your Aadhaar card number in a PDF online for free. Hide the first 8 digits for secure sharing. UIDAI-compliant masked Aadhaar PDF — no signup needed.",
     keywords:
-      "word to pdf, docx to pdf, convert word to pdf, docx pdf converter, free word to pdf online, word document to pdf no upload",
-    intro:
-      "Convert any Microsoft Word (.docx) document to a professional PDF instantly — no software installation, no server upload. Formatting, fonts, tables, and images are all preserved in the resulting PDF. Download your PDF in under 10 seconds.",
-    breadcrumb: ["Office Tools", "/tools"],
-    accentColor: "sky",
-    benefits: [
-      {
-        icon: "📝",
-        title: "Preserves formatting",
-        description: "Fonts, tables, bullet points, and images are faithfully preserved in the output PDF.",
-      },
-      {
-        icon: "🔒",
-        title: "No cloud upload",
-        description: "Word files are converted entirely in-browser. Your documents stay private.",
-      },
-      {
-        icon: "⚡",
-        title: "Fast conversion",
-        description: "Most DOCX files convert to PDF in 2–5 seconds regardless of length.",
-      },
-      {
-        icon: "🆓",
-        title: "Completely free",
-        description: "No Microsoft 365 subscription needed. Free forever on FileNova.",
-      },
-    ],
-    steps: [
-      {
-        step: 1,
-        title: "Upload your DOCX file",
-        description: "Click 'Upload Word File' or drag your .docx file into the workspace.",
-      },
-      {
-        step: 2,
-        title: "Convert to PDF",
-        description: "Click 'Convert to PDF'. The file is processed instantly in your browser.",
-      },
-      {
-        step: 3,
-        title: "Preview the output",
-        description: "Preview the converted PDF to ensure formatting looks correct.",
-      },
-      {
-        step: 4,
-        title: "Download your PDF",
-        description: "Download the PDF. Compress it with our PDF compressor if needed.",
-      },
+      "mask aadhaar number, aadhaar masking online, masked aadhaar pdf, hide aadhaar number pdf, aadhaar card mask free india",
+    toolName: "FileNova Aadhaar Masking Tool",
+    toolDescription:
+      "Mask the first 8 digits of your Aadhaar number in a PDF as per UIDAI guidelines for safe sharing online.",
+    badge: "India Exclusive",
+    seoBody: [
+      "Sharing your Aadhaar card online carries identity theft risk. UIDAI recommends sharing only a 'masked' version of your Aadhaar card, where the first 8 digits of the 12-digit Aadhaar number are replaced with 'XXXX-XXXX' — only the last 4 digits remain visible.",
+      "FileNova's Aadhaar Masking tool automatically detects the Aadhaar number in your uploaded PDF and masks the first 8 digits as per UIDAI guidelines. The output is a UIDAI-compliant masked Aadhaar PDF that is safe to share with landlords, employers, portals, and third-party service providers.",
+      "This tool is completely offline-processed in your browser — your Aadhaar data never leaves your device. There is zero risk of your Aadhaar number being logged or stored.",
+      "Accepted at most Indian portals, banks, and KYC processes that ask for a 'masked Aadhaar' or 'partially masked Aadhaar' as identity proof.",
     ],
     faqs: [
       {
-        question: "Does this support .doc (older Word format)?",
-        answer:
-          "FileNova's current converter supports .docx (Word 2007 and later) format. For older .doc files, you can first open them in Google Docs or LibreOffice and save as .docx before converting.",
+        q: "What is a masked Aadhaar card?",
+        a: "A masked Aadhaar card shows only the last 4 digits of your 12-digit Aadhaar number, with the first 8 digits replaced by 'XXXX XXXX'. This is the UIDAI-recommended format for safe online sharing.",
       },
       {
-        question: "Will my formatting be preserved?",
-        answer:
-          "Most formatting is preserved, including headings, bold/italic text, numbered lists, and basic tables. Complex formatting with custom fonts or embedded macros may render slightly differently.",
+        q: "Is masked Aadhaar accepted as valid identity proof?",
+        a: "Yes. UIDAI has explicitly stated that masked Aadhaar is a valid identity document and should be accepted at banks, service providers, and portals as per their guidelines.",
       },
       {
-        question: "Is there a file size limit?",
-        answer:
-          "FileNova handles DOCX files up to 20MB efficiently in-browser. Very large files with many embedded high-resolution images may take longer.",
+        q: "Is it safe to upload my Aadhaar to FileNova?",
+        a: "FileNova's Aadhaar masking is processed directly in your browser using JavaScript — your Aadhaar PDF never gets uploaded to any server. Your data stays on your device.",
       },
       {
-        question: "Can I convert a password-protected DOCX?",
-        answer:
-          "No. Password-protected documents cannot be converted without first removing the password. Remove protection in Microsoft Word or LibreOffice, then convert.",
+        q: "How is FileNova's masked Aadhaar different from the UIDAI mAadhaar app?",
+        a: "The UIDAI mAadhaar app generates a masked PDF from UIDAI's servers. FileNova masks your existing Aadhaar PDF locally in your browser — useful if you already have the PDF and want to mask it without logging into UIDAI.",
       },
     ],
     relatedTools: [
-      {
-        slug: "compress-pdf",
-        title: "Compress PDF",
-        description: "Reduce the converted PDF size",
-        icon: "📉",
-      },
-      {
-        slug: "merge-pdf",
-        title: "Merge PDF",
-        description: "Combine the PDF with other documents",
-        icon: "📄",
-      },
-      {
-        slug: "ocr",
-        title: "OCR Scanner",
-        description: "Extract text from scanned documents",
-        icon: "🔍",
-      },
-      {
-        slug: "image-to-pdf",
-        title: "Image to PDF",
-        description: "Convert images to PDF alongside",
-        icon: "🖼️",
-      },
+      { label: "PAN Card Resize", slug: "pan-card-resize", icon: "credit-card" },
+      { label: "Protect PDF", slug: "protect-pdf", icon: "lock" },
+      { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
+      { label: "Government Form Fill", slug: "government-form-fill", icon: "clipboard" },
     ],
-    schemaCategory: "UtilitiesApplication",
   },
 
-  // ── 11. SCHOLARSHIP ZIP ───────────────────────────────────────────────────
-  "scholarship-zip": {
-    slug: "scholarship-zip",
-    h1: "Scholarship ZIP Maker — SVMCM, OASIS, Kanyashree Docs",
-    metaTitle: "Scholarship ZIP Maker Free — OASIS SVMCM Kanyashree Documents | FileNova",
+  "government-form-fill": {
+    slug: "government-form-fill",
+    title: "Fill Government Forms Online Free – Aadhaar, PAN, Passport | FileNova",
+    h1: "Government Form Fill – Fill Indian Government PDF Forms Online",
     metaDescription:
-      "Compile all scholarship documents — income certificate, marksheet, Aadhaar, bank passbook, photo, and signature — into a portal-ready ZIP file. Free.",
+      "Fill Indian government PDF forms online for free — Aadhaar update, PAN correction, passport, railway, scholarship and more. No Adobe Acrobat needed.",
     keywords:
-      "scholarship zip maker, oasis scholarship documents, svmcm zip file, kanyashree documents pack, annapurna bhandar scheme zip, scholarship document compiler",
-    intro:
-      "Compile all required scholarship documents — income certificate, marksheet, Aadhaar card, bank passbook, passport photo, and signature — into a single portal-ready ZIP file with correct file names. One tool, zero confusion.",
-    breadcrumb: ["Indian Portal Tools", "/tools"],
-    accentColor: "indigo",
-    benefits: [
-      {
-        icon: "🎓",
-        title: "Portal-specific presets",
-        description: "Presets for OASIS, SVMCM, Kanyashree, NSP, and Annapurna Bhandar Scheme.",
-      },
-      {
-        icon: "📂",
-        title: "Auto-named files",
-        description: "Files inside the ZIP are named exactly as the portal expects — no renaming needed.",
-      },
-      {
-        icon: "🔒",
-        title: "100% local processing",
-        description: "ZIP creation happens in your browser. Your scholarship documents never leave your device.",
-      },
-      {
-        icon: "🆓",
-        title: "Completely free",
-        description: "No subscription needed. This tool is free for all students.",
-      },
-    ],
-    steps: [
-      {
-        step: 1,
-        title: "Select your scholarship portal",
-        description:
-          "Choose your scholarship scheme from the dropdown: OASIS, SVMCM, Kanyashree, NSP, or Annapurna Bhandar.",
-      },
-      {
-        step: 2,
-        title: "Upload required documents",
-        description:
-          "Upload each required document (income certificate, marksheet, Aadhaar, bank passbook, photo, signature).",
-      },
-      {
-        step: 3,
-        title: "Verify file sizes",
-        description:
-          "FileNova checks each file size against portal limits and alerts you if any need compression.",
-      },
-      {
-        step: 4,
-        title: "Download your ZIP",
-        description:
-          "Download the portal-ready ZIP with all documents correctly named and organised.",
-      },
+      "fill government form online, pdf form fill india, aadhaar form fill, pan form fill, government pdf forms india",
+    toolName: "FileNova Government Form Filler",
+    toolDescription:
+      "Fill common Indian government PDF forms online for free, with pre-loaded templates for Aadhaar, PAN, passport, and more.",
+    badge: "India Exclusive",
+    seoBody: [
+      "Indian government forms — Aadhaar correction, PAN card application, passport renewal, railway concession, scholarship applications — are distributed as PDF files that often cannot be filled digitally without Adobe Acrobat.",
+      "FileNova's Government Form Fill tool lets you upload any fillable PDF form and type directly into the fields on your browser — no software download, no Acrobat license needed. Save and download the filled form as a PDF ready for submission.",
+      "We also maintain a library of pre-loaded common government forms so you can start filling immediately without searching for the right form on government websites.",
+      "Supports Hindi, Bengali, Tamil, Telugu, and other regional language forms with Unicode text input. Download filled forms as print-ready PDFs.",
     ],
     faqs: [
       {
-        question: "Which scholarship portals are supported?",
-        answer:
-          "FileNova currently supports OASIS (West Bengal), SVMCM, Kanyashree, National Scholarship Portal (NSP), and Annapurna Bhandar Scheme. More portals are being added regularly.",
+        q: "Can I fill a government PDF form online without Adobe Acrobat?",
+        a: "Yes. FileNova's form filler works entirely in your browser. Upload the PDF form, click on fields, type your information, and download the completed form — no software installation needed.",
       },
       {
-        question: "What documents are typically required?",
-        answer:
-          "Most scholarship portals require: Income Certificate, Marksheet (last year), Aadhaar Card, Bank Passbook (first page), Passport Photo (JPG, under 100KB), and Signature (JPG, under 30KB). FileNova provides the full checklist for each portal.",
+        q: "Which government forms can I fill on FileNova?",
+        a: "FileNova supports all standard fillable PDF forms including Aadhaar update forms, PAN card correction forms, passport renewal forms, railway concession forms, and scholarship application forms.",
       },
       {
-        question: "Will the ZIP file be accepted by the portal?",
-        answer:
-          "Yes, provided your documents meet the size and format requirements shown in the checklist. FileNova auto-names files as required by each portal, which is a common source of rejection errors.",
-      },
-      {
-        question: "What if a file is too large for the portal?",
-        answer:
-          "FileNova shows a warning if any file exceeds the portal's limit. Use the Compress PDF or Resize Image tool to reduce the file size, then replace it in the ZIP maker.",
-      },
-      {
-        question: "Is my scholarship data stored anywhere?",
-        answer:
-          "No. All document processing and ZIP creation happens locally in your browser. Nothing is stored on any server. Your documents are cleared when you close the tab.",
+        q: "Can I save a partially filled form and continue later?",
+        a: "Yes. FileNova Pro users can save form progress and return to complete it. Free users can download the partially filled form and re-upload it later.",
       },
     ],
     relatedTools: [
-      {
-        slug: "compress-pdf",
-        title: "Compress PDF",
-        description: "Reduce PDF size to meet portal limits",
-        icon: "📉",
-      },
-      {
-        slug: "aadhaar-mask",
-        title: "Aadhaar Masking",
-        description: "Mask Aadhaar before adding to ZIP",
-        icon: "🛡️",
-      },
-      {
-        slug: "resize-image",
-        title: "Resize Image",
-        description: "Resize photo and signature to required sizes",
-        icon: "📐",
-      },
-      {
-        slug: "merge-pdf",
-        title: "Merge PDF",
-        description: "Combine documents into one PDF if needed",
-        icon: "📄",
-      },
+      { label: "Aadhaar Mask PDF", slug: "aadhaar-mask-pdf", icon: "id-badge" },
+      { label: "PAN Card Resize", slug: "pan-card-resize", icon: "credit-card" },
+      { label: "Compress for Upload", slug: "compress-pdf-for-upload", icon: "cloud-upload" },
+      { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
     ],
-    schemaCategory: "UtilitiesApplication",
   },
 
-  // ── 12. AI PDF SUMMARY ────────────────────────────────────────────────────
+  "compress-pdf-for-upload": {
+    slug: "compress-pdf-for-upload",
+    title: "Compress PDF for Government Portal Upload – Under 100KB/200KB/1MB | FileNova",
+    h1: "Compress PDF for Upload – Reduce PDF to 100KB, 200KB, or 1MB",
+    metaDescription:
+      "Compress PDF files to a specific size for government portal uploads. Get your PDF under 100KB, 200KB, 500KB, or 1MB for DigiLocker, IRCTC, scholarship portals, and bank KYC.",
+    keywords:
+      "compress pdf for upload, compress pdf under 100kb, pdf size reducer for government portal, compress pdf 200kb, compress pdf 1mb india",
+    toolName: "FileNova PDF Compressor for Upload",
+    toolDescription:
+      "Compress PDF files to a target size for Indian government portal uploads — DigiLocker, IRCTC, scholarship portals, and bank KYC.",
+    badge: "India Exclusive",
+    seoBody: [
+      "Every Indian government portal seems to have a different file size limit: DigiLocker allows up to 1MB, many scholarship portals cap at 200KB, IRCTC requires photos under 100KB, and bank KYC portals vary widely.",
+      "FileNova's upload-focused compressor lets you set a target file size rather than a compression level. Just enter '200 KB' as your target, upload your PDF, and the tool will automatically find the right compression ratio to get your file under that threshold.",
+      "This eliminates the frustrating trial-and-error of adjusting compression manually and re-uploading until your file meets the portal's limit.",
+      "Supports all PDF types — scanned documents, photo collages, certificate PDFs, and text-heavy application forms.",
+    ],
+    faqs: [
+      {
+        q: "How do I compress a PDF to under 200KB for a government portal?",
+        a: "Upload your PDF to FileNova's 'Compress for Upload' tool, set 200KB as the target size, and click Compress. The tool automatically adjusts compression to meet your target.",
+      },
+      {
+        q: "Which portals require a PDF under 100KB?",
+        a: "IRCTC concession applications, some scholarship portals, and certain bank online account opening forms require documents under 100KB. Check your specific portal's guidelines.",
+      },
+      {
+        q: "What if my PDF can't be compressed to the target size?",
+        a: "If a PDF cannot be compressed below a certain threshold without destroying readability, FileNova will notify you and suggest the minimum achievable size. You may need to scan at lower DPI or reduce image quality.",
+      },
+    ],
+    relatedTools: [
+      { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
+      { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
+      { label: "Government Form Fill", slug: "government-form-fill", icon: "clipboard" },
+      { label: "Aadhaar Mask PDF", slug: "aadhaar-mask-pdf", icon: "id-badge" },
+    ],
+  },
+
+  "ocr": {
+    slug: "ocr",
+    title: "OCR PDF – Extract Text from Scanned PDF Free | FileNova",
+    h1: "OCR PDF – Convert Scanned PDF to Searchable Text",
+    metaDescription:
+      "Extract text from scanned PDFs using OCR online for free. Make scanned documents searchable and editable. Supports English, Hindi, and more.",
+    keywords:
+      "ocr pdf, ocr online free, extract text from pdf, scanned pdf to text, pdf ocr india",
+    toolName: "FileNova PDF OCR",
+    toolDescription:
+      "Use OCR to extract and recognize text from scanned PDFs, making them searchable and editable online for free.",
+    seoBody: [
+      "Scanned documents are images — they look like PDFs but the text inside them isn't selectable or searchable. OCR (Optical Character Recognition) solves this by analyzing the image and extracting actual text.",
+      "FileNova's OCR tool processes your scanned PDF and returns a searchable, copy-paste-friendly PDF where the text is recognized and embedded as actual text characters.",
+      "Supports English and a growing list of Indian regional languages including Hindi, Bengali, Tamil, and Telugu.",
+    ],
+    faqs: [
+      {
+        q: "What is OCR and why do I need it for PDFs?",
+        a: "OCR (Optical Character Recognition) converts scanned images of text into actual machine-readable text. You need it when your PDF is a scan and you can't search or copy text from it.",
+      },
+      {
+        q: "Does FileNova OCR support Hindi?",
+        a: "Yes. FileNova's OCR supports Hindi and several other Indian regional languages in addition to English.",
+      },
+    ],
+    relatedTools: [
+      { label: "PDF to Word", slug: "pdf-to-word", icon: "file-word" },
+      { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
+      { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
+      { label: "AI PDF Summary", slug: "ai-pdf-summary", icon: "sparkles" },
+    ],
+  },
+
+  "remove-background": {
+    slug: "remove-background",
+    title: "Remove Background from Image Free Online | FileNova",
+    h1: "Remove Background – Remove Image Background Online Free",
+    metaDescription:
+      "Remove background from photos online for free. Get transparent PNG or white background instantly. Perfect for passport photos, product images, and PAN card photos.",
+    keywords:
+      "remove background, remove background online free, background remover, transparent background, remove photo background india",
+    toolName: "FileNova Background Remover",
+    toolDescription:
+      "Remove image backgrounds online for free to get transparent PNG or white background photos instantly.",
+    seoBody: [
+      "Remove backgrounds from photos instantly — no Photoshop, no design skills needed. FileNova's AI-powered background remover works on portraits, product photos, ID photos, and more.",
+      "Especially useful for creating passport-size photos with a white background for PAN card, passport, Aadhaar, or college admission applications.",
+    ],
+    faqs: [
+      {
+        q: "How do I remove a background from a photo online?",
+        a: "Upload your image to FileNova's Remove Background tool and the AI automatically removes the background. Download as transparent PNG or with a white background.",
+      },
+      {
+        q: "Can I use this for passport or PAN card photos?",
+        a: "Yes. This tool is perfect for creating white-background passport-size photos required for PAN card, passport, Aadhaar, and other Indian government applications.",
+      },
+    ],
+    relatedTools: [
+      { label: "PAN Card Resize", slug: "pan-card-resize", icon: "credit-card" },
+      { label: "JPG to PDF", slug: "jpg-to-pdf", icon: "file-text" },
+      { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
+      { label: "PDF to JPG", slug: "pdf-to-jpg", icon: "photo" },
+    ],
+  },
+
   "ai-pdf-summary": {
     slug: "ai-pdf-summary",
-    h1: "AI PDF Summarizer — Summarise Long PDFs Instantly",
-    metaTitle: "AI PDF Summarizer Free — Summarise PDF Documents Online | FileNova",
+    title: "AI PDF Summary – Summarize PDF with AI Free | FileNova",
+    h1: "AI PDF Summary – Summarize Any PDF Instantly",
     metaDescription:
-      "Generate structured, concise summaries of long PDF documents using AI. Free, browser-based. Perfect for research papers, government circulars, and reports.",
+      "Summarize long PDF documents with AI for free. Get key points, chapter summaries, and insights from any PDF in seconds.",
     keywords:
-      "ai pdf summarizer, pdf summary generator, summarise pdf online, ai document summary, pdf to summary free, extract key points from pdf",
-    intro:
-      "Paste or upload any PDF and get a clean, structured summary in seconds — key points, section headings, and main conclusions. Powered by AI, completely free, and no document upload required.",
-    breadcrumb: ["AI Tools", "/tools"],
-    accentColor: "purple",
-    benefits: [
-      {
-        icon: "🤖",
-        title: "AI-powered summaries",
-        description: "Extracts key points, headings, and conclusions — not just a first-paragraph grab.",
-      },
-      {
-        icon: "⚡",
-        title: "Summaries in seconds",
-        description: "A 50-page research paper summarised in under 20 seconds.",
-      },
-      {
-        icon: "📋",
-        title: "Structured output",
-        description: "Summary is organised into sections with bullet points for easy reading.",
-      },
-      {
-        icon: "🔒",
-        title: "Private processing",
-        description: "Document text is analysed locally. No full document is sent to external servers.",
-      },
-    ],
-    steps: [
-      {
-        step: 1,
-        title: "Upload your PDF",
-        description: "Upload any PDF — research paper, government circular, report, or textbook chapter.",
-      },
-      {
-        step: 2,
-        title: "Select summary length",
-        description: "Choose 'Brief' (5 bullet points), 'Standard' (1 page), or 'Detailed' summary.",
-      },
-      {
-        step: 3,
-        title: "Generate summary",
-        description: "Click 'Summarise'. The AI extracts key information and structures it clearly.",
-      },
-      {
-        step: 4,
-        title: "Copy or download",
-        description: "Copy the summary to clipboard or download as a .txt file.",
-      },
+      "ai pdf summary, summarize pdf online, pdf summarizer free, ai pdf tool, summarize document online",
+    toolName: "FileNova AI PDF Summarizer",
+    toolDescription:
+      "Use AI to summarize long PDF documents into key points and chapter summaries online for free.",
+    seoBody: [
+      "Reading a 50-page PDF report? Let AI do it for you. FileNova's AI PDF Summary tool reads your document and returns a structured summary with the key points, arguments, and conclusions — saving you hours.",
+      "Useful for students summarizing textbook chapters, professionals reading research papers, and anyone who needs the gist of a document fast.",
     ],
     faqs: [
       {
-        question: "What types of PDFs work best?",
-        answer:
-          "Text-based PDFs (research papers, reports, articles, circulars) work best. Scanned PDFs with images of text require OCR first — use the OCR tool, then summarise the extracted text.",
+        q: "How does AI PDF summarization work?",
+        a: "FileNova extracts text from your PDF and sends it to an AI model that identifies and summarizes the key points, section by section. The result is a concise, structured summary.",
       },
       {
-        question: "How long can the PDF be?",
-        answer:
-          "FileNova handles PDFs up to 100 pages efficiently. Very long documents (200+ pages) may produce less accurate summaries as the AI focuses on key sections.",
-      },
-      {
-        question: "Can it summarise government orders or circulars?",
-        answer:
-          "Yes. Government PDFs with formal language are well-handled. The summary highlights key decisions, dates, and action points — especially useful for understanding new scheme rules quickly.",
-      },
-      {
-        question: "Is this the same as ChatGPT summarisation?",
-        answer:
-          "FileNova uses a specialised document summarisation model optimised for structured document content. It is not a general chatbot — it focuses specifically on extracting key information from document structure.",
+        q: "What length PDFs can FileNova summarize?",
+        a: "FileNova can summarize PDFs up to 50 pages for free users, and up to 200 pages for Pro users.",
       },
     ],
     relatedTools: [
+      { label: "OCR PDF", slug: "ocr", icon: "scan" },
+      { label: "PDF to Word", slug: "pdf-to-word", icon: "file-word" },
+      { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
+      { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
+    ],
+  },
+
+  "scholarship-zip": {
+    slug: "scholarship-zip",
+    title: "Scholarship Document ZIP – Bundle Documents for Application | FileNova",
+    h1: "Scholarship ZIP – Bundle All Scholarship Documents in One ZIP",
+    metaDescription:
+      "Bundle all your scholarship application documents — Aadhaar, marksheet, income certificate, caste certificate — into a single ZIP file online free.",
+    keywords:
+      "scholarship document zip, scholarship documents bundle, scholarship application pdf, bundle documents online india",
+    toolName: "FileNova Scholarship ZIP Tool",
+    toolDescription:
+      "Bundle multiple scholarship application documents into a single ZIP file online for free.",
+    badge: "India Exclusive",
+    seoBody: [
+      "Scholarship portals like NSP (National Scholarship Portal), state scholarship portals, and private foundations often require you to upload multiple documents at once. FileNova's Scholarship ZIP tool bundles all your documents into a single ZIP file formatted for these portals.",
+      "Upload your Aadhaar card, marksheets, income certificate, caste certificate, and bonafide certificate — FileNova renames and organizes them in the correct format and packages them into a download-ready ZIP.",
+    ],
+    faqs: [
       {
-        slug: "ocr",
-        title: "OCR Scanner",
-        description: "Extract text from scanned PDFs first",
-        icon: "🔍",
+        q: "Which scholarships support ZIP file document upload?",
+        a: "NSP (National Scholarship Portal), several state government scholarship portals, and many private scholarships accept or require ZIP file uploads. Check your specific portal's submission guidelines.",
       },
       {
-        slug: "compress-pdf",
-        title: "Compress PDF",
-        description: "Reduce PDF size before sharing",
-        icon: "📉",
-      },
-      {
-        slug: "merge-pdf",
-        title: "Merge PDF",
-        description: "Combine multiple documents to summarise",
-        icon: "📄",
-      },
-      {
-        slug: "word-to-pdf",
-        title: "Word to PDF",
-        description: "Convert Word reports to PDF first",
-        icon: "📝",
+        q: "What documents are typically needed for scholarship applications?",
+        a: "Common requirements include Aadhaar card, latest marksheets, income certificate, caste certificate (if applicable), bank passbook, and bonafide certificate from your institution.",
       },
     ],
-    schemaCategory: "UtilitiesApplication",
+    relatedTools: [
+      { label: "Aadhaar Mask PDF", slug: "aadhaar-mask-pdf", icon: "id-badge" },
+      { label: "Compress for Upload", slug: "compress-pdf-for-upload", icon: "cloud-upload" },
+      { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
+      { label: "Government Form Fill", slug: "government-form-fill", icon: "clipboard" },
+    ],
   },
-};
-
-/** Returns content for a given canonical slug, or null if not found */
-export function getToolContent(slug: string): ToolContent | null {
-  return TOOL_CONTENT[slug] ?? null;
-}
-
-/** All tool slugs — used for sitemap generation and route listing */
-export const ALL_TOOL_SLUGS = Object.keys(TOOL_CONTENT);
-
-/** Map of old /tools/:toolId paths → new canonical slug */
-export const LEGACY_TOOL_REDIRECTS: Record<string, string> = {
-  "compress-pdf":   "compress-pdf",
-  "merge-pdf":      "merge-pdf",
-  "images-to-pdf":  "image-to-pdf",
-  "pdf-to-images":  "pdf-to-image",
-  "pdf-ocr":        "ocr",
-  "resize-photo":   "resize-image",
-  "remove-bg":      "remove-background",
-  "aadhaar-masking":"aadhaar-mask",
-  "pan-card":       "pan-card-resize",
-  "docx-to-pdf":    "word-to-pdf",
-  "scholarship-zip":"scholarship-zip",
-  "ai-summarize":   "ai-pdf-summary",
 };

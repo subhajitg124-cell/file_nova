@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, type ReactNode } from "react";
 import { useLocation, Link } from "wouter";
 import { 
   ChevronRight, Languages, Sparkles, FileText, Image as ImageIcon,
-  Crown, User, Menu, X, ArrowLeft, Upload, HelpCircle, AlertTriangle, Cpu
+  Crown, User, Menu, X, ArrowLeft, Upload, HelpCircle, AlertTriangle
 } from "lucide-react";
 import { useFileStore } from "@/store/useFileStore";
 import { useLanguage, useTranslation } from "@/lib/i18n";
@@ -12,8 +12,8 @@ import { PlanBadge } from "@/components/PlanBadge";
 import Footer from "@/components/Footer";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useSubscription } from "@/hooks/useSubscription";
-import { setPageMeta, toolJsonLd, breadcrumbJsonLd, faqJsonLd } from "@/lib/seo";
-import { getToolContent } from "@/data/toolContent";
+import { useSEO } from "@/hooks/useSEO";
+import { toolContentMap } from "@/data/toolContent";
 import ScholarshipZIPMaker from "@/pages/ScholarshipZIPMaker";
 
 // Import Workspace components
@@ -25,65 +25,56 @@ import { DownloadHub } from "@/components/workspace/DownloadHub";
 import { BulkProcessor } from "@/components/BulkProcessor";
 import { apiClient, apiMock } from "@/lib/api";
 
-interface DedicatedToolPageProps {
-  params: {
-    slug: string;
-  };
+interface ToolPageLayoutProps {
+  slug: string;
+  children?: ReactNode;
 }
 
-const ACCENT_CLASSES = {
-  indigo: {
-    bgGlow: "bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.15),_transparent_60%)]",
-    textGradient: "from-indigo-600 via-violet-600 to-indigo-600 dark:from-indigo-400 dark:via-violet-400 dark:to-indigo-400",
-    borderHover: "hover:border-indigo-500/30",
-    glow: "shadow-glow-indigo",
-    badge: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/25",
-    iconBg: "bg-indigo-50 dark:bg-indigo-500/10 border-indigo-100 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400"
-  },
-  purple: {
-    bgGlow: "bg-[radial-gradient(circle_at_top,_rgba(168,85,247,0.15),_transparent_60%)]",
-    textGradient: "from-purple-600 via-pink-605 to-purple-600 dark:from-purple-400 dark:via-pink-400 dark:to-purple-400",
-    borderHover: "hover:border-purple-500/30",
-    glow: "shadow-glow-purple",
-    badge: "bg-purple-500/10 text-purple-650 dark:text-purple-400 border-purple-500/25",
-    iconBg: "bg-purple-50 dark:bg-purple-500/10 border-purple-100 dark:border-purple-500/20 text-purple-600 dark:text-purple-400"
-  },
-  emerald: {
-    bgGlow: "bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.15),_transparent_60%)]",
-    textGradient: "from-emerald-600 via-teal-600 to-emerald-600 dark:from-emerald-400 dark:via-teal-400 dark:to-emerald-400",
-    borderHover: "hover:border-emerald-500/30",
-    glow: "shadow-glow-emerald",
-    badge: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25",
-    iconBg: "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400"
-  },
-  amber: {
-    bgGlow: "bg-[radial-gradient(circle_at_top,_rgba(245,158,11,0.15),_transparent_60%)]",
-    textGradient: "from-amber-600 via-orange-600 to-amber-600 dark:from-amber-400 dark:via-orange-400 dark:to-amber-400",
-    borderHover: "hover:border-amber-500/30",
-    glow: "shadow-glow-amber",
-    badge: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/25",
-    iconBg: "bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20 text-amber-600 dark:text-amber-400"
-  },
-  rose: {
-    bgGlow: "bg-[radial-gradient(circle_at_top,_rgba(244,63,94,0.15),_transparent_60%)]",
-    textGradient: "from-rose-600 via-pink-600 to-rose-600 dark:from-rose-400 dark:via-pink-400 dark:to-rose-400",
-    borderHover: "hover:border-rose-500/30",
-    glow: "shadow-glow-rose",
-    badge: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/25",
-    iconBg: "bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/20 text-rose-600 dark:text-rose-400"
-  },
-  sky: {
-    bgGlow: "bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.15),_transparent_60%)]",
-    textGradient: "from-sky-600 via-blue-600 to-sky-600 dark:from-sky-400 dark:via-blue-400 dark:to-sky-400",
-    borderHover: "hover:border-sky-500/30",
-    glow: "shadow-glow-sky",
-    badge: "bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/25",
-    iconBg: "bg-sky-50 dark:bg-sky-500/10 border-sky-100 dark:border-sky-500/20 text-sky-600 dark:text-sky-400"
-  }
+const ICON_MAP: Record<string, string> = {
+  files: "📄",
+  scissors: "✂️",
+  "file-zip": "🗜️",
+  "file-word": "📝",
+  photo: "🖼️",
+  "file-text": "📋",
+  rotate: "🔄",
+  "lock-open": "🔓",
+  lock: "🔒",
+  resize: "⤡",
+  "credit-card": "💳",
+  "id-badge": "🪪",
+  clipboard: "📋",
+  "cloud-upload": "☁️",
+  scan: "🔍",
+  eraser: "🧹",
+  sparkles: "✨",
 };
 
-export default function DedicatedToolPage({ params }: DedicatedToolPageProps) {
-  const slug = params.slug.toLowerCase().trim();
+const BENEFITS = [
+  {
+    icon: "🔒",
+    title: "100% Private",
+    description: "All processing happens locally inside your browser. Your files never leave your device."
+  },
+  {
+    icon: "⚡",
+    title: "Instant Results",
+    description: "No queues or wait times. Get your documents processed in seconds."
+  },
+  {
+    icon: "📱",
+    title: "Mobile Friendly",
+    description: "Optimized for Android & iOS. Access all tools directly from your phone."
+  },
+  {
+    icon: "🆓",
+    title: "Completely Free",
+    description: "No sign-up or registration required. Free forever for students and CSC operators."
+  }
+];
+
+export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
+  const content = toolContentMap[slug];
   const [, setLocation] = useLocation();
   const { user } = useAuthStore();
   const { premiumTier } = useSubscription();
@@ -100,8 +91,6 @@ export default function DedicatedToolPage({ params }: DedicatedToolPageProps) {
     rawFiles
   } = useFileStore();
 
-  const content = getToolContent(slug);
-
   // Health check
   useEffect(() => {
     const fetchHealth = async () => {
@@ -112,7 +101,7 @@ export default function DedicatedToolPage({ params }: DedicatedToolPageProps) {
     fetchHealth();
   }, [setBackendStatus]);
 
-  // Setup SEO and store configuration
+  // Set configured status and handle file dropping logic
   useEffect(() => {
     if (!content) {
       setLocation("/404");
@@ -120,106 +109,9 @@ export default function DedicatedToolPage({ params }: DedicatedToolPageProps) {
     }
 
     setIsConfigured(false);
-    
-    // Set Page Metadata
-    const title = content.metaTitle;
-    const description = content.metaDescription;
-    const keywords = content.keywords;
-    const canonical = `/${content.slug}`;
-
-    const appJsonLd = toolJsonLd({
-      name: content.h1.split("—")[0].trim(),
-      description: content.metaDescription,
-      url: `https://filenova.in/${content.slug}`,
-      category: content.schemaCategory
-    });
-
-    const breadcrumbLd = breadcrumbJsonLd([
-      { name: "Home", url: "/" },
-      { name: content.breadcrumb[0], url: content.breadcrumb[1] },
-      { name: content.h1.split("—")[0].trim(), url: `/${content.slug}` }
-    ]);
-
-    const faqLd = faqJsonLd(content.faqs);
-
-    setPageMeta({
-      title,
-      description,
-      keywords,
-      canonical,
-      jsonLd: [appJsonLd, breadcrumbLd, faqLd]
-    });
-
-    // Configure store operations
-    const store = useFileStore.getState();
-    store.clearStore();
-
-    switch (slug) {
-      case "compress-pdf":
-        store.setSelectedSection("pdf");
-        store.setOperation("compress");
-        break;
-      case "merge-pdf":
-        store.setSelectedSection("pdf");
-        store.setOperation("merge");
-        break;
-      case "image-to-pdf":
-        store.setSelectedSection("pdf");
-        store.setOperation("convert");
-        store.updateOptions({ operation: "images_to_pdf" });
-        break;
-      case "pdf-to-image":
-        store.setSelectedSection("pdf");
-        store.setOperation("convert");
-        store.updateOptions({ operation: "pdf_to_images" });
-        break;
-      case "ocr":
-        store.setSelectedSection("pdf");
-        store.setOperation("edit");
-        store.updateOptions({ operation: "pdf_ocr" });
-        break;
-      case "resize-image":
-        store.setSelectedSection("image");
-        store.setOperation("resize");
-        store.updateOptions({ operation: "resize" });
-        break;
-      case "remove-background":
-        store.setSelectedSection("image");
-        store.setOperation("edit");
-        store.updateOptions({ operation: "remove_bg" });
-        break;
-      case "aadhaar-mask":
-        store.setSelectedSection("image");
-        store.setOperation("resize");
-        store.updateOptions({
-          operation: "resize",
-          resizeType: "dimensions",
-          width: 856,
-          height: 540,
-          resize_width: 856,
-          resize_height: 540,
-          resize_lock_aspect: false
-        });
-        break;
-      case "pan-card-resize":
-        store.setSelectedSection("image");
-        store.setOperation("pancard");
-        break;
-      case "word-to-pdf":
-        store.setSelectedSection("office");
-        store.setOperation("convert");
-        store.updateOptions({ operation: "docx_to_pdf" });
-        break;
-      case "ai-pdf-summary":
-        store.setSelectedSection("pdf");
-        store.setOperation("edit");
-        store.updateOptions({ operation: "pdf_summarize" });
-        break;
-      default:
-        break;
-    }
 
     // Check for preloaded/dropped file in history state
+    const store = useFileStore.getState();
     const droppedFile = window.history.state?.droppedFile;
     if (droppedFile) {
       window.history.replaceState(null, "");
@@ -243,17 +135,28 @@ export default function DedicatedToolPage({ params }: DedicatedToolPageProps) {
     }
 
     setIsConfigured(true);
-  }, [slug, content]);
+  }, [slug, content, setLocation]);
+
+  // Inject SEO metadata
+  useSEO({
+    title: content?.title || "FileNova Tool",
+    description: content?.metaDescription || "",
+    canonical: `https://filenova.in/${slug}`,
+    keywords: content?.keywords || "",
+    toolName: content?.toolName || "",
+    toolDescription: content?.toolDescription || "",
+    faqs: content?.faqs || []
+  });
 
   if (!content) return null;
 
-  const accent = ACCENT_CLASSES[content.accentColor] || ACCENT_CLASSES.indigo;
   const step = downloadUrl ? 3 : (files.length > 0 && selectedOperation) ? 2 : 1;
+  const isScholarshipZip = slug === "scholarship-zip";
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans selection:bg-indigo-500 selection:text-white transition-colors duration-300 relative">
       {/* Background Gradients */}
-      <div className={`absolute top-0 left-0 right-0 h-[600px] ${accent.bgGlow} pointer-events-none z-0`} />
+      <div className="absolute top-0 left-0 right-0 h-[600px] bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.15),_transparent_60%)] pointer-events-none z-0" />
       <div className="absolute top-[800px] right-0 w-[500px] h-[500px] bg-[radial-gradient(circle_at_right,_rgba(168,85,247,0.08),_transparent_70%)] pointer-events-none z-0" />
 
       {/* Header Nav */}
@@ -377,25 +280,30 @@ export default function DedicatedToolPage({ params }: DedicatedToolPageProps) {
         <nav className="flex items-center gap-2 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-6">
           <Link href="/" className="hover:text-primary transition-colors">Home</Link>
           <ChevronRight className="h-3 w-3 text-slate-600" />
-          <Link href={content.breadcrumb[1]} className="hover:text-primary transition-colors">{content.breadcrumb[0]}</Link>
-          <ChevronRight className="h-3 w-3 text-slate-600" />
-          <span className="text-slate-800 dark:text-slate-200">{content.h1.split("—")[0].trim()}</span>
+          <span className="text-slate-800 dark:text-slate-200">{content.toolName}</span>
         </nav>
 
         {/* Page Header (H1 + Intro) */}
         <div className="mb-10 text-left space-y-4">
-          <h1 className="text-3xl md:text-5xl font-black tracking-tight text-gray-900 dark:text-white leading-tight">
-            {content.h1}
-          </h1>
+          <div className="flex items-center gap-3.5 flex-wrap">
+            <h1 className="text-3xl md:text-5xl font-black tracking-tight text-gray-900 dark:text-white leading-tight">
+              {content.h1}
+            </h1>
+            {content.badge && (
+              <span className="text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/25 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                {content.badge}
+              </span>
+            )}
+          </div>
           <p className="text-gray-600 dark:text-slate-300 text-sm md:text-base leading-relaxed max-w-3xl">
-            {content.intro}
+            {content.toolDescription}
           </p>
         </div>
 
         {/* Benefits Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-          {content.benefits.map((benefit, i) => (
-            <div key={i} className={`bg-card/40 border border-border/80 rounded-2xl p-5 ${accent.borderHover} transition-all duration-300`}>
+          {BENEFITS.map((benefit, i) => (
+            <div key={i} className="bg-card/40 border border-border/80 rounded-2xl p-5 hover:border-indigo-500/30 transition-all duration-300">
               <div className="text-2xl mb-3">{benefit.icon}</div>
               <h3 className="font-extrabold text-sm text-foreground mb-1.5">{benefit.title}</h3>
               <p className="text-xs text-muted-foreground leading-relaxed">{benefit.description}</p>
@@ -409,7 +317,7 @@ export default function DedicatedToolPage({ params }: DedicatedToolPageProps) {
           <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-30" />
 
           {/* Wizard step indicator (when files loaded and not scholarship-zip) */}
-          {files.length > 0 && slug !== "scholarship-zip" && (
+          {files.length > 0 && !isScholarshipZip && (
             <div className="w-full max-w-sm mx-auto flex items-center justify-between relative px-2 mb-8">
               <div className="absolute top-1/2 left-0 right-0 h-px bg-border -translate-y-1/2 -z-10" />
               <div
@@ -433,7 +341,9 @@ export default function DedicatedToolPage({ params }: DedicatedToolPageProps) {
               <Sparkles className="h-8 w-8 text-primary animate-spin mx-auto mb-3" />
               <p className="text-xs font-bold text-muted-foreground">Configuring workspace...</p>
             </div>
-          ) : slug === "scholarship-zip" ? (
+          ) : children ? (
+            children
+          ) : isScholarshipZip ? (
             <ScholarshipZIPMaker isEmbedded={true} />
           ) : files.length === 0 ? (
             <div className="space-y-4">
@@ -465,67 +375,63 @@ export default function DedicatedToolPage({ params }: DedicatedToolPageProps) {
           )}
         </div>
 
-        {/* How-To Steps Section */}
+        {/* SEO Content Block */}
         <div className="border-t border-border/60 pt-12 mb-12">
           <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white mb-6">
-            How to {content.h1.split("—")[0].trim().replace(" Online", "").toLowerCase()} in 4 Easy Steps
+            About {content.toolName}
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {content.steps.map((step, i) => (
-              <div key={i} className="flex flex-col space-y-2 relative">
-                <div className="flex items-center gap-3">
-                  <span className={`h-8 w-8 rounded-full ${accent.iconBg} flex items-center justify-center font-black text-sm shrink-0`}>
-                    {step.step}
-                  </span>
-                  <h3 className="font-extrabold text-sm text-foreground">{step.title}</h3>
-                </div>
-                <p className="text-xs text-muted-foreground leading-relaxed pl-11">{step.description}</p>
-              </div>
+          <div className="space-y-4 max-w-4xl text-sm text-gray-600 dark:text-slate-350 leading-relaxed">
+            {content.seoBody.map((paragraph, i) => (
+              <p key={i}>{paragraph}</p>
             ))}
           </div>
         </div>
 
         {/* FAQ Section */}
-        <div className="border-t border-border/60 pt-12 mb-12">
-          <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white mb-8">
-            Frequently Asked Questions (FAQ)
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {content.faqs.map((faq, i) => (
-              <div key={i} className="space-y-2">
-                <h3 className="font-bold text-sm text-foreground flex items-start gap-2">
-                  <span className="text-indigo-500 font-black">?</span>
-                  <span>{faq.question}</span>
-                </h3>
-                <p className="text-xs text-muted-foreground leading-relaxed pl-4">{faq.answer}</p>
-              </div>
-            ))}
+        {content.faqs && content.faqs.length > 0 && (
+          <div className="border-t border-border/60 pt-12 mb-12">
+            <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white mb-8">
+              Frequently Asked Questions (FAQ)
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {content.faqs.map((faq, i) => (
+                <div key={i} className="space-y-2">
+                  <h3 className="font-bold text-sm text-foreground flex items-start gap-2">
+                    <span className="text-indigo-500 font-black">?</span>
+                    <span>{faq.q}</span>
+                  </h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed pl-4">{faq.a}</p>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Related Tools Section */}
-        <div className="border-t border-border/60 pt-12">
-          <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white mb-6">
-            Related Tools You Might Need
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {content.relatedTools.map((tool, i) => (
-              <Link
-                key={i}
-                href={`/${tool.slug}`}
-                className="group bg-card/40 hover:bg-card border border-border/80 hover:border-primary/30 rounded-2xl p-5 transition-all duration-350 flex items-start gap-3.5 shadow-sm hover:shadow-md"
-              >
-                <div className="h-10 w-10 rounded-xl bg-slate-50 dark:bg-slate-950 border border-border flex items-center justify-center text-xl shrink-0">
-                  {tool.icon}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h3 className="font-bold text-xs text-foreground group-hover:text-primary transition-colors truncate">{tool.title}</h3>
-                  <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2 mt-1">{tool.description}</p>
-                </div>
-              </Link>
-            ))}
+        {content.relatedTools && content.relatedTools.length > 0 && (
+          <div className="border-t border-border/60 pt-12">
+            <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white mb-6">
+              Related Tools You Might Need
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {content.relatedTools.map((tool, i) => (
+                <Link
+                  key={i}
+                  href={`/${tool.slug}`}
+                  className="group bg-card/40 hover:bg-card border border-border/80 hover:border-primary/30 rounded-2xl p-5 transition-all duration-350 flex items-start gap-3.5 shadow-sm hover:shadow-md"
+                >
+                  <div className="h-10 w-10 rounded-xl bg-slate-50 dark:bg-slate-950 border border-border flex items-center justify-center text-xl shrink-0">
+                    {ICON_MAP[tool.icon] ?? "🔧"}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-bold text-xs text-foreground group-hover:text-primary transition-colors truncate">{tool.label}</h3>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2 mt-1">Open {tool.label} tool</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
       </main>
 

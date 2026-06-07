@@ -11,8 +11,7 @@ const PdfThumb: React.FC<{ file: File }> = ({ file }) => {
     (async () => {
       try {
         const pdfjsLib = await import('pdfjs-dist');
-        pdfjsLib.GlobalWorkerOptions.workerSrc =
-          `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
         const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
         const page = await pdf.getPage(1);
         const vp0 = page.getViewport({ scale: 1 });

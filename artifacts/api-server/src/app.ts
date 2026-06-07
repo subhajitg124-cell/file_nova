@@ -11,6 +11,7 @@ import { logger } from "./lib/logger";
 import { apiLimiter } from "./middlewares/rateLimit";
 import { authMiddleware } from "./middlewares/auth";
 import healthRouter from "./routes/health";
+import { sitemapRouter } from "./routes/sitemap";
 
 const app: Express = express();
 
@@ -52,6 +53,7 @@ app.use(cookieParser());
 
 // ── Health endpoints BEFORE authMiddleware (for load balancer probes) ───────────
 app.use("/api", healthRouter);
+app.use(sitemapRouter);
 
 // ── Auth middleware ───────────────────────────────────────────────────────────
 app.use(authMiddleware);

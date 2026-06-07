@@ -13,27 +13,34 @@
   "redirects": [
     { "source": "/tools/compress-pdf", "destination": "/compress-pdf", "permanent": true },
     { "source": "/tools/merge-pdf", "destination": "/merge-pdf", "permanent": true },
-    { "source": "/tools/images-to-pdf", "destination": "/image-to-pdf", "permanent": true },
-    { "source": "/tools/image-to-pdf", "destination": "/image-to-pdf", "permanent": true },
-    { "source": "/tools/pdf-to-images", "destination": "/pdf-to-image", "permanent": true },
-    { "source": "/tools/pdf-to-image", "destination": "/pdf-to-image", "permanent": true },
+    { "source": "/tools/images-to-pdf", "destination": "/jpg-to-pdf", "permanent": true },
+    { "source": "/tools/image-to-pdf", "destination": "/jpg-to-pdf", "permanent": true },
+    { "source": "/tools/pdf-to-images", "destination": "/pdf-to-jpg", "permanent": true },
+    { "source": "/tools/pdf-to-image", "destination": "/pdf-to-jpg", "permanent": true },
     { "source": "/tools/pdf-ocr", "destination": "/ocr", "permanent": true },
     { "source": "/tools/ocr", "destination": "/ocr", "permanent": true },
-    { "source": "/tools/resize-photo", "destination": "/resize-image", "permanent": true },
-    { "source": "/tools/resize-image", "destination": "/resize-image", "permanent": true },
+    { "source": "/tools/resize-photo", "destination": "/resize-pdf", "permanent": true },
+    { "source": "/tools/resize-image", "destination": "/resize-pdf", "permanent": true },
     { "source": "/tools/remove-bg", "destination": "/remove-background", "permanent": true },
     { "source": "/tools/remove-background", "destination": "/remove-background", "permanent": true },
-    { "source": "/tools/aadhaar-masking", "destination": "/aadhaar-mask", "permanent": true },
-    { "source": "/tools/aadhaar-mask", "destination": "/aadhaar-mask", "permanent": true },
+    { "source": "/tools/aadhaar-masking", "destination": "/aadhaar-mask-pdf", "permanent": true },
+    { "source": "/tools/aadhaar-mask", "destination": "/aadhaar-mask-pdf", "permanent": true },
     { "source": "/tools/pan-card", "destination": "/pan-card-resize", "permanent": true },
     { "source": "/tools/pan-card-resize", "destination": "/pan-card-resize", "permanent": true },
-    { "source": "/tools/docx-to-pdf", "destination": "/word-to-pdf", "permanent": true },
-    { "source": "/tools/word-to-pdf", "destination": "/word-to-pdf", "permanent": true },
+    { "source": "/tools/docx-to-pdf", "destination": "/pdf-to-word", "permanent": true },
+    { "source": "/tools/word-to-pdf", "destination": "/pdf-to-word", "permanent": true },
     { "source": "/tools/scholarship-zip-maker", "destination": "/scholarship-zip", "permanent": true },
     { "source": "/tools/scholarship-zip", "destination": "/scholarship-zip", "permanent": true },
     { "source": "/tools/scholarship", "destination": "/scholarship-zip", "permanent": true },
     { "source": "/tools/ai-summarize", "destination": "/ai-pdf-summary", "permanent": true },
-    { "source": "/tools/ai-pdf-summary", "destination": "/ai-pdf-summary", "permanent": true }
+    { "source": "/tools/ai-pdf-summary", "destination": "/ai-pdf-summary", "permanent": true },
+
+    { "source": "/aadhaar-mask", "destination": "/aadhaar-mask-pdf", "permanent": true },
+    { "source": "/merge", "destination": "/merge-pdf", "permanent": true },
+    { "source": "/compress", "destination": "/compress-pdf", "permanent": true },
+    { "source": "/split", "destination": "/split-pdf", "permanent": true },
+    { "source": "/image-to-pdf", "destination": "/jpg-to-pdf", "permanent": true },
+    { "source": "/pdf-to-image", "destination": "/pdf-to-jpg", "permanent": true }
   ],
   "rewrites": [
     {
@@ -46,6 +53,31 @@
     }
   ],
   "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/pdf.worker.min.js",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/sitemap.xml",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400, s-maxage=86400" },
+        { "key": "Content-Type", "value": "application/xml; charset=utf-8" }
+      ]
+    },
+    {
+      "source": "/robots.txt",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400" }
+      ]
+    },
     {
       "source": "/api/(.*)",
       "headers": [

@@ -15,7 +15,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useSubscription } from "@/hooks/useSubscription";
 import { PlanBadge } from "@/components/PlanBadge";
 import { ToolSearch } from "@/components/ToolSearch";
-import { setPageMeta } from "@/lib/seo";
+import { useSEO } from "@/hooks/useSEO";
 
 
 // Curated tools to display on the homepage grid
@@ -44,26 +44,33 @@ export default function SimpleHome() {
 
   const pdfToolsList = [
     { id: "merge-pdf", title: tText("Merge PDF Files"), description: tText("Combine multiple PDF documents into a single organized file."), icon: FileText, canonical: "/merge-pdf", category: "pdf", tags: ["merge", "combine", "pdf", "join"] },
+    { id: "split-pdf", title: tText("Split PDF"), description: tText("Divide a PDF into separate files or extract specific pages."), icon: FileText, canonical: "/split-pdf", category: "pdf", tags: ["split", "extract", "pdf", "pages"] },
     { id: "compress-pdf", title: tText("Compress PDF"), description: tText("Shrink PDF size to under 200KB to fit portal size restrictions."), icon: FileText, canonical: "/compress-pdf", category: "pdf", tags: ["compress", "pdf", "shrink", "size", "under 200kb"] },
-    { id: "image-to-pdf", title: tText("Image to PDF"), description: tText("Convert JPG, PNG, and WebP images into a single PDF document."), icon: ImageIcon, canonical: "/image-to-pdf", category: "pdf", tags: ["image", "jpg", "png", "webp", "pdf", "convert"] },
-    { id: "pdf-to-image", title: tText("PDF to Image"), description: tText("Convert PDF pages into high-quality JPG or PNG images."), icon: ImageIcon, canonical: "/pdf-to-image", category: "pdf", tags: ["pdf", "image", "jpg", "png", "webp", "convert"] }
+    { id: "rotate-pdf", title: tText("Rotate PDF"), description: tText("Rotate individual or all pages in a PDF document."), icon: FileText, canonical: "/rotate-pdf", category: "pdf", tags: ["rotate", "pdf", "turn", "orientation"] },
+    { id: "resize-pdf", title: tText("Resize PDF"), description: tText("Change PDF page size to standard A4, Letter or custom sizes."), icon: FileText, canonical: "/resize-pdf", category: "pdf", tags: ["resize", "pdf", "size", "a4", "dimensions"] },
+    { id: "protect-pdf", title: tText("Protect PDF"), description: tText("Add password encryption to secure your PDF documents."), icon: FileText, canonical: "/protect-pdf", category: "pdf", tags: ["protect", "secure", "password", "encrypt"] },
+    { id: "unlock-pdf", title: tText("Unlock PDF"), description: tText("Remove password restrictions from protected PDFs."), icon: FileText, canonical: "/unlock-pdf", category: "pdf", tags: ["unlock", "decrypt", "password", "remove"] }
   ];
 
   const imageToolsList = [
-    { id: "resize-photo", title: tText("Resize Photo & Signature"), description: tText("Resize images to custom width/height and format specifications."), icon: ImageIcon, canonical: "/resize-image", category: "image", tags: ["resize", "photo", "signature", "width", "height", "crop", "scale"] },
-    { id: "remove-bg", title: tText("AI Background Remover"), description: tText("Remove image background automatically to output a transparent PNG."), icon: Sparkles, canonical: "/remove-background", badge: "New", category: "image", tags: ["bg", "background", "remove", "transparent", "png", "ai"] },
-    { id: "aadhaar-masking", title: tText("Aadhaar Card Masking"), description: tText("Mask the first 8 digits of your Aadhaar card scan for secure UIDAI uploads."), icon: ShieldCheck, canonical: "/aadhaar-mask", badge: "Secure", category: "image", tags: ["aadhaar", "mask", "uidai", "card", "security"] },
-    { id: "pan-card", title: tText("PAN Card Upload Fix"), description: tText("Resize and optimize signature & photo scans for NSDL/UTI forms."), icon: IdCard, canonical: "/pan-card-resize", badge: "CSC Special", category: "image", tags: ["pan", "signature", "photo", "nsdl", "uti"] }
+    { id: "pan-card", title: tText("PAN Card Photo Resize"), description: tText("Resize photo and signature to exact NSDL/UTI specifications."), icon: IdCard, canonical: "/pan-card-resize", badge: "India Exclusive", category: "image", tags: ["pan", "signature", "photo", "nsdl", "uti"] },
+    { id: "aadhaar-masking", title: tText("Aadhaar Mask PDF"), description: tText("Mask the first 8 digits of your Aadhaar card scan safely."), icon: ShieldCheck, canonical: "/aadhaar-mask-pdf", badge: "India Exclusive", category: "image", tags: ["aadhaar", "mask", "uidai", "card", "security"] },
+    { id: "government-form-fill", title: tText("Government Form Fill"), description: tText("Fill Aadhaar, PAN, and passport PDF application forms online."), icon: FileText, canonical: "/government-form-fill", badge: "India Exclusive", category: "image", tags: ["form", "fill", "aadhaar", "pan", "passport"] },
+    { id: "compress-pdf-for-upload", title: tText("Compress for Upload"), description: tText("Shrink PDF size specifically under 100KB/200KB/1MB limits."), icon: FileText, canonical: "/compress-pdf-for-upload", badge: "India Exclusive", category: "image", tags: ["compress", "upload", "100kb", "200kb", "portal"] },
+    { id: "scholarship-zip", title: tText("Scholarship ZIP Maker"), description: tText("Income, marksheet, bank passbook, photo & signature compiled in one ZIP."), icon: GraduationCap, canonical: "/scholarship-zip", badge: "Popular", category: "office", tags: ["scholarship", "zip", "svmcm", "oasis", "kanyashree", "annapurna"] }
   ];
 
   const aiToolsList = [
     { id: "pdf-ocr", title: tText("OCR Scan-to-Text"), description: tText("Extract editable text from scanned certificate images and PDFs."), icon: Sparkles, canonical: "/ocr", badge: "AI", category: "ai", tags: ["ocr", "scan", "text", "extract", "image", "pdf"] },
+    { id: "remove-bg", title: tText("AI Background Remover"), description: tText("Remove image background automatically to output a transparent PNG."), icon: Sparkles, canonical: "/remove-background", badge: "New", category: "ai", tags: ["bg", "background", "remove", "transparent", "png", "ai"] },
     { id: "ai-summarize", title: tText("AI PDF Summarizer"), description: tText("Generate structured, concise summaries from long PDF documents."), icon: Sparkles, canonical: "/ai-pdf-summary", badge: "AI", category: "ai", tags: ["summarize", "summary", "ai", "pdf", "long"] }
   ];
 
   const officeToolsList = [
-    { id: "docx-to-pdf", title: tText("DOCX to PDF Converter"), description: tText("Convert Microsoft Word document (.docx) into standard readable PDF."), icon: Settings2, canonical: "/word-to-pdf", category: "office", tags: ["docx", "word", "pdf", "convert"] },
-    { id: "scholarship-zip", title: tText("Scholarship ZIP Maker"), description: tText("Income, marksheet, bank passbook, photo & signature compiled in one ZIP."), icon: GraduationCap, canonical: "/scholarship-zip", badge: "Popular", category: "office", tags: ["scholarship", "zip", "svmcm", "oasis", "kanyashree", "annapurna"] }
+    { id: "pdf-to-word", title: tText("PDF to Word"), description: tText("Convert PDF documents into editable Microsoft Word files."), icon: Settings2, canonical: "/pdf-to-word", category: "office", tags: ["pdf", "word", "docx", "convert"] },
+    { id: "pdf-to-jpg", title: tText("PDF to JPG"), description: tText("Extract pages from any PDF document into JPG images."), icon: Settings2, canonical: "/pdf-to-jpg", category: "office", tags: ["pdf", "jpg", "images", "extract"] },
+    { id: "jpg-to-pdf", title: tText("JPG to PDF"), description: tText("Combine and convert images into a clean single PDF."), icon: Settings2, canonical: "/jpg-to-pdf", category: "office", tags: ["jpg", "pdf", "images", "convert"] },
+    { id: "docx-to-pdf", title: tText("Word to PDF"), description: tText("Convert Microsoft Word document (.docx) into standard readable PDF."), icon: Settings2, canonical: "/word-to-pdf", category: "office", tags: ["docx", "word", "pdf", "convert"] }
   ];
 
   const allSearchableTools = [
@@ -106,26 +113,15 @@ export default function SimpleHome() {
   }, []);
 
   // Homepage SEO
-  useEffect(() => {
-    setPageMeta({
-      title: "FileNova — Free Document Tools for India | PDF, Aadhaar, Scholarship",
-      description: "Compress PDFs, mask Aadhaar cards, resize passport photos, generate Scholarship ZIPs for SVMCM/OASIS/Kanyashree. 100% free, browser-based, no uploads.",
-      canonical: "/",
-      keywords: "pdf tools india, aadhaar masking, scholarship zip, compress pdf, resize photo, csc portal tools, oasis scholarship documents",
-      jsonLd: {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        name: "FileNova",
-        url: "https://filenova.in",
-        description: "Free document automation tools for Indian students and CSC operators",
-        potentialAction: {
-          "@type": "SearchAction",
-          target: "https://filenova.in/tools?q={search_term_string}",
-          "query-input": "required name=search_term_string",
-        },
-      },
-    });
-  }, []);
+  useSEO({
+    title: "FileNova – Free Online PDF Tools for India",
+    description:
+      "Free online PDF tools built for India. Merge, split, compress, convert PDFs. Plus Aadhaar masking, PAN card resize, and government form filling — no signup needed.",
+    canonical: "https://filenova.in/",
+    keywords:
+      "pdf tools online free, merge pdf, compress pdf, pdf to word, aadhaar mask, pan card resize, government form pdf, india pdf tools",
+    isHomepage: true,
+  });
 
   // Drag and drop / picker modal state
   const [isDragging, setIsDragging] = useState(false);
@@ -511,7 +507,7 @@ export default function SimpleHome() {
             </Link>
 
             <Link
-              href="/resize-image"
+              href="/resize-pdf"
               className="flex flex-col items-center justify-between p-6 bg-card hover:bg-slate-50 dark:bg-slate-900/40 dark:hover:bg-slate-900/80 border border-border dark:border-slate-900 hover:border-emerald-500/35 rounded-2xl transition-all duration-300 group shadow-lg hover:shadow-glow-emerald-subtle cursor-pointer text-left block"
             >
               <div className="h-12 w-12 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
@@ -541,16 +537,23 @@ export default function SimpleHome() {
         </div>
       </section>
 
+      {/* Site Description Block */}
+      <section className="pb-10 px-4 relative z-10 max-w-3xl mx-auto text-center">
+        <p className="text-sm text-gray-500 dark:text-slate-400 leading-relaxed">
+          {tText("FileNova is a free online PDF toolkit built for India. Merge, split, compress, convert PDFs and manage Indian government documents — Aadhaar, PAN, marksheets — right in your browser. No signup. No app. Just fast, secure PDF tools.")}
+        </p>
+      </section>
+
       {/* Flat horizontal Quick Actions */}
       <section className="py-6 border-y border-border dark:border-slate-900 bg-card/40 dark:bg-slate-950/40 relative z-10 overflow-x-auto whitespace-nowrap scrollbar-none">
         <div className="max-w-6xl mx-auto px-4 flex items-center gap-3.5">
           <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wider shrink-0 mr-2">{tText("Quick Actions:")}</span>
           {[
-            { label: tText("Aadhaar Card Mask"), href: "/aadhaar-mask" },
+            { label: tText("Aadhaar Card Mask"), href: "/aadhaar-mask-pdf" },
             { label: tText("NSDL PAN Resize"), href: "/pan-card-resize" },
             { label: tText("Merge PDF"), href: "/merge-pdf" },
             { label: tText("OCR Extraction"), href: "/ocr" },
-            { label: tText("Signature Scale"), href: "/resize-image" }
+            { label: tText("Signature Scale"), href: "/resize-pdf" }
           ].map((act, i) => (
             <Link
               key={i}

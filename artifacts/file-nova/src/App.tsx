@@ -7,7 +7,24 @@ import Workspace from "@/pages/Home";
 import ToolsPage from "@/pages/ToolsPage";
 import ToolPage from "@/pages/ToolPage";
 
-const DedicatedToolPage = React.lazy(() => import("@/pages/DedicatedToolPage"));
+const MergePdf = React.lazy(() => import("@/pages/tools/MergePdf"));
+const SplitPdf = React.lazy(() => import("@/pages/tools/SplitPdf"));
+const CompressPdf = React.lazy(() => import("@/pages/tools/CompressPdf"));
+const PdfToWord = React.lazy(() => import("@/pages/tools/PdfToWord"));
+const PdfToJpg = React.lazy(() => import("@/pages/tools/PdfToJpg"));
+const JpgToPdf = React.lazy(() => import("@/pages/tools/JpgToPdf"));
+const RotatePdf = React.lazy(() => import("@/pages/tools/RotatePdf"));
+const UnlockPdf = React.lazy(() => import("@/pages/tools/UnlockPdf"));
+const ProtectPdf = React.lazy(() => import("@/pages/tools/ProtectPdf"));
+const PanCardResize = React.lazy(() => import("@/pages/tools/PanCardResize"));
+const AadhaarMaskPdf = React.lazy(() => import("@/pages/tools/AadhaarMaskPdf"));
+const ResizePdf = React.lazy(() => import("@/pages/tools/ResizePdf"));
+const GovernmentFormFill = React.lazy(() => import("@/pages/tools/GovernmentFormFill"));
+const CompressPdfForUpload = React.lazy(() => import("@/pages/tools/CompressPdfForUpload"));
+const Ocr = React.lazy(() => import("@/pages/tools/Ocr"));
+const RemoveBackground = React.lazy(() => import("@/pages/tools/RemoveBackground"));
+const ScholarshipZip = React.lazy(() => import("@/pages/tools/ScholarshipZip"));
+const AiPdfSummary = React.lazy(() => import("@/pages/tools/AiPdfSummary"));
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminUpiPayments from "@/pages/AdminUpiPayments";
 import AdminCouponManagement from "@/pages/AdminCouponManagement";
@@ -129,87 +146,101 @@ function Router() {
         <Route path="/workspace" component={Workspace} />
         <Route path="/tools" component={ToolsPage} />
 
-        {/* 12 Dedicated SEO-friendly Canonical Tool Pages */}
-        <Route path="/compress-pdf">
-          <React.Suspense fallback={<LoadingScreen />}>
-            <DedicatedToolPage params={{ slug: "compress-pdf" }} />
-          </React.Suspense>
-        </Route>
+        {/* 18 Dedicated SEO-friendly Canonical Tool Pages */}
         <Route path="/merge-pdf">
-          <React.Suspense fallback={<LoadingScreen />}>
-            <DedicatedToolPage params={{ slug: "merge-pdf" }} />
-          </React.Suspense>
+          <React.Suspense fallback={<LoadingScreen />}><MergePdf /></React.Suspense>
         </Route>
-        <Route path="/image-to-pdf">
-          <React.Suspense fallback={<LoadingScreen />}>
-            <DedicatedToolPage params={{ slug: "image-to-pdf" }} />
-          </React.Suspense>
+        <Route path="/split-pdf">
+          <React.Suspense fallback={<LoadingScreen />}><SplitPdf /></React.Suspense>
         </Route>
-        <Route path="/pdf-to-image">
-          <React.Suspense fallback={<LoadingScreen />}>
-            <DedicatedToolPage params={{ slug: "pdf-to-image" }} />
-          </React.Suspense>
+        <Route path="/compress-pdf">
+          <React.Suspense fallback={<LoadingScreen />}><CompressPdf /></React.Suspense>
         </Route>
-        <Route path="/ocr">
-          <React.Suspense fallback={<LoadingScreen />}>
-            <DedicatedToolPage params={{ slug: "ocr" }} />
-          </React.Suspense>
+        <Route path="/pdf-to-word">
+          <React.Suspense fallback={<LoadingScreen />}><PdfToWord /></React.Suspense>
         </Route>
-        <Route path="/resize-image">
-          <React.Suspense fallback={<LoadingScreen />}>
-            <DedicatedToolPage params={{ slug: "resize-image" }} />
-          </React.Suspense>
+        <Route path="/pdf-to-jpg">
+          <React.Suspense fallback={<LoadingScreen />}><PdfToJpg /></React.Suspense>
         </Route>
-        <Route path="/remove-background">
-          <React.Suspense fallback={<LoadingScreen />}>
-            <DedicatedToolPage params={{ slug: "remove-background" }} />
-          </React.Suspense>
+        <Route path="/jpg-to-pdf">
+          <React.Suspense fallback={<LoadingScreen />}><JpgToPdf /></React.Suspense>
         </Route>
-        <Route path="/aadhaar-mask">
-          <React.Suspense fallback={<LoadingScreen />}>
-            <DedicatedToolPage params={{ slug: "aadhaar-mask" }} />
-          </React.Suspense>
+        <Route path="/rotate-pdf">
+          <React.Suspense fallback={<LoadingScreen />}><RotatePdf /></React.Suspense>
+        </Route>
+        <Route path="/unlock-pdf">
+          <React.Suspense fallback={<LoadingScreen />}><UnlockPdf /></React.Suspense>
+        </Route>
+        <Route path="/protect-pdf">
+          <React.Suspense fallback={<LoadingScreen />}><ProtectPdf /></React.Suspense>
+        </Route>
+        <Route path="/resize-pdf">
+          <React.Suspense fallback={<LoadingScreen />}><ResizePdf /></React.Suspense>
         </Route>
         <Route path="/pan-card-resize">
-          <React.Suspense fallback={<LoadingScreen />}>
-            <DedicatedToolPage params={{ slug: "pan-card-resize" }} />
-          </React.Suspense>
+          <React.Suspense fallback={<LoadingScreen />}><PanCardResize /></React.Suspense>
         </Route>
-        <Route path="/word-to-pdf">
-          <React.Suspense fallback={<LoadingScreen />}>
-            <DedicatedToolPage params={{ slug: "word-to-pdf" }} />
-          </React.Suspense>
+        <Route path="/aadhaar-mask-pdf">
+          <React.Suspense fallback={<LoadingScreen />}><AadhaarMaskPdf /></React.Suspense>
+        </Route>
+        <Route path="/government-form-fill">
+          <React.Suspense fallback={<LoadingScreen />}><GovernmentFormFill /></React.Suspense>
+        </Route>
+        <Route path="/compress-pdf-for-upload">
+          <React.Suspense fallback={<LoadingScreen />}><CompressPdfForUpload /></React.Suspense>
+        </Route>
+        <Route path="/ocr">
+          <React.Suspense fallback={<LoadingScreen />}><Ocr /></React.Suspense>
+        </Route>
+        <Route path="/remove-background">
+          <React.Suspense fallback={<LoadingScreen />}><RemoveBackground /></React.Suspense>
         </Route>
         <Route path="/scholarship-zip">
-          <React.Suspense fallback={<LoadingScreen />}>
-            <DedicatedToolPage params={{ slug: "scholarship-zip" }} />
-          </React.Suspense>
+          <React.Suspense fallback={<LoadingScreen />}><ScholarshipZip /></React.Suspense>
         </Route>
         <Route path="/ai-pdf-summary">
-          <React.Suspense fallback={<LoadingScreen />}>
-            <DedicatedToolPage params={{ slug: "ai-pdf-summary" }} />
-          </React.Suspense>
+          <React.Suspense fallback={<LoadingScreen />}><AiPdfSummary /></React.Suspense>
+        </Route>
+
+        {/* 301-equivalent client redirects (old/legacy slugs) */}
+        <Route path="/aadhaar-mask">
+          <Redirect to="/aadhaar-mask-pdf" />
+        </Route>
+        <Route path="/merge">
+          <Redirect to="/merge-pdf" />
+        </Route>
+        <Route path="/compress">
+          <Redirect to="/compress-pdf" />
+        </Route>
+        <Route path="/split">
+          <Redirect to="/split-pdf" />
+        </Route>
+        <Route path="/image-to-pdf">
+          <Redirect to="/jpg-to-pdf" />
+        </Route>
+        <Route path="/pdf-to-image">
+          <Redirect to="/pdf-to-jpg" />
         </Route>
 
         {/* Client-Side Redirects for Legacy /tools/* Paths */}
         <Route path="/tools/compress-pdf"><Redirect to="/compress-pdf" /></Route>
         <Route path="/tools/merge-pdf"><Redirect to="/merge-pdf" /></Route>
-        <Route path="/tools/image-to-pdf"><Redirect to="/image-to-pdf" /></Route>
-        <Route path="/tools/images-to-pdf"><Redirect to="/image-to-pdf" /></Route>
-        <Route path="/tools/pdf-to-image"><Redirect to="/pdf-to-image" /></Route>
-        <Route path="/tools/pdf-to-images"><Redirect to="/pdf-to-image" /></Route>
+        <Route path="/tools/image-to-pdf"><Redirect to="/jpg-to-pdf" /></Route>
+        <Route path="/tools/images-to-pdf"><Redirect to="/jpg-to-pdf" /></Route>
+        <Route path="/tools/pdf-to-image"><Redirect to="/pdf-to-jpg" /></Route>
+        <Route path="/tools/pdf-to-images"><Redirect to="/pdf-to-jpg" /></Route>
         <Route path="/tools/ocr"><Redirect to="/ocr" /></Route>
         <Route path="/tools/pdf-ocr"><Redirect to="/ocr" /></Route>
-        <Route path="/tools/resize-image"><Redirect to="/resize-image" /></Route>
-        <Route path="/tools/resize-photo"><Redirect to="/resize-image" /></Route>
+        <Route path="/tools/resize-image"><Redirect to="/resize-pdf" /></Route>
+        <Route path="/tools/resize-photo"><Redirect to="/resize-pdf" /></Route>
         <Route path="/tools/remove-background"><Redirect to="/remove-background" /></Route>
         <Route path="/tools/remove-bg"><Redirect to="/remove-background" /></Route>
-        <Route path="/tools/aadhaar-mask"><Redirect to="/aadhaar-mask" /></Route>
-        <Route path="/tools/aadhaar-masking"><Redirect to="/aadhaar-mask" /></Route>
+        <Route path="/tools/aadhaar-mask"><Redirect to="/aadhaar-mask-pdf" /></Route>
+        <Route path="/tools/aadhaar-masking"><Redirect to="/aadhaar-mask-pdf" /></Route>
         <Route path="/tools/pan-card-resize"><Redirect to="/pan-card-resize" /></Route>
         <Route path="/tools/pan-card"><Redirect to="/pan-card-resize" /></Route>
-        <Route path="/tools/word-to-pdf"><Redirect to="/word-to-pdf" /></Route>
-        <Route path="/tools/docx-to-pdf"><Redirect to="/word-to-pdf" /></Route>
+        <Route path="/tools/word-to-pdf"><Redirect to="/pdf-to-word" /></Route>
+        <Route path="/tools/docx-to-pdf"><Redirect to="/pdf-to-word" /></Route>
         <Route path="/tools/scholarship-zip"><Redirect to="/scholarship-zip" /></Route>
         <Route path="/tools/scholarship-zip-maker"><Redirect to="/scholarship-zip" /></Route>
         <Route path="/tools/scholarship"><Redirect to="/scholarship-zip" /></Route>
