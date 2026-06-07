@@ -7,6 +7,7 @@ import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { BACKEND_URL } from "@/lib/api";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useFileStore } from "@/store/useFileStore";
 
 export type PremiumTier = "free" | "basic" | "pro" | "elite";
 
@@ -36,19 +37,21 @@ export function useSubscription() {
   const [adWatchCount, setAdWatchCount] = useState(0);
   const [useCount, setUseCount] = useState(0);
 
-  const todayKey = getTodayKey();
-  const adsKey = `fn_ads_${todayKey}`;
-  const usesKey = `fn_uses_${todayKey}`;
-
   // Sync with localStorage
   const syncLocalMetrics = useCallback(() => {
+    const todayKey = getTodayKey();
+    const adsKey = `fn_ads_${todayKey}`;
+    const usesKey = `fn_uses_${todayKey}`;
     const ads = parseInt(localStorage.getItem(adsKey) || "0", 10);
     const uses = parseInt(localStorage.getItem(usesKey) || "0", 10);
     setAdWatchCount(ads);
     setUseCount(uses);
-  }, [adsKey, usesKey]);
+  }, []);
 
   const fetchStatus = useCallback(async () => {
+    if (useFileStore.getState().isMockMode) {
+      return;
+    }
     try {
       const token = localStorage.getItem("filenova_token");
       const headers: Record<string, string> = {};
@@ -80,9 +83,13 @@ export function useSubscription() {
         } else {
           setActiveOffer(null);
         }
+      } else {
+        if (res.status === 500 || res.status === 502 || res.status === 503 || res.status === 504) {
+          useFileStore.setState({ isMockMode: true });
+        }
       }
     } catch (_) {
-      // Fallback silently
+      useFileStore.setState({ isMockMode: true });
     }
   }, []);
 
@@ -98,7 +105,7 @@ export function useSubscription() {
   }, [fetchStatus, syncLocalMetrics]);
 
   // Dynamic script loader for Razorpay
-  const loadRazorpayScript = (): Promise<boolean> => {
+  const loadRazorpayScript = useCallback((): Promise<boolean> => {
     return new Promise((resolve) => {
       if ((window as any).Razorpay) {
         resolve(true);
@@ -111,7 +118,7 @@ export function useSubscription() {
       script.onerror = () => resolve(false);
       document.body.appendChild(script);
     });
-  };
+  }, []);
 
   // Checkout execution
   const PLAN_PRICES_PAISE = {
@@ -120,7 +127,7 @@ export function useSubscription() {
     elite: 19900,
   };
 
-  const startCheckout = async (plan: "basic" | "pro" | "elite" | "pro_monthly", coupon?: string) => {
+  const startCheckout = useCallback(async (plan: "basic" | "pro" | "elite" | "pro_monthly", coupon?: string) => {
     const targetPlan = plan === "pro_monthly" ? "basic" : plan;
     setLoading(true);
     try {
@@ -246,10 +253,10 @@ export function useSubscription() {
       toast.error(err.message || "Payment setup failed");
       setLoading(false);
     }
-  };
+  }, [fetchStatus, loadRazorpayScript]);
 
   // Cancel Plan
-  const cancelSubscription = async () => {
+  const cancelSubscription = useCallback(async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("filenova_token");
@@ -273,43 +280,47 @@ export function useSubscription() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchStatus]);
 
   // Gating counters
-  const incrementAdWatch = (count = 1) => {
+  const incrementAdWatch = useCallback((count = 1) => {
+    const todayKey = getTodayKey();
+    const adsKey = `fn_ads_${todayKey}`;
     const current = parseInt(localStorage.getItem(adsKey) || "0", 10);
     localStorage.setItem(adsKey, String(current + count));
     syncLocalMetrics();
-  };
+  }, [syncLocalMetrics]);
 
-  const incrementFeatureUse = () => {
+  const incrementFeatureUse = useCallback(() => {
+    const todayKey = getTodayKey();
+    const usesKey = `fn_uses_${todayKey}`;
     const current = parseInt(localStorage.getItem(usesKey) || "0", 10);
     localStorage.setItem(usesKey, String(current + 1));
     syncLocalMetrics();
     // Proactively refresh DB status
     fetchStatus();
-  };
+  }, [syncLocalMetrics, fetchStatus]);
 
   // Max daily limit rules
-  const getDailyLimit = (): number => {
+  const getDailyLimit = useCallback((): number => {
     if (isTestingPeriodActive()) return Infinity;
     return dbLimit === -1 ? Infinity : dbLimit;
-  };
+  }, [dbLimit]);
 
-  const isLimitReached = (): boolean => {
+  const isLimitReached = useCallback((): boolean => {
     if (isTestingPeriodActive()) return false;
     const max = getDailyLimit();
     return dbUsageToday >= max;
-  };
+  }, [getDailyLimit, dbUsageToday]);
 
-  const shouldShowAdGate = (): boolean => {
+  const shouldShowAdGate = useCallback((): boolean => {
     if (isTestingPeriodActive()) return false;
     if (premiumTier !== "free") return false;
     // FREE user: watch 1 ad per use.
     // Condition: watched ads must be >= uses + 1 to run next feature
     const requiredAds = dbUsageToday + 1;
     return adWatchCount < requiredAds;
-  };
+  }, [premiumTier, dbUsageToday, adWatchCount]);
 
   return {
     loading,
