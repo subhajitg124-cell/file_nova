@@ -36,6 +36,7 @@ interface FileState {
   isMockMode: boolean;
   backendHealthy: boolean;
   backendCapabilities: { libreoffice: boolean; ffmpeg: boolean };
+  processingQueue: { position: number; total: number } | null;
   addFiles: (newFiles: FileRecord[]) => void;
   removeFile: (id: string) => void;
   clearStore: () => void;
@@ -48,6 +49,7 @@ interface FileState {
   setError: (error: string | null) => void;
   setSavings: (savings: ProcessingSavings | null) => void;
   setTtlRemaining: (ttl: number | null) => void;
+  setProcessingQueue: (queue: { position: number; total: number } | null) => void;
   editorOpen: boolean;
   editorFile: File | null;
   editorFileType: 'image' | 'pdf' | 'document';
@@ -78,6 +80,7 @@ export const useFileStore = create<FileState>((set) => ({
   error: null,
   savings: null,
   ttlRemaining: null,
+  processingQueue: null,
   isMockMode: false,
   backendHealthy: true,
   backendCapabilities: { libreoffice: false, ffmpeg: false },
@@ -119,7 +122,7 @@ export const useFileStore = create<FileState>((set) => ({
   clearStore: () => set({
     selectedSection: null, rawFiles: [], files: [], selectedOperation: null,
     operationOptions: {}, isProcessing: false, progress: 0, jobId: null,
-    downloadUrl: null, error: null, savings: null, ttlRemaining: null
+    downloadUrl: null, error: null, savings: null, ttlRemaining: null, processingQueue: null
   }),
   setOperation: (operation) => set((state) => {
     if (operation === null) {
@@ -164,6 +167,7 @@ export const useFileStore = create<FileState>((set) => ({
   setError: (error) => set({ error }),
   setSavings: (savings) => set({ savings }),
   setTtlRemaining: (ttlRemaining) => set({ ttlRemaining }),
+  setProcessingQueue: (processingQueue) => set({ processingQueue }),
   editorOpen: false,
   editorFile: null,
   editorFileType: 'image',

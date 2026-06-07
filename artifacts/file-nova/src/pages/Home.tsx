@@ -5,8 +5,10 @@ import { UploadZone } from '@/components/workspace/UploadZone';
 import { PreviewCanvas } from '@/components/workspace/PreviewCanvas';
 import { ToolGrid } from '@/components/workspace/ToolGrid';
 import { OptionsPanel } from '@/components/workspace/OptionsPanel';
-import { ProgressTracker } from '@/components/workspace/ProgressTracker';
+import { ProgressTracker, QueueTracker } from '@/components/workspace/ProgressTracker';
 import { DownloadHub } from '@/components/workspace/DownloadHub';
+import { SmartRecommendations } from '@/components/workspace/SmartRecommendations';
+import { TrustIndicators, PrivacySection } from '@/components/workspace/TrustIndicators';
 import { motion } from 'framer-motion';
 import { BulkProcessor } from '@/components/BulkProcessor';
 import { useLocation } from 'wouter';
@@ -395,44 +397,51 @@ export default function Home() {
             )}
 
             {/* Step 2: configure + process */}
-            {step === 2 && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-                {rawFiles.length > 1 ? (
-                  <div className="max-w-4xl mx-auto space-y-6">
-                    <div className="flex items-center justify-between border-b border-border pb-4">
-                      <button
-                        onClick={() => useFileStore.setState({ selectedOperation: null })}
-                        className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground font-bold uppercase tracking-wider transition-colors"
-                      >
-                        <ArrowLeft className="h-3 w-3" /> Change Operation
-                      </button>
-                      <span className="text-xs font-bold bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 px-3 py-1 rounded-full uppercase tracking-wider">
-                        Ready to process
-                      </span>
-                    </div>
-                    <BulkProcessor />
-                  </div>
-                ) : isProcessing ? (
-                  <ProgressTracker />
-                ) : (
-                  <div className="space-y-8">
-                    <div className="flex items-center justify-between border-b border-border pb-4 max-w-4xl mx-auto">
-                      <button
-                        onClick={() => useFileStore.setState({ selectedOperation: null })}
-                        className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground font-bold uppercase tracking-wider transition-colors"
-                      >
-                        <ArrowLeft className="h-3 w-3" /> Change Operation
-                      </button>
-                      <span className="text-xs font-bold bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 px-3 py-1 rounded-full uppercase tracking-wider">
-                        Ready to process
-                      </span>
-                    </div>
-                    <PreviewCanvas />
-                    <OptionsPanel />
-                  </div>
-                )}
-              </motion.div>
-            )}
+{step === 2 && (
+               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+                 {rawFiles.length > 1 ? (
+                   <div className="max-w-4xl mx-auto space-y-6">
+                     <div className="flex items-center justify-between border-b border-border pb-4">
+                       <button
+                         onClick={() => useFileStore.setState({ selectedOperation: null })}
+                         className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground font-bold uppercase tracking-wider transition-colors"
+                       >
+                         <ArrowLeft className="h-3 w-3" /> Change Operation
+                       </button>
+                       <span className="text-xs font-bold bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 px-3 py-1 rounded-full uppercase tracking-wider">
+                         Ready to process
+                       </span>
+                     </div>
+                     <BulkProcessor />
+                     {useFileStore.getState().processingQueue && (
+                       <QueueTracker
+                         queuePosition={useFileStore.getState().processingQueue!.position}
+                         totalInQueue={useFileStore.getState().processingQueue!.total}
+                       />
+                     )}
+                   </div>
+                 ) : isProcessing ? (
+                   <ProgressTracker />
+                 ) : (
+                   <div className="space-y-8">
+                     <div className="flex items-center justify-between border-b border-border pb-4 max-w-4xl mx-auto">
+                       <button
+                         onClick={() => useFileStore.setState({ selectedOperation: null })}
+                         className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground font-bold uppercase tracking-wider transition-colors"
+                       >
+                         <ArrowLeft className="h-3 w-3" /> Change Operation
+                       </button>
+                       <span className="text-xs font-bold bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 px-3 py-1 rounded-full uppercase tracking-wider">
+                         Ready to process
+                       </span>
+                     </div>
+                     <PreviewCanvas />
+                     <OptionsPanel />
+                     <SmartRecommendations />
+                   </div>
+                 )}
+               </motion.div>
+             )}
 
             {/* Step 3: download */}
             {step === 3 && (
@@ -450,6 +459,7 @@ export default function Home() {
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
             <span>GDPR-Compliant · Zero persistent storage · Files auto-expire in 30 min</span>
+            <TrustIndicators />
           </div>
           <div className="flex items-center gap-4">
             <span>WCAG 2.1 AA</span>

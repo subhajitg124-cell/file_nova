@@ -27,6 +27,10 @@ const ScholarshipZip = React.lazy(() => import("@/pages/tools/ScholarshipZip"));
 const AiPdfSummary = React.lazy(() => import("@/pages/tools/AiPdfSummary"));
 const ResizeImage = React.lazy(() => import("@/pages/tools/ResizeImage"));
 const WordToPdf = React.lazy(() => import("@/pages/tools/WordToPdf"));
+import PdfToolsPage from "@/pages/PdfToolsPage";
+import ImageToolsPage from "@/pages/ImageToolsPage";
+import VideoToolsPage from "@/pages/VideoToolsPage";
+import DocumentToolsPage from "@/pages/DocumentToolsPage";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminUpiPayments from "@/pages/AdminUpiPayments";
 import AdminCouponManagement from "@/pages/AdminCouponManagement";
@@ -53,14 +57,13 @@ import { UpgradeLimitModal } from "@/components/UpgradeLimitModal";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { ConnectionStatusIndicator } from "@/components/ConnectionStatusIndicator";
 import { FileNovaAssistant } from "@/components/FileNovaAssistant";
+import { SmartAssistant } from "@/assistant/components/SmartAssistant";
 import { FloatingShortcuts } from "@/components/FloatingShortcuts";
 import { FloatingParticles } from "@/components/AnimatedEffects";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useFileStore } from "@/store/useFileStore";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { BACKEND_URL, HAS_BACKEND } from "@/lib/api";
-
-import { GlobalNotice } from "@/components/GlobalNotice";
 import { EditingWindow } from "@/components/EditingWindow";
 import { apiClient, apiMock } from "@/lib/api";
 
@@ -223,6 +226,19 @@ function Router() {
         </Route>
         <Route path="/word-to-pdf">
           <React.Suspense fallback={<LoadingScreen />}><WordToPdf /></React.Suspense>
+        </Route>
+
+        <Route path="/pdf-tools">
+          <React.Suspense fallback={<LoadingScreen />}><PdfToolsPage /></React.Suspense>
+        </Route>
+        <Route path="/image-tools">
+          <React.Suspense fallback={<LoadingScreen />}><ImageToolsPage /></React.Suspense>
+        </Route>
+        <Route path="/video-tools">
+          <React.Suspense fallback={<LoadingScreen />}><VideoToolsPage /></React.Suspense>
+        </Route>
+        <Route path="/document-tools">
+          <React.Suspense fallback={<LoadingScreen />}><DocumentToolsPage /></React.Suspense>
         </Route>
 
         {/* 301-equivalent client redirects (old/legacy slugs) */}
