@@ -1145,6 +1145,14 @@ export const EditingWindow: React.FC<EditingWindowProps> = ({ file, fileType, on
             </button>
             <button
               type="button"
+              onClick={handleDone}
+              disabled={busy}
+              className="inline-flex items-center gap-2 rounded-2xl border border-transparent bg-emerald-500 px-5 py-2 text-xs font-black text-white transition hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-lg"
+            >
+              <Check className="h-3.5 w-3.5" /> {tText("Done")}
+            </button>
+            <button
+              type="button"
               onClick={onClose}
               className="inline-flex items-center gap-2 rounded-2xl border border-transparent bg-slate-100 px-4 py-2 text-xs font-black text-slate-950 transition hover:bg-slate-200 cursor-pointer"
             >
