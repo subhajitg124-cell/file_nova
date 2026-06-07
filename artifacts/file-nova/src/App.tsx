@@ -54,6 +54,7 @@ import { FileExpiryBar } from "@/components/FileExpiryBar";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { Toaster } from "@/components/ui/sonner";
 import { UpgradeLimitModal } from "@/components/UpgradeLimitModal";
+import { GlobalNotice } from "@/components/GlobalNotice";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { ConnectionStatusIndicator } from "@/components/ConnectionStatusIndicator";
 import { FileNovaAssistant } from "@/components/FileNovaAssistant";

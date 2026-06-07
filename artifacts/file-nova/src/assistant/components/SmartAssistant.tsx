@@ -93,12 +93,12 @@ export function SmartAssistant({ isOpen, onClose }: SmartAssistantProps) {
     setInputVal("");
     setIsTyping(true);
 
-    try {
-      const context = getContext();
-      const history = messages.slice(-4).map(m => ({
-        role: m.sender === "user" ? "user" : "model",
-        text: m.text,
-      }));
+try {
+       const context = getContext();
+       const history = messages.slice(-4).map((m): { role: 'user' | 'model'; text: string } => ({
+         role: m.sender === "user" ? "user" : "model",
+         text: m.text,
+       }));
 
       const response = await askAssistant(trimmed, context, history);
 

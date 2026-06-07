@@ -71,12 +71,13 @@ export class Trie {
     const words = this.normalizeTerm(prefix);
     if (words.length === 0) return [];
 
-    let node = this.root;
+    let node: TrieNode = this.root;
 
     for (const word of words) {
       for (const char of word) {
-        node = node.children.get(char);
-        if (!node) return [];
+        const child = node.children.get(char);
+        if (!child) return [];
+        node = child;
       }
     }
 

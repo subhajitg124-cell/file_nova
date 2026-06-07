@@ -2,7 +2,7 @@ import { FileRecord, ProcessingSavings } from '@/store/useFileStore';
 
 export const BACKEND_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || '';
 export const API_BASE = BACKEND_URL;
-export const HAS_BACKEND = true; // Always check health against relative /api or configured backend URL
+export const HAS_BACKEND = Boolean(BACKEND_URL || import.meta.env.MODE === 'production');
 
 export interface HealthCheckResult {
   healthy: boolean;

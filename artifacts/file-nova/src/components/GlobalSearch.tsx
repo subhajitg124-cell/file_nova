@@ -3,9 +3,9 @@ import { Search, X, Clock, TrendingUp, FileText, Image, Video, FileSpreadsheet, 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'wouter';
 import { TOOLS, ToolItem } from '@/components/workspace/ToolGrid';
-import { rankTools, getRankedResults, recordToolUsage } from './search/Ranking/ranking';
-import { fuzzy, multiWordMatch, fuzzyScore } from './search/Fuzzy/fuzzy';
-import { expandAlias } from './search/Aliases/alias';
+import { rankTools, getRankedResults, recordToolUsage } from '../search/Ranking/ranking';
+import { fuzzy, multiWordMatch, fuzzyScore } from '../search/Fuzzy/fuzzy';
+import { expandAlias } from '../search/Aliases/alias';
 
 const RECENT_SEARCHES_KEY = 'filenova-recent-searches';
 const TRENDING_TOOLS: string[] = ['Merge PDFs', 'Compress PDF', 'Remove Background', 'Resize Image', 'PDF to DOCX', 'OCR PDF'];
@@ -141,7 +141,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ onSearch, expanded =
                 </p>
                 {results.length > 0 ? (
                   <div className="space-y-1">
-                    {results.slice(0, 8).map((tool, idx) => (
+                    {results.slice(0, 8).map((tool: ToolItem, idx: number) => (
                       <button
                         key={tool.actionName}
                         onMouseDown={() => handleSelectTool(tool)}

@@ -25,12 +25,12 @@ export const handleError = (error: unknown): void => {
 // Global error handlers
 if (typeof window !== 'undefined') {
   window.addEventListener('error', (event) => {
-    event.preventDefault();
-    handleError(event.error);
+    // Log error but don't prevent default - let errors surface for debugging
+    console.error('Global error:', event.error);
   });
 
   window.addEventListener('unhandledrejection', (event) => {
-    event.preventDefault();
-    handleError(event.reason);
+    // Log unhandled rejections
+    console.error('Unhandled promise rejection:', event.reason);
   });
 }
