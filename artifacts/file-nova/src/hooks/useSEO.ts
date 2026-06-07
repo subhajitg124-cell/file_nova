@@ -1,9 +1,5 @@
 import { useEffect } from "react";
-
-export interface FAQItem {
-  q: string;
-  a: string;
-}
+import type { FAQItem, StepByStepItem } from "../data/toolContent";
 
 export interface SEOConfig {
   title: string;
@@ -15,6 +11,9 @@ export interface SEOConfig {
   toolDescription?: string;
   faqs?: FAQItem[];
   isHomepage?: boolean;
+  steps?: StepByStepItem[];
+  howToName?: string;
+  toolCategory?: string;
 }
 
 function setMeta(name: string, content: string, useProperty = false) {
@@ -65,6 +64,8 @@ export function useSEO(config: SEOConfig) {
       toolDescription,
       faqs,
       isHomepage = false,
+      steps,
+      howToName,
     } = config;
 
     document.title = title;
@@ -183,11 +184,35 @@ export function useSEO(config: SEOConfig) {
       removeJsonLd("schema-breadcrumb");
     }
 
+    // HowTo schema for tools with step-by-step guides
+    if (steps && steps.length > 0 && howToName) {
+      injectJsonLd("schema-howto", {
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        name: howToName,
+        description: toolDescription || "",
+        url: canonical,
+        step: steps.map((step, idx) => ({
+          "@type": "HowToStep",
+          name: step.title,
+          text: step.description,
+          url: canonical + "#step-" + (idx + 1),
+        })),
+        tool: {
+          "@type": "SoftwareApplication",
+          name: toolName,
+        },
+      });
+    } else {
+      removeJsonLd("schema-howto");
+    }
+
     return () => {
       // Clean up injected schemas on unmount
       removeJsonLd("schema-tool");
       removeJsonLd("schema-faq");
       removeJsonLd("schema-breadcrumb");
+      removeJsonLd("schema-howto");
     };
   }, [config.canonical]);
 }

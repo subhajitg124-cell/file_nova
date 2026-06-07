@@ -16,15 +16,17 @@ const JpgToPdf = React.lazy(() => import("@/pages/tools/JpgToPdf"));
 const RotatePdf = React.lazy(() => import("@/pages/tools/RotatePdf"));
 const UnlockPdf = React.lazy(() => import("@/pages/tools/UnlockPdf"));
 const ProtectPdf = React.lazy(() => import("@/pages/tools/ProtectPdf"));
+const ResizePdf = React.lazy(() => import("@/pages/tools/ResizePdf"));
 const PanCardResize = React.lazy(() => import("@/pages/tools/PanCardResize"));
 const AadhaarMaskPdf = React.lazy(() => import("@/pages/tools/AadhaarMaskPdf"));
-const ResizePdf = React.lazy(() => import("@/pages/tools/ResizePdf"));
 const GovernmentFormFill = React.lazy(() => import("@/pages/tools/GovernmentFormFill"));
 const CompressPdfForUpload = React.lazy(() => import("@/pages/tools/CompressPdfForUpload"));
 const Ocr = React.lazy(() => import("@/pages/tools/Ocr"));
 const RemoveBackground = React.lazy(() => import("@/pages/tools/RemoveBackground"));
 const ScholarshipZip = React.lazy(() => import("@/pages/tools/ScholarshipZip"));
 const AiPdfSummary = React.lazy(() => import("@/pages/tools/AiPdfSummary"));
+const ResizeImage = React.lazy(() => import("@/pages/tools/ResizeImage"));
+const WordToPdf = React.lazy(() => import("@/pages/tools/WordToPdf"));
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminUpiPayments from "@/pages/AdminUpiPayments";
 import AdminCouponManagement from "@/pages/AdminCouponManagement";
@@ -216,26 +218,22 @@ function Router() {
         <Route path="/ai-pdf-summary">
           <React.Suspense fallback={<LoadingScreen />}><AiPdfSummary /></React.Suspense>
         </Route>
+        <Route path="/resize-image">
+          <React.Suspense fallback={<LoadingScreen />}><ResizeImage /></React.Suspense>
+        </Route>
+        <Route path="/word-to-pdf">
+          <React.Suspense fallback={<LoadingScreen />}><WordToPdf /></React.Suspense>
+        </Route>
 
         {/* 301-equivalent client redirects (old/legacy slugs) */}
-        <Route path="/aadhaar-mask">
-          <Redirect to="/aadhaar-mask-pdf" />
-        </Route>
-        <Route path="/merge">
-          <Redirect to="/merge-pdf" />
-        </Route>
-        <Route path="/compress">
-          <Redirect to="/compress-pdf" />
-        </Route>
-        <Route path="/split">
-          <Redirect to="/split-pdf" />
-        </Route>
-        <Route path="/image-to-pdf">
-          <Redirect to="/jpg-to-pdf" />
-        </Route>
-        <Route path="/pdf-to-image">
-          <Redirect to="/pdf-to-jpg" />
-        </Route>
+        <Route path="/aadhaar-mask"><Redirect to="/aadhaar-mask-pdf" /></Route>
+        <Route path="/merge"><Redirect to="/merge-pdf" /></Route>
+        <Route path="/compress"><Redirect to="/compress-pdf" /></Route>
+        <Route path="/split"><Redirect to="/split-pdf" /></Route>
+        <Route path="/resize-image"><Redirect to="/resize-image" /></Route>
+        <Route path="/word-to-pdf"><Redirect to="/word-to-pdf" /></Route>
+        <Route path="/image-to-pdf"><Redirect to="/jpg-to-pdf" /></Route>
+        <Route path="/pdf-to-image"><Redirect to="/pdf-to-jpg" /></Route>
 
         {/* Client-Side Redirects for Legacy /tools/* Paths */}
         <Route path="/tools/compress-pdf"><Redirect to="/compress-pdf" /></Route>
@@ -246,16 +244,10 @@ function Router() {
         <Route path="/tools/pdf-to-images"><Redirect to="/pdf-to-jpg" /></Route>
         <Route path="/tools/ocr"><Redirect to="/ocr" /></Route>
         <Route path="/tools/pdf-ocr"><Redirect to="/ocr" /></Route>
-        <Route path="/tools/resize-image"><Redirect to="/resize-pdf" /></Route>
-        <Route path="/tools/resize-photo"><Redirect to="/resize-pdf" /></Route>
-        <Route path="/tools/remove-background"><Redirect to="/remove-background" /></Route>
-        <Route path="/tools/remove-bg"><Redirect to="/remove-background" /></Route>
-        <Route path="/tools/aadhaar-mask"><Redirect to="/aadhaar-mask-pdf" /></Route>
-        <Route path="/tools/aadhaar-masking"><Redirect to="/aadhaar-mask-pdf" /></Route>
-        <Route path="/tools/pan-card-resize"><Redirect to="/pan-card-resize" /></Route>
-        <Route path="/tools/pan-card"><Redirect to="/pan-card-resize" /></Route>
-        <Route path="/tools/word-to-pdf"><Redirect to="/pdf-to-word" /></Route>
-        <Route path="/tools/docx-to-pdf"><Redirect to="/pdf-to-word" /></Route>
+        <Route path="/tools/resize-image"><Redirect to="/resize-image" /></Route>
+        <Route path="/tools/resize-photo"><Redirect to="/resize-image" /></Route>
+        <Route path="/tools/word-to-pdf"><Redirect to="/word-to-pdf" /></Route>
+        <Route path="/tools/docx-to-pdf"><Redirect to="/word-to-pdf" /></Route>
         <Route path="/tools/scholarship-zip"><Redirect to="/scholarship-zip" /></Route>
         <Route path="/tools/scholarship-zip-maker"><Redirect to="/scholarship-zip" /></Route>
         <Route path="/tools/scholarship"><Redirect to="/scholarship-zip" /></Route>

@@ -1,4 +1,13 @@
-import type { FAQItem } from "../hooks/useSEO";
+export interface FAQItem {
+  q: string;
+  a: string;
+}
+
+export interface StepByStepItem {
+  title: string;
+  description: string;
+  icon?: string;
+}
 
 export interface RelatedTool {
   label: string;
@@ -18,6 +27,9 @@ export interface ToolContent {
   faqs: FAQItem[];
   relatedTools: RelatedTool[];
   badge?: string;              // e.g. "India Exclusive"
+  steps?: StepByStepItem[];    // Step-by-step guide for HowTo schema
+  howToName?: string;          // Name for HowTo schema
+  toolCategory?: 'pdf' | 'image' | 'video' | 'audio' | 'document' | 'ocr' | 'form';
 }
 
 export const toolContentMap: Record<string, ToolContent> = {
@@ -67,6 +79,13 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "PDF to Word", slug: "pdf-to-word", icon: "file-word" },
       { label: "Rotate PDF", slug: "rotate-pdf", icon: "rotate" },
     ],
+    steps: [
+      { title: "Upload your PDF files", description: "Click the upload area or drag and drop multiple PDF files you want to merge. You can upload up to 5 files for free, or unlimited with Pro.", icon: "upload" },
+      { title: "Arrange file order", description: "Drag the file cards to set the order you want in the merged PDF. The first file will appear first in the output.", icon: "configure" },
+      { title: "Merge and download", description: "Click 'Merge PDF' to combine all files into one. Your merged PDF will be ready to download instantly.", icon: "download" },
+    ],
+    howToName: "Merge PDF Files Online",
+    toolCategory: "pdf",
   },
 
   "split-pdf": {
@@ -110,6 +129,13 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Rotate PDF", slug: "rotate-pdf", icon: "rotate" },
       { label: "PDF to JPG", slug: "pdf-to-jpg", icon: "photo" },
     ],
+    steps: [
+      { title: "Upload your PDF", description: "Select or drag and drop the PDF file you want to split.", icon: "upload" },
+      { title: "Choose split mode", description: "Pick how you want to split: every page into separate files, by page range, or extract specific pages.", icon: "configure" },
+      { title: "Download split files", description: "Click Split to process. Download individual files or get all pages as a ZIP archive.", icon: "download" },
+    ],
+    howToName: "Split PDF Files Online",
+    toolCategory: "pdf",
   },
 
   "compress-pdf": {
@@ -153,6 +179,13 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "PDF to JPG", slug: "pdf-to-jpg", icon: "photo" },
       { label: "Resize PDF", slug: "resize-pdf", icon: "resize" },
     ],
+    steps: [
+      { title: "Upload your PDF", description: "Select the PDF file you want to compress. Larger files may take slightly longer to process.", icon: "upload" },
+      { title: "Choose compression level", description: "Select Low for best quality, Medium for balanced, or High for smallest file size. For most uses, Medium works great.", icon: "configure" },
+      { title: "Compress and download", description: "Click 'Compress PDF' and wait a few seconds. Your compressed file will be ready to download.", icon: "download" },
+    ],
+    howToName: "Compress PDF Files Online",
+    toolCategory: "pdf",
   },
 
   "pdf-to-word": {
@@ -196,6 +229,13 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
       { label: "OCR PDF", slug: "ocr", icon: "scan" },
     ],
+    steps: [
+      { title: "Upload your PDF", description: "Select the PDF file you want to convert to Word. Supports scanned PDFs with OCR.", icon: "upload" },
+      { title: "Convert to DOCX", description: "Click 'Convert to Word'. FileNova extracts text, tables, and formatting into a DOCX file.", icon: "process" },
+      { title: "Download Word file", description: "Your editable Word document is ready. Download and open in MS Word, Google Docs, or LibreOffice.", icon: "download" },
+    ],
+    howToName: "Convert PDF to Word Online",
+    toolCategory: "document",
   },
 
   "pdf-to-jpg": {
@@ -235,6 +275,13 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
       { label: "Remove Background", slug: "remove-background", icon: "eraser" },
     ],
+    steps: [
+      { title: "Upload your PDF", description: "Select the PDF whose pages you want to extract as images.", icon: "upload" },
+      { title: "Choose output settings", description: "Select resolution (72 DPI for web, 300 DPI for print) and image format.", icon: "configure" },
+      { title: "Convert and download", description: "Click Convert. Download individual page images or all as a ZIP.", icon: "download" },
+    ],
+    howToName: "Convert PDF to JPG Online",
+    toolCategory: "image",
   },
 
   "jpg-to-pdf": {
@@ -273,6 +320,13 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
       { label: "Remove Background", slug: "remove-background", icon: "eraser" },
     ],
+    steps: [
+      { title: "Upload your images", description: "Upload JPG, PNG, WebP, or BMP files. You can upload multiple images at once.", icon: "upload" },
+      { title: "Arrange and configure", description: "Drag to reorder images. Choose output page size: A4, Letter, or auto-fit to image dimensions.", icon: "configure" },
+      { title: "Convert to PDF", description: "Click 'Convert to PDF'. Your combined PDF will be ready to download instantly.", icon: "download" },
+    ],
+    howToName: "Convert JPG to PDF Online",
+    toolCategory: "image",
   },
 
   "rotate-pdf": {
@@ -307,6 +361,13 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
       { label: "PDF to JPG", slug: "pdf-to-jpg", icon: "photo" },
     ],
+    steps: [
+      { title: "Upload your PDF", description: "Select the PDF file with pages that need rotation.", icon: "upload" },
+      { title: "Select pages and direction", description: "Choose which pages to rotate. Select 90°, 180°, or 270° clockwise or counter-clockwise.", icon: "configure" },
+      { title: "Rotate and download", description: "Click Rotate to process. Your corrected PDF downloads instantly.", icon: "download" },
+    ],
+    howToName: "Rotate PDF Pages Online",
+    toolCategory: "pdf",
   },
 
   "unlock-pdf": {
@@ -345,6 +406,13 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
       { label: "PDF to Word", slug: "pdf-to-word", icon: "file-word" },
     ],
+    steps: [
+      { title: "Upload your PDF", description: "Select the password-protected PDF you want to unlock.", icon: "upload" },
+      { title: "Enter the password", description: "Type the correct password for the PDF. FileNova will use it to decrypt the file.", icon: "configure" },
+      { title: "Download unlocked PDF", description: "Click Unlock and download your password-free PDF instantly.", icon: "download" },
+    ],
+    howToName: "Unlock PDF Files Online",
+    toolCategory: "pdf",
   },
 
   "protect-pdf": {
@@ -379,6 +447,13 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
       { label: "Aadhaar Mask", slug: "aadhaar-mask-pdf", icon: "id-badge" },
     ],
+    steps: [
+      { title: "Upload your PDF", description: "Select the PDF you want to password-protect.", icon: "upload" },
+      { title: "Set password and permissions", description: "Choose an open password and optionally set permissions to restrict printing, copying, or editing.", icon: "configure" },
+      { title: "Download protected PDF", description: "Click Protect. Your encrypted PDF downloads instantly and can only be opened with the password.", icon: "download" },
+    ],
+    howToName: "Protect PDF Files Online",
+    toolCategory: "pdf",
   },
 
   "resize-pdf": {
@@ -413,6 +488,13 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
       { label: "Compress for Upload", slug: "compress-pdf-for-upload", icon: "cloud-upload" },
     ],
+    steps: [
+      { title: "Upload your PDF", description: "Select the PDF whose page size you want to change.", icon: "upload" },
+      { title: "Select target page size", description: "Choose A4, A3, Letter, or enter custom dimensions. Content will be scaled proportionally.", icon: "configure" },
+      { title: "Resize and download", description: "Click Resize. Your PDF with new page dimensions downloads instantly.", icon: "download" },
+    ],
+    howToName: "Resize PDF Pages Online",
+    toolCategory: "pdf",
   },
 
   "pan-card-resize": {
@@ -457,6 +539,13 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
       { label: "Government Form Fill", slug: "government-form-fill", icon: "clipboard" },
     ],
+    steps: [
+      { title: "Upload your photo", description: "Select a photo from your device — a selfie, scanned photo, or existing image.", icon: "upload" },
+      { title: "Adjust the crop", description: "Drag and zoom the image to fit exactly within the PAN card photo frame (3.5cm × 2.5cm).", icon: "configure" },
+      { title: "Download resized photo", description: "Click Download to get your passport-size PAN card photo as a JPEG file ready to upload.", icon: "download" },
+    ],
+    howToName: "Resize Photo for PAN Card",
+    toolCategory: "image",
   },
 
   "aadhaar-mask-pdf": {
@@ -501,6 +590,13 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
       { label: "Government Form Fill", slug: "government-form-fill", icon: "clipboard" },
     ],
+    steps: [
+      { title: "Upload your Aadhaar PDF", description: "Select the Aadhaar card PDF you want to mask. Your file is processed locally in your browser.", icon: "upload" },
+      { title: "Auto-mask applied", description: "FileNova automatically detects and masks the first 8 digits of your Aadhaar number with XXXX-XXXX.", icon: "process" },
+      { title: "Download masked PDF", description: "Download your UIDAI-compliant masked Aadhaar PDF, safe to share with landlords, employers, and portals.", icon: "download" },
+    ],
+    howToName: "Mask Aadhaar Number in PDF",
+    toolCategory: "pdf",
   },
 
   "government-form-fill": {
@@ -541,6 +637,13 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Compress for Upload", slug: "compress-pdf-for-upload", icon: "cloud-upload" },
       { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
     ],
+    steps: [
+      { title: "Upload a form", description: "Upload any fillable PDF form — Aadhaar update, PAN correction, passport, railway, or scholarship form.", icon: "upload" },
+      { title: "Fill in the fields", description: "Click on form fields and type your information. Use our library of pre-loaded common government forms.", icon: "configure" },
+      { title: "Save and download", description: "Save your completed form as a print-ready PDF, ready to submit or print.", icon: "download" },
+    ],
+    howToName: "Fill Government Forms Online",
+    toolCategory: "form",
   },
 
   "compress-pdf-for-upload": {
@@ -581,6 +684,13 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Government Form Fill", slug: "government-form-fill", icon: "clipboard" },
       { label: "Aadhaar Mask PDF", slug: "aadhaar-mask-pdf", icon: "id-badge" },
     ],
+    steps: [
+      { title: "Upload your PDF", description: "Select the PDF you want to compress for a specific upload limit.", icon: "upload" },
+      { title: "Set target size", description: "Enter your target size — e.g., 100KB, 200KB, 500KB, or 1MB. FileNova finds the right compression automatically.", icon: "configure" },
+      { title: "Download optimized PDF", description: "Get your compressed PDF that meets the exact size requirement for your portal.", icon: "download" },
+    ],
+    howToName: "Compress PDF for Upload",
+    toolCategory: "pdf",
   },
 
   "ocr": {
@@ -615,6 +725,13 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
       { label: "AI PDF Summary", slug: "ai-pdf-summary", icon: "sparkles" },
     ],
+    steps: [
+      { title: "Upload your scanned PDF", description: "Select the scanned PDF document you want to make searchable.", icon: "upload" },
+      { title: "Select language and pages", description: "Choose the document language (English, Hindi, etc.) and optionally select specific pages.", icon: "configure" },
+      { title: "Extract text and download", description: "Click Extract Text. Your searchable, copy-paste-friendly PDF downloads instantly.", icon: "download" },
+    ],
+    howToName: "Extract Text from Scanned PDF",
+    toolCategory: "ocr",
   },
 
   "remove-background": {
@@ -648,6 +765,13 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
       { label: "PDF to JPG", slug: "pdf-to-jpg", icon: "photo" },
     ],
+    steps: [
+      { title: "Upload your photo", description: "Select the image you want to remove the background from — portrait, product photo, ID photo, etc.", icon: "upload" },
+      { title: "AI processes background", description: "FileNova's AI automatically detects and removes the background. You can replace it with transparent or white.", icon: "process" },
+      { title: "Download result", description: "Download your image with background removed as PNG (transparent) or JPEG (white background).", icon: "download" },
+    ],
+    howToName: "Remove Background from Image",
+    toolCategory: "image",
   },
 
   "ai-pdf-summary": {
@@ -715,5 +839,102 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
       { label: "Government Form Fill", slug: "government-form-fill", icon: "clipboard" },
     ],
+    steps: [
+      { title: "Upload your documents", description: "Upload all required scholarship documents: Aadhaar, marksheet, income certificate, caste certificate, etc.", icon: "upload" },
+      { title: "Auto-rename and organize", description: "FileNova automatically renames files to the standard format required by NSP and other portals.", icon: "configure" },
+      { title: "Download ZIP bundle", description: "Get a single ZIP file containing all documents, ready to upload to your scholarship portal.", icon: "download" },
+    ],
+    howToName: "Bundle Scholarship Documents",
+    toolCategory: "document",
+  },
+
+  "resize-image": {
+    slug: "resize-image",
+    title: "Resize Image – Resize Photos Online Free | FileNova",
+    h1: "Resize Image – Resize Photos Online Free",
+    metaDescription:
+      "Resize images online for free. Change photo dimensions, reduce file size, or scale images for social media, web, or print. Supports JPG, PNG, WebP.",
+    keywords:
+      "resize image, resize photo online, image resizer free, resize jpg, reduce image size, resize image online india",
+    toolName: "FileNova Image Resizer",
+    toolDescription:
+      "Resize and scale images online for free — change dimensions, reduce file size, or convert formats for any use case.",
+    seoBody: [
+      "Whether you need to resize a photo for social media, shrink an image for a website, or reduce file size for email attachment, FileNova's image resizer handles it all in seconds.",
+      "Upload any JPG, PNG, or WebP image and set custom dimensions. The aspect ratio lock ensures your image doesn't get distorted. You can also adjust quality to balance file size and visual fidelity.",
+      "Perfect for Indian users who need passport-size photos, profile pictures, or documents resized for government portal uploads.",
+    ],
+    faqs: [
+      {
+        q: "How do I resize an image online for free?",
+        a: "Upload your image to FileNova, enter the desired width and height, and click Resize. Your resized image downloads instantly.",
+      },
+      {
+        q: "Will resizing reduce image quality?",
+        a: "Resizing changes dimensions but preserves original quality. Reducing file size via quality compression may cause slight quality loss, which you can control with the quality slider.",
+      },
+      {
+        q: "Can I resize images for passport photos?",
+        a: "Yes. Use FileNova's PAN Card Resize tool for exact passport/PAN photo dimensions, or use this tool for custom sizes.",
+      },
+    ],
+    relatedTools: [
+      { label: "PAN Card Resize", slug: "pan-card-resize", icon: "credit-card" },
+      { label: "Remove Background", slug: "remove-background", icon: "eraser" },
+      { label: "JPG to PDF", slug: "jpg-to-pdf", icon: "file-text" },
+      { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
+    ],
+    steps: [
+      { title: "Upload your image", description: "Select the JPG, PNG, or WebP image you want to resize.", icon: "upload" },
+      { title: "Set dimensions", description: "Enter the target width and height in pixels. Toggle aspect ratio lock to prevent distortion.", icon: "configure" },
+      { title: "Download resized image", description: "Click Resize and download your scaled image in your chosen format.", icon: "download" },
+    ],
+    howToName: "Resize an Image Online",
+    toolCategory: "image",
+  },
+
+  "word-to-pdf": {
+    slug: "word-to-pdf",
+    title: "Word to PDF – Convert DOC/DOCX to PDF Free | FileNova",
+    h1: "Word to PDF – Convert Word Document to PDF Online",
+    metaDescription:
+      "Convert Word documents (DOC/DOCX) to PDF online for free. Preserve formatting, fonts, and layout. Works with MS Word, Google Docs, LibreOffice files.",
+    keywords:
+      "word to pdf, doc to pdf, docx to pdf, convert word to pdf online free, ms word to pdf converter",
+    toolName: "FileNova Word to PDF Converter",
+    toolDescription:
+      "Convert Microsoft Word documents (DOC/DOCX) to PDF online for free, preserving formatting and layout.",
+    seoBody: [
+      "Need to share a Word document that looks the same on every device? FileNova's Word to PDF converter transforms your DOC or DOCX files into professional PDFs that preserve fonts, images, tables, and page layout exactly.",
+      "This is essential for submitting resumes, assignments, reports, or government forms where you need guaranteed formatting. PDFs opened on any device look identical to the original.",
+      "Works with files created in MS Word, Google Docs, LibreOffice Writer, or any word processor that exports DOCX. Batch convert multiple documents at once with Pro.",
+    ],
+    faqs: [
+      {
+        q: "How do I convert a Word document to PDF for free?",
+        a: "Upload your DOC or DOCX file to FileNova's Word to PDF tool and click Convert. Your PDF downloads instantly — no account needed.",
+      },
+      {
+        q: "Will the formatting be preserved?",
+        a: "Yes. FileNova preserves fonts, images, tables, bullet points, and page layout. Complex documents with headers/footers may need minor adjustments.",
+      },
+      {
+        q: "Can I convert DOCX files from Google Docs?",
+        a: "Yes. Download your Google Docs file as DOCX, then upload it to FileNova to convert to PDF.",
+      },
+    ],
+    relatedTools: [
+      { label: "PDF to Word", slug: "pdf-to-word", icon: "file-word" },
+      { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
+      { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
+      { label: "PDF to JPG", slug: "pdf-to-jpg", icon: "photo" },
+    ],
+    steps: [
+      { title: "Upload your Word document", description: "Select your DOC or DOCX file from your device.", icon: "upload" },
+      { title: "Convert to PDF", description: "Click Convert. FileNova processes your document while preserving all formatting.", icon: "process" },
+      { title: "Download PDF", description: "Your PDF file is ready to download — compatible with all PDF readers and printers.", icon: "download" },
+    ],
+    howToName: "Convert Word to PDF",
+    toolCategory: "document",
   },
 };

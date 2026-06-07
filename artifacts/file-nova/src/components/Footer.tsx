@@ -5,6 +5,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useTranslation } from "@/lib/i18n";
 import { createUpiLink } from "@/lib/upi";
 import { UpiSupportModal } from "./UpiSupportModal";
+import { ToolLinksGrid } from "./shared/ToolLinksGrid";
 
 const TelegramContact: React.FC = () => {
   const { user } = useAuthStore();
@@ -178,28 +179,7 @@ const Footer: React.FC = () => {
           {/* Tools */}
           <div>
             <h4 className="font-semibold mb-4 text-white">{tText("Popular Tools")}</h4>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="/merge-pdf" className="text-slate-400 hover:text-indigo-400 transition-colors">
-                  {tText("Merge PDF")}
-                </Link>
-              </li>
-              <li>
-                <Link href="/compress-pdf" className="text-slate-400 hover:text-indigo-400 transition-colors">
-                  {tText("Compress PDF")}
-                </Link>
-              </li>
-              <li>
-                <Link href="/resize-image" className="text-slate-400 hover:text-indigo-400 transition-colors">
-                  {tText("Resize Photo")}
-                </Link>
-              </li>
-              <li>
-                <Link href="/scholarship-zip" className="text-slate-400 hover:text-indigo-400 transition-colors">
-                  {tText("Scholarship ZIP")}
-                </Link>
-              </li>
-            </ul>
+            <ToolLinksGrid />
           </div>
 
           {/* Contact & Social */}

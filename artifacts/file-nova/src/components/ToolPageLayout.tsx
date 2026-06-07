@@ -1,8 +1,8 @@
 import React, { useEffect, useState, type ReactNode } from "react";
 import { useLocation, Link } from "wouter";
 import { 
-  ChevronRight, Languages, Sparkles, FileText, Image as ImageIcon,
-  Crown, User, Menu, X, ArrowLeft, Upload, HelpCircle, AlertTriangle
+  ChevronRight, ChevronLeft, Languages, Sparkles, FileText, Image as ImageIcon,
+  Crown, User, Menu, X, ArrowLeft, Upload, HelpCircle, AlertTriangle, BookOpen, PlayCircle, CheckCircle2, ArrowDown, Settings2, Download
 } from "lucide-react";
 import { useFileStore } from "@/store/useFileStore";
 import { useLanguage, useTranslation } from "@/lib/i18n";
@@ -24,6 +24,14 @@ import { ProgressTracker } from "@/components/workspace/ProgressTracker";
 import { DownloadHub } from "@/components/workspace/DownloadHub";
 import { BulkProcessor } from "@/components/BulkProcessor";
 import { apiClient, apiMock } from "@/lib/api";
+
+// Import shared tool components
+import { BeforeAfterComparison } from "@/components/shared/BeforeAfterComparison";
+import { EstimatedOutputSize } from "@/components/shared/EstimatedOutputSize";
+import { ToolPreview } from "@/components/shared/ToolPreview";
+import { StepByStepGuide } from "@/components/shared/StepByStepGuide";
+import { ToolSettingsPanel } from "@/components/shared/ToolSettingsPanel";
+import { PopularTools } from "@/components/shared/PopularTools";
 
 interface ToolPageLayoutProps {
   slug: string;
@@ -137,16 +145,20 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
     setIsConfigured(true);
   }, [slug, content, setLocation]);
 
-  // Inject SEO metadata
-  useSEO({
-    title: content?.title || "FileNova Tool",
-    description: content?.metaDescription || "",
-    canonical: `https://filenova.in/${slug}`,
-    keywords: content?.keywords || "",
-    toolName: content?.toolName || "",
-    toolDescription: content?.toolDescription || "",
-    faqs: content?.faqs || []
-  });
+   // Inject SEO metadata
+   useSEO({
+     title: content?.title || "FileNova Tool",
+     description: content?.metaDescription || "",
+     canonical: `https://filenova.in/${slug}`,
+     keywords: content?.keywords || "",
+     toolName: content?.toolName || "",
+     toolDescription: content?.toolDescription || "",
+     faqs: content?.faqs || [],
+     steps: content?.steps,
+     howToName: content?.howToName,
+     isHomepage: false,
+     toolCategory: content?.toolCategory
+   });
 
   if (!content) return null;
 
@@ -273,107 +285,136 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
         </div>
       )}
 
-      {/* Main Container */}
-      <main className="max-w-5xl mx-auto px-4 pt-10 pb-20 relative z-10">
-        
-        {/* Visual Breadcrumb */}
-        <nav className="flex items-center gap-2 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-6">
-          <Link href="/" className="hover:text-primary transition-colors">Home</Link>
-          <ChevronRight className="h-3 w-3 text-slate-600" />
-          <span className="text-slate-800 dark:text-slate-200">{content.toolName}</span>
-        </nav>
+       {/* Main Container */}
+       <main className="max-w-5xl mx-auto px-4 pt-10 pb-20 relative z-10">
+         
+         {/* Visual Breadcrumb */}
+         <nav className="flex items-center gap-2 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-6" aria-label="Breadcrumb">
+           <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+           <ChevronRight className="h-3 w-3 text-slate-600" />
+           <Link href="/tools" className="hover:text-primary transition-colors">All Tools</Link>
+           <ChevronRight className="h-3 w-3 text-slate-600" />
+           <span className="text-slate-800 dark:text-slate-200">{content.toolName}</span>
+         </nav>
 
-        {/* Page Header (H1 + Intro) */}
-        <div className="mb-10 text-left space-y-4">
-          <div className="flex items-center gap-3.5 flex-wrap">
-            <h1 className="text-3xl md:text-5xl font-black tracking-tight text-gray-900 dark:text-white leading-tight">
-              {content.h1}
-            </h1>
-            {content.badge && (
-              <span className="text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/25 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                {content.badge}
-              </span>
-            )}
-          </div>
-          <p className="text-gray-600 dark:text-slate-300 text-sm md:text-base leading-relaxed max-w-3xl">
-            {content.toolDescription}
-          </p>
-        </div>
+         {/* Page Header (H1 + Intro) */}
+         <div className="mb-10 text-left space-y-4">
+           <div className="flex items-center gap-3.5 flex-wrap">
+             <h1 className="text-3xl md:text-5xl font-black tracking-tight text-gray-900 dark:text-white leading-tight">
+               {content.h1}
+             </h1>
+             {content.badge && (
+               <span className="text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/25 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                 {content.badge}
+               </span>
+             )}
+           </div>
+           <p className="text-gray-600 dark:text-slate-300 text-sm md:text-base leading-relaxed max-w-3xl">
+             {content.toolDescription}
+           </p>
+         </div>
 
-        {/* Benefits Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-          {BENEFITS.map((benefit, i) => (
-            <div key={i} className="bg-card/40 border border-border/80 rounded-2xl p-5 hover:border-indigo-500/30 transition-all duration-300">
-              <div className="text-2xl mb-3">{benefit.icon}</div>
-              <h3 className="font-extrabold text-sm text-foreground mb-1.5">{benefit.title}</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">{benefit.description}</p>
-            </div>
-          ))}
-        </div>
+         {/* Benefits Grid */}
+         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+           {BENEFITS.map((benefit, i) => (
+             <div key={i} className="bg-card/40 border border-border/80 rounded-2xl p-5 hover:border-indigo-500/30 transition-all duration-300">
+               <div className="text-2xl mb-3">{benefit.icon}</div>
+               <h3 className="font-extrabold text-sm text-foreground mb-1.5">{benefit.title}</h3>
+               <p className="text-xs text-muted-foreground leading-relaxed">{benefit.description}</p>
+             </div>
+           ))}
+         </div>
 
-        {/* Workspace Area */}
-        <div className="bg-card border border-border/80 rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden mb-12">
-          {/* Workspace Accent Glow */}
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-30" />
+         {/* How It Works / Step-by-Step Guide */}
+         {content.steps && content.steps.length > 0 && (
+           <div className="mb-12">
+             <StepByStepGuide 
+               title={content.howToName || `How to ${content.toolName}`}
+               steps={content.steps}
+               toolSlug={slug}
+             />
+           </div>
+         )}
 
-          {/* Wizard step indicator (when files loaded and not scholarship-zip) */}
-          {files.length > 0 && !isScholarshipZip && (
-            <div className="w-full max-w-sm mx-auto flex items-center justify-between relative px-2 mb-8">
-              <div className="absolute top-1/2 left-0 right-0 h-px bg-border -translate-y-1/2 -z-10" />
-              <div
-                className="absolute top-1/2 left-0 h-px bg-primary -translate-y-1/2 -z-10 transition-all duration-500"
-                style={{ width: step === 1 ? '0%' : step === 2 ? '50%' : '100%' }}
-              />
-              {[{l:'Upload',n:1},{l:'Configure',n:2},{l:'Export',n:3}].map(({l,n}) => (
-                <div key={n} className="flex flex-col items-center bg-card px-3 gap-1.5">
-                  <span className={`h-7 w-7 rounded-full border-2 flex items-center justify-center font-bold text-xs transition-all duration-300 ${step >= n ? 'border-primary bg-primary text-primary-foreground shadow-glow' : 'border-border bg-slate-900 text-muted-foreground'}`}>
-                    {n}
-                  </span>
-                  <span className={`text-[10px] uppercase font-bold tracking-wider transition-colors ${step >= n ? 'text-primary' : 'text-muted-foreground'}`}>{l}</span>
-                </div>
-              ))}
-            </div>
-          )}
+         {/* Workspace Area */}
+         <div className="bg-card border border-border/80 rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden mb-12">
+           {/* Workspace Accent Glow */}
+           <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-30" />
 
-          {/* Load/Embed Content */}
-          {!isConfigured ? (
-            <div className="text-center py-20">
-              <Sparkles className="h-8 w-8 text-primary animate-spin mx-auto mb-3" />
-              <p className="text-xs font-bold text-muted-foreground">Configuring workspace...</p>
-            </div>
-          ) : children ? (
-            children
-          ) : isScholarshipZip ? (
-            <ScholarshipZIPMaker isEmbedded={true} />
-          ) : files.length === 0 ? (
-            <div className="space-y-4">
-              <UploadZone allowedCategory={selectedSection} />
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {/* Step 2: configure + process */}
-              {step === 2 && (
-                <div className="space-y-6">
-                  {rawFiles.length > 1 ? (
-                    <BulkProcessor />
-                  ) : isProcessing ? (
-                    <ProgressTracker />
-                  ) : (
-                    <div className="space-y-8">
-                      <PreviewCanvas />
-                      <OptionsPanel />
-                    </div>
-                  )}
-                </div>
-              )}
+           {/* Step indicator */}
+           {files.length > 0 && !isScholarshipZip && (
+             <div className="w-full max-w-sm mx-auto flex items-center justify-between relative px-2 mb-8">
+               <div className="absolute top-1/2 left-0 right-0 h-px bg-border -translate-y-1/2 -z-10" />
+               <div
+                 className="absolute top-1/2 left-0 h-px bg-primary -translate-y-1/2 -z-10 transition-all duration-500"
+                 style={{ width: step === 1 ? '0%' : step === 2 ? '50%' : '100%' }}
+               />
+               {[{l:'Upload',n:1},{l:'Configure',n:2},{l:'Export',n:3}].map(({l,n}) => (
+                 <div key={n} className="flex flex-col items-center bg-card px-3 gap-1.5">
+                   <span className={`h-7 w-7 rounded-full border-2 flex items-center justify-center font-bold text-xs transition-all duration-300 ${step >= n ? 'border-primary bg-primary text-primary-foreground shadow-glow' : 'border-border bg-slate-900 text-muted-foreground'}`}>
+                     {n}
+                   </span>
+                   <span className={`text-[10px] uppercase font-bold tracking-wider transition-colors ${step >= n ? 'text-primary' : 'text-muted-foreground'}`}>{l}</span>
+                 </div>
+               ))}
+             </div>
+           )}
 
-              {/* Step 3: download */}
-              {step === 3 && (
-                <DownloadHub />
-              )}
-            </div>
-          )}
-        </div>
+           {/* Tool-specific Preview (before upload) */}
+           {!isConfigured ? (
+             <div className="text-center py-20">
+               <Sparkles className="h-8 w-8 text-primary animate-spin mx-auto mb-3" />
+               <p className="text-xs font-bold text-muted-foreground">Configuring workspace...</p>
+             </div>
+           ) : children ? (
+             children
+           ) : isScholarshipZip ? (
+             <ScholarshipZIPMaker isEmbedded={true} />
+           ) : files.length === 0 ? (
+             <div className="space-y-4">
+               <UploadZone allowedCategory={selectedSection} />
+               {/* Tool preview for empty state */}
+               <ToolPreview slug={slug} />
+             </div>
+           ) : (
+             <div className="space-y-6">
+               {/* Step 1: Preview files / tool-specific interface */}
+               {step === 1 && files.length > 0 && (
+                 <div className="space-y-6">
+                   <PreviewCanvas />
+                   <div className="flex justify-center">
+                     <button 
+                       onClick={() => useFileStore.setState({ selectedOperation: files.length > 1 ? 'merge' : 'compress' })}
+                       className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-xl hover:opacity-90 transition shadow-glow"
+                     >
+                       <Settings2 className="h-4 w-4" />
+                       Configure Settings
+                     </button>
+                   </div>
+                 </div>
+               )}
+
+               {/* Step 2: configure + process */}
+               {step === 2 && (
+                 <div className="space-y-6">
+                   {isProcessing ? (
+                     <ProgressTracker />
+                   ) : (
+                     <ToolSettingsPanel slug={slug} />
+                   )}
+                 </div>
+               )}
+
+               {/* Step 3: download */}
+               {step === 3 && (
+                 <div className="space-y-6">
+                   <BeforeAfterComparison />
+                   <DownloadHub />
+                 </div>
+               )}
+             </div>
+           )}
+         </div>
 
         {/* SEO Content Block */}
         <div className="border-t border-border/60 pt-12 mb-12">
