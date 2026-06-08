@@ -5,7 +5,6 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useTranslation } from "@/lib/i18n";
 import { createUpiLink } from "@/lib/upi";
 import { UpiSupportModal } from "./UpiSupportModal";
-import { ToolLinksGrid } from "./shared/ToolLinksGrid";
 
 const TelegramContact: React.FC = () => {
   const { user } = useAuthStore();
@@ -89,7 +88,7 @@ const Footer: React.FC = () => {
   return (
     <footer className="bg-slate-900 text-white relative z-10">
       <div className="max-w-6xl mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {/* Brand */}
           <div className="col-span-1 sm:col-span-2 lg:col-span-1">
             <div className="flex items-center gap-3 mb-4">
@@ -176,11 +175,6 @@ const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Tools */}
-          <div>
-            <h4 className="font-semibold mb-4 text-white">{tText("Popular Tools")}</h4>
-            <ToolLinksGrid />
-          </div>
 
           {/* Contact & Social */}
           <div>
