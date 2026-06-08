@@ -2,7 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { useFileStore } from '@/store/useFileStore';
 import { apiClient, apiMock } from '@/lib/api';
 import { toast } from 'sonner';
-import { FileText, Info, TrendingDown, TrendingUp, Sparkles } from 'lucide-react';
+import { DropZone } from '@/components/DropZone';
+import { Sparkles, Info } from 'lucide-react';
 
 export const CompressPDFWorkspace: React.FC = () => {
   const { files, rawFiles, updateOptions, operationOptions } = useFileStore();
@@ -17,20 +18,17 @@ export const CompressPDFWorkspace: React.FC = () => {
   };
 
   const estimate = useMemo(() => {
-    if (files.length === 0) return null;
+    if (files.length === 0 && rawFiles.length === 0) return null;
     const totalOriginal = rawFiles.reduce((s, f) => s + f.size, 0);
     const quality = operationOptions.quality ?? 0.82;
     const preset = operationOptions.compress_preset || 'balanced';
-    
     let qualityFactor = 0.7;
     if (preset === 'low' || quality >= 0.9) qualityFactor = 0.85;
     else if (preset === 'high' || quality <= 0.6) qualityFactor = 0.4;
     else qualityFactor = 0.65;
-
     const estimatedSize = totalOriginal * qualityFactor;
     const reductionPercent = ((totalOriginal - estimatedSize) / totalOriginal) * 100;
     const qualityLoss = 100 - (quality * 100);
-
     return {
       originalSize: totalOriginal,
       estimatedSize,
@@ -45,25 +43,28 @@ export const CompressPDFWorkspace: React.FC = () => {
     else if (preset === 'high') updateOptions({ quality: 0.55, compress_preset: 'high' });
   };
 
+  const handleFileSelected = (file: File) => {
+    useFileStore.getState().addRawFiles([file]);
+  };
+
   const handleProcess = async () => {
-    if (files.length === 0) {
+    if (files.length === 0 && rawFiles.length === 0) {
       toast.error('Please upload a PDF file');
       return;
     }
-
     setIsProcessingLocal(true);
-    const { setProcessing, setJobId, setError, setDownloadUrl, setSavings } = useFileStore.getState();
-
-    setProcessing(true);
-    setError(null);
-    const activeJobId = Math.random().toString(36).substring(2, 15);
-    setJobId(activeJobId);
-
     try {
+      const { setProcessing, setJobId, setError, setDownloadUrl, setSavings } = useFileStore.getState();
       const isMock = useFileStore.getState().isMockMode;
+      setProcessing(true);
+      setError(null);
+      const activeJobId = Math.random().toString(36).substring(2, 15);
+      setJobId(activeJobId);
       if (isMock) {
         await apiMock.simulateProcessing(
-          activeJobId, 'compress', files,
+          activeJobId,
+          'compress',
+          files.length > 0 ? files : rawFiles,
           (p) => useFileStore.getState().setProgress(p),
           (downloadUrl, savings) => {
             setDownloadUrl(downloadUrl);
@@ -75,27 +76,43 @@ export const CompressPDFWorkspace: React.FC = () => {
       } else {
         await apiClient.startProcessing(activeJobId, 'compress', operationOptions);
         for (let i = 0; i < 60; i++) {
-          await new Promise(r => setTimeout(r, 2000));
+          await new Promise((r) => setTimeout(r, 2000));
           const status = await apiClient.pollStatus(activeJobId);
           if (status.status === 'completed') {
             setDownloadUrl(apiClient.getDownloadUrl(activeJobId));
             break;
-          } else if (status.status === 'failed') {
+          }
+          if (status.status === 'failed') {
             throw new Error(status.error || 'Processing failed');
           }
         }
       }
       toast.success('PDF compressed successfully!');
     } catch (err: any) {
-      setError(err.message || 'Compression failed');
-      toast.error(err.message || 'Compression failed');
+      const message = err?.message || 'Compression failed';
+      useFileStore.getState().setError(message);
+      toast.error(message);
     } finally {
-      setProcessing(false);
+      useFileStore.getState().setProcessing(false);
       setIsProcessingLocal(false);
     }
   };
 
-  if (files.length === 0) return null;
+  if (files.length === 0 && rawFiles.length === 0) {
+    return (
+      <div className="space-y-6">
+        <DropZone accept=".pdf" maxSizeMB={25} onFileSelected={handleFileSelected} />
+        <button
+          onClick={handleProcess}
+          disabled
+          className="w-full py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-black rounded-xl hover:opacity-90 transition-all shadow-glow disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
+        >
+          <Sparkles className="h-5 w-5" />
+          Compress PDF
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -118,7 +135,6 @@ export const CompressPDFWorkspace: React.FC = () => {
           ))}
         </div>
       </div>
-
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Quality</label>
@@ -133,7 +149,6 @@ export const CompressPDFWorkspace: React.FC = () => {
           className="w-full h-2 bg-secondary rounded-full appearance-none cursor-pointer accent-primary"
         />
       </div>
-
       {estimate && (
         <div className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border border-border rounded-2xl p-5 space-y-3">
           <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
@@ -160,7 +175,6 @@ export const CompressPDFWorkspace: React.FC = () => {
           </div>
         </div>
       )}
-
       <button
         onClick={handleProcess}
         disabled={isProcessingLocal}
