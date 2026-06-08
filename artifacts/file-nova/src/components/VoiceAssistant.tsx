@@ -206,6 +206,28 @@ export function VoiceAssistant({ onCommand }: VoiceAssistantProps) {
     window.speechSynthesis.speak(utterance);
   };
 
+  // Waveform bars component
+  const WaveformBars = () => (
+    <div className="flex items-center justify-center gap-[3px] h-8">
+      {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
+        <div
+          key={i}
+          className="w-1 rounded-full bg-primary"
+          style={{
+            height: `${12 + Math.sin(i * 1.2) * 8 + Math.random() * 8}px`,
+            animation: `waveform 0.6s ease-in-out ${i * 0.08}s infinite alternate`,
+          }}
+        />
+      ))}
+      <style>{`
+        @keyframes waveform {
+          from { transform: scaleY(0.4); opacity: 0.5; }
+          to { transform: scaleY(1.2); opacity: 1; }
+        }
+      `}</style>
+    </div>
+  );
+
   return (
     <div className="rounded-2xl border border-border bg-card p-4 space-y-4 shadow-premium">
       {/* Header + Language Selector */}

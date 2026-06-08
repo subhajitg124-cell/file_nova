@@ -27,12 +27,23 @@ import { QuickShareButton } from "@/components/WhatsAppShare";
 import { useImageEditor } from "@/hooks/useImageEditor";
 import { useTranslation } from "@/lib/i18n";
 import { BACKEND_URL } from "@/lib/api";
+import { useFileStore } from "@/store/useFileStore";
+import { CompressSidebar } from "@/sidebars/CompressSidebar";
+import { MergeSidebar } from "@/sidebars/MergeSidebar";
+import { SplitSidebar } from "@/sidebars/SplitSidebar";
+import { RotateSidebar } from "@/sidebars/RotateSidebar";
+import { ProtectSidebar } from "@/sidebars/ProtectSidebar";
+import { UnlockSidebar } from "@/sidebars/UnlockSidebar";
+import { AadhaarSidebar } from "@/sidebars/AadhaarSidebar";
+import { PANSidebar } from "@/sidebars/PANSidebar";
 
 interface EditingWindowProps {
   file: File | null;
   fileType: "image" | "pdf" | "document";
   onClose: () => void;
   onDone: (result: Blob) => void;
+  toolType?: "compress" | "merge" | "split" | "rotate" | "protect" | "unlock" | "pan-resize" | "aadhaar-mask" | "default";
+  totalPages?: number;
 }
 
 const passportPresets = [
@@ -66,7 +77,7 @@ const filterOptions = [
   { value: "high-contrast", label: "High Contrast" },
 ];
 
-export const EditingWindow: React.FC<EditingWindowProps> = ({ file, fileType, onClose, onDone }) => {
+export const EditingWindow: React.FC<EditingWindowProps> = ({ file, fileType, onClose, onDone, toolType = 'default', totalPages }) => {
   const { tText } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const {
@@ -80,6 +91,7 @@ export const EditingWindow: React.FC<EditingWindowProps> = ({ file, fileType, on
     resetAll,
     exportAs,
   } = useImageEditor(canvasRef);
+  const { operationOptions, updateOptions } = useFileStore();
 
   const [activeSection, setActiveSection] = useState<string>("crop");
   const [zoomLevel, setZoomLevel] = useState(1);
@@ -139,6 +151,9 @@ export const EditingWindow: React.FC<EditingWindowProps> = ({ file, fileType, on
   const [qrShareLink, setQrShareLink] = useState<string>("");
   const [statusMessage, setStatusMessage] = useState<string>("");
   const [busy, setBusy] = useState(false);
+  const [pdfDoc, setPdfDoc] = useState<any>(null);
+  const [pdfPage, setPdfPage] = useState(1);
+  const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
     loadFile(file);
@@ -1107,6 +1122,15 @@ export const EditingWindow: React.FC<EditingWindowProps> = ({ file, fileType, on
               </motion.div>
             ) : null}
           </AnimatePresence>
+
+          {toolType === 'compress' && <CompressSidebar quality={operationOptions.quality ?? 0.82} onQualityChange={(q) => updateOptions({ quality: q })} grayscale={false} onGrayscaleChange={() => {}} onCompress={() => {}} disabled={false} estimate={null} formatSize={() => '0 B'} />}
+          {toolType === 'merge' && <MergeSidebar files={[]} onFilesChange={() => {}} onMerge={() => {}} disabled={false} />}
+          {toolType === 'split' && <SplitSidebar onSplit={() => {}} disabled={false} totalPages={totalPages || 1} />}
+          {toolType === 'rotate' && <RotateSidebar onRotate={() => {}} disabled={false} />}
+          {toolType === 'protect' && <ProtectSidebar onProtect={() => {}} disabled={false} />}
+          {toolType === 'unlock' && <UnlockSidebar onUnlock={() => {}} disabled={false} />}
+          {toolType === 'aadhaar-mask' && <AadhaarSidebar onMask={() => {}} disabled={false} />}
+          {toolType === 'pan-resize' && <PANSidebar onApply={() => {}} disabled={false} />}
         </div>
       </aside>
 
