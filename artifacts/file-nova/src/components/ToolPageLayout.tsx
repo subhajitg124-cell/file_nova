@@ -11,6 +11,7 @@ import { UserProfileDropdown } from "@/components/UserProfileDropdown";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { PlanBadge } from "@/components/PlanBadge";
 import Footer from "@/components/Footer";
+import { LanguageSelector } from "@/components/LanguageSelector";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useSEO } from "@/hooks/useSEO";
@@ -227,37 +228,7 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
                </select>
              </motion.div>
 
-             {/* Language Selection */}
-             <motion.div 
-               className="hidden lg:flex items-center gap-1 bg-gradient-to-r from-indigo-500/10 to-violet-500/10 border-2 border-indigo-500/30 rounded-xl px-3 py-1.5 text-xs text-muted-foreground shadow-lg backdrop-blur-sm"
-               whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(99,102,241,0.4)" }}
-               whileTap={{ scale: 0.98 }}
-             >
-               <Languages className="h-4 w-4 text-indigo-500" />
-               <select 
-                 value={language} 
-                 onChange={(e) => setLanguage(e.target.value as any)}
-                 className="bg-transparent border-none outline-none text-foreground font-black focus:ring-0 cursor-pointer text-xs tracking-wider"
-                 title="Select language"
-                 style={{ textShadow: "0 1px 2px rgba(0,0,0,0.1)" }}
-               >
-                 <option value="en" className="bg-card text-foreground font-bold">🇬🇧 English</option>
-                 <option value="hi" className="bg-card text-foreground">🇮🇳 हिन्दी</option>
-                 <option value="bn" className="bg-card text-foreground font-bold">🇧🇩 বাংলা</option>
-                 <option value="te" className="bg-card text-foreground">🇹🇨 తెలుగు</option>
-                 <option value="mr" className="bg-card text-foreground font-bold">🇮🇳 मराठी</option>
-                 <option value="ta" className="bg-card text-foreground font-bold">🇮🇳 தமிழ்</option>
-                 <option value="gu" className="bg-card text-foreground font-bold">🇮🇳 ગુજરાતી</option>
-                 <option value="kn" className="bg-card text-foreground font-bold">🇮🇳 ಕನ್ನಡ</option>
-                 <option value="ml" className="bg-card text-foreground font-bold">🇮🇳 മലയാളം</option>
-                 <option value="pa" className="bg-card text-foreground font-bold">🇮🇳 ਪੰਜਾਬੀ</option>
-                 <option value="or" className="bg-card text-foreground font-bold">🇮🇳 ଓଡ଼ିଆ</option>
-                 <option value="as" className="bg-card text-foreground font-bold">🇮🇳 অসমীয়া</option>
-                 <option value="ur" className="bg-card text-foreground font-bold">🇵🇰 اردو</option>
-                 <option value="ne" className="bg-card text-foreground font-bold">🇳🇵 नेपाली</option>
-                 <option value="sat" className="bg-card text-foreground font-bold">🇮🇳 ᱥᱟᱱᱛᱟᱲᱤ</option>
-               </select>
-             </motion.div>
+              <LanguageSelector />
 
              <ThemeToggle />
 

@@ -25,7 +25,9 @@ const LANGUAGES: { code: AppLanguage; label: string; local: string }[] = [
 export function LanguageSelector() {
   const { language, setLanguage } = useLanguage();
   const [open, setOpen] = useState(false);
+  const [scrolling, setScrolling] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -37,55 +39,90 @@ export function LanguageSelector() {
 
   const current = LANGUAGES.find((l) => l.code === language) || LANGUAGES[0];
 
+  const handleScroll = () => {
+    if (scrollRef.current) {
+      setScrolling(scrollRef.current.scrollTop > 0);
+    }
+  };
+
   return (
     <div ref={ref} className="relative">
-      <button
+      <motion.button
+        whileHover={{ scale: 1.04 }}
+        whileTap={{ scale: 0.95 }}
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 bg-card border border-border rounded-lg px-2.5 py-1.5 text-xs font-bold text-foreground hover:border-indigo-500/40 hover:bg-indigo-500/5 transition-all cursor-pointer"
+        className="group flex items-center gap-2 bg-white/[0.06] backdrop-blur-md border border-white/10 rounded-2xl px-3.5 py-2.5 text-xs font-black text-white transition-all cursor-pointer shadow-[0_0_0_rgba(99,102,241,0)] hover:border-indigo-500/50 hover:shadow-[0_0_24px_rgba(99,102,241,0.35)] active:shadow-[0_0_10px_rgba(99,102,241,0.2)]"
         title="Select language"
       >
-        <Globe className="h-3.5 w-3.5 text-indigo-500" />
-        <span className="hidden sm:inline">{current.local}</span>
-        <ChevronDown className={`h-3 w-3 text-muted-foreground transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
-      </button>
+        <Globe className="h-4 w-4 text-indigo-400 shrink-0 transition-transform group-hover:rotate-12 duration-300" />
+        <span className="hidden sm:inline max-w-[90px] truncate tracking-wide font-extrabold text-[11px]">{current.local}</span>
+        <motion.span
+          animate={{ rotate: open ? 180 : 0 }}
+          transition={{ duration: 0.25, ease: "easeInOut" }}
+          className="text-indigo-400"
+        >
+          <ChevronDown className="h-3.5 w-3.5" />
+        </motion.span>
+      </motion.button>
+
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: -6, scale: 0.95 }}
+            initial={{ opacity: 0, y: -10, scale: 0.94 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -6, scale: 0.95 }}
-            transition={{ duration: 0.15 }}
-            className="absolute right-0 top-full mt-1.5 z-50 w-48 bg-card border border-border rounded-xl shadow-2xl backdrop-blur-xl overflow-hidden"
+            exit={{ opacity: 0, y: -10, scale: 0.94 }}
+            transition={{ duration: 0.2, type: "spring", stiffness: 400, damping: 25 }}
+            className="absolute right-0 top-full mt-2.5 z-50 w-56 bg-[#0f0f1a]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl shadow-indigo-900/30 overflow-hidden"
+            style={{ fontFamily: "'Inter', 'Outfit', sans-serif" }}
           >
-            <div className="py-1 max-h-72 overflow-y-auto">
-              {LANGUAGES.map((lang) => {
+            <div className="px-4 pt-3 pb-2 border-b border-white/5">
+              <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Select Language</span>
+            </div>
+            <div
+              ref={scrollRef}
+              onScroll={handleScroll}
+              className="grid grid-cols-2 gap-1 p-2 max-h-[320px] overflow-y-auto scroll-smooth"
+              style={{ scrollBehavior: 'smooth' }}
+            >
+              {LANGUAGES.map((lang, index) => {
                 const active = language === lang.code;
                 return (
-                  <button
+                  <motion.button
                     key={lang.code}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 30, duration: 0.25, ease: "easeOut" }}
+                    whileHover={{ scale: 1.03, backgroundColor: "rgba(99,102,241,0.15)" }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => { setLanguage(lang.code); setOpen(false); }}
-                    className={`w-full flex items-center gap-3 px-3 py-2 text-xs transition-colors cursor-pointer ${
+                    className={`relative flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs transition-all cursor-pointer text-left ${
                       active
-                        ? 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold'
-                        : 'text-foreground hover:bg-muted/60'
+                        ? 'bg-gradient-to-r from-indigo-500/20 to-violet-500/20 border border-indigo-500/30 shadow-[inset_0_0_12px_rgba(99,102,241,0.1)]'
+                        : 'bg-white/[0.03] border border-transparent hover:border-white/10'
                     }`}
                   >
-                    <div className={`h-6 w-6 rounded-md flex items-center justify-center text-[10px] font-bold shrink-0 ${
-                      active
-                        ? 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/25'
-                        : 'bg-muted/40 text-muted-foreground border border-border'
-                    }`}>
-                      {lang.code.toUpperCase()}
+                    <span className="text-base shrink-0">{lang.code === 'en' ? '🇬🇧' : lang.code === 'hi' ? '🇮🇳' : lang.code === 'bn' ? '🇧🇩' : lang.code === 'te' ? '🇹🇨' : lang.code === 'ta' ? '🇮🇳' : lang.code === 'ur' ? '🇵🇰' : lang.code === 'ne' ? '🇳🇵' : '🇮🇳'}</span>
+                    <div className="min-w-0 flex-1">
+                      <span className={`block font-extrabold truncate leading-tight ${active ? 'text-indigo-300' : 'text-slate-200'}`}>{lang.local}</span>
+                      <span className={`block text-[9px] font-medium truncate leading-tight ${active ? 'text-indigo-400/80' : 'text-slate-500'}`}>{lang.label}</span>
                     </div>
-                    <div className="flex-1 text-left">
-                      <span className="block leading-tight">{lang.local}</span>
-                      <span className="block text-[10px] text-muted-foreground/70 leading-tight">{lang.label}</span>
-                    </div>
-                    {active && <Check className="h-3.5 w-3.5 text-indigo-500 shrink-0" />}
-                  </button>
+                    {active && (
+                      <motion.span
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", stiffness: 500, damping: 20 }}
+                        className="shrink-0"
+                      >
+                        <Check className="h-3.5 w-3.5 text-indigo-400" />
+                      </motion.span>
+                    )}
+                  </motion.button>
                 );
               })}
             </div>
+            {scrolling && (
+              <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#0f0f1a]/90 to-transparent pointer-events-none" />
+            )}
           </motion.div>
         )}
       </AnimatePresence>
