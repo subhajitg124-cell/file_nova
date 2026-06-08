@@ -15,13 +15,12 @@ const MAX_FILE_SIZE_FREE_MB = 10;
 
 export function useFreemiumGate(toolSlug?: string) {
   const user = useAuthStore((s) => s.user);
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   const checkGate = useCallback(
     (fileSizeMB: number = 0): { allowed: boolean; reason?: string; showUpgrade?: boolean } => {
       const isPremium = typeof toolSlug === 'string' && PREMIUM_TOOLS.includes(toolSlug);
 
-      if (!isAuthenticated) {
+      if (!user) {
         return {
           allowed: false,
           reason: 'Please sign in to use this tool.',
@@ -29,7 +28,7 @@ export function useFreemiumGate(toolSlug?: string) {
         };
       }
 
-      if (isPremium && !user?.isPremium) {
+      if (isPremium && user.premiumTier === 'free') {
         return {
           allowed: false,
           reason: 'Upgrade to Pro for unlimited access.',
@@ -47,7 +46,7 @@ export function useFreemiumGate(toolSlug?: string) {
 
       return { allowed: true };
     },
-    [toolSlug, user?.isPremium, isAuthenticated]
+    [toolSlug, user]
   );
 
   const enforce = useCallback(
@@ -61,5 +60,5 @@ export function useFreemiumGate(toolSlug?: string) {
     [checkGate]
   );
 
-  return { checkGate, enforce, isPremium: !!user?.isPremium };
+  return { checkGate, enforce, isPremium: user ? user.premiumTier !== 'free' : false };
 }

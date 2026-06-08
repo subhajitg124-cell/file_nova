@@ -53,8 +53,7 @@ export default function OcrPage() {
           const canvas = document.createElement("canvas");
           canvas.width = vp.width;
           canvas.height = vp.height;
-          const ctx = canvas.getContext("2d")!;
-          await page.render({ canvasContext: ctx, viewport: vp }).promise;
+          await page.render({ canvas, viewport: vp }).promise;
 
           const result = await Tesseract.recognize(canvas, ocrLanguage, {
             logger: (m: any) => {

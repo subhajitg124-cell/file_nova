@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useFileStore } from '@/store/useFileStore';
+import { useFileStore, FileRecord } from '@/store/useFileStore';
 import { apiClient, apiMock } from '@/lib/api';
 import { toast } from 'sonner';
 import { DropZone } from '@/components/DropZone';
@@ -64,7 +64,7 @@ export const CompressPDFWorkspace: React.FC = () => {
         await apiMock.simulateProcessing(
           activeJobId,
           'compress',
-          files.length > 0 ? files : rawFiles,
+          (files.length > 0 ? files : rawFiles) as FileRecord[],
           (p) => useFileStore.getState().setProgress(p),
           (downloadUrl, savings) => {
             setDownloadUrl(downloadUrl);
