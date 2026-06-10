@@ -59,6 +59,15 @@ export const TOOL_THEMES: Record<string, { accent: string; bg: string; border: s
   cyan:   { accent: "cyan-500",   bg: "bg-cyan-500/10",   border: "border-cyan-500/20",   text: "text-cyan-400",   gradient: "from-cyan-500 to-teal-600",    glow: "shadow-cyan-500/30" },
 };
 
+const COMPLIANCE_TIPS = [
+  "SVMCM Tip: Income certificates must be signed by a Joint BDO or higher to avoid portal rejection.",
+  "NSDL PAN Tip: Ensure candidate photographs are cropped under 20KB and signatures under 10KB.",
+  "UIDAI Tip: Do not upload unmasked Aadhaar cards to public portals. Mask the first 8 digits first.",
+  "CSC Kiosk Tip: Merging multiple marksheets into a single PDF saves upload times on slow connections.",
+  "Security Tip: Clear your session cache after processing personal identity documents in public cafes.",
+  "Admissions Tip: Convert scanned files to webp/jpg to resize them below size limits."
+];
+
 export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
   toolName,
   toolDescription,
@@ -94,6 +103,12 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
   const [helpOpen, setHelpOpen] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
+  // Polishing states: Compliance tips ticker and image enhancement sliders
+  const [tipIndex, setTipIndex] = useState(0);
+  const [brightness, setBrightness] = useState<number>(100);
+  const [contrast, setContrast] = useState<number>(100);
+  const [isDraggingCanvas, setIsDraggingCanvas] = useState(false);
+
   // Phase 2 User Projects & Global File Manager States
   const [currentProject, setCurrentProject] = useState<string>("Default Package");
   const [projectsList, setProjectsList] = useState<string[]>([
@@ -104,6 +119,9 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
   const [activeTab, setActiveTab] = useState<"current" | "recent" | "downloads" | "favorites">("current");
   const [projectFiles, setProjectFiles] = useState<DBFileRecord[]>([]);
   const [libraryFiles, setLibraryFiles] = useState<DBFileRecord[]>([]);
+
+  // Phase 4: Storage space warnings state
+  const [dbSize, setDbSize] = useState<number>(0);
 
   // Universal Upload Hub State
   const [detectedType, setDetectedType] = useState<"pdf" | "image" | "document" | null>(null);
@@ -141,6 +159,14 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
     analytics.logEvent(event.tool, event.action, event.metadata);
   };
 
+  // Compliance Tip Ticker Interval
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTipIndex(prev => (prev + 1) % COMPLIANCE_TIPS.length);
+    }, 8000);
+    return () => clearInterval(interval);
+  }, []);
+
   // Online connection tracking
   useEffect(() => {
     const handleOnline = () => {
@@ -161,7 +187,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
     };
   }, []);
 
-  // Load projects list from localStorage
+  // Load projects list from localStorage & run auto storage cleanup
   useEffect(() => {
     const saved = localStorage.getItem("fn_user_projects_list");
     if (saved) {
@@ -172,6 +198,23 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
     const savedActive = localStorage.getItem("fn_active_project_name");
     if (savedActive) {
       setCurrentProject(savedActive);
+    }
+
+    // Phase 4: Run auto storage cleanup
+    if (featureFlags.indexedDb) {
+      (async () => {
+        try {
+          const deleted = await fileDatabase.cleanupOldFiles();
+          if (deleted > 0) {
+            logAction(`Storage Cleanup: Purged ${deleted} expired temp files.`);
+            toast.info(`Auto-cleanup: Cleared ${deleted} expired cache items.`);
+          }
+          const size = await fileDatabase.getDatabaseSize();
+          setDbSize(size);
+        } catch (e) {
+          console.error("Cleanup/size query failed", e);
+        }
+      })();
     }
   }, []);
 
@@ -190,6 +233,10 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
       const catFiles = await fileDatabase.getFilesByCategory(category);
       // Filter by project for isolated sandboxes
       setLibraryFiles(catFiles.filter(f => f.project === currentProject));
+
+      // Calculate total IndexedDB storage size
+      const size = await fileDatabase.getDatabaseSize();
+      setDbSize(size);
     } catch (e) {
       console.error("Failed to query IndexedDB files", e);
     }
@@ -343,15 +390,34 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
     }
   };
 
+  // Phase 4: Dynamic suggestions using weighted analytics counts
   const getRecommendedTools = () => {
-    if (files.length === 0) return currentPlugin.relatedTools || [];
-    const ext = files[0].name.split('.').pop()?.toLowerCase();
-    if (ext === "pdf") {
-      return ["compress-pdf", "protect-pdf", "pdf-to-word", "ocr"];
-    } else if (["jpg", "jpeg", "png", "webp"].includes(ext || "")) {
-      return ["resize-image", "remove-background", "jpg-to-pdf"];
+    let baseTools: string[] = [];
+    if (files.length === 0) {
+      baseTools = currentPlugin.relatedTools || [];
+    } else {
+      const ext = files[0].name.split('.').pop()?.toLowerCase();
+      if (ext === "pdf") {
+        baseTools = ["compress-pdf", "protect-pdf", "pdf-to-word", "ocr"];
+      } else if (["jpg", "jpeg", "png", "webp"].includes(ext || "")) {
+        baseTools = ["resize-image", "remove-background", "jpg-to-pdf"];
+      } else {
+        baseTools = currentPlugin.relatedTools || [];
+      }
     }
-    return currentPlugin.relatedTools || [];
+
+    const events = analytics.getEvents();
+    const transitions = events.filter(e => e.action === "workflow_continue");
+    const counts: Record<string, number> = {};
+
+    transitions.forEach(e => {
+      const target = e.metadata?.nextToolId;
+      if (target) {
+        counts[target] = (counts[target] || 0) + 1;
+      }
+    });
+
+    return [...baseTools].sort((a, b) => (counts[b] || 0) - (counts[a] || 0));
   };
 
   const formatBytes = (bytes: number) => {
@@ -456,29 +522,56 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
     toast.success(`Downloading ${dbFile.name}`);
   };
 
-  // One-click continue: carries file blob to next step in workflow queue
-  const handleContinueWorkflow = (nextToolId: string) => {
-    if (!resultFile) return;
-    
-    logAction(`Initiating workflow transition to ${nextToolId}`);
+  // Phase 4: Batch continue Carrying multiple results blobs to the next tool in transition
+  const handleContinueWorkflow = async (nextToolId: string) => {
+    logAction(`Initiating batch workflow transition to ${nextToolId}`);
     trackEvent({ tool: slug, action: "workflow_continue", metadata: { nextToolId } });
-    toast.success(`Workflow pipeline: Transitioning to ${nextToolId}`);
+    toast.success(`Workflow pipeline: Transitioning batch queue to ${nextToolId}`);
     
-    (async () => {
-      try {
+    try {
+      // Find all output downloads files inside this project container
+      const dbFiles = await fileDatabase.getFilesByProject(currentProject);
+      const outputFiles = dbFiles.filter(f => f.category === "Downloads");
+
+      const store = useFileStore.getState();
+      store.clearStore();
+
+      if (outputFiles.length > 0) {
+        const fileObjects = outputFiles.map(f => new File([f.blob], f.name, { type: f.type }));
+        store.addRawFiles(fileObjects);
+      } else if (resultFile) {
+        // Fallback to single resultFile
         const response = await fetch(resultFile.url);
         const blob = await response.blob();
         const nextFile = new File([blob], resultFile.name, { type: blob.type });
-        
+        store.addRawFiles([nextFile]);
+      }
+      
+      setLocation(`/${nextToolId}`);
+    } catch (e) {
+      toast.error("Failed to carry over batch workflow queue.");
+      console.error(e);
+    }
+  };
+
+  // Polishing Enhancement: Security Shredder to clear all local IndexedDB data and histories
+  const handlePanicShredder = async () => {
+    if (window.confirm("CRITICAL WARNING: This will permanently delete ALL active project files, downloads, and favorites from the browser database, clear your local history, and close the workspace. Are you sure?")) {
+      try {
+        await fileDatabase.clearDatabase();
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith("fn_recent_file_") || key.startsWith("file-nova-session-")) {
+            localStorage.removeItem(key);
+          }
+        });
         const store = useFileStore.getState();
         store.clearStore();
-        store.addRawFiles([nextFile]);
-        
-        setLocation(`/${nextToolId}`);
-      } catch (e) {
-        toast.error("Failed to carry over output file.");
+        toast.success("Security purge complete. All documents shredded.");
+        setLocation("/");
+      } catch (err) {
+        toast.error("Failed to complete data shredding.");
       }
-    })();
+    }
   };
 
   const handleAddProject = (e: React.FormEvent) => {
@@ -503,6 +596,26 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
     logAction(`Switched project context to: ${val}`);
   };
 
+  // Polishing Enhancement: Canvas Drag and Drop Appender handlers
+  const handleCanvasDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingCanvas(true);
+  };
+
+  const handleCanvasDragLeave = () => {
+    setIsDraggingCanvas(false);
+  };
+
+  const handleCanvasDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingCanvas(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const selectedFiles = Array.from(e.dataTransfer.files);
+      handleUniversalUpload(selectedFiles);
+      toast.success(`Appended ${selectedFiles.length} file(s) to document queue.`);
+    }
+  };
+
   // Resolution workflow pipeline status
   const getPipelineSteps = () => {
     const nextToolId = getRecommendedTools()[0] || "compress-pdf";
@@ -519,8 +632,18 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
   // Workspace Component resolution
   const WorkspaceComponent = workspaceRegistry[currentPlugin.workspaceType] || UtilityWorkspace;
 
+  // Polishing Enhancement: Brightness/Contrast Wrapper Filters
+  const filterClassName = (currentPlugin.category === "image" || currentPlugin.category === "ocr")
+    ? "fn-dynamic-filter"
+    : "";
+
   return (
     <div className="min-h-screen bg-[#090d16] text-[#f8fafc] flex flex-col font-sans select-none overflow-x-hidden relative">
+      <style>{`
+        .fn-dynamic-filter {
+          filter: brightness(${brightness}%) contrast(${contrast}%);
+        }
+      `}</style>
       <Confetti show={!!resultFile} />
 
       {/* COMMAND PALETTE COMPONENT */}
@@ -570,7 +693,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                     setSearchQuery("");
                     setSearchResults([]);
                   }}
-                  className="w-full text-left p-2 rounded-xl hover:bg-white/5 text-slate-300 hover:text-white text-[11px] font-bold transition flex items-center justify-between cursor-pointer"
+                  className="w-full text-left p-2 rounded-xl hover:bg-white/5 text-slate-355 hover:text-white text-[11px] font-bold transition flex items-center justify-between cursor-pointer"
                 >
                   <span>{r.name}</span>
                   <ChevronRight className="h-3 w-3 text-slate-500" />
@@ -622,6 +745,16 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
             Save Session
           </button>
 
+          {/* Polishing: Panic Storage shredder button */}
+          <button
+            onClick={handlePanicShredder}
+            className="px-2.5 py-1.5 rounded-xl border border-rose-500/20 bg-rose-550/10 hover:bg-rose-600 text-[10px] font-black uppercase tracking-wider text-rose-400 hover:text-white transition cursor-pointer"
+            title="Permanently delete all workspace database cache files"
+            aria-label="Panic Shredder Purge"
+          >
+            Shred Cache
+          </button>
+
           <button
             onClick={() => setHelpOpen(prev => !prev)}
             title="Toggle help documentation"
@@ -669,7 +802,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
               <button title="Paste image from clipboard" className="flex items-center gap-1 p-2 rounded-xl bg-slate-950/60 border border-white/5 hover:bg-slate-800 transition"><Clipboard className="h-4 w-4 text-sky-400" /> Paste Image</button>
             </div>
 
-            <h2 className="text-sm font-black uppercase tracking-wider text-slate-300">
+            <h2 className="text-sm font-black uppercase tracking-wider text-slate-350">
               Universal Upload Hub
             </h2>
             <p className="text-xs text-slate-500">Drop PDF, JPG, PNG or DOC files here. FileNova will auto-detect formats & recommend tools.</p>
@@ -850,10 +983,21 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                   <span className="font-bold text-slate-400">IndexedDB status:</span>
                   <span className="text-emerald-400 font-black uppercase">Active</span>
                 </div>
+                
+                {/* Phase 4: Database Storage Size Indicators and Warnings */}
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-400">Cached Items:</span>
-                  <span className="font-mono text-indigo-300">{projectFiles.length} files cached</span>
+                  <span className="font-bold text-slate-400">Total Cache Size:</span>
+                  <span className={`font-mono ${dbSize > 100 * 1024 * 1024 ? "text-rose-400 font-bold" : "text-indigo-300"}`}>
+                    {formatBytes(dbSize)}
+                  </span>
                 </div>
+
+                {dbSize > 100 * 1024 * 1024 && (
+                  <div className="p-2 rounded-xl bg-rose-950/50 border border-rose-500/20 text-rose-405 flex items-start gap-1">
+                    <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5 text-rose-400 animate-pulse" />
+                    <span>Cache exceeds 100MB. Consider clearing old projects.</span>
+                  </div>
+                )}
                 
                 {/* Offline Warnings Block */}
                 {!isOnline ? (
@@ -895,8 +1039,14 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
           </aside>
 
           {/* CENTER PANEL (Col span 6) */}
-          <main className="flex-1 md:col-span-6 flex flex-col overflow-y-auto border-r border-white/[0.06] p-4 gap-4 relative">
-            
+          <main
+            onDragOver={handleCanvasDragOver}
+            onDragLeave={handleCanvasDragLeave}
+            onDrop={handleCanvasDrop}
+            className={`flex-1 md:col-span-6 flex flex-col overflow-y-auto border-r border-white/[0.06] p-4 gap-4 relative transition-colors ${
+              isDraggingCanvas ? "bg-indigo-650/15 border-dashed border-2 border-indigo-500 m-2 rounded-3xl" : ""
+            }`}
+          >
             {/* Toolbar Canvas Header */}
             <div className="flex items-center justify-between border-b border-white/[0.06] pb-3 text-xs text-slate-400">
               <div className="flex items-center gap-2">
@@ -958,7 +1108,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
               {/* Mobile settings toggle */}
               <button
                 onClick={() => setMobileDrawerOpen(true)}
-                className="md:hidden px-2 py-1 bg-slate-900 border border-white/10 rounded-lg text-[10px] font-black uppercase text-slate-350 flex items-center gap-1 cursor-pointer"
+                className="md:hidden px-2 py-1 bg-slate-900 border border-white/10 rounded-lg text-[10px] font-black uppercase text-slate-355 flex items-center gap-1 cursor-pointer"
               >
                 <Settings2 className="h-3 w-3 text-indigo-400" />
                 Parameters
@@ -998,8 +1148,10 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
               </div>
             )}
 
-            {/* DECOUPLED COMPONENT REGISTRY RENDER */}
-            <div className="flex-1 flex items-center justify-center p-1 relative overflow-hidden bg-slate-950/30 rounded-3xl border border-white/[0.05]">
+            {/* DECOUPLED COMPONENT REGISTRY RENDER WITH BRIGHTNESS/CONTRAST FILTERS */}
+            <div 
+              className={`flex-1 flex items-center justify-center p-1 relative overflow-hidden bg-slate-950/30 rounded-3xl border border-white/[0.05] transition-all duration-200 ${filterClassName}`}
+            >
               <WorkspaceComponent
                 files={files}
                 configPanel={configPanel}
@@ -1055,7 +1207,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
               />
             </div>
             
-            <div className="text-center text-[10px] text-slate-500 font-bold border border-dashed border-white/5 p-3 rounded-2xl bg-slate-900/20">
+            <div className="text-center text-[10px] text-slate-500 font-bold border border-dashed border-white/5 p-3 rounded-2xl bg-slate-900/20 animate-pulse">
               Drag additional files here to append to document queue. Maximum files: {maxFiles}
             </div>
           </main>
@@ -1071,6 +1223,50 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
               </div>
             </div>
 
+            {/* Polishing: Image Local Enhancements Slider panel */}
+            {(currentPlugin.category === "image" || currentPlugin.category === "ocr") && (
+              <div className="space-y-3 p-4 bg-slate-950/60 border border-white/[0.05] rounded-2xl animate-fade-up">
+                <span className="text-[10px] font-black uppercase tracking-wider text-indigo-400 block mb-1">
+                  Local Enhancements
+                </span>
+                <div className="space-y-3 text-[10px] font-bold">
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-slate-400">
+                      <span>Brightness: {brightness}%</span>
+                      <button onClick={() => setBrightness(100)} className="text-[9px] text-slate-500 hover:text-indigo-400 transition cursor-pointer">Reset</button>
+                    </div>
+                    <input
+                      type="range"
+                      min="50"
+                      max="200"
+                      value={brightness}
+                      onChange={(e) => setBrightness(Number(e.target.value))}
+                      className="w-full h-1 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                      title="Adjust Brightness"
+                      placeholder="Brightness percentage"
+                    />
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-slate-400">
+                      <span>Contrast: {contrast}%</span>
+                      <button onClick={() => setContrast(100)} className="text-[9px] text-slate-500 hover:text-indigo-400 transition cursor-pointer">Reset</button>
+                    </div>
+                    <input
+                      type="range"
+                      min="50"
+                      max="200"
+                      value={contrast}
+                      onChange={(e) => setContrast(Number(e.target.value))}
+                      className="w-full h-1 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                      title="Adjust Contrast"
+                      placeholder="Contrast percentage"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Smart Context Panel */}
             <div className="space-y-3">
               <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-500">Recommended Next Steps</h3>
@@ -1082,7 +1278,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                     <button
                       key={toolId}
                       onClick={() => setLocation(`/${toolId}`)}
-                      className="w-full p-2.5 rounded-xl border border-white/[0.04] bg-slate-900/40 hover:bg-slate-900 hover:border-indigo-500/20 text-left transition flex items-center justify-between cursor-pointer"
+                      className="w-full p-2.5 rounded-xl border border-white/[0.04] bg-slate-950/60 hover:bg-slate-900 hover:border-indigo-500/20 text-left transition flex items-center justify-between cursor-pointer"
                     >
                       <span className="text-[10px] font-black text-slate-355">{targetTool.name}</span>
                       <ChevronRight className="h-3.5 w-3.5 text-slate-500" />
@@ -1156,9 +1352,16 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
 
           {/* Stats, Health Monitoring and Action Bar */}
           <div className="col-span-4 p-3 flex flex-col justify-between">
-            <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-wider text-slate-500">
-              <span>Operational Health</span>
-              <span className="text-emerald-400">99.8% Online</span>
+            <div className="flex flex-col gap-0.5">
+              <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-wider text-slate-500">
+                <span>Operational Health</span>
+                <span className="text-emerald-400">99.8% Online</span>
+              </div>
+              
+              {/* Kiosk guidelines compliance tips ticker */}
+              <div className="text-[9.5px] font-bold text-indigo-400 animate-pulse truncate block">
+                💡 {COMPLIANCE_TIPS[tipIndex]}
+              </div>
             </div>
 
             {isProcessing ? (

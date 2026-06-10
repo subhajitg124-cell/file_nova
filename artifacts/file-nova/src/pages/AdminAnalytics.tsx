@@ -80,12 +80,17 @@ export default function AdminAnalytics() {
             <div className="space-y-3">
               {stats.tools.map((tool, idx) => (
                 <div key={idx} className="space-y-1.5">
+                  <style>{`
+                    .fn-tool-progress-${idx} {
+                      width: ${tool.pct}%;
+                    }
+                  `}</style>
                   <div className="flex justify-between text-xs font-bold text-slate-300">
                     <span>{tool.name}</span>
                     <span className="font-mono text-slate-500">{tool.count} calls ({tool.failure} failures)</span>
                   </div>
                   <div className="h-2 w-full bg-slate-950 rounded-full overflow-hidden">
-                    <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${tool.pct}%` }} />
+                    <div className={`h-full bg-indigo-500 rounded-full fn-tool-progress-${idx}`} />
                   </div>
                 </div>
               ))}

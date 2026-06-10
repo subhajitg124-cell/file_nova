@@ -115,6 +115,41 @@ export class FileDatabase {
     });
   }
 
+  // Deletes any cached workspace files older than expiryAgeMs (Default: 24 Hours)
+  async cleanupOldFiles(expiryAgeMs: number = 24 * 60 * 60 * 1000): Promise<number> {
+    const db = await this.init();
+    const threshold = Date.now() - expiryAgeMs;
+    const allFiles = await this.getAllFiles();
+    const toDelete = allFiles.filter(f => f.timestamp < threshold && f.category !== "Favorites"); // Keep Favorites safe
+    
+    let deletedCount = 0;
+    const transaction = db.transaction("files", "readwrite");
+    const store = transaction.objectStore("files");
+
+    await Promise.all(toDelete.map(f => {
+      return new Promise<void>((resolve) => {
+        const request = store.delete(f.id);
+        request.onsuccess = () => {
+          deletedCount++;
+          resolve();
+        };
+        request.onerror = () => resolve(); // Ignore single file failures
+      });
+    }));
+
+    return deletedCount;
+  }
+
+  // Aggregates total blob size in bytes
+  async getDatabaseSize(): Promise<number> {
+    try {
+      const files = await this.getAllFiles();
+      return files.reduce((acc, curr) => acc + (curr.blob?.size || curr.size || 0), 0);
+    } catch {
+      return 0;
+    }
+  }
+
   async clearDatabase(): Promise<void> {
     const db = await this.init();
     return new Promise((resolve, reject) => {

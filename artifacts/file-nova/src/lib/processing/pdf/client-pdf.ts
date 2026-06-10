@@ -4,9 +4,13 @@ function createWorker() {
   return new Worker(new URL('./merge.worker.ts', import.meta.url), { type: 'module' });
 }
 
-export async function runClientSidePdfMerge(files: File[]): Promise<Blob> {
+export async function runClientSidePdfMerge(files: File[], pageRanges?: string[]): Promise<Blob> {
   const worker = createWorker(); const api = wrap<any>(worker);
-  const filesData = await Promise.all(files.map(async (f) => ({ name: f.name, buffer: await f.arrayBuffer() })));
+  const filesData = await Promise.all(files.map(async (f, idx) => ({
+    name: f.name,
+    buffer: await f.arrayBuffer(),
+    pageRange: pageRanges ? pageRanges[idx] : undefined
+  })));
   const result = await api.mergePdfs(filesData); worker.terminate();
   return new Blob([result], { type: 'application/pdf' });
 }

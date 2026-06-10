@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { 
   FileText, ArrowRight, RotateCw, Trash2, CheckCircle2, 
-  Settings2, Sliders, ShieldCheck, Sparkles, Plus, AlertCircle, FileArchive
+  Settings2, Sliders, ShieldCheck, Sparkles, Plus, AlertCircle, FileArchive, Table
 } from "lucide-react";
-import { FileRecord } from "@/store/useFileStore";
+import { FileRecord, useFileStore } from "@/store/useFileStore";
 import { WorkspaceType } from "@/lib/toolPlugin";
 
 interface WorkspaceProps {
@@ -15,6 +15,63 @@ interface WorkspaceProps {
   onProcess: () => Promise<void>;
   isReady: boolean;
 }
+
+// Phase 4: Interactive CSV/Tabular Spreadsheet Previewer
+export const SpreadsheetPreviewer: React.FC<{ filename: string }> = ({ filename }) => {
+  const [gridData, setGridData] = useState<string[][]>([]);
+  const rawFile = useFileStore(state => state.rawFiles.find(rf => rf.name === filename));
+
+  useEffect(() => {
+    if (!rawFile) return;
+
+    // Parse top rows of CSV or spreadsheet files
+    if (rawFile.name.endsWith(".csv") || rawFile.type.includes("csv") || rawFile.type.startsWith("text/")) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target?.result as string;
+        if (!text) return;
+        const rows = text
+          .split("\n")
+          .slice(0, 6) // Read top 6 rows
+          .map(row => row.split(",").map(cell => cell.trim()).slice(0, 6)); // Read top 6 columns
+        setGridData(rows.filter(row => row.length > 0 && row[0] !== ""));
+      };
+      reader.readAsText(rawFile.slice(0, 10000)); // Read first 10KB
+    }
+  }, [rawFile]);
+
+  if (gridData.length === 0) return null;
+
+  return (
+    <div className="w-full bg-slate-900/60 border border-white/[0.08] rounded-3xl p-4 space-y-3 backdrop-blur-xl animate-fade-up">
+      <div className="flex items-center gap-2 text-xs font-black uppercase text-indigo-400">
+        <Table className="h-4 w-4" />
+        <span>Spreadsheet Preview Grid: {filename}</span>
+      </div>
+      <div className="overflow-x-auto rounded-xl border border-white/10 bg-slate-950/40">
+        <table className="w-full text-[10.5px] border-collapse">
+          <thead>
+            <tr className="bg-slate-900 border-b border-white/10 text-slate-400 font-black">
+              {gridData[0]?.map((_, colIdx) => (
+                <th key={colIdx} className="p-2 text-left select-none">Col {colIdx + 1}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-white/5 font-mono">
+            {gridData.map((row, rowIdx) => (
+              <tr key={rowIdx} className="hover:bg-white/[0.02] text-slate-300">
+                {row.map((cell, colIdx) => (
+                  <td key={colIdx} className="p-2 max-w-[150px] truncate">{cell || "—"}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <span className="text-[9px] text-slate-500 block text-center">Displaying first 6 rows and columns. Offline parsing completed successfully.</span>
+    </div>
+  );
+};
 
 // 1. PDF_EDITOR Workspace Layout
 export const PdfEditorWorkspace: React.FC<WorkspaceProps> = ({ files, configPanel, previewPanel }) => {
@@ -55,10 +112,15 @@ export const PdfEditorWorkspace: React.FC<WorkspaceProps> = ({ files, configPane
 };
 
 // 2. CONVERTER Workspace Layout
-export const ConverterWorkspace: React.FC<WorkspaceProps> = ({ previewPanel }) => {
+export const ConverterWorkspace: React.FC<WorkspaceProps> = ({ files, previewPanel }) => {
+  const showSpreadsheet = files.length > 0 && (files[0].name.endsWith(".csv") || files[0].name.endsWith(".xlsx"));
+
   return (
-    <div className="w-full">
-      {previewPanel}
+    <div className="w-full space-y-4">
+      {showSpreadsheet && <SpreadsheetPreviewer filename={files[0].name} />}
+      <div className="w-full">
+        {previewPanel}
+      </div>
     </div>
   );
 };
@@ -128,7 +190,7 @@ export const BatchWorkspace: React.FC<WorkspaceProps> = ({ files, configPanel, i
     <div className="w-full space-y-6">
       <div className="bg-slate-950/40 border border-white/[0.05] rounded-3xl p-5 space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+          <h3 className="text-xs font-black uppercase tracking-wider text-slate-350 flex items-center gap-1.5">
             <FileArchive className="h-4 w-4 text-indigo-400" />
             Batch processing File Queue
           </h3>

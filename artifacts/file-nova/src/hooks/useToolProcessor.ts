@@ -104,31 +104,120 @@ export function useToolProcessor(slug: string, operation: string) {
 
       // 2. Otherwise run API or Simulated Processing
       if (isMockMode) {
-        await new Promise<void>((resolve, reject) => {
-          apiMock.simulateProcessing(
-            activeJobId,
-            operation,
-            files,
-            (p) => setProgress(p),
-            (downloadUrl, savings) => {
-              const name = files[0].name.replace(/\.[^/.]+$/, "") + "_processed" + getExtensionForMime(files[0].type);
-              const totalSize = files.reduce((acc, f) => acc + f.size, 0);
-              const newSize = savings ? savings.newSize : Math.round(totalSize * 0.75);
-              const pct = savings ? savings.percent : 25;
-              setResult({
-                name,
-                url: downloadUrl,
-                size: formatSize(newSize),
-                savings: pct > 0 ? `${pct}% smaller` : undefined,
+        let resultBlob: Blob | null = null;
+        try {
+          if (slug === "merge-pdf") {
+            const { runClientSidePdfMerge } = await import("@/lib/processing/pdf/client-pdf");
+            resultBlob = await runClientSidePdfMerge(rawFiles, configOptions.pageRanges as string[] | undefined);
+          } else if (slug === "compress-pdf") {
+            const { runClientSidePdfCompress } = await import("@/lib/processing/pdf/client-pdf");
+            const quality = configOptions.level === "screen" ? 40 : configOptions.level === "ebook" ? 70 : 90;
+            resultBlob = await runClientSidePdfCompress(rawFiles[0], quality);
+          } else if (slug === "split-pdf") {
+            const { runClientSidePdfSplit } = await import("@/lib/processing/pdf/client-pdf");
+            const mode = configOptions.split_mode || "all";
+            const splitEvery = configOptions.parts_count || 1;
+            const splitRange = configOptions.split_range || "1";
+            const splitBlobs = await runClientSidePdfSplit(rawFiles[0], mode === "parts" ? "every" : mode, splitEvery, splitRange);
+            
+            if (splitBlobs.length > 1) {
+              const JSZip = (await import('jszip')).default;
+              const zip = new JSZip();
+              splitBlobs.forEach((b, idx) => {
+                zip.file(`split-${idx + 1}.pdf`, b);
               });
-              incrementFeatureUse();
-              resolve();
-            },
-            (err) => {
-              reject(new Error(err));
+              resultBlob = await zip.generateAsync({ type: 'blob', mimeType: 'application/zip' });
+            } else if (splitBlobs.length === 1) {
+              resultBlob = splitBlobs[0];
             }
-          );
-        });
+          } else if (slug === "rotate-pdf") {
+            const { runClientSidePdfRotate } = await import("@/lib/processing/pdf/client-pdf");
+            const rotation = configOptions.rotation || 90;
+            const mode = configOptions.pageScope === "custom" ? "specific" : "all";
+            const rangeStr = configOptions.customRange || "1";
+            const pageList: number[] = [];
+            if (mode === "specific") {
+              const parts = rangeStr.split(",").map((p: string) => p.trim());
+              parts.forEach((part: string) => {
+                if (part.includes("-")) {
+                  const [s, e] = part.split("-").map(Number);
+                  if (!isNaN(s) && !isNaN(e)) {
+                    for (let i = s; i <= e; i++) pageList.push(i);
+                  }
+                } else {
+                  const pNum = Number(part);
+                  if (!isNaN(pNum)) pageList.push(pNum);
+                }
+              });
+            }
+            resultBlob = await runClientSidePdfRotate(rawFiles[0], rotation, mode, pageList);
+          } else if (slug === "unlock-pdf") {
+            const { runClientSidePdfUnlock } = await import("@/lib/processing/pdf/client-pdf");
+            resultBlob = await runClientSidePdfUnlock(rawFiles[0], configOptions.password || "");
+          } else if (slug === "jpg-to-pdf") {
+            const { runClientSideImagesToPdf } = await import("@/lib/processing/pdf/client-pdf");
+            resultBlob = await runClientSideImagesToPdf(rawFiles);
+          } else if (slug === "pdf-to-jpg") {
+            const { runClientSidePdfToImages } = await import("@/lib/processing/pdf/client-pdf");
+            resultBlob = await runClientSidePdfToImages(rawFiles[0], 150);
+          } else if (slug === "resize-image") {
+            const { resizeImage } = await import("@/lib/processing/image/client-image");
+            const width = configOptions.width || 800;
+            const height = configOptions.height || 600;
+            const format = configOptions.outputFormat || "png";
+            resultBlob = await resizeImage(rawFiles[0], width, height, format);
+          } else if (slug === "remove-background") {
+            const { removeImageBackground } = await import("@/lib/processing/image/client-image");
+            resultBlob = await removeImageBackground(rawFiles[0], configOptions.outputFormat || "png");
+          }
+        } catch (localErr) {
+          console.error("Local client-side execution failed, falling back to mock simulation:", localErr);
+        }
+
+        if (resultBlob) {
+          setProgress(100);
+          const isZip = resultBlob.type.includes("zip") || resultBlob.type.includes("octet-stream");
+          const ext = isZip ? ".zip" : getExtensionForMime(resultBlob.type);
+          const name = rawFiles[0].name.replace(/\.[^/.]+$/, "") + "_processed" + ext;
+          const url = URL.createObjectURL(resultBlob);
+          const sizeStr = formatSize(resultBlob.size);
+
+          const originalSize = rawFiles.reduce((acc, f) => acc + f.size, 0);
+          const reduction = Math.max(0, originalSize - resultBlob.size);
+          const savingsPct = Math.round((reduction / originalSize) * 100);
+          const savings = savingsPct > 0 ? `${savingsPct}% smaller` : undefined;
+
+          setResult({ name, url, size: sizeStr, savings });
+          incrementFeatureUse();
+          toast.success("Processing complete!");
+        } else {
+          // Fallback to simulation
+          await new Promise<void>((resolve, reject) => {
+            apiMock.simulateProcessing(
+              activeJobId,
+              operation,
+              files,
+              (p) => setProgress(p),
+              (downloadUrl, savings) => {
+                const name = files[0].name.replace(/\.[^/.]+$/, "") + "_processed" + getExtensionForMime(files[0].type);
+                const totalSize = files.reduce((acc, f) => acc + f.size, 0);
+                const newSize = savings ? savings.newSize : Math.round(totalSize * 0.75);
+                const pct = savings ? savings.percent : 25;
+                setResult({
+                  name,
+                  url: downloadUrl,
+                  size: formatSize(newSize),
+                  savings: pct > 0 ? `${pct}% smaller` : undefined,
+                });
+                incrementFeatureUse();
+                resolve();
+              },
+              (err) => {
+                reject(new Error(err));
+              }
+            );
+          });
+        }
       } else {
         // Upload & trigger real server-side API processing
         await apiClient.startProcessing(activeJobId, operation, configOptions);

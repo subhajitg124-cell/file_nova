@@ -48,6 +48,14 @@ export const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
 
   return (
     <div className="w-full bg-slate-900/40 border border-white/[0.08] rounded-3xl p-4 sm:p-5 shadow-xl backdrop-blur-md">
+      <style>{`
+        .fn-slider-clip-path {
+          clip-path: inset(0 0 0 ${sliderPosition}%);
+        }
+        .fn-slider-left {
+          left: ${sliderPosition}%;
+        }
+      `}</style>
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
           <Eye className="h-4 w-4 text-indigo-400" />
@@ -60,7 +68,7 @@ export const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
               onClick={() => setCurrentMode("slider")}
               className={`px-2 py-1 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all ${
                 currentMode === "slider"
-                  ? "bg-indigo-600 text-white"
+                  ? "bg-indigo-650 text-white"
                   : "text-slate-400 hover:text-white"
               }`}
             >
@@ -70,7 +78,7 @@ export const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
               onClick={() => setCurrentMode("side-by-side")}
               className={`px-2 py-1 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all ${
                 currentMode === "side-by-side"
-                  ? "bg-indigo-600 text-white"
+                  ? "bg-indigo-650 text-white"
                   : "text-slate-400 hover:text-white"
               }`}
             >
@@ -102,8 +110,7 @@ export const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
             draggable={false}
           />
           <div
-            className="absolute inset-0 overflow-hidden"
-            style={{ clipPath: `inset(0 0 0 ${sliderPosition}%)` }}
+            className="absolute inset-0 overflow-hidden fn-slider-clip-path"
           >
             <img
               src={afterImage}
@@ -115,8 +122,7 @@ export const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
 
           {/* Sliding Divider Bar */}
           <div
-            className="absolute top-0 bottom-0 w-0.5 bg-white z-10 pointer-events-none"
-            style={{ left: `${sliderPosition}%` }}
+            className="absolute top-0 bottom-0 w-0.5 bg-white z-10 pointer-events-none fn-slider-left"
           >
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white shadow-xl flex items-center justify-center pointer-events-auto cursor-ew-resize">
               <Move className="h-4 w-4 text-indigo-600" />

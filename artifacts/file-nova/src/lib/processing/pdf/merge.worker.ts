@@ -14,12 +14,38 @@ function hexToRgb(hex: string) {
 
 // ── Core PDF operations ────────────────────────────────────────────────────
 
-async function mergePdfs(filesData: { name: string; buffer: ArrayBuffer }[]): Promise<Uint8Array> {
+async function mergePdfs(
+  filesData: { name: string; buffer: ArrayBuffer; pageRange?: string }[]
+): Promise<Uint8Array> {
   const mergedPdf = await PDFDocument.create();
   for (const fileData of filesData) {
     const pdf = await PDFDocument.load(fileData.buffer);
-    const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
-    copiedPages.forEach((page) => mergedPdf.addPage(page));
+    const totalPages = pdf.getPageCount();
+    let indices: number[] = [];
+    
+    if (fileData.pageRange && fileData.pageRange !== "all") {
+      for (const part of fileData.pageRange.split(',').map(s => s.trim())) {
+        if (part.includes('-')) {
+          const [startStr, endStr] = part.split('-');
+          const start = Math.max(0, parseInt(startStr, 10) - 1);
+          const end = Math.max(0, parseInt(endStr, 10) - 1);
+          const endC = Math.min(end, totalPages - 1);
+          if (!isNaN(start) && !isNaN(endC) && start <= endC) {
+            for (let k = start; k <= endC; k++) indices.push(k);
+          }
+        } else {
+          const idx = parseInt(part, 10) - 1;
+          if (!isNaN(idx) && idx >= 0 && idx < totalPages) indices.push(idx);
+        }
+      }
+    } else {
+      indices = pdf.getPageIndices();
+    }
+    
+    if (indices.length > 0) {
+      const copiedPages = await mergedPdf.copyPages(pdf, indices);
+      copiedPages.forEach((page) => mergedPdf.addPage(page));
+    }
   }
   return await mergedPdf.save();
 }
