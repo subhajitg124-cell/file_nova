@@ -1,0 +1,169 @@
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useLocation } from "wouter";
+import { Zap, ChevronDown } from "lucide-react";
+import { TOOLS, type Tool } from "./PopularToolsGrid";
+
+const CATEGORIES = [
+  {
+    title: "PDF Operations",
+    routes: ["/merge-pdf", "/split-pdf", "/compress-pdf", "/rotate-pdf", "/protect-pdf", "/unlock-pdf", "/compress-pdf-for-upload"],
+    badgeColor: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
+  },
+  {
+    title: "Document Converters",
+    routes: ["/pdf-to-word", "/pdf-to-jpg", "/jpg-to-pdf", "/word-to-pdf"],
+    badgeColor: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+  },
+  {
+    title: "Govt & Student Portals",
+    routes: ["/pan-card-resize", "/aadhaar-mask-pdf", "/government-form-fill", "/scholarship-zip"],
+    badgeColor: "bg-orange-500/10 text-orange-400 border-orange-500/20"
+  },
+  {
+    title: "AI Tools",
+    routes: ["/ocr", "/remove-background", "/ai-pdf-summary"],
+    badgeColor: "bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20"
+  }
+];
+
+export function PopularToolsDropdown() {
+  const [, setLocation] = useLocation();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  return (
+    <div ref={ref} className="relative">
+      {/* Trigger button */}
+      <motion.button
+        whileHover={{ scale: 1.04 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => setOpen((o) => !o)}
+        className="group flex items-center gap-2 bg-gradient-to-r from-amber-500/10 to-orange-500/10 hover:from-amber-500/20 hover:to-orange-500/20 border border-amber-500/30 rounded-2xl px-4 py-2.5 text-xs font-black text-white transition-all cursor-pointer shadow-[0_0_0_rgba(245,158,66,0)] hover:border-amber-500/50 hover:shadow-[0_0_24px_rgba(245,158,66,0.3)] active:shadow-[0_0_10px_rgba(245,158,66,0.15)]"
+        title="Popular Tools Shortcuts"
+        aria-haspopup="true"
+        aria-expanded={open}
+      >
+        <Zap className="h-4 w-4 text-amber-400 shrink-0 transition-transform group-hover:scale-110 duration-300 fill-amber-400/20 animate-pulse" />
+        <span className="tracking-wide font-extrabold text-[11px]">Popular Tools</span>
+        <motion.span
+          animate={{ rotate: open ? 180 : 0 }}
+          transition={{ duration: 0.25, ease: "easeInOut" }}
+          className="text-amber-400 shrink-0"
+        >
+          <ChevronDown className="h-3.5 w-3.5" />
+        </motion.span>
+      </motion.button>
+
+      {/* Dropdown container */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ duration: 0.2, type: "spring", stiffness: 400, damping: 25 }}
+            className="absolute right-0 mt-3 z-50 w-[90vw] sm:w-[520px] bg-[#0c0c14]/98 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl shadow-amber-950/20 overflow-hidden"
+            style={{ fontFamily: "'Inter', 'Outfit', sans-serif" }}
+          >
+            {/* Header banner */}
+            <div className="px-5 py-3.5 border-b border-white/5 bg-gradient-to-r from-amber-500/10 to-transparent flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <Zap className="h-4 w-4 text-amber-400 fill-amber-400/30" />
+                <span className="text-xs font-black text-amber-300 uppercase tracking-widest">
+                  Quick Shortcuts
+                </span>
+              </div>
+              <span className="text-[10px] text-gray-500 font-bold">30+ Free Tools</span>
+            </div>
+
+            {/* Scrollable list container */}
+            <div className="p-4 max-h-[440px] overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent space-y-5">
+              {CATEGORIES.map((category, catIdx) => {
+                // Find tools in this category
+                const catTools = category.routes
+                  .map((r) => TOOLS.find((t) => t.route === r))
+                  .filter((t): t is Tool => !!t);
+
+                if (catTools.length === 0) return null;
+
+                return (
+                  <div key={category.title} className="space-y-2.5">
+                    {/* Category Title Badge */}
+                    <div className="flex items-center">
+                      <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md border tracking-wider uppercase leading-none ${category.badgeColor}`}>
+                        {category.title}
+                      </span>
+                    </div>
+
+                    {/* Category Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {catTools.map((tool, idx) => {
+                        const Icon = tool.icon;
+                        const absoluteIndex = catIdx * 10 + idx;
+                        return (
+                          <motion.button
+                            key={tool.route}
+                            initial={{ opacity: 0, y: 6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: absoluteIndex * 0.015, duration: 0.18, ease: "easeOut" }}
+                            whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.03)" }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => {
+                              setLocation(tool.route);
+                              setOpen(false);
+                            }}
+                            className="group relative w-full flex items-center gap-3 p-2.5 rounded-xl text-left bg-white/[0.01] border border-white/5 hover:border-white/10 transition-all cursor-pointer overflow-hidden"
+                          >
+                            {/* Inner gradient glow */}
+                            <div className={`absolute inset-0 bg-gradient-to-br ${tool.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+
+                            {/* Icon container */}
+                            <div className={`relative w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br ${tool.gradient} border border-white/10 shrink-0 group-hover:scale-105 duration-300`}>
+                              <Icon className="w-4 h-4 text-white/90" />
+                            </div>
+
+                            {/* Label & Description */}
+                            <div className="relative min-w-0 flex-1">
+                              <div className="flex items-center gap-1.5">
+                                <span className="block font-black text-xs text-white/90 group-hover:text-white truncate transition-colors leading-tight">
+                                  {tool.label}
+                                </span>
+                                {tool.badge && (
+                                  <span className={`text-[8px] font-black uppercase tracking-wider px-1 py-0.2 rounded-full leading-none shrink-0 ${
+                                    tool.badge === "AI"
+                                      ? "bg-violet-500/20 text-violet-300 border border-violet-400/20"
+                                      : "bg-orange-500/20 text-orange-300 border border-orange-400/20"
+                                  }`}>
+                                    {tool.badge}
+                                  </span>
+                                )}
+                              </div>
+                              <span className="block text-[10px] text-white/50 group-hover:text-gray-300 truncate mt-0.5 transition-colors leading-none font-semibold">
+                                {tool.description}
+                              </span>
+                            </div>
+                          </motion.button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}

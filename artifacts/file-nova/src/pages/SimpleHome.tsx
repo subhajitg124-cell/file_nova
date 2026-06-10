@@ -23,6 +23,7 @@ import { ToolSearch } from "@/components/ToolSearch";
 import { useSEO } from "@/hooks/useSEO";
 import { PopularToolsGrid } from "@/components/PopularToolsGrid";
 import { SmartSearchBar } from "@/components/SmartSearchBar";
+import { PopularToolsDropdown } from "@/components/PopularToolsDropdown";
 
 
 // Curated tools to display on the homepage grid
@@ -358,39 +359,10 @@ export default function SimpleHome() {
           {/* Right Action Menu */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Popular Tools Shortcuts */}
-            <div className="hidden md:flex items-center gap-1 bg-card border border-border rounded-lg px-2.5 py-1 text-xs text-muted-foreground">
-              <Zap className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
-              <select 
-                value=""
-                onChange={(e) => {
-                  if (e.target.value) {
-                    setLocation(`/${e.target.value}`);
-                  }
-                }}
-                className="bg-transparent border-none outline-none text-foreground font-bold focus:ring-0 cursor-pointer max-w-[130px]"
-                title="Popular Tools Shortcuts"
-              >
-                <option value="" disabled className="bg-card text-foreground">{tText("Popular Tools")}</option>
-                <option value="merge-pdf" className="bg-card text-foreground">Merge PDF</option>
-                <option value="split-pdf" className="bg-card text-foreground">Split PDF</option>
-                <option value="compress-pdf" className="bg-card text-foreground">Compress PDF</option>
-                <option value="rotate-pdf" className="bg-card text-foreground">Rotate PDF</option>
-                <option value="protect-pdf" className="bg-card text-foreground">Protect PDF</option>
-                <option value="unlock-pdf" className="bg-card text-foreground">Unlock PDF</option>
-                <option value="pan-card-resize" className="bg-card text-foreground">PAN Card Resize</option>
-                <option value="aadhaar-mask-pdf" className="bg-card text-foreground">Aadhaar Mask PDF</option>
-                <option value="government-form-fill" className="bg-card text-foreground">Government Form Fill</option>
-                <option value="compress-pdf-for-upload" className="bg-card text-foreground">Compress for Upload</option>
-                <option value="scholarship-zip" className="bg-card text-foreground">Scholarship ZIP Maker</option>
-                <option value="ocr" className="bg-card text-foreground">OCR Scan-to-Text</option>
-                <option value="remove-background" className="bg-card text-foreground">AI Background Remover</option>
-                <option value="ai-pdf-summary" className="bg-card text-foreground">AI PDF Summarizer</option>
-                <option value="pdf-to-word" className="bg-card text-foreground">PDF to Word</option>
-                <option value="pdf-to-jpg" className="bg-card text-foreground">PDF to JPG</option>
-                <option value="jpg-to-pdf" className="bg-card text-foreground">JPG to PDF</option>
-                <option value="word-to-pdf" className="bg-card text-foreground">Word to PDF</option>
-              </select>
+            <div className="hidden md:block">
+              <PopularToolsDropdown />
             </div>
+
 
             {/* Language Selection */}
             <div className="hidden lg:block">

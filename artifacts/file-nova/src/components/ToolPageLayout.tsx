@@ -12,6 +12,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { PlanBadge } from "@/components/PlanBadge";
 import Footer from "@/components/Footer";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { PopularToolsDropdown } from "@/components/PopularToolsDropdown";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useSEO } from "@/hooks/useSEO";
@@ -187,46 +188,10 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
 {/* Right Action Menu */}
            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
              {/* Popular Tools Shortcuts */}
-             <motion.div 
-               className="hidden md:flex items-center gap-1 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-2 border-amber-500/30 rounded-xl px-3 py-1.5 text-xs text-muted-foreground shadow-lg backdrop-blur-sm"
-               whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(245,158,66,0.4)" }}
-               whileTap={{ scale: 0.98 }}
-               animate={{ opacity: [0.9, 1, 0.9] }}
-               transition={{ duration: 3, repeat: Infinity }}
-             >
-               <Zap className="h-4 w-4 text-amber-500 fill-amber-500 animate-pulse" />
-               <select 
-                 value=""
-                 onChange={(e) => {
-                   if (e.target.value) {
-                     setLocation(`/${e.target.value}`);
-                   }
-                 }}
-                 className="bg-transparent border-none outline-none text-foreground font-black focus:ring-0 cursor-pointer max-w-[140px] text-xs tracking-wider"
-                 title="Popular Tools Shortcuts"
-                 style={{ textShadow: "0 1px 2px rgba(0,0,0,0.1)" }}
-               >
-                 <option value="" disabled className="bg-card text-foreground font-bold">⚡ Popular Tools</option>
-                 <option value="merge-pdf" className="bg-card text-foreground">📄 Merge PDF</option>
-                 <option value="split-pdf" className="bg-card text-foreground">✂️ Split PDF</option>
-                 <option value="compress-pdf" className="bg-card text-foreground">🗜️ Compress PDF</option>
-                 <option value="rotate-pdf" className="bg-card text-foreground">🔄 Rotate PDF</option>
-                 <option value="protect-pdf" className="bg-card text-foreground">🔒 Protect PDF</option>
-                 <option value="unlock-pdf" className="bg-card text-foreground">🔓 Unlock PDF</option>
-                 <option value="pan-card-resize" className="bg-card text-foreground">💳 PAN Card Resize</option>
-                 <option value="aadhaar-mask-pdf" className="bg-card text-foreground">🪪 Aadhaar Mask PDF</option>
-                 <option value="government-form-fill" className="bg-card text-foreground">📝 Govt Form Fill</option>
-                 <option value="compress-pdf-for-upload" className="bg-card text-foreground">📤 Compress for Upload</option>
-                 <option value="scholarship-zip" className="bg-card text-foreground">🎓 Scholarship ZIP</option>
-                 <option value="ocr" className="bg-card text-foreground">🔍 OCR Scanner</option>
-                 <option value="remove-background" className="bg-card text-foreground">🧹 Background Remover</option>
-                 <option value="ai-pdf-summary" className="bg-card text-foreground">🤖 AI PDF Summary</option>
-                 <option value="pdf-to-word" className="bg-card text-foreground">📝 PDF to Word</option>
-                 <option value="pdf-to-jpg" className="bg-card text-foreground">🖼️ PDF to JPG</option>
-                 <option value="jpg-to-pdf" className="bg-card text-foreground">📋 JPG to PDF</option>
-                 <option value="word-to-pdf" className="bg-card text-foreground">📄 Word to PDF</option>
-               </select>
-             </motion.div>
+             <div className="hidden md:block">
+               <PopularToolsDropdown />
+             </div>
+
 
               <LanguageSelector />
 

@@ -105,7 +105,7 @@ export function LanguageSelector({
                     key={lang.code}
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 15, duration: 0.2, ease: "easeOut" }}
+                    transition={{ delay: index * 0.02, duration: 0.2, ease: "easeOut" }}
                     whileHover={{ scale: 1.02, backgroundColor: "rgba(99,102,241,0.15)" }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => {
@@ -122,10 +122,10 @@ export function LanguageSelector({
                   >
                     <span className="text-base shrink-0 leading-none">{lang.flag}</span>
                     <div className="min-w-0 flex-1">
-                      <span className={`block font-extrabold truncate leading-tight ${active ? "text-indigo-300" : "text-slate-200"}`}>
+                      <span className={`block font-extrabold truncate leading-tight ${active ? "text-indigo-300" : "text-white/90"}`}>
                         {lang.native}
                       </span>
-                      <span className={`block text-[9px] font-medium truncate leading-tight ${active ? "text-indigo-400/80" : "text-slate-500"}`}>
+                      <span className={`block text-[9px] font-medium truncate leading-tight ${active ? "text-indigo-400/80" : "text-white/50"}`}>
                         {lang.label}
                       </span>
                     </div>
