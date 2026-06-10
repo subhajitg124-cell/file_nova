@@ -178,6 +178,8 @@ export const PANCardResizeWorkspace: React.FC = () => {
               value={width}
               onChange={(e) => setWidth(parseInt(e.target.value) || 200)}
               className="w-full bg-slate-950/60 border border-white/10 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono"
+              title="Width in pixels"
+              placeholder="200"
             />
           </div>
           <div className="space-y-1">
@@ -187,6 +189,8 @@ export const PANCardResizeWorkspace: React.FC = () => {
               value={height}
               onChange={(e) => setHeight(parseInt(e.target.value) || 200)}
               className="w-full bg-slate-950/60 border border-white/10 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono"
+              title="Height in pixels"
+              placeholder="200"
             />
           </div>
           <div className="space-y-1">
@@ -196,6 +200,8 @@ export const PANCardResizeWorkspace: React.FC = () => {
               value={maxKb}
               onChange={(e) => setMaxKb(parseInt(e.target.value) || 50)}
               className="w-full bg-slate-950/60 border border-white/10 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono"
+              title="Maximum size in KB"
+              placeholder="50"
             />
           </div>
         </div>
@@ -217,6 +223,7 @@ export const PANCardResizeWorkspace: React.FC = () => {
           value={quality}
           onChange={(e) => setQuality(parseInt(e.target.value))}
           className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+          title="Compression Quality"
         />
       </div>
 

@@ -57,6 +57,7 @@ export const AadhaarMaskWorkspace: React.FC = () => {
           checked={autoDetect}
           onChange={(e) => setAutoDetect(e.target.checked)}
           className="h-4.5 w-4.5 rounded border-white/10 text-orange-600 focus:ring-0 cursor-pointer"
+          title="Auto-Detect Aadhaar Numbers"
         />
       </div>
 
@@ -100,6 +101,7 @@ export const AadhaarMaskWorkspace: React.FC = () => {
           disabled={maskStyle !== "asterisks"}
           onChange={(e) => setShowLast4(e.target.checked)}
           className="h-4.5 w-4.5 rounded border-white/10 text-orange-600 focus:ring-0 cursor-pointer disabled:opacity-20"
+          title="Keep Last 4 Digits Visible"
         />
       </div>
 

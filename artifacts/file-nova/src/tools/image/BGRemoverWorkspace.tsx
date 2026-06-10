@@ -95,12 +95,15 @@ export const BGRemoverWorkspace: React.FC = () => {
               value={customBgColor}
               onChange={(e) => setCustomBgColor(e.target.value)}
               className="h-10 w-12 rounded border border-white/10 bg-slate-900 cursor-pointer p-0.5"
+              title="Background color picker"
             />
             <input
               type="text"
               value={customBgColor}
               onChange={(e) => setCustomBgColor(e.target.value)}
               className="bg-slate-950/60 border border-white/10 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 font-mono"
+              title="Background hex color code"
+              placeholder="#3b82f6"
             />
           </div>
         </div>

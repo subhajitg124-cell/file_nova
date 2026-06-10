@@ -12,19 +12,19 @@ interface FileDropZoneProps {
   compact?: boolean;
 }
 
-const THEME_COLORS: Record<string, { color: string; border: string; bg: string; pulseBg: string }> = {
-  violet: { color: "text-violet-400", border: "border-violet-500/30", bg: "bg-violet-500/5", pulseBg: "rgba(139, 92, 246, 0.1)" },
-  blue:   { color: "text-blue-400",   border: "border-blue-500/30",   bg: "bg-blue-500/5",   pulseBg: "rgba(59, 130, 246, 0.1)" },
-  emerald:{ color: "text-emerald-400",border: "border-emerald-500/30",bg: "bg-emerald-500/5",pulseBg: "rgba(16, 185, 129, 0.1)" },
-  amber:  { color: "text-amber-400",  border: "border-amber-500/30",  bg: "bg-amber-500/5",  pulseBg: "rgba(245, 158, 11, 0.1)" },
-  red:    { color: "text-red-400",    border: "border-red-500/30",    bg: "bg-red-500/5",    pulseBg: "rgba(239, 68, 68, 0.1)" },
-  pink:   { color: "text-pink-400",   border: "border-pink-500/30",   bg: "bg-pink-500/5",   pulseBg: "rgba(236, 72, 153, 0.1)" },
-  orange: { color: "text-orange-400", border: "border-orange-500/30", bg: "bg-orange-500/5", pulseBg: "rgba(249, 115, 22, 0.1)" },
-  indigo: { color: "text-indigo-400", border: "border-indigo-500/30", bg: "bg-indigo-500/5", pulseBg: "rgba(99, 102, 241, 0.1)" },
-  lime:   { color: "text-lime-400",   border: "border-lime-500/30",   bg: "bg-lime-500/5",   pulseBg: "rgba(132, 204, 22, 0.1)" },
-  purple: { color: "text-purple-400", border: "border-purple-500/30", bg: "bg-purple-500/5", pulseBg: "rgba(168, 85, 247, 0.1)" },
-  sky:    { color: "text-sky-400",    border: "border-sky-500/30",    bg: "bg-sky-500/5",    pulseBg: "rgba(14, 165, 233, 0.1)" },
-  cyan:   { color: "text-cyan-400",   border: "border-cyan-500/30",   bg: "bg-cyan-500/5",   pulseBg: "rgba(6, 182, 212, 0.1)" },
+const THEME_COLORS: Record<string, { color: string; border: string; bg: string; activeBg: string }> = {
+  violet: { color: "text-violet-400", border: "border-violet-500/30", bg: "bg-violet-500/5", activeBg: "bg-violet-500/10" },
+  blue:   { color: "text-blue-400",   border: "border-blue-500/30",   bg: "bg-blue-500/5",   activeBg: "bg-blue-500/10" },
+  emerald:{ color: "text-emerald-400",border: "border-emerald-500/30",bg: "bg-emerald-500/5",activeBg: "bg-emerald-500/10" },
+  amber:  { color: "text-amber-400",  border: "border-amber-500/30",  bg: "bg-amber-500/5",  activeBg: "bg-amber-500/10" },
+  red:    { color: "text-red-400",    border: "border-red-500/30",    bg: "bg-red-500/5",    activeBg: "bg-red-500/10" },
+  pink:   { color: "text-pink-400",   border: "border-pink-500/30",   bg: "bg-pink-500/5",   activeBg: "bg-pink-500/10" },
+  orange: { color: "text-orange-400", border: "border-orange-500/30", bg: "bg-orange-500/5", activeBg: "bg-orange-500/10" },
+  indigo: { color: "text-indigo-400", border: "border-indigo-500/30", bg: "bg-indigo-500/5", activeBg: "bg-indigo-500/10" },
+  lime:   { color: "text-lime-400",   border: "border-lime-500/30",   bg: "bg-lime-500/5",   activeBg: "bg-lime-500/10" },
+  purple: { color: "text-purple-400", border: "border-purple-500/30", bg: "bg-purple-500/5", activeBg: "bg-purple-500/10" },
+  sky:    { color: "text-sky-400",    border: "border-sky-500/30",    bg: "bg-sky-500/5",    activeBg: "bg-sky-500/10" },
+  cyan:   { color: "text-cyan-400",   border: "border-cyan-500/30",   bg: "bg-cyan-500/5",   activeBg: "bg-cyan-500/10" },
 };
 
 export const FileDropZone: React.FC<FileDropZoneProps> = ({
@@ -179,13 +179,10 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
           className={`
             relative cursor-pointer rounded-2xl border-2 transition-all duration-300 min-h-[140px] flex items-center justify-center text-center p-4
             ${isDragActive
-              ? `border-${accentColor}-500 bg-slate-900 border-march`
+              ? `border-${accentColor}-500 bg-slate-900 border-march ${theme.activeBg}`
               : `border-dashed border-white/10 ${theme.bg} ${theme.border} hover:border-white/20 hover:bg-white/[0.02]`
             }
           `}
-          style={{
-            background: isDragActive ? theme.pulseBg : undefined,
-          }}
         >
           <input {...getInputProps()} />
 

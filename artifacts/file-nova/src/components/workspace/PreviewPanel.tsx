@@ -125,8 +125,12 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
       return (
         <div className="flex flex-col items-center gap-4 py-4 max-w-md mx-auto">
           <div 
-            className="transition-transform duration-300 shadow-2xl bg-white rounded-lg overflow-hidden max-w-[200px] sm:max-w-[240px]"
-            style={{ transform: `rotate(${rotationAngle}deg)` }}
+            className={`transition-transform duration-300 shadow-2xl bg-white rounded-lg overflow-hidden max-w-[200px] sm:max-w-[240px] ${
+              rotationAngle === 90 ? "rotate-90" :
+              rotationAngle === 180 ? "rotate-180" :
+              rotationAngle === 270 || rotationAngle === -90 ? "rotate-270" :
+              "rotate-0"
+            }`}
           >
             {pdfPages.length > 0 ? (
               <img src={pdfPages[0]} alt="rotated preview" className="w-full object-contain" />
@@ -261,8 +265,8 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
           
           {/* Zoom Overlay (Mock) */}
           <div className="absolute top-2 right-2 flex bg-slate-950/80 backdrop-blur border border-white/10 rounded-lg p-0.5">
-            <button type="button" onClick={() => setZoom(z => Math.max(0.7, z - 0.1))} className="p-1 text-slate-400 hover:text-white cursor-pointer"><ZoomOut className="h-3.5 w-3.5" /></button>
-            <button type="button" onClick={() => setZoom(z => Math.min(1.5, z + 0.1))} className="p-1 text-slate-400 hover:text-white cursor-pointer"><ZoomIn className="h-3.5 w-3.5" /></button>
+            <button type="button" onClick={() => setZoom(z => Math.max(0.7, z - 0.1))} className="p-1 text-slate-400 hover:text-white cursor-pointer" title="Zoom out" aria-label="Zoom out"><ZoomOut className="h-3.5 w-3.5" /></button>
+            <button type="button" onClick={() => setZoom(z => Math.min(1.5, z + 0.1))} className="p-1 text-slate-400 hover:text-white cursor-pointer" title="Zoom in" aria-label="Zoom in"><ZoomIn className="h-3.5 w-3.5" /></button>
           </div>
         </div>
 
@@ -273,6 +277,8 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
               disabled={currentPage === 1}
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               className="p-1.5 rounded-lg border border-white/10 hover:bg-white/5 disabled:opacity-25 transition-colors cursor-pointer"
+              title="Previous page"
+              aria-label="Previous page"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -284,6 +290,8 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
               disabled={currentPage === totalPages}
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               className="p-1.5 rounded-lg border border-white/10 hover:bg-white/5 disabled:opacity-25 transition-colors cursor-pointer"
+              title="Next page"
+              aria-label="Next page"
             >
               <ChevronRight className="h-4 w-4" />
             </button>

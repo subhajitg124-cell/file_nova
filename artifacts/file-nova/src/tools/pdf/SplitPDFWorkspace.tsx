@@ -135,6 +135,8 @@ export const SplitPDFWorkspace: React.FC = () => {
               value={partsCount}
               onChange={(e) => setPartsCount(parseInt(e.target.value) || 2)}
               className="flex-1 bg-slate-950/60 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 font-mono"
+              title="Number of parts to split PDF"
+              placeholder="2"
             />
             <span className="bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-450 flex items-center justify-center">
               Files
