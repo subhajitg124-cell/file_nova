@@ -29,7 +29,10 @@ export function useSubscription() {
   const [dbLimit, setDbLimit] = useState(3);
   const [usersServedToday, setUsersServedToday] = useState(3847);
 
-  const testingActive = isTestingPeriodActive();
+  const user = useAuthStore((state) => state.user);
+  const isDev = user?.email?.toLowerCase() === 'subhajitgho123@gmail.com';
+
+  const testingActive = isTestingPeriodActive() || isDev;
   const premiumTier = testingActive ? "elite" : premiumTierState;
   const premiumEnabled = testingActive ? true : premiumEnabledState;
 
@@ -316,7 +319,7 @@ export function useSubscription() {
 
   // Max daily limit rules
   const getDailyLimit = useCallback((): number => {
-    if (isTestingPeriodActive()) return Infinity;
+    if (isTestingPeriodActive() || isDev) return Infinity;
     if (dbLimit === -1) return Infinity;
     try {
       const today = getTodayKey();
@@ -336,22 +339,22 @@ export function useSubscription() {
       }
     } catch (_) {}
     return dbLimit;
-  }, [dbLimit, premiumTier]);
+  }, [dbLimit, premiumTier, isDev]);
 
   const isLimitReached = useCallback((): boolean => {
-    if (isTestingPeriodActive()) return false;
+    if (isTestingPeriodActive() || isDev) return false;
     const max = getDailyLimit();
     return dbUsageToday >= max;
-  }, [getDailyLimit, dbUsageToday]);
+  }, [getDailyLimit, dbUsageToday, isDev]);
 
   const shouldShowAdGate = useCallback((): boolean => {
-    if (isTestingPeriodActive()) return false;
+    if (isTestingPeriodActive() || isDev) return false;
     if (premiumTier !== "free") return false;
     // FREE user: watch 1 ad per use.
     // Condition: watched ads must be >= uses + 1 to run next feature
     const requiredAds = dbUsageToday + 1;
     return adWatchCount < requiredAds;
-  }, [premiumTier, dbUsageToday, adWatchCount]);
+  }, [premiumTier, dbUsageToday, adWatchCount, isDev]);
 
   return {
     loading,

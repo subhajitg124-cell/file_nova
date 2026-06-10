@@ -39,6 +39,8 @@ import AdminAnalytics from "@/pages/AdminAnalytics";
 import PremiumSuite from "@/pages/PremiumSuite";
 import PricingPage from "@/pages/PricingPage";
 import NotFound from "@/pages/not-found";
+
+const BetaTestingZone = React.lazy(() => import("@/pages/BetaTestingZone"));
 import LoginPage from "@/pages/LoginPage";
 import DashboardPage from "@/pages/DashboardPage";
 import HistoryPage from "@/pages/HistoryPage";
@@ -277,6 +279,9 @@ function Router() {
         <Route path="/tools/ai-summarize"><Redirect to="/ai-pdf-summary" /></Route>
 
         <Route path="/tools/:toolId" component={ToolPage} />
+        <Route path="/beta-test">
+          <React.Suspense fallback={<LoadingScreen />}><BetaTestingZone /></React.Suspense>
+        </Route>
         <Route path="/premium" component={PremiumSuite} />
         <Route path="/pricing" component={PricingPage} />
         <Route path="/nova-control" component={AdminDashboard} />
@@ -365,6 +370,18 @@ function App() {
     window.fetch = async (...args) => {
       const [input, init] = args;
       const url = typeof input === "string" ? input : (input instanceof URL ? input.toString() : (input && (input as Request).url ? (input as Request).url : ""));
+
+      // Intercept simulation delay and simulated server outages
+      if (url && (url.includes("/api/") || url.startsWith("/api/"))) {
+        const latencyStr = localStorage.getItem("filenova_simulated_latency");
+        const latencyMs = latencyStr ? parseInt(latencyStr, 10) : 0;
+        if (latencyMs > 0) {
+          await new Promise((resolve) => setTimeout(resolve, latencyMs));
+        }
+        if (localStorage.getItem("filenova_simulate_backend_offline") === "true") {
+          throw new TypeError("Failed to fetch");
+        }
+      }
       
       if (url && (url.includes("/api/") || url.startsWith("/api/"))) {
         try {

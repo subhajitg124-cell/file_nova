@@ -77,11 +77,17 @@ const env = (import.meta.env.VITE_APP_ENV || import.meta.env.MODE || "production
 export const featureFlags: FeatureFlags = featureSets[env] ?? featureSets.production;
 
 export function isFeatureEnabled(key: FeatureKey) {
+  try {
+    const override = localStorage.getItem(`filenova_feature_override_${key}`);
+    if (override !== null) {
+      return override === "true";
+    }
+  } catch (e) {}
   return featureFlags[key] ?? false;
 }
 
 export const enabledFeatureKeys = Object.keys(featureFlags).filter(
-  (key) => featureFlags[key as FeatureKey]
+  (key) => isFeatureEnabled(key as FeatureKey)
 ) as FeatureKey[];
 
 export const isLowBandwidthMode = import.meta.env.VITE_LOW_BANDWIDTH === "true";
