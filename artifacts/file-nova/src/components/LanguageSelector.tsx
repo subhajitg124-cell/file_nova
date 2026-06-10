@@ -57,18 +57,18 @@ export function LanguageSelector({
         whileHover={{ scale: 1.04 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setOpen((o) => !o)}
-        className="group flex items-center gap-2 bg-white/[0.06] backdrop-blur-md border border-white/10 rounded-2xl px-3.5 py-2.5 text-xs font-black text-white transition-all cursor-pointer shadow-[0_0_0_rgba(99,102,241,0)] hover:border-indigo-500/50 hover:shadow-[0_0_24px_rgba(99,102,241,0.35)] active:shadow-[0_0_10px_rgba(99,102,241,0.2)]"
+        className="group flex items-center gap-2 bg-indigo-50/50 dark:bg-white/[0.06] backdrop-blur-md border border-indigo-200/50 dark:border-white/10 rounded-2xl px-3.5 py-2.5 text-xs font-black text-slate-800 dark:text-white transition-all cursor-pointer shadow-[0_0_0_rgba(99,102,241,0)] hover:border-indigo-500/50 hover:shadow-[0_0_24px_rgba(99,102,241,0.35)] active:shadow-[0_0_10px_rgba(99,102,241,0.2)]"
         title="Select language"
         {...{
           "aria-haspopup": "listbox",
           "aria-expanded": open,
         }}
       >
-        <Globe className="h-4 w-4 text-indigo-400 shrink-0 transition-transform group-hover:rotate-12 duration-300" />
-        <span className="hidden sm:inline max-w-[90px] truncate tracking-wide font-extrabold text-[11px]">
+        <Globe className="h-4 w-4 text-indigo-500 dark:text-indigo-400 shrink-0 transition-transform group-hover:rotate-12 duration-300" />
+        <span className="hidden sm:inline max-w-[90px] truncate tracking-wide font-extrabold text-[11px] text-indigo-950 dark:text-white">
           {current.flag} {current.native}
         </span>
-        <span className="sm:hidden">{current.flag}</span>
+        <span className="sm:hidden text-indigo-950 dark:text-white">{current.flag}</span>
         <motion.span
           animate={{ rotate: open ? 180 : 0 }}
           transition={{ duration: 0.25, ease: "easeInOut" }}

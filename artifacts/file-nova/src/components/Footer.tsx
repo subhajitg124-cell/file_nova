@@ -88,7 +88,7 @@ const Footer: React.FC = () => {
   return (
     <footer className="bg-slate-900 text-white relative z-10">
       <div className="max-w-6xl mx-auto px-4 py-16">
-         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="col-span-1 sm:col-span-2 lg:col-span-1">
             <div className="flex items-center gap-3 mb-4">
@@ -164,6 +164,28 @@ const Footer: React.FC = () => {
             </ul>
           </div>
 
+          {/* Learn & Earn */}
+          <div>
+            <h4 className="font-semibold mb-4 text-white">{tText("Resources & Blog")}</h4>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link href="/blog" className="text-slate-400 hover:text-indigo-400 transition-colors">
+                  {tText("Latest Blog & News")}
+                </Link>
+              </li>
+              <li>
+                <Link href="/referral" className="text-slate-400 hover:text-indigo-400 transition-colors">
+                  {tText("Referral Program")}
+                </Link>
+              </li>
+              <li>
+                <Link href="/student-offer" className="text-slate-400 hover:text-indigo-400 transition-colors">
+                  {tText("Student Offers")}
+                </Link>
+              </li>
+            </ul>
+          </div>
+
 
           {/* Contact & Social */}
           <div>
@@ -223,9 +245,15 @@ const Footer: React.FC = () => {
           />
 
           <div className="flex justify-center gap-4 mt-6 text-xs flex-wrap">
-            <a href="#" className="hover:text-white transition-colors">{tText("Privacy Policy")}</a>
-            <a href="#" className="hover:text-white transition-colors">{tText("Terms of Service")}</a>
-            <a href="#" className="hover:text-white transition-colors">{tText("Cookie Policy")}</a>
+            <Link href="/privacy" className="hover:text-white transition-colors">
+              {tText("Privacy Policy")}
+            </Link>
+            <Link href="/terms" className="hover:text-white transition-colors">
+              {tText("Terms of Service")}
+            </Link>
+            <Link href="/cookie-policy" className="hover:text-white transition-colors">
+              {tText("Cookie Policy")}
+            </Link>
             <Link href="/contact" className="hover:text-white transition-colors">
               {tText("Contact Us")}
             </Link>

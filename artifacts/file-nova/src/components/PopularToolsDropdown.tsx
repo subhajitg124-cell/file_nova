@@ -49,13 +49,13 @@ export function PopularToolsDropdown() {
         whileHover={{ scale: 1.04 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setOpen((o) => !o)}
-        className="group flex items-center gap-2 bg-gradient-to-r from-amber-500/10 to-orange-500/10 hover:from-amber-500/20 hover:to-orange-500/20 border border-amber-500/30 rounded-2xl px-4 py-2.5 text-xs font-black text-white transition-all cursor-pointer shadow-[0_0_0_rgba(245,158,66,0)] hover:border-amber-500/50 hover:shadow-[0_0_24px_rgba(245,158,66,0.3)] active:shadow-[0_0_10px_rgba(245,158,66,0.15)]"
+        className="group flex items-center gap-2 bg-amber-50/50 dark:bg-gradient-to-r dark:from-amber-500/10 dark:to-orange-500/10 hover:bg-amber-100/50 dark:hover:from-amber-500/20 dark:hover:to-orange-500/20 border border-amber-500/30 rounded-2xl px-4 py-2.5 text-xs font-black text-slate-850 dark:text-white transition-all cursor-pointer shadow-[0_0_0_rgba(245,158,66,0)] hover:border-amber-500/50 hover:shadow-[0_0_24px_rgba(245,158,66,0.3)] active:shadow-[0_0_10px_rgba(245,158,66,0.15)]"
         title="Popular Tools Shortcuts"
         aria-haspopup="true"
         aria-expanded={open}
       >
-        <Zap className="h-4 w-4 text-amber-400 shrink-0 transition-transform group-hover:scale-110 duration-300 fill-amber-400/20 animate-pulse" />
-        <span className="tracking-wide font-extrabold text-[11px]">Popular Tools</span>
+        <Zap className="h-4 w-4 text-amber-500 dark:text-amber-400 shrink-0 transition-transform group-hover:scale-110 duration-300 fill-amber-500/20 dark:fill-amber-400/20 animate-pulse" />
+        <span className="tracking-wide font-extrabold text-[11px] text-amber-950 dark:text-white">Popular Tools</span>
         <motion.span
           animate={{ rotate: open ? 180 : 0 }}
           transition={{ duration: 0.25, ease: "easeInOut" }}

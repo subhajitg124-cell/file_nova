@@ -48,6 +48,9 @@ import StudentOfferPage from "@/pages/StudentOfferPage";
 import ResourcesPage from "@/pages/ResourcesPage";
 import ContactPage from "@/pages/Contact";
 import ProfilePage from "@/pages/ProfilePage";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import TermsOfService from "@/pages/TermsOfService";
+import CookiePolicy from "@/pages/CookiePolicy";
 import { LanguageProvider } from "@/lib/i18n";
 import { AdminProvider, useAdmin } from "@/lib/admin";
 import { FileExpiryBar } from "@/components/FileExpiryBar";
@@ -289,6 +292,9 @@ function Router() {
         <Route path="/resources" component={ResourcesPage} />
         <Route path="/contact" component={ContactPage} />
         <Route path="/profile" component={ProfilePage} />
+        <Route path="/privacy" component={PrivacyPolicy} />
+        <Route path="/terms" component={TermsOfService} />
+        <Route path="/cookie-policy" component={CookiePolicy} />
         <Route component={NotFound} />
       </Switch>
     </>
