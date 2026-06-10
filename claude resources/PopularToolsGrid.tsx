@@ -1,9 +1,13 @@
+// PopularToolsGrid.tsx
+// Glassmorphic animated tool cards with icons, hover glow, and stagger animation
+
 import { useState } from "react";
-import { useLocation } from "wouter";
+import { useNavigate } from "react-router-dom";
 import {
-  GitMerge, Scissors, FileArchive, RotateCw, Lock, Unlock,
-  IdCard, Fingerprint, FileCheck2, FileUp, GraduationCap,
-  ScanLine, Sparkles, BrainCircuit, FileText, FileImage, Image
+  FileMinus2, Scissors, Archive, RotateCw, Lock, Unlock,
+  CreditCard, EyeOff, FileText, UploadCloud, FolderArchive,
+  ScanText, ImageOff, BookOpen, FileType2, ImageDown, FileImage,
+  FileUp,
 } from "lucide-react";
 
 export interface Tool {
@@ -20,7 +24,7 @@ export const TOOLS: Tool[] = [
   {
     label: "Merge PDF",
     description: "Combine multiple PDFs into one",
-    icon: GitMerge,
+    icon: FileMinus2,
     route: "/merge-pdf",
     gradient: "from-violet-500/20 to-purple-600/20",
     glow: "hover:shadow-violet-500/30",
@@ -36,7 +40,7 @@ export const TOOLS: Tool[] = [
   {
     label: "Compress PDF",
     description: "Fit portal file limits",
-    icon: FileArchive,
+    icon: Archive,
     route: "/compress-pdf",
     gradient: "from-emerald-500/20 to-teal-500/20",
     glow: "hover:shadow-emerald-500/30",
@@ -68,7 +72,7 @@ export const TOOLS: Tool[] = [
   {
     label: "PAN Card Resize",
     description: "Exact gov-spec dimensions",
-    icon: IdCard,
+    icon: CreditCard,
     route: "/pan-card-resize",
     gradient: "from-indigo-500/20 to-blue-600/20",
     glow: "hover:shadow-indigo-500/30",
@@ -77,8 +81,8 @@ export const TOOLS: Tool[] = [
   {
     label: "Aadhaar Mask PDF",
     description: "Hide Aadhaar number safely",
-    icon: Fingerprint,
-    route: "/aadhaar-mask-pdf",
+    icon: EyeOff,
+    route: "/aadhaar-mask",
     gradient: "from-orange-500/20 to-amber-600/20",
     glow: "hover:shadow-orange-500/30",
     badge: "India",
@@ -86,7 +90,7 @@ export const TOOLS: Tool[] = [
   {
     label: "Govt Form Fill",
     description: "Auto-fill common forms",
-    icon: FileCheck2,
+    icon: FileText,
     route: "/government-form-fill",
     gradient: "from-teal-500/20 to-cyan-600/20",
     glow: "hover:shadow-teal-500/30",
@@ -95,15 +99,15 @@ export const TOOLS: Tool[] = [
   {
     label: "Compress for Upload",
     description: "Fit portal upload limits",
-    icon: FileUp,
-    route: "/compress-pdf-for-upload",
+    icon: UploadCloud,
+    route: "/compress-for-upload",
     gradient: "from-sky-500/20 to-blue-500/20",
     glow: "hover:shadow-sky-500/30",
   },
   {
     label: "Scholarship ZIP",
     description: "Compile portal ZIPs fast",
-    icon: GraduationCap,
+    icon: FolderArchive,
     route: "/scholarship-zip",
     gradient: "from-lime-500/20 to-green-600/20",
     glow: "hover:shadow-lime-500/30",
@@ -112,7 +116,7 @@ export const TOOLS: Tool[] = [
   {
     label: "OCR Scan-to-Text",
     description: "Extract text from scans",
-    icon: ScanLine,
+    icon: ScanText,
     route: "/ocr",
     gradient: "from-purple-500/20 to-pink-600/20",
     glow: "hover:shadow-purple-500/30",
@@ -120,8 +124,8 @@ export const TOOLS: Tool[] = [
   {
     label: "AI BG Remover",
     description: "Remove photo backgrounds",
-    icon: Sparkles,
-    route: "/remove-background",
+    icon: ImageOff,
+    route: "/ai-background-remover",
     gradient: "from-cyan-500/20 to-teal-600/20",
     glow: "hover:shadow-cyan-500/30",
     badge: "AI",
@@ -129,8 +133,8 @@ export const TOOLS: Tool[] = [
   {
     label: "AI PDF Summarizer",
     description: "Get key points instantly",
-    icon: BrainCircuit,
-    route: "/ai-pdf-summary",
+    icon: BookOpen,
+    route: "/ai-pdf-summarizer",
     gradient: "from-violet-600/20 to-indigo-600/20",
     glow: "hover:shadow-violet-500/30",
     badge: "AI",
@@ -138,7 +142,7 @@ export const TOOLS: Tool[] = [
   {
     label: "PDF to Word",
     description: "Editable .docx output",
-    icon: FileText,
+    icon: FileType2,
     route: "/pdf-to-word",
     gradient: "from-blue-600/20 to-indigo-500/20",
     glow: "hover:shadow-blue-500/30",
@@ -146,7 +150,7 @@ export const TOOLS: Tool[] = [
   {
     label: "PDF to JPG",
     description: "Convert pages to images",
-    icon: FileImage,
+    icon: ImageDown,
     route: "/pdf-to-jpg",
     gradient: "from-rose-500/20 to-pink-500/20",
     glow: "hover:shadow-rose-500/30",
@@ -154,7 +158,7 @@ export const TOOLS: Tool[] = [
   {
     label: "JPG to PDF",
     description: "Bundle images into PDF",
-    icon: Image,
+    icon: FileImage,
     route: "/jpg-to-pdf",
     gradient: "from-amber-500/20 to-yellow-500/20",
     glow: "hover:shadow-amber-500/30",
@@ -162,7 +166,7 @@ export const TOOLS: Tool[] = [
   {
     label: "Word to PDF",
     description: "Preserve formatting perfectly",
-    icon: FileText,
+    icon: FileUp,
     route: "/word-to-pdf",
     gradient: "from-green-500/20 to-emerald-600/20",
     glow: "hover:shadow-green-500/30",
@@ -175,13 +179,13 @@ interface ToolCardProps {
 }
 
 function ToolCard({ tool, index }: ToolCardProps) {
-  const [, setLocation] = useLocation();
+  const navigate = useNavigate();
   const Icon = tool.icon;
   const [hovered, setHovered] = useState(false);
 
   return (
     <button
-      onClick={() => setLocation(tool.route)}
+      onClick={() => navigate(tool.route)}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       className={`
@@ -241,10 +245,10 @@ function ToolCard({ tool, index }: ToolCardProps) {
         </div>
 
         <div>
-          <p className="text-sm font-semibold text-slate-900 dark:text-gray-100 leading-tight">
+          <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 leading-tight">
             {tool.label}
           </p>
-          <p className="text-xs text-slate-500 dark:text-gray-400 mt-0.5 leading-snug">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-snug">
             {tool.description}
           </p>
         </div>
@@ -269,9 +273,9 @@ export function PopularToolsGrid() {
           to   { opacity: 1; transform: translateY(0); }
         }
       `}</style>
-      <section className="w-full px-4 py-8 relative z-10">
+      <section className="w-full px-4 py-8">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-lg font-black text-gray-900 dark:text-white mb-4">
+          <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">
             Popular Tools
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
@@ -284,5 +288,3 @@ export function PopularToolsGrid() {
     </>
   );
 }
-
-export default PopularToolsGrid;

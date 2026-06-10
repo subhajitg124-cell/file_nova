@@ -21,6 +21,8 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { PlanBadge } from "@/components/PlanBadge";
 import { ToolSearch } from "@/components/ToolSearch";
 import { useSEO } from "@/hooks/useSEO";
+import { PopularToolsGrid } from "@/components/PopularToolsGrid";
+import { SmartSearchBar } from "@/components/SmartSearchBar";
 
 
 // Curated tools to display on the homepage grid
@@ -350,24 +352,7 @@ export default function SimpleHome() {
 
           {/* Search bar inside header */}
           <div className="relative max-w-sm w-full hidden md:block">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
-            <input
-              type="text"
-              placeholder={tText("Search 30+ document tools...")}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-1.5 bg-card border border-border rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-muted-foreground/60 text-foreground"
-            />
-            {searchQuery && (
-              <button 
-                onClick={() => setSearchQuery("")} 
-                title="Clear search query"
-                aria-label="Clear search query"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            )}
+            <SmartSearchBar placeholder={tText("Search 30+ document tools...")} />
           </div>
 
           {/* Right Action Menu */}
@@ -459,14 +444,7 @@ export default function SimpleHome() {
       {mobileMenuOpen && (
         <div className="mobile-menu-panel md:hidden border-b border-border bg-background p-4 space-y-3 animate-fadeIn relative z-30">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
-            <input
-              type="text"
-              placeholder={tText("Search tools...")}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 text-foreground"
-            />
+            <SmartSearchBar placeholder={tText("Search tools...")} />
           </div>
           <div className="flex flex-col gap-2 pt-2 border-t border-border">
             <Link onClick={() => setMobileMenuOpen(false)} href="/pricing" className="flex items-center justify-center gap-2 text-sm text-amber-400 font-bold py-2 border border-amber-500/20 bg-amber-500/5 rounded-lg">
@@ -610,6 +588,9 @@ export default function SimpleHome() {
           ))}
         </div>
       </section>
+
+      {/* Popular Tools Grid */}
+      <PopularToolsGrid />
 
       {/* Main Curated Grid Directory */}
       <section className="py-20 px-4 relative z-10">
