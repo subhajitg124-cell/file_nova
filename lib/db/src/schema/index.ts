@@ -37,6 +37,7 @@ export const usersTable = pgTable("users", {
   lastUsageReset: varchar("last_usage_reset", { length: 20 }).notNull().default(""),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  lastActiveAt: timestamp("last_active_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const ipUsageTable = pgTable("ip_usage", {

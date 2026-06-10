@@ -232,7 +232,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         set({ user: null, subscription: null, initialized: true });
       }
     } catch (err: any) {
-      set({ error: err.message || 'Failed to fetch user profile', initialized: true });
+      const localUser = processUser(getLocalSession());
+      set({
+        user: localUser,
+        subscription: processSubscription(localUser ? freeSubscription : null, localUser),
+        initialized: true,
+        error: err.message || 'Failed to fetch user profile',
+      });
     } finally {
       set({ loading: false });
     }

@@ -58,6 +58,12 @@ export async function authMiddleware(req: AuthRequest, res: Response, next: Next
     if (user) {
       req.user = user;
       req.sessionToken = token;
+      
+      // Update user activity timestamp asynchronously
+      db.update(usersTable)
+        .set({ lastActiveAt: new Date() })
+        .where(eq(usersTable.id, user.id))
+        .catch(() => {});
     }
   } catch (err) {
     // Database connection could be down, fallback silently

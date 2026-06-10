@@ -64,6 +64,10 @@ export function useSubscription() {
 
       const res = await fetch(`${BACKEND_URL}/api/v1/premium/subscription/status`, { headers });
       if (res.ok) {
+        if (localStorage.getItem("filenova_mock_mode_manual") !== "true") {
+          useFileStore.setState({ isMockMode: false });
+          try { localStorage.removeItem("filenova_mock_mode"); } catch (_) {}
+        }
         const data = await res.json();
         const isPremium = data.premiumEnabled || false;
         setPremiumTierState(data.premiumTier || "free");
@@ -89,10 +93,12 @@ export function useSubscription() {
       } else {
         if (res.status === 500 || res.status === 502 || res.status === 503 || res.status === 504) {
           useFileStore.setState({ isMockMode: true });
+          try { localStorage.setItem("filenova_mock_mode", "true"); } catch (_) {}
         }
       }
     } catch (_) {
       useFileStore.setState({ isMockMode: true });
+      try { localStorage.setItem("filenova_mock_mode", "true"); } catch (_) {}
     }
   }, []);
 

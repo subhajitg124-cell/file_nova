@@ -81,7 +81,7 @@ export const useFileStore = create<FileState>((set) => ({
   savings: null,
   ttlRemaining: null,
   processingQueue: null,
-  isMockMode: false,
+  isMockMode: typeof window !== 'undefined' ? localStorage.getItem("filenova_mock_mode") === "true" : false,
   backendHealthy: true,
   backendCapabilities: { libreoffice: false, ffmpeg: false },
   addFiles: (newFiles) => set((state) => {
@@ -173,6 +173,12 @@ export const useFileStore = create<FileState>((set) => ({
   editorFileType: 'image',
   openEditor: (file, fileType) => set({ editorOpen: true, editorFile: file, editorFileType: fileType }),
   closeEditor: () => set({ editorOpen: false, editorFile: null }),
-  toggleMockMode: () => set((state) => ({ isMockMode: !state.isMockMode })),
+  toggleMockMode: () => set((state) => {
+    const nextMode = !state.isMockMode;
+    try {
+      localStorage.setItem("filenova_mock_mode", String(nextMode));
+    } catch (_) {}
+    return { isMockMode: nextMode };
+  }),
   setBackendStatus: (backendHealthy, backendCapabilities) => set({ backendHealthy, backendCapabilities })
 }));

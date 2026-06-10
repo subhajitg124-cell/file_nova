@@ -5,6 +5,8 @@ import net from "net";
 import { cleanupOldFiles } from "./utils/cleanup";
 import os from "os";
 import path from "path";
+import { db, usersTable } from "@workspace/db";
+import { eq, and, lt } from "drizzle-orm";
 
 // ── Startup environment checks ────────────────────────────────────────────────
 if (!process.env["DATABASE_URL"]) {
@@ -23,6 +25,37 @@ const cleanupTimer = setInterval(() => {
   });
 }, 5 * 60 * 1000);
 cleanupTimer.unref();
+
+// ── Cleanup inactive free accounts (more than 7 days inactive) ──────────────────
+async function cleanupInactiveFreeAccounts() {
+  try {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const deleted = await db
+      .delete(usersTable)
+      .where(
+        and(
+          eq(usersTable.premiumTier, "free"),
+          lt(usersTable.lastActiveAt, sevenDaysAgo)
+        )
+      )
+      .returning({ id: usersTable.id, email: usersTable.email });
+      
+    if (deleted.length > 0) {
+      logger.info({ count: deleted.length, emails: deleted.map(u => u.email) }, "Cleaned up inactive free accounts");
+    }
+  } catch (err) {
+    logger.error({ err }, "Failed to clean up inactive free accounts");
+  }
+}
+
+// Run cleanup immediately on start, then once every 24 hours
+cleanupInactiveFreeAccounts().catch(() => {});
+const accountCleanupTimer = setInterval(() => {
+  cleanupInactiveFreeAccounts().catch(() => {});
+}, 24 * 60 * 60 * 1000); // 24 hours
+accountCleanupTimer.unref();
 
 const rawPort = process.env["PORT"];
 

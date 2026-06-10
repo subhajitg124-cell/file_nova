@@ -408,7 +408,9 @@ export default function BetaTestingZone() {
                 <button
                   onClick={() => {
                     toggleMockMode();
-                    appendLog(`Mock Mode toggled: ${!isMockMode}`, !isMockMode ? "warn" : "info");
+                    const nextMode = !isMockMode;
+                    localStorage.setItem("filenova_mock_mode_manual", String(nextMode));
+                    appendLog(`Mock Mode toggled: ${nextMode}`, nextMode ? "warn" : "info");
                   }}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition border ${
                     isMockMode
