@@ -17,7 +17,7 @@ type PresetKey = 'low' | 'medium' | 'high' | 'custom';
 export const ToolSettingsPanel: React.FC<ToolSettingsPanelProps> = ({ slug }) => {
   const { files, rawFiles, updateOptions, operationOptions, isProcessing } = useFileStore();
   const { tText } = useTranslation();
-  const [activePreset, setActivePreset] = useState<PresetKey>('custom');
+  const [activePreset, setActivePreset] = useState<PresetKey>(slug === 'compress-pdf' ? 'medium' : 'custom');
   const [isProcessingLocal, setIsProcessingLocal] = useState(false);
 
   const handlePresetChange = (preset: PresetKey) => {
@@ -93,6 +93,49 @@ export const ToolSettingsPanel: React.FC<ToolSettingsPanelProps> = ({ slug }) =>
   };
 
   if (files.length === 0) return null;
+
+  if (slug === 'compress-pdf') {
+    return (
+      <div className="space-y-6 max-w-2xl mx-auto">
+        <div className="text-center space-y-2">
+          <h3 className="text-xl font-black text-foreground">Choose Compression Level</h3>
+          <p className="text-sm text-muted-foreground">Select the balance between quality and file size</p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[
+            { key: 'low', label: 'Low (Best Quality)', desc: 'Small reduction, highest quality' },
+            { key: 'medium', label: 'Medium (Balanced)', desc: 'Recommended for most uses' },
+            { key: 'high', label: 'High (Smallest Size)', desc: 'Max compression, lower quality' },
+          ].map((preset) => (
+            <button
+              key={preset.key}
+              type="button"
+              onClick={() => handlePresetChange(preset.key as PresetKey)}
+              className={`p-5 rounded-2xl border-2 text-left transition-all ${
+                activePreset === preset.key
+                  ? 'border-purple-500 bg-purple-500/10 shadow-lg shadow-purple-500/20'
+                  : 'border-border bg-card hover:border-purple-500/50'
+              }`}
+            >
+              <p className="font-bold text-sm text-foreground">{preset.label}</p>
+              <p className="text-xs text-muted-foreground mt-1.5">{preset.desc}</p>
+            </button>
+          ))}
+        </div>
+
+        <EstimatedOutputSize />
+
+        <button
+          onClick={handleProcess}
+          disabled={isProcessing || isProcessingLocal || files.length === 0}
+          className="w-full py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black text-lg rounded-2xl hover:opacity-90 transition shadow-glow disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isProcessingLocal || isProcessing ? 'Processing...' : "Start Now — It's Free"}
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -202,7 +245,7 @@ function renderCompressSettings(options: Record<string, any>, update: (o: Record
           <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Quality</label>
           <span className="text-xs font-bold text-primary">{Math.round((options.quality || 0.82) * 100)}%</span>
         </div>
-        <input type="range" min="10" max="100" value={(options.quality || 0.82) * 100} onChange={(e) => { setPreset('custom'); update({ quality: parseInt(e.target.value) / 100 }); }} className="w-full h-2 bg-secondary rounded-full appearance-none cursor-pointer accent-primary" />
+        <input type="range" min="10" max="100" value={(options.quality || 0.82) * 100} onChange={(e) => { setPreset('custom'); update({ quality: parseInt(e.target.value) / 100 }); }} title="Quality" className="w-full h-2 bg-secondary rounded-full appearance-none cursor-pointer accent-primary" />
       </div>
       {slug === 'compress-pdf-for-upload' && (
         <div className="space-y-2">
@@ -230,7 +273,7 @@ function renderSplitSettings(options: Record<string, any>, update: (o: Record<st
     <div className="space-y-4">
       <div className="space-y-2">
         <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Split Mode</label>
-        <select value={options.split_mode || 'all'} onChange={(e) => update({ split_mode: e.target.value })} className="w-full p-2.5 bg-card border border-border rounded-xl text-sm">
+        <select value={options.split_mode || 'all'} onChange={(e) => update({ split_mode: e.target.value })} title="Split Mode" className="w-full p-2.5 bg-card border border-border rounded-xl text-sm">
           <option value="all">Every page as separate file</option>
           <option value="range">By page range</option>
           <option value="extract">Extract specific pages</option>
@@ -239,7 +282,7 @@ function renderSplitSettings(options: Record<string, any>, update: (o: Record<st
       {options.split_mode === 'range' && (
         <div className="space-y-2">
           <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Split every N pages</label>
-          <input type="number" min="1" value={options.split_every || 1} onChange={(e) => update({ split_every: parseInt(e.target.value) || 1 })} className="w-full p-2.5 bg-card border border-border rounded-xl text-sm font-mono" />
+          <input type="number" min="1" value={options.split_every || 1} onChange={(e) => update({ split_every: parseInt(e.target.value) || 1 })} title="Split every N pages" placeholder="1" className="w-full p-2.5 bg-card border border-border rounded-xl text-sm font-mono" />
         </div>
       )}
       {options.split_mode === 'extract' && (
@@ -308,7 +351,7 @@ function renderOcrSettings(options: Record<string, any>, update: (o: Record<stri
     <div className="space-y-4">
       <div className="space-y-2">
         <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Language</label>
-        <select value={options.ocrLanguage || 'eng'} onChange={(e) => update({ ocrLanguage: e.target.value })} className="w-full p-2.5 bg-card border border-border rounded-xl text-sm">
+        <select value={options.ocrLanguage || 'eng'} onChange={(e) => update({ ocrLanguage: e.target.value })} title="Select OCR Language" className="w-full p-2.5 bg-card border border-border rounded-xl text-sm">
           <option value="eng">English</option>
           <option value="hin">Hindi (हिन्दी)</option>
           <option value="ben">Bengali (বাংলা)</option>
@@ -331,7 +374,7 @@ function renderImageSettings(slug: string, options: Record<string, any>, update:
     <div className="space-y-4">
       <div className="space-y-2">
         <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Output Format</label>
-        <select value={options.targetFormat || options.imageFormat || 'jpeg'} onChange={(e) => update({ targetFormat: e.target.value, imageFormat: e.target.value })} className="w-full p-2.5 bg-card border border-border rounded-xl text-sm">
+        <select value={options.targetFormat || options.imageFormat || 'jpeg'} onChange={(e) => update({ targetFormat: e.target.value, imageFormat: e.target.value })} title="Select Output Format" className="w-full p-2.5 bg-card border border-border rounded-xl text-sm">
           <option value="jpeg">JPEG</option>
           <option value="png">PNG</option>
           <option value="webp">WebP</option>
@@ -342,7 +385,7 @@ function renderImageSettings(slug: string, options: Record<string, any>, update:
           <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Quality</label>
           <span className="text-xs font-bold text-primary">{options.quality || 82}%</span>
         </div>
-        <input type="range" min="10" max="100" value={options.quality || 82} onChange={(e) => update({ quality: parseInt(e.target.value) })} className="w-full h-2 bg-secondary rounded-full appearance-none cursor-pointer accent-primary" />
+        <input type="range" min="10" max="100" value={options.quality || 82} onChange={(e) => update({ quality: parseInt(e.target.value) })} title="Quality" className="w-full h-2 bg-secondary rounded-full appearance-none cursor-pointer accent-primary" />
       </div>
       {slug !== 'remove-background' && (
         <div className="space-y-2">

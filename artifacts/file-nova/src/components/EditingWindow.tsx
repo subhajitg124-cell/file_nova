@@ -1,5 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import * as pdfjsLib from 'pdfjs-dist';
+// Set the worker source to CDN
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+
 import {
   Check,
   ChevronDown,
@@ -153,6 +157,7 @@ export const EditingWindow: React.FC<EditingWindowProps> = ({ file, fileType, on
   const [busy, setBusy] = useState(false);
   const [pdfDoc, setPdfDoc] = useState<any>(null);
   const [pdfPage, setPdfPage] = useState(1);
+  const [pdfZoom, setPdfZoom] = useState(100);
   const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -170,6 +175,38 @@ export const EditingWindow: React.FC<EditingWindowProps> = ({ file, fileType, on
   useEffect(() => {
     applyFilter(filterPreset as any);
   }, [filterPreset, applyFilter]);
+
+  useEffect(() => {
+    if (file && fileType === 'pdf') {
+      const fileUrl = URL.createObjectURL(file);
+      pdfjsLib.getDocument(fileUrl).promise.then(doc => {
+        setPdfDoc(doc);
+        renderPage(doc, 1);
+      }).catch(err => console.error('PDF load error:', err));
+    }
+  }, [file, fileType]);
+
+  const renderPage = async (doc: any, pageNum: number) => {
+    if (!canvasRef.current) return;
+    try {
+      const page = await doc.getPage(pageNum);
+      const viewport = page.getViewport({ scale: pdfZoom / 100 });
+      const canvas = canvasRef.current;
+      const context = canvas.getContext('2d');
+      if (!context) return;
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+      await page.render({ canvasContext: context, viewport }).promise;
+    } catch (err) {
+      console.error('PDF render error:', err);
+    }
+  };
+
+  useEffect(() => {
+    if (pdfDoc) {
+      renderPage(pdfDoc, pdfPage);
+    }
+  }, [pdfDoc, pdfPage, pdfZoom]);
 
   const activeSectionLabel = useMemo(() => {
     switch (activeSection) {
@@ -1207,12 +1244,52 @@ export const EditingWindow: React.FC<EditingWindowProps> = ({ file, fileType, on
                   </div>
                 )}
               </div>
+            ) : fileType === "pdf" && pdfDoc ? (
+              <div className="flex flex-col items-center gap-6 w-full">
+                <div className="relative max-w-full overflow-auto rounded-2xl bg-white shadow-2xl">
+                  <canvas ref={canvasRef} className="block max-w-full h-auto" />
+                </div>
+                
+                <div className="flex flex-wrap items-center justify-center gap-4 bg-slate-900/80 backdrop-blur-sm p-3 rounded-2xl border border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => setPdfPage(p => Math.max(1, p - 1))}
+                    disabled={pdfPage === 1}
+                    className="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-bold disabled:opacity-50 transition"
+                  >
+                    ← Prev
+                  </button>
+                  <span className="text-sm font-bold text-slate-300">
+                    Page {pdfPage} of {pdfDoc.numPages}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setPdfPage(p => Math.min(pdfDoc.numPages, p + 1))}
+                    disabled={pdfPage === pdfDoc.numPages}
+                    className="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-bold disabled:opacity-50 transition"
+                  >
+                    Next →
+                  </button>
+                  <select
+                    value={pdfZoom}
+                    onChange={(e) => setPdfZoom(Number(e.target.value))}
+                    title="PDF zoom percentage"
+                    className="bg-slate-800 text-white px-3 py-2 rounded-lg text-sm font-bold border border-slate-700"
+                  >
+                    <option value={50}>50%</option>
+                    <option value={75}>75%</option>
+                    <option value={100}>100%</option>
+                    <option value={150}>150%</option>
+                    <option value={200}>200%</option>
+                  </select>
+                </div>
+              </div>
             ) : (
               <div className="flex max-w-3xl flex-1 flex-col items-center justify-center rounded-3xl border border-dashed border-slate-800 bg-slate-900/50 p-6 sm:p-10 text-center shadow-sm">
                 <Layers className="mb-4 h-12 w-12 text-slate-600" />
                 <p className="text-md font-bold text-slate-200">{tText("Preview unavailable")}</p>
                 <p className="mt-2 text-xs text-slate-500 leading-5">
-                  {tText("This editor currently renders live previews for images. PDF/document rendering is shown as a placeholder.")}
+                  {tText("This editor currently renders live previews for images and PDFs.")}
                 </p>
               </div>
             )}

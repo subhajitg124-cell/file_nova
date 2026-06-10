@@ -1,18 +1,8 @@
 import React from "react";
 import { Link } from "wouter";
 import {
-  GitMerge,
-  Scissors,
-  Archive,
-  RotateCw,
-  Shield,
-  LockOpen,
-  CreditCard,
-  EyeOff,
-  FileText,
-  ScanLine,
-  Sparkles,
-  Image,
+  GitMerge, Scissors, Archive, RotateCw, Shield, LockOpen,
+  CreditCard, EyeOff, FileText, ScanLine, Sparkles, Image,
 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 
@@ -36,14 +26,14 @@ export function PopularToolsGrid() {
 
   return (
     <div className="w-full">
-      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
         {tools.map((tool, index) => (
           <Link
             key={tool.slug}
             href={`/${tool.slug}`}
-            className="group flex flex-col items-center gap-2 p-3 rounded-xl
+            className="group flex flex-col items-center gap-3 p-4 rounded-2xl
               bg-white/5 backdrop-blur-sm border border-white/10
-              hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(139,92,246,0.4)]
+              hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(139,92,246,0.4)] hover:border-purple-500/30
               transition-all duration-200 cursor-pointer"
             style={{
               animation: "fadeSlideUp 0.4s cubic-bezier(0.16,1,0.3,1) both",
@@ -51,10 +41,10 @@ export function PopularToolsGrid() {
             }}
           >
             <tool.Icon
-              className={`h-6 w-6 ${tool.color} transition-all duration-200
-                group-hover:brightness-125 group-hover:drop-shadow-[0_0_6px_rgba(139,92,246,0.6)]`}
+              className={`h-7 w-7 ${tool.color} transition-all duration-200
+                group-hover:brightness-125 group-hover:drop-shadow-[0_0_8px_rgba(139,92,246,0.6)]`}
             />
-            <span className="text-[11px] font-medium text-slate-300 text-center leading-tight group-hover:text-white transition-colors">
+            <span className="text-xs font-semibold text-slate-300 text-center leading-tight group-hover:text-white transition-colors">
               {tText(tool.label)}
             </span>
           </Link>

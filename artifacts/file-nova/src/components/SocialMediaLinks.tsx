@@ -5,13 +5,6 @@ import { useTranslation } from "@/lib/i18n";
 
 const socialLinks = [
   {
-    platform: "Instagram (Developer)",
-    handle: "@subhajit.tells",
-    url: "https://www.instagram.com/subhajit.tells?igsh=MTFqcm1ycDk1OHQ5eA==",
-    icon: Instagram,
-    colorClass: "social-color-instagram",
-  },
-  {
     platform: "Instagram (Website)",
     handle: "@filenova.in",
     url: "https://www.instagram.com/filenova.in?igsh=MWt2NG1udjRyZXlnYg==",
@@ -71,7 +64,11 @@ export function SocialMediaLinks() {
         onFocus={handleMouseEnter}
         onBlur={handleMouseLeave}
       >
-        <button className="contact-trigger-button" type="button" aria-expanded={isOpen ? "true" : "false"}>
+        <button
+          className="contact-trigger-button"
+          type="button"
+          {...(isOpen ? { "aria-expanded": true } : { "aria-expanded": false })}
+        >
           <Globe2 className="h-4 w-4 text-sky-300" />
           <span>{tText("Connect With Us")}</span>
           <ChevronDown className={`dropdown-arrow h-3.5 w-3.5 ${isOpen ? "open" : ""}`} />
