@@ -35,6 +35,7 @@ import AdminDashboard from "@/pages/AdminDashboard";
 import AdminUpiPayments from "@/pages/AdminUpiPayments";
 import AdminCouponManagement from "@/pages/AdminCouponManagement";
 import AdminLogin from "@/pages/AdminLogin";
+import AdminAnalytics from "@/pages/AdminAnalytics";
 import PremiumSuite from "@/pages/PremiumSuite";
 import PricingPage from "@/pages/PricingPage";
 import NotFound from "@/pages/not-found";
@@ -279,6 +280,7 @@ function Router() {
         <Route path="/premium" component={PremiumSuite} />
         <Route path="/pricing" component={PricingPage} />
         <Route path="/nova-control" component={AdminDashboard} />
+        <Route path="/admin/analytics" component={AdminAnalytics} />
         <Route path="/admin/upi-payments" component={AdminUpiPayments} />
         <Route path="/admin/coupons" component={AdminCouponManagement} />
         <Route path="/nova-login" component={AdminLogin} />

@@ -16,10 +16,13 @@ import {
   GraduationCap,
   ShieldCheck,
   FileDown,
-  RefreshCw
+  RefreshCw,
+  ArrowRight
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "@/lib/i18n";
+import { useLocation } from "wouter";
+import { analytics } from "@/lib/analytics";
 
 interface Message {
   id: string;
@@ -42,6 +45,7 @@ const PRESET_PROMPTS = [
 
 export function FileNovaAssistant({ isOpen, onClose }: FileNovaAssistantProps) {
   const { tText } = useTranslation();
+  const [, setLocation] = useLocation();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
@@ -75,6 +79,8 @@ export function FileNovaAssistant({ isOpen, onClose }: FileNovaAssistantProps) {
     setMessages((prev) => [...prev, userMsg]);
     setInputVal("");
     setIsTyping(true);
+
+    analytics.logEvent("copilot", "chat_message_sent", { query: trimmed });
 
     try {
       // Build history for context
@@ -138,7 +144,7 @@ export function FileNovaAssistant({ isOpen, onClose }: FileNovaAssistantProps) {
       return "Use the **Passport Photo Resize** and **Signature Crop** tools in the *Advanced Tools Suite*. They let you adjust aspect ratios, clean up scanning noise, and crop to precise requirements with a live visual preview in our **Editing Window** before saving.";
     }
     if (low.includes("privacy") || low.includes("secure") || low.includes("store") || low.includes("server") || low.includes("save")) {
-      return "Privacy is our core principle! All core tools (Aadhaar masking, cropping, image compression) execute **locally in your web browser**. If you use advanced cloud features, files are encrypted in transit, and are immediately deleted from our servers the moment you download them or after 1 hour.";
+      return "Privacy is our core principle! All core tools (Aadhaar masking, cropping, image compression) execute **locally in your web browser**. If you use advanced cloud features, files are encrypted in transit, and are deleted from our servers the moment you download them.";
     }
     if (low.includes("merge") || low.includes("combine") || low.includes("zip") || low.includes("package")) {
       return "You can merge multiple PDFs using our **PDF Merge** tool. If you are preparing scholarship/admission documents, use our **ZIP Compiler** to bundle all required files (marksheet, income certificate, masked ID) into a single optimized ZIP folder.";
@@ -149,13 +155,44 @@ export function FileNovaAssistant({ isOpen, onClose }: FileNovaAssistantProps) {
     return "I am the **File Nova Assistant**. I help you use FileNova's secure browser-based tools: Aadhaar masking, PDF compression/merge, passport photo resizing, signature cropping, text OCR, and secure WhatsApp file sharing. Ask me how to use any of these!";
   };
 
+  const getMatchingTools = (text: string) => {
+    const low = text.toLowerCase();
+    const matches: Array<{ id: string; name: string }> = [];
+    
+    if (low.includes("aadhaar mask") || low.includes("mask aadhaar") || low.includes("aadhaar card")) {
+      matches.push({ id: "aadhaar-mask-pdf", name: "Aadhaar Mask PDF" });
+    }
+    if (low.includes("compress") || low.includes("size reducer") || low.includes("shrink")) {
+      matches.push({ id: "compress-pdf", name: "Compress PDF" });
+    }
+    if (low.includes("pan card") || low.includes("pan size") || low.includes("nsdl")) {
+      matches.push({ id: "pan-card-resize", name: "PAN Card Resize" });
+    }
+    if (low.includes("ocr") || low.includes("scan-to-text") || low.includes("extract text")) {
+      matches.push({ id: "ocr", name: "OCR Scan-to-Text" });
+    }
+    if (low.includes("background") || low.includes("bg remove") || low.includes("transparent")) {
+      matches.push({ id: "remove-background", name: "Remove Background" });
+    }
+    if (low.includes("zip") || low.includes("scholarship") || low.includes("compile")) {
+      matches.push({ id: "scholarship-zip", name: "Scholarship ZIP Maker" });
+    }
+    if (low.includes("merge") || low.includes("combine") || low.includes("join pdf")) {
+      matches.push({ id: "merge-pdf", name: "Merge PDF" });
+    }
+    if (low.includes("resize photo") || low.includes("resize image") || low.includes("crop")) {
+      matches.push({ id: "resize-image", name: "Resize Image" });
+    }
+
+    return Array.from(new Map(matches.map(m => [m.id, m])).values());
+  };
+
   const formatText = (text: string) => {
-    // Process markdown headers and lists beautifully
     return text.split("\n\n").map((paragraph, pIdx) => {
       // List detection
       if (paragraph.startsWith("- ")) {
         return (
-          <ul key={pIdx} className="list-disc pl-5 mb-2.5 space-y-1 text-slate-300">
+          <ul key={pIdx} className="list-disc pl-5 mb-2.5 space-y-1 text-slate-350">
             {paragraph.split("\n").map((li, lIdx) => (
               <li key={lIdx}>{li.replace("- ", "").replace(/\*\*(.*?)\*\*/g, "$1")}</li>
             ))}
@@ -164,7 +201,7 @@ export function FileNovaAssistant({ isOpen, onClose }: FileNovaAssistantProps) {
       }
       if (paragraph.startsWith("1. ")) {
         return (
-          <ol key={pIdx} className="list-decimal pl-5 mb-2.5 space-y-1 text-slate-300">
+          <ol key={pIdx} className="list-decimal pl-5 mb-2.5 space-y-1 text-slate-355">
             {paragraph.split("\n").map((li, lIdx) => (
               <li key={lIdx}>{li.substring(3).replace(/\*\*(.*?)\*\*/g, "$1")}</li>
             ))}
@@ -223,36 +260,60 @@ export function FileNovaAssistant({ isOpen, onClose }: FileNovaAssistantProps) {
             ref={scrollRef}
             className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-950/20"
           >
-            {messages.map((m) => (
-              <div
-                key={m.id}
-                className={`flex gap-3 items-start ${m.sender === "user" ? "flex-row-reverse" : "flex-row"}`}
-              >
+            {messages.map((m) => {
+              const ctas = m.sender === "bot" ? getMatchingTools(m.text) : [];
+              return (
                 <div
-                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border text-xs font-bold ${
-                    m.sender === "user"
-                      ? "bg-slate-800 border-slate-700 text-slate-200"
-                      : "bg-primary/20 border-primary/35 text-primary"
-                  }`}
+                  key={m.id}
+                  className={`flex gap-3 items-start ${m.sender === "user" ? "flex-row-reverse" : "flex-row"}`}
                 >
-                  {m.sender === "user" ? <User className="h-4.5 w-4.5" /> : <Bot className="h-4.5 w-4.5" />}
-                </div>
-                <div className="max-w-[75%] space-y-1">
                   <div
-                    className={`rounded-2xl p-3 shadow-panel text-xs ${
+                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border text-xs font-bold ${
                       m.sender === "user"
-                        ? "bg-primary text-primary-foreground font-semibold"
-                        : "bg-slate-900/90 border border-slate-800"
+                        ? "bg-slate-800 border-slate-700 text-slate-200"
+                        : "bg-primary/20 border-primary/35 text-primary"
                     }`}
                   >
-                    {m.sender === "user" ? <p>{m.text}</p> : formatText(m.text)}
+                    {m.sender === "user" ? <User className="h-4.5 w-4.5" /> : <Bot className="h-4.5 w-4.5" />}
                   </div>
-                  <span className="text-[9px] text-muted-foreground block px-1">
-                    {m.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                  </span>
+                  <div className="max-w-[75%] space-y-1">
+                    <div
+                      className={`rounded-2xl p-3 shadow-panel text-xs ${
+                        m.sender === "user"
+                          ? "bg-primary text-primary-foreground font-semibold"
+                          : "bg-slate-900/90 border border-slate-800"
+                      }`}
+                    >
+                      {m.sender === "user" ? <p>{m.text}</p> : formatText(m.text)}
+
+                      {/* Dynamic CTA triggers */}
+                      {ctas.length > 0 && (
+                        <div className="flex flex-col gap-1.5 mt-3 pt-2.5 border-t border-white/5">
+                          {ctas.map((cta) => (
+                            <button
+                              key={cta.id}
+                              onClick={() => {
+                                setLocation(`/${cta.id}`);
+                                onClose();
+                                toast.success(`Redirected to ${cta.name} workspace.`);
+                                analytics.logEvent("copilot", "chat_cta_launch", { toolId: cta.id });
+                              }}
+                              className="w-full px-2.5 py-1.5 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white border border-indigo-500/25 rounded-xl text-[10px] font-black uppercase tracking-wider transition cursor-pointer flex items-center justify-between"
+                            >
+                              <span className="flex items-center gap-1"><Sparkles className="h-3.5 w-3.5 text-indigo-400" /> Launch {cta.name}</span>
+                              <ArrowRight className="h-3 w-3" />
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <span className="text-[9px] text-muted-foreground block px-1">
+                      {m.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
             {isTyping && (
               <div className="flex gap-3 items-start">

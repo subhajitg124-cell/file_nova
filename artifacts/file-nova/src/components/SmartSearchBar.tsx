@@ -3,6 +3,8 @@ import { Search, ArrowRight, Clock, X, TrendingUp } from "lucide-react";
 import { useLocation } from "wouter";
 import { useTranslation } from "@/lib/i18n";
 import { TOOLS } from "./PopularToolsGrid";
+import { trieSearch } from "@/lib/trieSearch";
+import { analytics } from "@/lib/analytics";
 
 interface Suggestion {
   type: "tool" | "recent" | "trending";
@@ -31,19 +33,6 @@ function loadRecent(): string[] {
 function saveRecent(query: string) {
   const prev = loadRecent().filter((r) => r !== query).slice(0, 4);
   localStorage.setItem(RECENT_KEY, JSON.stringify([query, ...prev]));
-}
-
-function matchScore(text: string, query: string): number {
-  const t = text.toLowerCase();
-  const q = query.toLowerCase().trim();
-  if (!q) return 0;
-  if (t === q) return 100;
-  if (t.startsWith(q)) return 80;
-  if (t.includes(q)) return 60;
-  
-  const words = q.split(/\s+/);
-  const hits = words.filter((w) => t.includes(w)).length;
-  return hits > 0 ? (hits / words.length) * 40 : 0;
 }
 
 interface SmartSearchBarProps {
@@ -79,19 +68,18 @@ export function SmartSearchBar({
       return [...recentSugs, ...TRENDING.slice(0, 4 - recentSugs.length)];
     }
 
-    const toolMatches: (Suggestion & { score: number })[] = TOOLS.map((t) => ({
-      type: "tool" as const,
-      label: t.label,
-      description: t.description,
-      route: t.route,
-      score: Math.max(
-        matchScore(t.label, query),
-        matchScore(t.description, query)
-      ),
-    }))
-      .filter((t) => t.score > 0)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 6);
+    // Dynamic trieSearch lookup for prefixes, synonyms, and typos
+    const trieMatches = trieSearch.search(query);
+    const toolMatches: Suggestion[] = trieMatches.map((tool) => {
+      // Cross reference with local TOOLS list to fetch correct route
+      const tInfo = TOOLS.find((t) => t.route.replace("/", "") === tool.id || t.route === `/${tool.id}`);
+      return {
+        type: "tool" as const,
+        label: tool.name,
+        description: tool.description,
+        route: tInfo ? tInfo.route : `/${tool.id}`,
+      };
+    }).slice(0, 6);
 
     return toolMatches;
   }, [query, recent])();
@@ -105,6 +93,8 @@ export function SmartSearchBar({
     setRecent(loadRecent());
     setOpen(false);
     
+    analytics.logEvent("search", "search_redirect", { query: term, matchName: sug.label });
+
     if (sug.route) {
       setLocation(sug.route);
     } else {
@@ -133,10 +123,14 @@ export function SmartSearchBar({
       } else if (query.trim()) {
         saveRecent(query.trim());
         setOpen(false);
+        analytics.logEvent("search", "search_input", { query: query.trim() });
         const best = TOOLS.find((t) =>
           t.label.toLowerCase().includes(query.trim().toLowerCase())
         );
-        if (best) setLocation(best.route);
+        if (best) {
+          analytics.logEvent("search", "search_redirect", { query: query.trim(), matchName: best.label });
+          setLocation(best.route);
+        }
       }
     } else if (e.key === "Escape") {
       setOpen(false);
