@@ -136,7 +136,7 @@ export function UserProfileDropdown() {
 
       {/* Dropdown Menu */}
       {dropdownOpen && user && (
-        <div className="absolute right-0 mt-4 w-72 rounded-2xl border border-border bg-card/95 backdrop-blur-xl shadow-premium p-4 z-50 animate-scale-in">
+        <div className="absolute right-0 top-full mt-2 w-72 rounded-2xl border border-border bg-card/95 backdrop-blur-xl shadow-premium p-4 z-50 animate-scale-in">
           {/* User info */}
           <div className="border-b border-border pt-1 pb-3.5 mb-3.5">
             <p className="text-xs font-black text-foreground truncate">{user.name || "FileNova User"}</p>
