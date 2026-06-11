@@ -4,6 +4,20 @@ import path from 'path';
 import {defineConfig} from 'vite';
 import { vitePrerenderPlugin } from 'vite-prerender-plugin';
 
+if (typeof globalThis.DOMMatrix === 'undefined') {
+  globalThis.DOMMatrix = class DOMMatrix {
+    a = 1; b = 0; c = 0; d = 1; e = 0; f = 0;
+    static fromMatrix() { return new DOMMatrix(); }
+    static fromFloat32Array() { return new DOMMatrix(); }
+    static fromFloat64Array() { return new DOMMatrix(); }
+    translate() { return this; }
+    scale() { return this; }
+    multiply() { return this; }
+    inverse() { return this; }
+    transformPoint(p: any) { return p; }
+  } as any;
+}
+
 export default defineConfig(() => {
   return {
     plugins: [
@@ -12,6 +26,29 @@ export default defineConfig(() => {
       vitePrerenderPlugin({
         prerenderScript: path.resolve(__dirname, 'src/entry-prerender.tsx'),
         renderTarget: '#root',
+        additionalPrerenderRoutes: [
+          "/merge-pdf",
+          "/split-pdf",
+          "/compress-pdf",
+          "/rotate-pdf",
+          "/protect-pdf",
+          "/unlock-pdf",
+          "/aadhaar-mask",
+          "/aadhaar-mask-pdf",
+          "/pan-card-resize",
+          "/scholarship-zip",
+          "/ocr",
+          "/resize-photo",
+          "/resize-image",
+          "/ai-background-remover",
+          "/remove-background",
+          "/pdf-to-word",
+          "/pdf-to-jpg",
+          "/jpg-to-pdf",
+          "/word-to-pdf",
+          "/compress-for-upload",
+          "/government-form-fill"
+        ]
       })
     ],
     root: __dirname,

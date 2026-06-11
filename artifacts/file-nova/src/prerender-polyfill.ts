@@ -1,7 +1,9 @@
 // src/prerender-polyfill.ts
+console.log("=== PRERENDER POLYFILL RUNNING ===");
 
 // Polyfill DOMMatrix for Node.js pre-rendering/SSR environments (required by pdfjs-dist)
 if (typeof globalThis.DOMMatrix === 'undefined') {
+  console.log("Polyfilling DOMMatrix...");
   globalThis.DOMMatrix = class DOMMatrix {
     a: number = 1;
     b: number = 0;
