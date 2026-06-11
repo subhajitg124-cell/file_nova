@@ -233,7 +233,7 @@ function Router() {
         <Route path="/ai-pdf-summary">
           <React.Suspense fallback={<LoadingScreen />}><AiPdfSummary /></React.Suspense>
         </Route>
-        <Route path="/resize-image">
+        <Route path="/resize-photo">
           <React.Suspense fallback={<LoadingScreen />}><ResizeImage /></React.Suspense>
         </Route>
         <Route path="/word-to-pdf">
@@ -258,7 +258,12 @@ function Router() {
         <Route path="/merge"><Redirect to="/merge-pdf" /></Route>
         <Route path="/compress"><Redirect to="/compress-pdf" /></Route>
         <Route path="/split"><Redirect to="/split-pdf" /></Route>
-        <Route path="/resize-image"><Redirect to="/resize-image" /></Route>
+        <Route path="/resize-image"><Redirect to="/resize-photo" /></Route>
+        <Route path="/compress-image"><Redirect to="/resize-photo" /></Route>
+        <Route path="/document-converter"><Redirect to="/document-tools" /></Route>
+        <Route path="/image-converter"><Redirect to="/image-tools" /></Route>
+        <Route path="/ocr-pdf"><Redirect to="/ocr" /></Route>
+        <Route path="/pdf-merge"><Redirect to="/merge-pdf" /></Route>
         <Route path="/word-to-pdf"><Redirect to="/word-to-pdf" /></Route>
         <Route path="/image-to-pdf"><Redirect to="/jpg-to-pdf" /></Route>
         <Route path="/pdf-to-image"><Redirect to="/pdf-to-jpg" /></Route>
@@ -272,8 +277,8 @@ function Router() {
         <Route path="/tools/pdf-to-images"><Redirect to="/pdf-to-jpg" /></Route>
         <Route path="/tools/ocr"><Redirect to="/ocr" /></Route>
         <Route path="/tools/pdf-ocr"><Redirect to="/ocr" /></Route>
-        <Route path="/tools/resize-image"><Redirect to="/resize-image" /></Route>
-        <Route path="/tools/resize-photo"><Redirect to="/resize-image" /></Route>
+        <Route path="/tools/resize-image"><Redirect to="/resize-photo" /></Route>
+        <Route path="/tools/resize-photo"><Redirect to="/resize-photo" /></Route>
         <Route path="/tools/word-to-pdf"><Redirect to="/word-to-pdf" /></Route>
         <Route path="/tools/docx-to-pdf"><Redirect to="/word-to-pdf" /></Route>
         <Route path="/tools/scholarship-zip"><Redirect to="/scholarship-zip" /></Route>
