@@ -6,6 +6,8 @@ import Home from "@/pages/SimpleHome";
 import Workspace from "@/pages/Home";
 import ToolsPage from "@/pages/ToolsPage";
 import ToolPage from "@/pages/ToolPage";
+import { ToolSEO } from "@/seo/ToolSEO";
+import { ToolStructuredData } from "@/seo/ToolStructuredData";
 
 const MergePdf = React.lazy(() => import("@/tools/pdf/MergePDFWorkspace"));
 const SplitPdf = React.lazy(() => import("@/tools/pdf/SplitPDFWorkspace"));
@@ -169,6 +171,8 @@ function Router() {
   return (
     <>
       <ScrollToTop />
+      <ToolSEO />
+      <ToolStructuredData />
       <Switch>
         <Route path="/" component={Home} />
         <Route path="/workspace" component={Workspace} />
@@ -308,7 +312,7 @@ function Router() {
   );
 }
 
-function App() {
+function App({ ssrPath }: { ssrPath?: string } = {}) {
   const { initialized, fetchMe } = useAuthStore();
   const { 
     isMockMode, 
@@ -328,7 +332,7 @@ function App() {
   const [modalUsage, setModalUsage] = useState(3);
   const [apiStatus, setApiStatus] = useState<"online" | "offline" | "checking">(HAS_BACKEND ? "checking" : "online");
   const [assistantOpen, setAssistantOpen] = useState(false);
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [isOnline, setIsOnline] = useState(() => typeof navigator !== "undefined" ? navigator.onLine : true);
   const [retryTrigger, setRetryTrigger] = useState(0);
 
   useEffect(() => {
@@ -530,7 +534,7 @@ function App() {
         {({ reset }) => (
           <ErrorBoundary onReset={reset}>
             <LazyMotion features={domAnimation}>
-              <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+              <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")} ssrPath={ssrPath}>
                 <LanguageProvider>
                   {!isMockMode && (
                     <ConnectionStatusIndicator 

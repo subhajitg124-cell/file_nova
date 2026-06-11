@@ -101,7 +101,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [privacyModalOpen, setPrivacyModalOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [isOnline, setIsOnline] = useState(() => typeof navigator !== "undefined" ? navigator.onLine : true);
 
   // Polishing states: Compliance tips ticker and image enhancement sliders
   const [tipIndex, setTipIndex] = useState(0);
@@ -246,16 +246,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
     syncIndexedDbFiles();
   }, [currentProject, activeTab, resultFile]);
 
-  // Automated custom SEO injector
-  useEffect(() => {
-    if (currentPlugin && currentPlugin.seoOverride) {
-      document.title = currentPlugin.seoOverride.title;
-      const meta = document.querySelector('meta[name="description"]');
-      if (meta) meta.setAttribute("content", currentPlugin.seoOverride.description);
-    } else {
-      document.title = `${toolName} - Premium FileNova Suite`;
-    }
-  }, [slug, toolName, currentPlugin]);
+
 
   // Load recent processed files from localStorage
   useEffect(() => {

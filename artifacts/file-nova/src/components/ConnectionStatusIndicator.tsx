@@ -7,7 +7,7 @@ interface ConnectionStatusIndicatorProps {
 }
 
 export function ConnectionStatusIndicator({ status, onRetry }: ConnectionStatusIndicatorProps) {
-  const [isNavigatorOnline, setIsNavigatorOnline] = useState(navigator.onLine);
+  const [isNavigatorOnline, setIsNavigatorOnline] = useState(() => typeof navigator !== "undefined" ? navigator.onLine : true);
   const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {

@@ -42,8 +42,6 @@
     { "source": "/image-to-pdf", "destination": "/jpg-to-pdf", "permanent": true },
     { "source": "/pdf-to-image", "destination": "/pdf-to-jpg", "permanent": true },
 
-    { "source": "/resize-image", "destination": "/resize-image", "permanent": true },
-    { "source": "/word-to-pdf", "destination": "/word-to-pdf", "permanent": true },
 
     { "source": "/tools/resize-image", "destination": "/resize-image", "permanent": true },
     { "source": "/tools/word-to-pdf", "destination": "/word-to-pdf", "permanent": true },

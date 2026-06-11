@@ -532,6 +532,10 @@ export const toolContentMap: Record<string, ToolContent> = {
         q: "What format should the PAN card photo be?",
         a: "JPEG/JPG format is preferred for PAN card applications. FileNova outputs JPEG files by default.",
       },
+      {
+        q: "Is it safe to upload my photos to FileNova?",
+        a: "Yes. FileNova processes all image resizing and cropping locally in your browser cache. Your photographs never upload to our servers.",
+      },
     ],
     relatedTools: [
       { label: "Aadhaar Mask PDF", slug: "aadhaar-mask-pdf", icon: "id-badge" },
@@ -831,6 +835,10 @@ export const toolContentMap: Record<string, ToolContent> = {
       {
         q: "What documents are typically needed for scholarship applications?",
         a: "Common requirements include Aadhaar card, latest marksheets, income certificate, caste certificate (if applicable), bank passbook, and bonafide certificate from your institution.",
+      },
+      {
+        q: "Is it safe to compile documents in Scholarship ZIP Maker?",
+        a: "Yes. All file selections, renaming, and ZIP packing take place entirely inside your web browser. Sensitive certificates and documents are never sent to external servers.",
       },
     ],
     relatedTools: [

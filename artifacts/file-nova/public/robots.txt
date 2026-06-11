@@ -1,7 +1,9 @@
 User-agent: *
 Allow: /
 Disallow: /api/
+Disallow: /fast/tools/
 Disallow: /admin/
 Disallow: /dashboard/
+Disallow: /workspace/
 
 Sitemap: https://filenova.in/sitemap.xml

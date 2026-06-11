@@ -2,10 +2,18 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import {defineConfig} from 'vite';
+import { vitePrerenderPlugin } from 'vite-prerender-plugin';
 
 export default defineConfig(() => {
   return {
-    plugins: [react(), tailwindcss()],
+    plugins: [
+      react(),
+      tailwindcss(),
+      vitePrerenderPlugin({
+        prerenderScript: path.resolve(__dirname, 'src/entry-prerender.tsx'),
+        renderTarget: '#root',
+      })
+    ],
     root: __dirname,
     envDir: path.resolve(__dirname, '../../'),
     publicDir: 'public',

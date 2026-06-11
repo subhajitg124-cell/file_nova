@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import {
   GitMerge, Scissors, FileArchive, RotateCw, Lock, Unlock,
   IdCard, Fingerprint, FileCheck2, FileUp, GraduationCap,
@@ -175,13 +175,12 @@ interface ToolCardProps {
 }
 
 function ToolCard({ tool, index }: ToolCardProps) {
-  const [, setLocation] = useLocation();
   const Icon = tool.icon;
   const [hovered, setHovered] = useState(false);
 
   return (
-    <button
-      onClick={() => setLocation(tool.route)}
+    <Link
+      href={tool.route}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       className={`
@@ -194,6 +193,7 @@ function ToolCard({ tool, index }: ToolCardProps) {
         transition-all duration-300 ease-out
         hover:-translate-y-1 hover:scale-[1.02]
         cursor-pointer
+        block
       `}
       style={{
         animationDelay: `${index * 40}ms`,
@@ -256,7 +256,7 @@ function ToolCard({ tool, index }: ToolCardProps) {
           <path d="M2 2h8v8M2 10L10 2" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
         </svg>
       </div>
-    </button>
+    </Link>
   );
 }
 

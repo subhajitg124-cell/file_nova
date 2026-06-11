@@ -1,11 +1,16 @@
 import { createRoot } from "react-dom/client";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { createHead, UnheadProvider } from "@unhead/react/client";
 import App from "./App";
 import "./index.css";
 import "./lib/errorHandler";
 
+const head = createHead();
+
 createRoot(document.getElementById("root")!).render(
   <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ""}>
-    <App />
+    <UnheadProvider head={head}>
+      <App />
+    </UnheadProvider>
   </GoogleOAuthProvider>
 );
