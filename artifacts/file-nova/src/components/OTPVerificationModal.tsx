@@ -147,6 +147,7 @@ export function OTPVerificationModal({ isOpen, onClose, onSuccess }: OTPVerifica
             className="absolute top-4 right-4 h-8 w-8 rounded-full border border-zinc-800 hover:bg-zinc-900 flex items-center justify-center transition cursor-pointer text-zinc-400 hover:text-zinc-200"
           >
             <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
           </button>
         )}
 
@@ -226,8 +227,10 @@ export function OTPVerificationModal({ isOpen, onClose, onSuccess }: OTPVerifica
                 {type === "mobile" ? (
                   <div className="relative">
                     <Smartphone className="absolute left-3.5 top-3.5 h-4 w-4 text-zinc-400" />
+                    <label htmlFor="phone-input" className="sr-only">Phone Number</label>
                     <input
                       type="tel"
+                      id="phone-input"
                       placeholder="e.g. 9876543210"
                       value={target}
                       onChange={(e) => setTarget(e.target.value.replace(/\D/g, "").slice(0, 10))}
@@ -240,8 +243,10 @@ export function OTPVerificationModal({ isOpen, onClose, onSuccess }: OTPVerifica
                 ) : (
                   <div className="relative">
                     <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-zinc-400" />
+                    <label htmlFor="email-input" className="sr-only">Email Address</label>
                     <input
                       type="email"
+                      id="email-input"
                       value={target}
                       onChange={(e) => setTarget(e.target.value)}
                       className="w-full pl-10 pr-4 py-3 bg-zinc-900/80 border border-zinc-800 rounded-xl text-xs font-semibold outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-700"
@@ -302,20 +307,23 @@ export function OTPVerificationModal({ isOpen, onClose, onSuccess }: OTPVerifica
               {/* 4 Digit Boxes */}
               <div className="flex justify-center gap-3 my-2">
                 {otp.map((digit, index) => (
-                  <input
-                    key={index}
-                    ref={inputRefs[index]}
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={1}
-                    value={digit}
-                    onChange={(e) => handleOtpChange(e.target.value, index)}
-                    onKeyDown={(e) => handleKeyDown(e, index)}
-                    className="h-14 w-14 rounded-2xl bg-zinc-900 border border-zinc-800 focus:border-orange-500 focus:ring-1 focus:ring-orange-600/30 text-center text-xl font-bold outline-none text-white transition-all duration-200"
-                    aria-label={`OTP Digit ${index + 1}`}
-                    title={`OTP Digit ${index + 1}`}
-                    placeholder="-"
-                  />
+                  <div key={index} className="relative">
+                    <label htmlFor={`otp-input-${index}`} className="sr-only">{`OTP Digit ${index + 1}`}</label>
+                    <input
+                      id={`otp-input-${index}`}
+                      ref={inputRefs[index]}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={1}
+                      value={digit}
+                      onChange={(e) => handleOtpChange(e.target.value, index)}
+                      onKeyDown={(e) => handleKeyDown(e, index)}
+                      className="h-14 w-14 rounded-2xl bg-zinc-900 border border-zinc-800 focus:border-orange-500 focus:ring-1 focus:ring-orange-600/30 text-center text-xl font-bold outline-none text-white transition-all duration-200"
+                      aria-label={`OTP Digit ${index + 1}`}
+                      title={`OTP Digit ${index + 1}`}
+                      placeholder="-"
+                    />
+                  </div>
                 ))}
               </div>
 

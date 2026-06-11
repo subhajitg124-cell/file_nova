@@ -529,7 +529,7 @@ export default function PricingPage() {
     const couponDiscount = getDynamicCouponDiscount(plan, couponCode);
     const activeCoupon = couponDiscount > 0 ? couponCode.trim().toUpperCase() : undefined;
     
-    startCheckout(plan, activeCoupon);
+    startCheckout(plan as Exclude<PremiumTier, "free">, activeCoupon);
   };
 
   const getPlanPrice = (planId: PremiumTier, originalPrice: number) => {
@@ -706,7 +706,7 @@ export default function PricingPage() {
           if (pendingPlan && pendingPlan !== "free") {
             const couponDiscount = getDynamicCouponDiscount(pendingPlan, couponCode);
             const activeCoupon = couponDiscount > 0 ? couponCode.trim().toUpperCase() : undefined;
-            startCheckout(pendingPlan, activeCoupon);
+            startCheckout(pendingPlan as Exclude<PremiumTier, "free">, activeCoupon);
             setPendingPlan(null);
           }
         }}
