@@ -1,5 +1,6 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
+import fs from 'fs';
 import path from 'path';
 import {defineConfig} from 'vite';
 import { vitePrerenderPlugin } from 'vite-prerender-plugin';
@@ -49,7 +50,35 @@ export default defineConfig(() => {
           "/compress-for-upload",
           "/government-form-fill"
         ]
-      })
+      }),
+      {
+        name: 'vite-plugin-force-exit',
+        closeBundle() {
+          console.log("=== VITE BUILD COMPLETED SUCCESSFULLY ===");
+          try {
+            console.log("Running sitemap update...");
+            const today = new Date().toISOString().split("T")[0];
+            const updateFile = (filePath: string) => {
+              if (fs.existsSync(filePath)) {
+                const xml = fs.readFileSync(filePath, "utf8");
+                const updated = xml.replace(/<lastmod>.*?<\/lastmod>/g, `<lastmod>${today}</lastmod>`);
+                fs.writeFileSync(filePath, updated, "utf8");
+                console.log(`Updated lastmod in ${filePath} → ${today}`);
+              } else {
+                console.log(`Skipping ${filePath} (not found)`);
+              }
+            };
+            updateFile(path.resolve(__dirname, "public/sitemap.xml"));
+            updateFile(path.resolve(__dirname, "dist/sitemap.xml"));
+          } catch (e) {
+            console.error("Sitemap update failed:", e);
+          }
+          console.log("Forcing process exit to prevent hanging...");
+          setTimeout(() => {
+            process.exit(0);
+          }, 100);
+        }
+      }
     ],
     root: __dirname,
     envDir: path.resolve(__dirname, '../../'),
