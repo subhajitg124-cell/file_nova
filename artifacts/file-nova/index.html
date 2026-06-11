@@ -42,20 +42,75 @@
     <meta name="twitter:description" content="Free online PDF merger, compressor, image converter, OCR, and document automation tools." />
     <meta name="twitter:image" content="https://filenova.in/opengraph.jpg" />
 
-    <!-- ✅ SEO: JSON-LD Structured Data (Google Rich Results) -->
+    <!-- ✅ SEO: JSON-LD Structured Data (Google Rich Results & Sitelinks) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "FileNova",
-      "url": "https://filenova.in",
-      "description": "Free online tools to merge PDF, compress PDF, convert images, OCR documents, and automate Indian government workflows.",
-      "inLanguage": ["en", "hi", "bn"],
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://filenova.in/?q={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://filenova.in/#website",
+          "url": "https://filenova.in",
+          "name": "FileNova",
+          "description": "Free online tools to merge PDF, compress PDF, convert images, OCR documents, and automate Indian government workflows.",
+          "inLanguage": ["en", "hi", "bn"],
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://filenova.in/?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@type": "ItemList",
+          "@id": "https://filenova.in/#sitelinks",
+          "name": "Popular PDF and Image Tools",
+          "description": "The most popular tools used on FileNova.",
+          "itemListElement": [
+            {
+              "@type": "SiteNavigationElement",
+              "position": 1,
+              "name": "Merge PDF files",
+              "url": "https://filenova.in/merge-pdf",
+              "description": "Combine PDFs in the order you want with the easiest PDF merger online."
+            },
+            {
+              "@type": "SiteNavigationElement",
+              "position": 2,
+              "name": "Compress PDF files",
+              "url": "https://filenova.in/compress-pdf",
+              "description": "Reduce PDF size while maintaining quality."
+            },
+            {
+              "@type": "SiteNavigationElement",
+              "position": 3,
+              "name": "PDF to JPG",
+              "url": "https://filenova.in/pdf-to-jpg",
+              "description": "Convert PDF pages to JPG images."
+            },
+            {
+              "@type": "SiteNavigationElement",
+              "position": 4,
+              "name": "JPG to PDF",
+              "url": "https://filenova.in/jpg-to-pdf",
+              "description": "Convert JPG images to PDF in seconds."
+            },
+            {
+              "@type": "SiteNavigationElement",
+              "position": 5,
+              "name": "PDF to Word Converter",
+              "url": "https://filenova.in/pdf-to-word",
+              "description": "Convert PDF to editable Word document."
+            },
+            {
+              "@type": "SiteNavigationElement",
+              "position": 6,
+              "name": "Split PDF files",
+              "url": "https://filenova.in/split-pdf",
+              "description": "Separate one page or a whole set for easy split."
+            }
+          ]
+        }
+      ]
     }
     </script>
 
