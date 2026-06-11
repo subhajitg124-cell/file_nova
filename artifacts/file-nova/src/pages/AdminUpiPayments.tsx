@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { ChevronLeft, CheckCircle2, Loader, RefreshCw } from "lucide-react";
 import { useAdmin } from "@/lib/admin";
 import { toast } from "sonner";
+import { AdminLayout } from "@/components/AdminLayout";
 
 type UpiPayment = {
   id: string;
@@ -76,86 +77,76 @@ export default function AdminUpiPayments() {
   if (!admin.isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-background bg-mesh text-foreground">
-      <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-          <button
-            onClick={() => setLocation("/nova-control")}
-            className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-bold hover:bg-muted cursor-pointer"
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Admin Console
-          </button>
+    <AdminLayout title="UPI Verification">
+      <div className="space-y-6 animate-fade-in">
+        
+        {/* Header Actions */}
+        <div className="flex justify-between items-center flex-wrap gap-4">
+          <div>
+            <h2 className="text-xl font-black text-white tracking-tight">Manual Payment Verification</h2>
+            <p className="text-xs text-slate-400 mt-0.5">Approve offline UPI transactions with UTR ID verification to activate plans</p>
+          </div>
           <button
             onClick={loadPayments}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-black text-primary-foreground hover:opacity-90 cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-xl border border-white/[0.06] bg-slate-900/60 hover:bg-slate-900 px-4 py-2.5 text-xs font-bold text-slate-350 hover:text-white transition cursor-pointer"
           >
             <RefreshCw className="h-3.5 w-3.5" />
-            Refresh
+            <span>Refresh</span>
           </button>
         </div>
-      </header>
 
-      <main className="mx-auto max-w-7xl px-4 py-10 space-y-6">
-        <div>
-          <p className="text-xs font-black uppercase tracking-wider text-primary">Manual Verification</p>
-          <h1 className="mt-2 text-3xl font-black tracking-tight">Pending UPI Payments</h1>
-          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-            Approving a payment activates the selected plan for 30 days.
-          </p>
-        </div>
-
-        <div className="overflow-hidden rounded-2xl border border-border bg-card/70 shadow-premium">
+        {/* UPI Payments List */}
+        <div className="rounded-2xl border border-white/[0.06] bg-slate-900/40 p-5 shadow-sm">
           {loading ? (
-            <div className="flex items-center justify-center gap-3 p-10 text-sm font-bold text-muted-foreground">
-              <Loader className="h-5 w-5 animate-spin text-primary" />
-              Loading pending payments
+            <div className="text-center py-10 text-xs font-bold text-slate-500">
+              <Loader className="mx-auto h-6 w-6 animate-spin text-indigo-400 mb-2" />
+              <span>Fetching pending transactions from Razorpay/UPI queues...</span>
             </div>
           ) : payments.length === 0 ? (
-            <div className="p-10 text-center">
-              <CheckCircle2 className="mx-auto h-10 w-10 text-emerald-500" />
-              <p className="mt-3 text-sm font-black">No pending UPI payments</p>
-              <p className="mt-1 text-xs text-muted-foreground">New manual payment requests will appear here.</p>
+            <div className="py-12 text-center text-slate-450">
+              <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-500 mb-3 opacity-80" />
+              <p className="font-bold text-white text-sm">No pending payments for verification</p>
+              <p className="text-[10px] text-slate-500 mt-1">Manual bank transfer requests will register here automatically.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[780px] text-left text-sm">
-                <thead className="border-b border-border bg-muted/40 text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+            <div className="overflow-x-auto rounded-xl border border-white/[0.06] bg-slate-950">
+              <table className="w-full min-w-[700px] text-left text-xs">
+                <thead className="bg-white/[0.02] text-[9px] font-black uppercase tracking-wider text-slate-400 border-b border-white/[0.05]">
                   <tr>
-                    <th className="px-4 py-3">Email</th>
-                    <th className="px-4 py-3">UTR ID</th>
-                    <th className="px-4 py-3">Plan</th>
-                    <th className="px-4 py-3">Amount</th>
-                    <th className="px-4 py-3">Date</th>
-                    <th className="px-4 py-3 text-right">Action</th>
+                    <th className="px-4 py-3.5">Customer Email</th>
+                    <th className="px-4 py-3.5">UTR ID (Reference)</th>
+                    <th className="px-4 py-3.5">Requested Plan</th>
+                    <th className="px-4 py-3.5">Amount Paid</th>
+                    <th className="px-4 py-3.5">Submission Date</th>
+                    <th className="px-4 py-3.5 text-right">Verification Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border">
+                <tbody className="divide-y divide-white/[0.04] text-slate-300">
                   {payments.map((payment) => (
-                    <tr key={payment.id} className="hover:bg-muted/30">
-                      <td className="px-4 py-4 font-bold">{payment.email}</td>
-                      <td className="px-4 py-4 font-mono text-xs">{payment.utrId}</td>
+                    <tr key={payment.id} className="hover:bg-white/[0.01] transition-colors">
+                      <td className="px-4 py-4 font-bold text-white">{payment.email}</td>
+                      <td className="px-4 py-4 font-mono text-slate-400">{payment.utrId}</td>
                       <td className="px-4 py-4">
-                        <span className="rounded-full border border-indigo-500/20 bg-indigo-500/10 px-2.5 py-1 text-[10px] font-black uppercase text-primary">
+                        <span className="rounded-lg border border-indigo-500/20 bg-indigo-500/10 px-2.5 py-1 text-[10px] font-black uppercase text-indigo-400">
                           {payment.plan}
                         </span>
                       </td>
-                      <td className="px-4 py-4 font-black">Rs {payment.amount}</td>
-                      <td className="px-4 py-4 text-xs text-muted-foreground">
-                        {new Date(payment.createdAt).toLocaleString()}
+                      <td className="px-4 py-4 text-white font-bold">₹{payment.amount}</td>
+                      <td className="px-4 py-4 text-slate-500">
+                        {new Date(payment.createdAt).toLocaleString("en-IN")}
                       </td>
                       <td className="px-4 py-4 text-right">
                         <button
                           onClick={() => approvePayment(payment.id)}
                           disabled={approvingId === payment.id}
-                          className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-black text-primary-foreground hover:opacity-90 disabled:opacity-60 cursor-pointer"
+                          className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-2 text-xs font-black text-white hover:opacity-90 disabled:opacity-50 transition cursor-pointer shadow-md shadow-indigo-500/10"
                         >
                           {approvingId === payment.id ? (
                             <Loader className="h-3.5 w-3.5 animate-spin" />
                           ) : (
                             <CheckCircle2 className="h-3.5 w-3.5" />
                           )}
-                          Approve
+                          <span>Approve Transaction</span>
                         </button>
                       </td>
                     </tr>
@@ -165,7 +156,8 @@ export default function AdminUpiPayments() {
             </div>
           )}
         </div>
-      </main>
-    </div>
+
+      </div>
+    </AdminLayout>
   );
 }

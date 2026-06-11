@@ -1101,3 +1101,27 @@ header[class*="sticky"] {
   animation: fadeSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* ── Custom Console Scrollbars & Terminal UI Styles ── */
+.terminal-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.terminal-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+.terminal-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 99px;
+}
+.terminal-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ── Custom Glows for Cards ── */
+.glass-glow-indigo {
+  box-shadow: 0 8px 32px 0 rgba(99, 102, 241, 0.08), 0 1px 0 0 rgba(255, 255, 255, 0.05) inset;
+}
+.glass-glow-emerald {
+  box-shadow: 0 8px 32px 0 rgba(16, 185, 129, 0.08), 0 1px 0 0 rgba(255, 255, 255, 0.05) inset;
+}
+
+
