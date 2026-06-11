@@ -21,7 +21,17 @@ const iconMap: Record<string, React.ReactNode> = {
 };
 
 export const StepByStepGuide: React.FC<StepByStepGuideProps> = ({ title, steps, toolSlug }) => {
-  const { tText } = useTranslation();
+  const handleStartNow = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const workspace = document.getElementById('workspace-area');
+    if (workspace) {
+      workspace.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const fileInput = workspace.querySelector('input[type="file"]');
+      if (fileInput) {
+        (fileInput as HTMLInputElement).click();
+      }
+    }
+  };
 
   return (
     <div className="bg-card border border-border/80 rounded-3xl p-6 sm:p-8 shadow-lg mb-12">
@@ -74,15 +84,15 @@ export const StepByStepGuide: React.FC<StepByStepGuideProps> = ({ title, steps, 
       {/* CTA */}
       <div className="mt-8 pt-6 border-t border-border text-center">
         <p className="text-xs text-muted-foreground mb-4">
-          Ready to get started? Upload your file above to begin.
+          Ready to get started? Upload your file below to begin.
         </p>
-        <Link 
-          href={`/${toolSlug}`}
-          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-xl hover:opacity-90 transition shadow-glow text-sm"
+        <button 
+          onClick={handleStartNow}
+          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-xl hover:opacity-90 transition shadow-glow text-sm cursor-pointer"
         >
           <Upload className="h-4 w-4" />
           Start Now — It's Free
-        </Link>
+        </button>
       </div>
     </div>
   );

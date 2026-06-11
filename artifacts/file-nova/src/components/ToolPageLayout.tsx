@@ -320,7 +320,7 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
          )}
 
          {/* Workspace Area */}
-         <div className="bg-card border border-border/80 rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden mb-12">
+         <div id="workspace-area" className="bg-card border border-border/80 rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden mb-12">
            {/* Workspace Accent Glow */}
            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-30" />
 
