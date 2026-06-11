@@ -17,6 +17,7 @@ export const subscriptionsTable = pgTable("subscriptions", {
   couponCode: varchar("coupon_code", { length: 20 }), // Coupon code used for this subscription
   currentPeriodStart: timestamp("current_period_start", { withTimezone: true }),
   currentPeriodEnd: timestamp("current_period_end", { withTimezone: true }),
+  lastRenewalNotificationSentAt: timestamp("last_renewal_notification_sent_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

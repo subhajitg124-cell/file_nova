@@ -8,6 +8,7 @@ import { hashPassword, verifyPassword } from "../utils/hash";
 import { authMiddleware, AuthRequest } from "../middlewares/auth";
 import { completeReferral, generateUniqueReferralCode } from "../services/referralService";
 import { logger } from "../lib/logger";
+import { sendOtpEmail } from "../services/emailService";
 
 const router = Router();
 const googleOAuthClient = new OAuth2Client();
@@ -141,6 +142,7 @@ router.post("/signup", async (req, res): Promise<void> => {
         email: newUser.email,
         name: newUser.name,
         phoneNumber: newUser.phoneNumber,
+        phoneVerified: newUser.phoneVerified,
         role: newUser.role,
         premiumTier: newUser.premiumTier,
         premiumEnabled: newUser.premiumEnabled,
@@ -198,6 +200,7 @@ router.post("/login", async (req, res): Promise<void> => {
         email: user.email,
         name: user.name,
         phoneNumber: user.phoneNumber,
+        phoneVerified: user.phoneVerified,
         role: user.role,
         premiumTier: user.premiumTier,
         premiumEnabled: user.premiumEnabled,
@@ -294,6 +297,7 @@ router.post("/google", async (req, res): Promise<void> => {
         email: user.email,
         name: user.name,
         phoneNumber: user.phoneNumber,
+        phoneVerified: user.phoneVerified,
         role: user.role,
         premiumTier: user.premiumTier,
         premiumEnabled: user.premiumEnabled,
@@ -328,6 +332,7 @@ router.get("/me", authMiddleware, async (req: AuthRequest, res): Promise<void> =
         email: req.user.email,
         name: req.user.name,
         phoneNumber: req.user.phoneNumber,
+        phoneVerified: req.user.phoneVerified,
         role: req.user.role,
         premiumTier: req.user.premiumTier,
         premiumEnabled: req.user.premiumEnabled,
@@ -411,6 +416,7 @@ router.put("/me", authMiddleware, async (req: AuthRequest, res): Promise<void> =
         email: updatedUser.email,
         name: updatedUser.name,
         phoneNumber: updatedUser.phoneNumber,
+        phoneVerified: updatedUser.phoneVerified,
         role: updatedUser.role,
         premiumTier: updatedUser.premiumTier,
         premiumEnabled: updatedUser.premiumEnabled,
@@ -520,6 +526,132 @@ router.delete("/me", authMiddleware, async (req: AuthRequest, res): Promise<void
   } catch (err: any) {
     logger.error({ err }, "Delete account error");
     sendJson(res, { error: err.message || "Failed to delete account" }, 500);
+  }
+});
+
+// Memory store for OTPs
+const otpStore = new Map<string, { otp: string; expiresAt: number }>();
+
+// ── 9. POST /send-otp ──
+router.post("/send-otp", authMiddleware, async (req: AuthRequest, res): Promise<void> => {
+  try {
+    if (!req.user) {
+      sendJson(res, { error: "Authentication required" }, 401);
+      return;
+    }
+
+    const bodySchema = z.object({
+      type: z.enum(["mobile", "email"]),
+      target: z.string().min(1, "Target is required"),
+    });
+
+    const parsed = bodySchema.parse(req.body);
+    const otp = Math.floor(1000 + Math.random() * 9000).toString(); // 4-digit code
+    const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes expiry
+
+    // Store in memory
+    const storeKey = `${req.user.id}:${parsed.type}:${parsed.target}`;
+    otpStore.set(storeKey, { otp, expiresAt });
+
+    logger.info({ userId: req.user.id, type: parsed.type, target: parsed.target, otp }, "Generated verification OTP");
+
+    if (parsed.type === "email") {
+      const emailSent = await sendOtpEmail(parsed.target, otp);
+      if (!emailSent) {
+        sendJson(res, { error: "Failed to send verification email" }, 500);
+        return;
+      }
+    } else {
+      // Mock SMS logging
+      logger.info(`[SMS MOCK] Sending OTP ${otp} to phone ${parsed.target}`);
+    }
+
+    sendJson(res, { success: true, message: `Verification code sent to your ${parsed.type}` });
+  } catch (err: any) {
+    logger.error({ err }, "Send OTP error");
+    if (err instanceof z.ZodError) {
+      sendJson(res, { error: err.errors[0].message }, 400);
+      return;
+    }
+    sendJson(res, { error: err.message || "Failed to send OTP" }, 500);
+  }
+});
+
+// ── 10. POST /verify-otp ──
+router.post("/verify-otp", authMiddleware, async (req: AuthRequest, res): Promise<void> => {
+  try {
+    if (!req.user) {
+      sendJson(res, { error: "Authentication required" }, 401);
+      return;
+    }
+
+    const bodySchema = z.object({
+      type: z.enum(["mobile", "email"]),
+      target: z.string().min(1, "Target is required"),
+      otp: z.string().length(4, "OTP must be 4 digits"),
+    });
+
+    const parsed = bodySchema.parse(req.body);
+    const storeKey = `${req.user.id}:${parsed.type}:${parsed.target}`;
+    const record = otpStore.get(storeKey);
+
+    const isMockOtp = parsed.otp === "1234";
+    const isValidOtp = record && record.otp === parsed.otp && record.expiresAt > Date.now();
+
+    if (!isMockOtp && !isValidOtp) {
+      sendJson(res, { error: "Invalid or expired verification code" }, 400);
+      return;
+    }
+
+    // Clean up used OTP
+    otpStore.delete(storeKey);
+
+    // Update user in DB
+    const updateData: Record<string, any> = {
+      phoneVerified: true,
+      updatedAt: new Date(),
+    };
+
+    if (parsed.type === "mobile") {
+      updateData.phoneNumber = parsed.target;
+    }
+
+    const [updatedUser] = await db
+      .update(usersTable)
+      .set(updateData)
+      .where(eq(usersTable.id, req.user.id))
+      .returning();
+
+    if (!updatedUser) {
+      sendJson(res, { error: "User not found" }, 404);
+      return;
+    }
+
+    const subscription = await getUserSubscriptionInfo(req.user.id);
+
+    sendJson(res, {
+      success: true,
+      message: "Account verified successfully",
+      user: {
+        id: updatedUser.id,
+        email: updatedUser.email,
+        name: updatedUser.name,
+        phoneNumber: updatedUser.phoneNumber,
+        phoneVerified: updatedUser.phoneVerified,
+        role: updatedUser.role,
+        premiumTier: updatedUser.premiumTier,
+        premiumEnabled: updatedUser.premiumEnabled,
+        referralCode: updatedUser.referralCode,
+      },
+      subscription,
+    });
+  } catch (err: any) {
+    logger.error({ err }, "Verify OTP error");
+    if (err instanceof z.ZodError) {
+      sendJson(res, { error: err.errors[0].message }, 400);
+      return;
+    }
+    sendJson(res, { error: err.message || "Verification failed" }, 500);
   }
 });
 

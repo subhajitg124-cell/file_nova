@@ -11,6 +11,7 @@ export interface UserProfile {
   email: string;
   name: string | null;
   phoneNumber: string | null;
+  phoneVerified: boolean;
   role: 'user' | 'operator' | 'admin' | 'super_admin';
   premiumTier: 'free' | 'basic' | 'pro' | 'elite';
   premiumEnabled: boolean;
@@ -43,6 +44,8 @@ interface AuthState {
   updateProfile: (name: string | null, phoneNumber: string | null) => Promise<boolean>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<boolean>;
   deleteAccount: () => Promise<boolean>;
+  sendOtpCode: (type: "mobile" | "email", target: string) => Promise<boolean>;
+  verifyUserAccount: (type: "mobile" | "email", target: string, otp: string) => Promise<boolean>;
 }
 
 
@@ -63,6 +66,7 @@ const createLocalUser = (email: string, name: string | null, phoneNumber: string
   email,
   name,
   phoneNumber,
+  phoneVerified: false,
   role: 'user',
   premiumTier: 'free',
   premiumEnabled: false,
@@ -77,6 +81,7 @@ const processUser = (user: UserProfile | null): UserProfile | null => {
       role: 'super_admin',
       premiumTier: 'elite',
       premiumEnabled: true,
+      phoneVerified: true,
     };
   }
   return user;
@@ -513,6 +518,76 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       return true;
     } catch (err: any) {
       set({ error: err.message || 'Failed to delete account' });
+      return false;
+    } finally {
+      set({ loading: false });
+    }
+  },
+  sendOtpCode: async (type, target) => {
+    set({ loading: true, error: null });
+    try {
+      if (isMockActive()) {
+        return true;
+      }
+
+      const res = await safeFetch(`${BACKEND_URL}/api/send-otp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+        credentials: 'include',
+        body: JSON.stringify({ type, target }),
+      });
+      const data = await safeJsonParse(res);
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to send verification code');
+      }
+      return true;
+    } catch (err: any) {
+      set({ error: err.message || 'Failed to send verification code' });
+      return false;
+    } finally {
+      set({ loading: false });
+    }
+  },
+  verifyUserAccount: async (type, target, otp) => {
+    set({ loading: true, error: null });
+    try {
+      if (isMockActive()) {
+        const current = get().user;
+        if (!current) throw new Error('Please log in first.');
+        const updated = {
+          ...current,
+          phoneVerified: true,
+          phoneNumber: type === "mobile" ? target : current.phoneNumber
+        };
+        setLocalSession(updated);
+        set({ user: updated });
+        return true;
+      }
+
+      const res = await safeFetch(`${BACKEND_URL}/api/verify-otp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+        credentials: 'include',
+        body: JSON.stringify({ type, target, otp }),
+      });
+      const data = await safeJsonParse(res);
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Verification failed');
+      }
+      const processedUser = processUser(data.user);
+      set({
+        user: processedUser,
+        subscription: processSubscription(data.subscription, processedUser),
+      });
+      return true;
+    } catch (err: any) {
+      set({ error: err.message || 'Verification failed' });
       return false;
     } finally {
       set({ loading: false });

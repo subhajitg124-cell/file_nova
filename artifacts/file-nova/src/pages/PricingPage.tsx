@@ -12,6 +12,7 @@ import { useAdmin } from "@/lib/admin";
 import { useAuthStore } from "@/store/useAuthStore";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
 import { AuthModal } from "@/components/AuthModal";
+import { OTPVerificationModal } from "@/components/OTPVerificationModal";
 import { toast } from "sonner";
 import { BACKEND_URL, HAS_BACKEND } from "@/lib/api";
 import { FILENOVA_UPI_ID, createUpiQrUrl } from "@/lib/upi";
@@ -135,13 +136,27 @@ function UpiPaymentBox({
   amount: number;
   userEmail?: string;
 }) {
+  const { user } = useAuthStore();
   const [open, setOpen] = React.useState(false);
+  const [otpOpen, setOtpOpen] = React.useState(false);
   const [formOpen, setFormOpen] = React.useState(false);
   const [utrId, setUtrId] = React.useState("");
   const [email, setEmail] = React.useState(userEmail || "");
   const [screenshotName, setScreenshotName] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
   const upiId = FILENOVA_UPI_ID;
+
+  const handleOpenUpi = () => {
+    if (!user) {
+      toast.error("Please sign in first to purchase a plan.");
+      return;
+    }
+    if (!user.phoneVerified) {
+      setOtpOpen(true);
+      return;
+    }
+    setOpen(true);
+  };
 
   React.useEffect(() => {
     if (userEmail && !email) setEmail(userEmail);
@@ -208,12 +223,18 @@ function UpiPaymentBox({
     <div>
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={handleOpenUpi}
         className="w-full py-3 px-3 rounded-xl text-sm font-black text-primary hover:bg-indigo-500/10 transition flex items-center justify-center gap-2 cursor-pointer border border-indigo-500/20 bg-indigo-500/5"
       >
         <QrCode className="h-4 w-4" />
         Pay via UPI
       </button>
+
+      <OTPVerificationModal
+        isOpen={otpOpen}
+        onClose={() => setOtpOpen(false)}
+        onSuccess={() => setOpen(true)}
+      />
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
@@ -316,6 +337,8 @@ export default function PricingPage() {
   const { premiumTier, startCheckout, cancelSubscription, loading, activeOffer } = useSubscription();
   const { user } = useAuthStore();
   const [authModalOpen, setAuthModalOpen] = React.useState(false);
+  const [otpOpen, setOtpOpen] = React.useState(false);
+  const [pendingPlan, setPendingPlan] = React.useState<PremiumTier | null>(null);
   const admin = useAdmin();
   const isTesting = isTestingPeriodActive();
 
@@ -496,6 +519,13 @@ export default function PricingPage() {
       return;
     }
 
+    if (!user) return;
+    if (!user.phoneVerified) {
+      setPendingPlan(plan);
+      setOtpOpen(true);
+      return;
+    }
+
     const couponDiscount = getDynamicCouponDiscount(plan, couponCode);
     const activeCoupon = couponDiscount > 0 ? couponCode.trim().toUpperCase() : undefined;
     
@@ -666,6 +696,21 @@ export default function PricingPage() {
           </p>
         </div>
       </main>
+      <OTPVerificationModal
+        isOpen={otpOpen}
+        onClose={() => {
+          setOtpOpen(false);
+          setPendingPlan(null);
+        }}
+        onSuccess={() => {
+          if (pendingPlan && pendingPlan !== "free") {
+            const couponDiscount = getDynamicCouponDiscount(pendingPlan, couponCode);
+            const activeCoupon = couponDiscount > 0 ? couponCode.trim().toUpperCase() : undefined;
+            startCheckout(pendingPlan, activeCoupon);
+            setPendingPlan(null);
+          }
+        }}
+      />
       <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
     </div>
   );

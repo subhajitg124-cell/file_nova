@@ -7,6 +7,7 @@ import os from "os";
 import path from "path";
 import { db, usersTable } from "@workspace/db";
 import { eq, and, lt } from "drizzle-orm";
+import { checkAndSendRenewalNotifications } from "./services/subscriptionNotificationService";
 
 // ── Startup environment checks ────────────────────────────────────────────────
 if (!process.env["DATABASE_URL"]) {
@@ -56,6 +57,13 @@ const accountCleanupTimer = setInterval(() => {
   cleanupInactiveFreeAccounts().catch(() => {});
 }, 24 * 60 * 60 * 1000); // 24 hours
 accountCleanupTimer.unref();
+
+// Run subscription renewal notifications check immediately on start, then once every 24 hours
+checkAndSendRenewalNotifications().catch(() => {});
+const renewalNotificationTimer = setInterval(() => {
+  checkAndSendRenewalNotifications().catch(() => {});
+}, 24 * 60 * 60 * 1000); // 24 hours
+renewalNotificationTimer.unref();
 
 const rawPort = process.env["PORT"];
 

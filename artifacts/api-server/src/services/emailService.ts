@@ -177,11 +177,91 @@ export async function sendUPIPaymentApproved(email: string, plan: string, expiry
   }
 }
 
+export async function sendSubscriptionRenewalNotice(
+  email: string,
+  plan: string,
+  expiry: Date,
+  daysRemaining: number
+): Promise<boolean> {
+  const expiryDate = expiry.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head><meta charset="UTF-8"><title>Renew Your FileNova Subscription</title></head>
+    <body style="font-family: 'Inter', sans-serif; background: #0f0f1a; color: #f8fafc; padding: 32px;">
+      <div style="max-width: 600px; margin: 0 auto; background: #111827; padding: 32px; border-radius: 16px; border: 1px solid #1e293b;">
+        <h1 style="color: #f59e0b; font-size: 28px; margin-bottom: 16px;">Renew Your Subscription ⏳</h1>
+        <p style="font-size: 16px; margin-bottom: 16px;">Your ${plan} subscription is expiring soon!</p>
+        <div style="background: #1e1b4b; padding: 20px; border-radius: 12px; margin-bottom: 16px;">
+          <p style="margin: 8px 0;"><strong>Plan:</strong> ${plan.charAt(0).toUpperCase() + plan.slice(1)}</p>
+          <p style="margin: 8px 0;"><strong>Expires on:</strong> ${expiryDate}</p>
+          <p style="margin: 8px 0; color: #f87171;"><strong>Time remaining:</strong> ${daysRemaining} day${daysRemaining > 1 ? "s" : ""}</p>
+        </div>
+        <p style="margin-bottom: 16px;">To prevent interruption to your unlimited files and premium features, please renew your subscription now.</p>
+        <a href="https://filenova.in/pricing" style="display: inline-block; background: ${brandColor}; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold;">Renew Now</a>
+      </div>
+    </body>
+    </html>
+  `;
+
+  try {
+    await transporter.sendMail({
+      from: FROM_EMAIL,
+      to: email,
+      subject: `Renew Your FileNova Subscription - ${daysRemaining} Day${daysRemaining > 1 ? "s" : ""} Left ⏳`,
+      html,
+    });
+    return true;
+  } catch (error) {
+    console.error("Failed to send renewal notification email:", error);
+    return false;
+  }
+}
+
+export async function sendOtpEmail(email: string, otp: string): Promise<boolean> {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head><meta charset="UTF-8"><title>FileNova OTP Verification</title></head>
+    <body style="font-family: 'Inter', sans-serif; background: #0f0f1a; color: #f8fafc; padding: 32px;">
+      <div style="max-width: 600px; margin: 0 auto; background: #111827; padding: 32px; border-radius: 16px; border: 1px solid #1e293b;">
+        <h1 style="color: #6366f1; font-size: 28px; margin-bottom: 16px;">Verify Your Account 🔐</h1>
+        <p style="font-size: 16px; margin-bottom: 16px;">Here is your 4-digit verification code:</p>
+        <div style="background: #1e1b4b; padding: 24px; border-radius: 12px; text-align: center; margin-bottom: 16px;">
+          <span style="font-size: 36px; font-weight: 900; letter-spacing: 8px; color: #f97316;">${otp}</span>
+        </div>
+        <p style="margin-bottom: 16px; font-size: 14px; color: #94a3b8;">This code will expire in 10 minutes. If you did not request this verification, please ignore this email.</p>
+      </div>
+    </body>
+    </html>
+  `;
+
+  try {
+    await transporter.sendMail({
+      from: FROM_EMAIL,
+      to: email,
+      subject: `FileNova Verification Code: ${otp}`,
+      html,
+    });
+    return true;
+  } catch (error) {
+    console.error("Failed to send OTP email:", error);
+    return false;
+  }
+}
+
 export const emailService = {
   sendWelcomeEmail,
   sendSubscriptionConfirmation,
   sendUPIPaymentReceived,
   sendUPIPaymentApproved,
+  sendSubscriptionRenewalNotice,
+  sendOtpEmail,
 };
 
 export default emailService;

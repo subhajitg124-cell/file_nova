@@ -27,6 +27,7 @@ export const usersTable = pgTable("users", {
   language: varchar("language", { length: 8 }).notNull().default("en"),
   googleSubject: varchar("google_subject", { length: 255 }),
   referralCode: varchar("referral_code", { length: 8 }).unique(),
+  phoneVerified: boolean("phone_verified").notNull().default(false),
   // Premium features
   premiumEnabled: boolean("premium_enabled").notNull().default(false),
   premiumTier: varchar("premium_tier", { length: 50 }).default("free"), // free, basic, pro, enterprise

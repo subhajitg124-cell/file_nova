@@ -50,6 +50,20 @@
       "when": 1781106362765,
       "tag": "0006_glossy_random",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1781157456133,
+      "tag": "0007_wise_silver_centurion",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1781157746460,
+      "tag": "0008_first_leo",
+      "breakpoints": true
     }
   ]
 }
