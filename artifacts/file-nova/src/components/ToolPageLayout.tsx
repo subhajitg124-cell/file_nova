@@ -180,7 +180,7 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
           <Link href="/" className="flex items-center gap-2.5 shrink-0">
             <img src="/logo.png" alt="FileNova logo" className="h-9 w-auto" />
             <div className="hidden sm:block">
-              <span className="font-extrabold text-sm text-foreground block">FileNova.in</span>
+              <span className="font-extrabold text-sm text-foreground block">FileNova</span>
               <span className="text-[10px] text-muted-foreground block leading-none font-bold uppercase tracking-wider">CSC & STUDENT PORTAL</span>
             </div>
           </Link>

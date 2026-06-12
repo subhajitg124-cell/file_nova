@@ -296,7 +296,7 @@ export function FloatingShortcuts() {
             {/* Hint footer */}
             <div className="mt-4 pt-3.5 border-t border-white/[0.05] text-center">
               <p className="text-[9px] text-muted-foreground font-bold tracking-wider uppercase leading-none">
-                FileNova.in • {tText("Made for CSC kiosks")}
+                FileNova • {tText("Made for CSC kiosks")}
               </p>
             </div>
           </motion.div>

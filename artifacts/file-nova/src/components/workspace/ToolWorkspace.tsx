@@ -656,7 +656,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
               <h1 className="text-xs font-black uppercase tracking-wider text-white leading-none">
                 {toolName}
               </h1>
-              <span className="text-[9px] text-slate-500 leading-none">FileNova.in Sandbox</span>
+              <span className="text-[9px] text-slate-500 leading-none">FileNova Sandbox</span>
             </div>
           </div>
         </div>

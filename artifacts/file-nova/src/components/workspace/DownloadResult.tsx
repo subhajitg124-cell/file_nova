@@ -48,7 +48,7 @@ export const DownloadResult: React.FC<DownloadResultProps> = ({
   };
 
   const handleWhatsAppShare = () => {
-    const text = `I processed my file "${fileName}" on FileNova.in! Try it out!`;
+    const text = `I processed my file "${fileName}" on FileNova! Try it out!`;
     const shareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text + " " + window.location.origin + downloadUrl)}`;
     window.open(shareUrl, "_blank");
   };

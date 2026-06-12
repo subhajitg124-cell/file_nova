@@ -212,7 +212,7 @@ const Footer: React.FC = () => {
 
         {/* Bottom Bar */}
         <div className="border-t border-slate-800 mt-8 pt-8 text-center text-sm text-slate-400">
-          <p>© {new Date().getFullYear()} FileNova.in - All rights reserved</p>
+          <p>© {new Date().getFullYear()} FileNova - All rights reserved</p>
           <p className="mt-2">
             Made with ❤️ by <span className="text-purple-400">Subhajit Ghosh</span>
           </p>

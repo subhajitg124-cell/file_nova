@@ -588,7 +588,7 @@ export const OptionsPanel: React.FC = () => {
         if (finalBlob.type === 'application/pdf' && premiumTier === 'free') {
           try {
             const file = new File([finalBlob], 'temp.pdf', { type: 'application/pdf' });
-            const watermarkedBlob = await runClientSidePdfWatermark(file, 'filenova.in', {
+            const watermarkedBlob = await runClientSidePdfWatermark(file, 'FileNova', {
               fontSize: 12,
               opacity: 0.3,
               rotation: 0,

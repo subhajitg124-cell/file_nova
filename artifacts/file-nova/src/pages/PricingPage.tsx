@@ -364,7 +364,7 @@ export default function PricingPage() {
         "PDF Merge & Compress only",
         "Max file size: 3MB",
         "Must watch 1 ad before each use",
-        "filenova.in text watermark on output",
+        "FileNova text watermark on output",
         "Temporary storage (deleted after 1h)",
         "No voice assistant / Aadhaar masking",
       ],

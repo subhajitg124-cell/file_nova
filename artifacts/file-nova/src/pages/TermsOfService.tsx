@@ -45,7 +45,7 @@ export default function TermsOfService() {
                 <span className="text-indigo-400">1.</span> {tText("Acceptance of Terms")}
               </h2>
               <p>
-                {tText("By accessing or using FileNova.in (\"FileNova\", \"we\", \"us\", or \"our\"), you agree to be bound by these Terms of Service. If you do not agree, please do not access or use our services. These terms apply to all visitors, registered accounts, cyber kiosk operators, and premium subscription members.")}
+                {tText("By accessing or using FileNova (\"we\", \"us\", or \"our\"), you agree to be bound by these Terms of Service. If you do not agree, please do not access or use our services. These terms apply to all visitors, registered accounts, cyber kiosk operators, and premium subscription members.")}
               </p>
             </section>
 
