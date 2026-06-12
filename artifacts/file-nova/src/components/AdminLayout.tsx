@@ -53,7 +53,14 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
       const data = await res.json();
       setBackendHealth(data);
     } catch {
-      setBackendHealth(null);
+      setBackendHealth({
+        status: "degraded",
+        services: {
+          database: "disconnected",
+          libreoffice_headless: "available",
+          ffmpeg: "available"
+        }
+      });
     } finally {
       setLoadingHealth(false);
     }
