@@ -3,6 +3,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { createHead, UnheadProvider } from "@unhead/react/client";
 import App from "./App";
 import "./index.css";
+import "./styles/eventThemes.css";
 import "./lib/errorHandler";
 
 const head = createHead();

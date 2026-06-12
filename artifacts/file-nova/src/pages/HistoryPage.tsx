@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
 import { ArrowLeft, History, Search, Filter, FileText, ChevronLeft, Loader2 } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
+import { BACKEND_URL } from "@/lib/api";
 
 interface FileHistoryItem {
   id: string;
@@ -33,7 +34,7 @@ export default function HistoryPage() {
   const fetchHistory = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/v1/history");
+      const res = await fetch(`${BACKEND_URL}/api/v1/history`);
       if (res.ok) {
         const data = await res.json();
         setHistory(data.history || []);
@@ -120,6 +121,7 @@ export default function HistoryPage() {
               <select
                 value={selectedTool}
                 onChange={(e) => setSelectedTool(e.target.value)}
+                title="Filter by tool"
                 className="pl-10 pr-4 py-2.5 text-sm bg-card border border-border rounded-xl focus:outline-none focus:border-primary/60 appearance-none cursor-pointer"
               >
                 {toolOptions.map(tool => (

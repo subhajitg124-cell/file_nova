@@ -43,6 +43,7 @@ import PricingPage from "@/pages/PricingPage";
 import OperatorDashboard from "@/pages/OperatorDashboard";
 import SEOPhotoCompressor from "@/pages/seo/SEOPhotoCompressor";
 import NotFound from "@/pages/not-found";
+import { ThemeEffects } from "@/components/ThemeEffects";
 
 const BetaTestingZone = React.lazy(() => import("@/pages/BetaTestingZone"));
 import LoginPage from "@/pages/LoginPage";
@@ -172,6 +173,7 @@ function Router() {
 
   return (
     <>
+      <ThemeEffects />
       <ScrollToTop />
       <ToolSEO />
       <ToolStructuredData />

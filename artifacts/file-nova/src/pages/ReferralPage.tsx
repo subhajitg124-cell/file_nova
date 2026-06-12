@@ -4,6 +4,7 @@ import { ArrowLeft, Copy, Gift, MessageCircle, Sparkles, Users } from "lucide-re
 import { toast } from "sonner";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
 import { useAuthStore } from "@/store/useAuthStore";
+import { BACKEND_URL } from "@/lib/api";
 
 interface ReferralStats {
   totalReferred: number;
@@ -33,7 +34,7 @@ export default function ReferralPage() {
     }
 
     setLoading(true);
-    fetch("/api/v1/referral/stats", {
+    fetch(`${BACKEND_URL}/api/v1/referral/stats`, {
       credentials: "include",
       headers: getAuthHeaders(),
     })

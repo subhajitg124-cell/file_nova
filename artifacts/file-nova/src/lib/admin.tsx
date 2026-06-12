@@ -8,7 +8,7 @@ type Settings = {
   editingEnabled: boolean;
   activeOffer?: string;
   discountPercentage?: number;
-  eventTheme?: "none" | "warm" | "cool" | "tricolor" | "diwali" | "holi" | "newYear" | "scholarship";
+  eventTheme?: "none" | "warm" | "cool" | "tricolor" | "diwali" | "holi" | "newYear" | "scholarship" | "durgaPuja" | "poilaBaisakh" | "saraswatiPuja" | "eid" | "christmas" | "rabindraJayanti";
   libreofficeAvailableOverride?: boolean;
   ffmpegAvailableOverride?: boolean;
   globalNoticeActive?: boolean;
@@ -106,22 +106,55 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     const month = now.getMonth(); // 0-indexed: 0=Jan, 11=Dec
     const day = now.getDate();
 
-    // Diwali: Oct-Nov (approx) - we'll set Oct 20 to Nov 15
-    if ((month === 9 && day >= 20) || (month === 10 && day <= 15)) {
-      return "diwali";
+    // 1. Republic Day (Tricolor): Jan 24 to Jan 28
+    if (month === 0 && day >= 24 && day <= 28) {
+      return "tricolor";
     }
-    // Holi: March (approx) - we'll set March 10 to March 30
+    // 2. Saraswati Puja (Basanti Yellow): Jan 29 to Feb 10
+    if ((month === 0 && day >= 29) || (month === 1 && day <= 10)) {
+      return "saraswatiPuja";
+    }
+    // 3. Holi / Dol Jatra: March 10 to March 30
     if (month === 2 && day >= 10 && day <= 30) {
       return "holi";
     }
-    // New Year: Dec 25 to Jan 5
-    if ((month === 11 && day >= 25) || (month === 0 && day <= 5)) {
+    // 4. Poila Baisakh (Bengali New Year): April 10 to April 18
+    if (month === 3 && day >= 10 && day <= 18) {
+      return "poilaBaisakh";
+    }
+    // 5. Rabindra Jayanti: May 5 to May 12
+    if (month === 4 && day >= 5 && day <= 12) {
+      return "rabindraJayanti";
+    }
+    // 6. Eid (Green/Gold): May 15 to May 25
+    if (month === 4 && day >= 15 && day <= 25) {
+      return "eid";
+    }
+    // 7. Independence Day (Tricolor): Aug 11 to Aug 18
+    if (month === 7 && day >= 11 && day <= 18) {
+      return "tricolor";
+    }
+    // 8. Durga Puja: Sept 25 to Oct 25
+    if ((month === 8 && day >= 25) || (month === 9 && day <= 25)) {
+      return "durgaPuja";
+    }
+    // 9. Diwali / Kali Puja: Oct 26 to Nov 15
+    if ((month === 9 && day >= 26) || (month === 10 && day <= 15)) {
+      return "diwali";
+    }
+    // 10. Christmas: Dec 15 to Dec 25
+    if (month === 11 && day >= 15 && day <= 25) {
+      return "christmas";
+    }
+    // 11. New Year: Dec 26 to Jan 5
+    if ((month === 11 && day >= 26) || (month === 0 && day <= 5)) {
       return "newYear";
     }
-    // Scholarship season: June to September
-    if (month >= 5 && month <= 8) {
+    // 12. Scholarship / College Admission Season: June 1 to August 10
+    if ((month === 5) || (month === 6) || (month === 7 && day <= 10)) {
       return "scholarship";
     }
+
     // Default to none if no season matches
     return "none";
   };

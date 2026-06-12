@@ -17,10 +17,15 @@ import {
   Globe,
   BellRing,
   Sparkles,
-  KeyRound
+  KeyRound,
+  Check,
+  Info,
+  Palette
 } from "lucide-react";
 import { useAdmin } from "@/lib/admin";
+import { THEME_REGISTRY } from "@/lib/themeRegistry";
 import { toast } from "sonner";
+import { BACKEND_URL } from "@/lib/api";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -32,6 +37,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
   const [location, setLocation] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
 
   // Stats endpoints / Health checks info
   const [backendHealth, setBackendHealth] = useState<any>(null);
@@ -43,7 +49,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
   const fetchHealth = async () => {
     setLoadingHealth(true);
     try {
-      const res = await fetch("/api/v1/health");
+      const res = await fetch(`${BACKEND_URL}/api/v1/health`);
       const data = await res.json();
       setBackendHealth(data);
     } catch {
@@ -299,22 +305,23 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
                     </p>
                     
                     <div>
-                      <label htmlFor="layout-event-theme" className="block text-[10px] text-slate-400 mb-1">Active Event Theme</label>
-                      <select
-                        id="layout-event-theme"
-                        value={admin.settings.eventTheme || "none"}
-                        onChange={(e) => admin.setSettings({ eventTheme: e.target.value as any })}
-                        className="w-full rounded-xl border border-white/10 bg-slate-900 px-2.5 py-1.5 text-xs text-white"
+                      <span className="block text-[10px] text-slate-450 mb-1">Active Event Theme</span>
+                      <button
+                        type="button"
+                        onClick={() => setIsThemeModalOpen(true)}
+                        className="w-full flex items-center justify-between gap-2 rounded-xl border border-white/10 bg-slate-900/60 hover:bg-slate-900 px-2.5 py-2 text-xs text-white text-left transition cursor-pointer group"
                       >
-                        <option value="none">Standard Dark (Default)</option>
-                        <option value="warm">Warm/Festival</option>
-                        <option value="cool">Cool/Tech</option>
-                        <option value="tricolor">Indian Tri-color</option>
-                        <option value="diwali">Diwali (Gold/Purple)</option>
-                        <option value="holi">Holi (Vibrant Gradient)</option>
-                        <option value="newYear">New Year (Sparkles)</option>
-                        <option value="scholarship">Scholarship Mode</option>
-                      </select>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span 
+                            className="h-3 w-3 rounded-full shrink-0 border border-white/10" 
+                            style={{ background: THEME_REGISTRY[admin.settings.eventTheme || "none"]?.gradient || "linear-gradient(135deg, #090d16 0%, #111827 100%)" }} 
+                          />
+                          <span className="truncate font-semibold text-[11px]">
+                            {THEME_REGISTRY[admin.settings.eventTheme || "none"]?.name || "Standard Dark"}
+                          </span>
+                        </div>
+                        <span className="text-[10px] text-indigo-400 font-bold shrink-0 group-hover:text-indigo-300">Change</span>
+                      </button>
                     </div>
 
                     <div>
@@ -508,6 +515,87 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
         <main className="flex-1 min-w-0 p-4 lg:p-8 space-y-6 overflow-y-auto">
           {children}
         </main>
+
+        {/* Visual Theme Selection Modal */}
+        {isThemeModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-scale-in">
+            <div className="relative w-full max-w-md rounded-2xl border border-white/10 bg-slate-950 p-6 shadow-2xl space-y-4 max-h-[90vh] flex flex-col text-slate-200">
+              <button
+                onClick={() => setIsThemeModalOpen(false)}
+                className="absolute top-4 right-4 h-8 w-8 rounded-lg border border-white/10 hover:bg-white/5 flex items-center justify-center transition cursor-pointer text-slate-400 hover:text-white"
+                title="Close modal"
+              >
+                <X className="h-4 w-4" />
+              </button>
+
+              <div className="space-y-1">
+                <h3 className="text-lg font-black text-white flex items-center gap-2">
+                  <Palette className="h-5 w-5 text-indigo-400" />
+                  Select Event Theme
+                </h3>
+                <p className="text-xs text-slate-450">
+                  Select a celebration style to apply global theme color overrides and floating canvas animations.
+                </p>
+              </div>
+
+              {/* Grid of swatches */}
+              <div className="grid grid-cols-2 gap-3 overflow-y-auto pr-1 flex-1 py-1">
+                {Object.values(THEME_REGISTRY).map((theme) => {
+                  const isActive = (admin.settings.eventTheme || "none") === theme.id;
+                  return (
+                    <button
+                      key={theme.id}
+                      onClick={() => {
+                        admin.setSettings({ eventTheme: theme.id as any });
+                        toast.success(`Theme "${theme.name}" applied successfully! 🌟`);
+                      }}
+                      className={`flex flex-col text-left rounded-xl border p-3.5 transition-all relative overflow-hidden group cursor-pointer ${
+                        isActive
+                          ? "border-indigo-500 bg-indigo-500/10 ring-1 ring-indigo-500/30"
+                          : "border-white/5 bg-slate-900/40 hover:bg-slate-900 hover:border-white/15"
+                      }`}
+                    >
+                      {/* Swatch stripe */}
+                      <div 
+                        className="h-1 w-full absolute top-0 left-0 right-0" 
+                        style={{ background: theme.gradient }}
+                      />
+
+                      <div className="flex justify-between items-start pt-1.5 w-full">
+                        <span className="text-[11px] font-black text-white leading-snug truncate">
+                          {theme.name}
+                        </span>
+                        {isActive && (
+                          <Check className="h-3.5 w-3.5 text-indigo-400 shrink-0 mt-0.5" />
+                        )}
+                      </div>
+
+                      <span className="text-[9px] text-slate-455 mt-1 truncate">
+                        {theme.occasion}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="border-t border-white/[0.06] pt-3 flex items-start gap-2 text-[10px] text-slate-500">
+                <Info className="h-4 w-4 shrink-0 mt-0.5 text-indigo-400" />
+                <p>
+                  Setting to <strong>Standard Dark</strong> restores automatic seasonal cycling (Saraswati Puja, Poila Baisakh, Durga Puja, Eid, Christmas, and College Admission season).
+                </p>
+              </div>
+
+              <div className="flex justify-end pt-1">
+                <button
+                  onClick={() => setIsThemeModalOpen(false)}
+                  className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-850 text-xs font-bold border border-white/10 hover:text-white transition cursor-pointer"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
       </div>
     </div>

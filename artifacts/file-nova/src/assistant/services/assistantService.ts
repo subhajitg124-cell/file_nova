@@ -1,5 +1,6 @@
 import { AssistantContext } from '../context/types';
 import { buildToolPrompt, buildWorkflowPrompt, buildFileAnalysisPrompt } from '../prompts/toolPrompts';
+import { BACKEND_URL } from '../../lib/api';
 
 const MAX_HISTORY = 8;
 const MAX_RETRIES = 3;
@@ -61,7 +62,7 @@ export async function askAssistant(
     try {
       const prompt = buildToolPrompt(query, context, history);
 
-      const res = await fetch('/api/v1/ai/chat', {
+      const res = await fetch(`${BACKEND_URL}/api/v1/ai/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query, context, prompt }),

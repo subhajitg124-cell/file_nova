@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import { useTranslation } from "@/lib/i18n";
 import { useLocation } from "wouter";
 import { analytics } from "@/lib/analytics";
+import { BACKEND_URL } from "@/lib/api";
 
 interface Message {
   id: string;
@@ -89,7 +90,7 @@ export function FileNovaAssistant({ isOpen, onClose }: FileNovaAssistantProps) {
         text: m.text
       }));
 
-      const res = await fetch("/api/v1/ai/chat", {
+      const res = await fetch(`${BACKEND_URL}/api/v1/ai/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

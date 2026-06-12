@@ -30,6 +30,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useSubscription } from "@/hooks/useSubscription";
 import { createUpiLink } from "@/lib/upi";
 import { UpiSupportModal } from "@/components/UpiSupportModal";
+import { BACKEND_URL } from "@/lib/api";
 
 const VoiceAssistant = React.lazy(() => import("@/components/VoiceAssistant").then((mod) => ({ default: mod.VoiceAssistant })));
 const AadhaarMasking = React.lazy(() => import("@/components/AadhaarMasking").then((mod) => ({ default: mod.AadhaarMasking })));
@@ -156,7 +157,7 @@ export default function PremiumSuite() {
   }, [active, enabledFeatures]);
 
   useEffect(() => {
-    fetch("/api/v1/premium/security/status")
+    fetch(`${BACKEND_URL}/api/v1/premium/security/status`)
       .then((res) => res.json())
       .then(setSecurity)
       .catch(() => setSecurity(null));
@@ -196,7 +197,7 @@ export default function PremiumSuite() {
       case "assistant":
         return postJson("/api/v1/premium/assistant/recommend", { context: "scholarship upload", fileSizeKb: 420, targetKb: 200 });
       case "security":
-        return fetch("/api/v1/premium/security/status").then((res) => res.json());
+        return fetch(`${BACKEND_URL}/api/v1/premium/security/status`).then((res) => res.json());
       case "voice":
         return Promise.resolve({ success: true, message: "Use the microphone below for Bengali, Hindi or English commands." });
     }

@@ -94,10 +94,12 @@ export default function BetaTestingZone() {
   ]);
 
   const [activeWorkerProcesses, setActiveWorkerProcesses] = useState<number>(0);
-  const logTerminalEndRef = useRef<HTMLDivElement>(null);
+  const logTerminalContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    logTerminalEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (logTerminalContainerRef.current) {
+      logTerminalContainerRef.current.scrollTop = logTerminalContainerRef.current.scrollHeight;
+    }
   }, [logs]);
 
   // Log handler
@@ -494,7 +496,10 @@ export default function BetaTestingZone() {
             </div>
 
             {/* Terminal console */}
-            <div className="h-64 rounded-xl border border-white/[0.05] bg-black/60 p-4 font-mono text-[10px] leading-relaxed overflow-y-auto space-y-1.5 shadow-inner select-text">
+            <div 
+              ref={logTerminalContainerRef}
+              className="h-64 rounded-xl border border-white/[0.05] bg-black/60 p-4 font-mono text-[10px] leading-relaxed overflow-y-auto space-y-1.5 shadow-inner select-text"
+            >
               {logs.map((log) => {
                 let colorClass = "text-slate-400";
                 if (log.type === "success") colorClass = "text-emerald-400 font-bold";
@@ -515,7 +520,6 @@ export default function BetaTestingZone() {
                   <span>⚙️ Process worker running on active thread...</span>
                 </div>
               )}
-              <div ref={logTerminalEndRef} />
             </div>
 
             {/* Log tools */}

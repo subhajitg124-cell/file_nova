@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAdmin } from "@/lib/admin";
 import { useLocation } from "wouter";
+import { BACKEND_URL } from "@/lib/api";
 import {
   Plus,
   Trash2,
@@ -70,7 +71,7 @@ export default function AdminCouponManagement() {
         "x-admin-username": admin.creds?.username || "",
         "x-admin-hash": admin.creds?.passwordHash || "",
       };
-      const res = await fetch("/api/v1/premium/subscription/admin/coupons", { headers });
+      const res = await fetch(`${BACKEND_URL}/api/v1/premium/subscription/admin/coupons`, { headers });
       const data = await res.json();
       if (data.success) {
         setCoupons(data.coupons);
@@ -132,7 +133,7 @@ export default function AdminCouponManagement() {
         "x-admin-username": admin.creds?.username || "",
         "x-admin-hash": admin.creds?.passwordHash || "",
       };
-      const res = await fetch(`/api/v1/premium/subscription/admin/coupons/${id}`, {
+      const res = await fetch(`${BACKEND_URL}/api/v1/premium/subscription/admin/coupons/${id}`, {
         method: "DELETE",
         headers,
       });
@@ -154,7 +155,7 @@ export default function AdminCouponManagement() {
         "x-admin-username": admin.creds?.username || "",
         "x-admin-hash": admin.creds?.passwordHash || "",
       };
-      const res = await fetch(`/api/v1/premium/subscription/admin/coupons/${id}/toggle`, {
+      const res = await fetch(`${BACKEND_URL}/api/v1/premium/subscription/admin/coupons/${id}/toggle`, {
         method: "POST",
         headers,
       });
@@ -207,7 +208,7 @@ export default function AdminCouponManagement() {
       let res;
       if (selectedCoupon) {
         // Update existing coupon
-        res = await fetch(`/api/v1/premium/subscription/admin/coupons/${selectedCoupon.id}`, {
+        res = await fetch(`${BACKEND_URL}/api/v1/premium/subscription/admin/coupons/${selectedCoupon.id}`, {
           method: "PUT",
           headers,
           body: JSON.stringify({
@@ -222,7 +223,7 @@ export default function AdminCouponManagement() {
         });
       } else {
         // Create new coupon
-        res = await fetch("/api/v1/premium/subscription/admin/coupons", {
+        res = await fetch(`${BACKEND_URL}/api/v1/premium/subscription/admin/coupons`, {
           method: "POST",
           headers,
           body: JSON.stringify({

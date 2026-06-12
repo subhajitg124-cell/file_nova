@@ -1,0 +1,423 @@
+/* ==========================================================================
+   IMMERSIVE EVENT THEMES
+   Overrides global CSS custom properties and introduces custom glowing effects,
+   mesh backgrounds, and animations.
+   ========================================================================== */
+
+/* ── Glow Animations ── */
+@keyframes event-glow-gold {
+  0%, 100% { box-shadow: 0 0 5px rgba(251, 191, 36, 0.2), 0 0 15px rgba(251, 191, 36, 0.1); }
+  50% { box-shadow: 0 0 15px rgba(251, 191, 36, 0.4), 0 0 30px rgba(251, 191, 36, 0.2); }
+}
+@keyframes event-glow-red {
+  0%, 100% { box-shadow: 0 0 5px rgba(239, 68, 68, 0.2), 0 0 15px rgba(239, 68, 68, 0.1); }
+  50% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.4), 0 0 30px rgba(239, 68, 68, 0.2); }
+}
+@keyframes event-glow-emerald {
+  0%, 100% { box-shadow: 0 0 5px rgba(16, 185, 129, 0.2), 0 0 15px rgba(16, 185, 129, 0.1); }
+  50% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.4), 0 0 30px rgba(16, 185, 129, 0.2); }
+}
+@keyframes event-glow-pink {
+  0%, 100% { box-shadow: 0 0 5px rgba(236, 72, 153, 0.2), 0 0 15px rgba(236, 72, 153, 0.1); }
+  50% { box-shadow: 0 0 15px rgba(236, 72, 153, 0.4), 0 0 30px rgba(236, 72, 153, 0.2); }
+}
+@keyframes text-shine {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   1. DURGA PUJA THEME (Saffron, Vermillion Red & Marigold Gold)
+   ────────────────────────────────────────────────────────────────────────── */
+html.event-theme-durgaPuja {
+  --background: #110505;
+  --foreground: #fef3c7;
+  --card: #1f0b0b;
+  --card-foreground: #fef3c7;
+  --primary: #f97316; /* Marigold Orange */
+  --primary-foreground: #110505;
+  --secondary: #361010;
+  --secondary-foreground: #fde047;
+  --muted: #1a0808;
+  --muted-foreground: #d97706;
+  --accent: #2c0e0e;
+  --accent-foreground: #fbbf24;
+  --border: #331515;
+  --input: #230d0d;
+  --ring: #dc2626; /* Vermillion Red */
+}
+html.event-theme-durgaPuja .shadow-glow,
+html.event-theme-durgaPuja button.bg-primary {
+  animation: event-glow-gold 3s infinite ease-in-out;
+}
+html.event-theme-durgaPuja .bg-mesh::before {
+  background:
+    radial-gradient(ellipse 80% 60% at 15% 10%, rgba(220,38,38,0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 70% at 85% 80%, rgba(249,115,22,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(251,191,36,0.15) 0%, transparent 60%) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   2. HOLI / DOL JATRA THEME (Gulal Pink, Turquoise & Violet Splashes)
+   ────────────────────────────────────────────────────────────────────────── */
+html.event-theme-holi {
+  --background: #090614;
+  --foreground: #faebff;
+  --card: #140e2b;
+  --card-foreground: #faebff;
+  --primary: #ec4899; /* Gulal Pink */
+  --primary-foreground: #faebff;
+  --secondary: #1a0d33;
+  --secondary-foreground: #f472b6;
+  --muted: #0f0b21;
+  --muted-foreground: #a78bfa;
+  --accent: #221545;
+  --accent-foreground: #ec4899;
+  --border: #2c1a52;
+  --input: #1a0f36;
+  --ring: #a855f7;
+}
+html.event-theme-holi .shadow-glow,
+html.event-theme-holi button.bg-primary {
+  animation: event-glow-pink 3s infinite ease-in-out;
+}
+html.event-theme-holi .bg-mesh::before {
+  background:
+    radial-gradient(ellipse 80% 60% at 15% 10%, rgba(236,72,153,0.25) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 70% at 85% 80%, rgba(6,182,212,0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(168,85,247,0.18) 0%, transparent 60%) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   3. DIWALI / KALI PUJA THEME (Royal Purple & Radiant Candle Gold)
+   ────────────────────────────────────────────────────────────────────────── */
+html.event-theme-diwali {
+  --background: #090412;
+  --foreground: #fef3c7;
+  --card: #150926;
+  --card-foreground: #fef3c7;
+  --primary: #fbbf24; /* Candle Gold */
+  --primary-foreground: #090412;
+  --secondary: #270e45;
+  --secondary-foreground: #fcd34d;
+  --muted: #0d051c;
+  --muted-foreground: #b48eff;
+  --accent: #2e105a;
+  --accent-foreground: #fbbf24;
+  --border: #2e1554;
+  --input: #1e0b3b;
+  --ring: #f59e0b;
+}
+html.event-theme-diwali .shadow-glow,
+html.event-theme-diwali button.bg-primary {
+  animation: event-glow-gold 3s infinite ease-in-out;
+}
+html.event-theme-diwali .bg-mesh::before {
+  background:
+    radial-gradient(ellipse 80% 60% at 15% 10%, rgba(251,191,36,0.25) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 70% at 85% 80%, rgba(124,58,237,0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(253,186,116,0.15) 0%, transparent 60%) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   4. POILA BAISAKH THEME (Terracotta Clay & Jasmine White)
+   ────────────────────────────────────────────────────────────────────────── */
+html.event-theme-poilaBaisakh {
+  --background: #120703;
+  --foreground: #fffbeb;
+  --card: #200f07;
+  --card-foreground: #fffbeb;
+  --primary: #ea580c; /* Terracotta Orange */
+  --primary-foreground: #fffbeb;
+  --secondary: #3b1706;
+  --secondary-foreground: #fdba74;
+  --muted: #170a04;
+  --muted-foreground: #c2410c;
+  --accent: #2d1306;
+  --accent-foreground: #f97316;
+  --border: #381a0b;
+  --input: #291206;
+  --ring: #ea580c;
+}
+html.event-theme-poilaBaisakh button.bg-primary {
+  background: linear-gradient(135deg, #ea580c 0%, #dc2626 100%);
+  color: #ffffff;
+}
+html.event-theme-poilaBaisakh .bg-mesh::before {
+  background:
+    radial-gradient(ellipse 80% 60% at 15% 10%, rgba(234,88,12,0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 70% at 85% 80%, rgba(220,38,38,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(254,243,199,0.12) 0%, transparent 60%) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   5. SARASWATI PUJA THEME (Basanti Yellow & Study Parchment)
+   ────────────────────────────────────────────────────────────────────────── */
+html.event-theme-saraswatiPuja {
+  --background: #0d0b04;
+  --foreground: #fffbeb;
+  --card: #1c1808;
+  --card-foreground: #fffbeb;
+  --primary: #eab308; /* Basanti Yellow */
+  --primary-foreground: #0d0b04;
+  --secondary: #38300a;
+  --secondary-foreground: #fef08a;
+  --muted: #141105;
+  --muted-foreground: #ca8a04;
+  --accent: #2c2507;
+  --accent-foreground: #eab308;
+  --border: #332d0c;
+  --input: #241f06;
+  --ring: #facc15;
+}
+html.event-theme-saraswatiPuja button.bg-primary {
+  animation: event-glow-gold 3s infinite ease-in-out;
+}
+html.event-theme-saraswatiPuja .bg-mesh::before {
+  background:
+    radial-gradient(ellipse 80% 60% at 15% 10%, rgba(234,179,8,0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 70% at 85% 80%, rgba(202,138,4,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(254,240,138,0.15) 0%, transparent 60%) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   6. EID MUBARAK THEME (Deep Islamic Emerald & Moon Glow Gold)
+   ────────────────────────────────────────────────────────────────────────── */
+html.event-theme-eid {
+  --background: #020c07;
+  --foreground: #ecfdf5;
+  --card: #081f13;
+  --card-foreground: #ecfdf5;
+  --primary: #fbbf24; /* Moon Gold */
+  --primary-foreground: #020c07;
+  --secondary: #0c361e;
+  --secondary-foreground: #a7f3d0;
+  --muted: #04120a;
+  --muted-foreground: #059669;
+  --accent: #0f3d23;
+  --accent-foreground: #34d399;
+  --border: #113822;
+  --input: #0b2918;
+  --ring: #10b981;
+}
+html.event-theme-eid .shadow-glow,
+html.event-theme-eid button.bg-primary {
+  animation: event-glow-emerald 3s infinite ease-in-out;
+}
+html.event-theme-eid .bg-mesh::before {
+  background:
+    radial-gradient(ellipse 80% 60% at 15% 10%, rgba(5,150,105,0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 70% at 85% 80%, rgba(16,185,129,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(251,191,36,0.12) 0%, transparent 60%) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   7. CHRISTMAS THEME (Nordic Pine Green & Crimson Santa Red)
+   ────────────────────────────────────────────────────────────────────────── */
+html.event-theme-christmas {
+  --background: #040e0b;
+  --foreground: #f8fafc;
+  --card: #0b1f1a;
+  --card-foreground: #f8fafc;
+  --primary: #e11d48; /* Crimson Red */
+  --primary-foreground: #ffffff;
+  --secondary: #0f362c;
+  --secondary-foreground: #34d399;
+  --muted: #061410;
+  --muted-foreground: #10b981;
+  --accent: #133d32;
+  --accent-foreground: #f43f5e;
+  --border: #143b31;
+  --input: #0e2b24;
+  --ring: #e11d48;
+}
+html.event-theme-christmas button.bg-primary {
+  animation: event-glow-red 3s infinite ease-in-out;
+}
+html.event-theme-christmas .bg-mesh::before {
+  background:
+    radial-gradient(ellipse 80% 60% at 15% 10%, rgba(225,29,72,0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 70% at 85% 80%, rgba(16,185,129,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(255,255,255,0.10) 0%, transparent 60%) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   8. NEW YEAR THEME (Deep Void Black & Gold Sparkles)
+   ────────────────────────────────────────────────────────────────────────── */
+html.event-theme-newYear {
+  --background: #020204;
+  --foreground: #f8fafc;
+  --card: #0b0b10;
+  --card-foreground: #f8fafc;
+  --primary: #ca8a04; /* Gold */
+  --primary-foreground: #020204;
+  --secondary: #1e1b18;
+  --secondary-foreground: #fef08a;
+  --muted: #07070a;
+  --muted-foreground: #a1a1aa;
+  --accent: #1e1e24;
+  --accent-foreground: #eab308;
+  --border: #1b1b22;
+  --input: #121217;
+  --ring: #ca8a04;
+}
+html.event-theme-newYear button.bg-primary {
+  animation: event-glow-gold 3s infinite ease-in-out;
+}
+html.event-theme-newYear .bg-mesh::before {
+  background:
+    radial-gradient(ellipse 80% 60% at 15% 10%, rgba(30,58,138,0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 70% at 85% 80%, rgba(202,138,4,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(251,191,36,0.12) 0%, transparent 60%) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   9. COLLEGE ADMISSION & SCHOLARSHIP THEME (Oxford Navy & Academic Gold)
+   ────────────────────────────────────────────────────────────────────────── */
+html.event-theme-scholarship {
+  --background: #020712;
+  --foreground: #f1f5f9;
+  --card: #0a1124;
+  --card-foreground: #f1f5f9;
+  --primary: #fbbf24; /* Honor Gold */
+  --primary-foreground: #020712;
+  --secondary: #112244;
+  --secondary-foreground: #93c5fd;
+  --muted: #050b1a;
+  --muted-foreground: #60a5fa;
+  --accent: #162a54;
+  --accent-foreground: #fbbf24;
+  --border: #172647;
+  --input: #0e1933;
+  --ring: #3b82f6;
+}
+html.event-theme-scholarship button.bg-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: #ffffff;
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+}
+html.event-theme-scholarship .bg-mesh::before {
+  background:
+    radial-gradient(ellipse 80% 60% at 15% 10%, rgba(29,78,216,0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 70% at 85% 80%, rgba(251,191,36,0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(59,130,246,0.18) 0%, transparent 60%) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   10. INDIAN TRICOLOR THEME (Saffron, White & Dharma Chakra Green)
+   ────────────────────────────────────────────────────────────────────────── */
+html.event-theme-tricolor {
+  --background: #030805;
+  --foreground: #f8fafc;
+  --card: #09170e;
+  --card-foreground: #f8fafc;
+  --primary: #f97316; /* Saffron */
+  --primary-foreground: #ffffff;
+  --secondary: #0f2c1a;
+  --secondary-foreground: #86efac;
+  --muted: #050f09;
+  --muted-foreground: #22c55e;
+  --accent: #143d24;
+  --accent-foreground: #f97316;
+  --border: #13331d;
+  --input: #0d2415;
+  --ring: #22c55e;
+}
+html.event-theme-tricolor button.bg-primary {
+  background: linear-gradient(90deg, #f97316 0%, #ffffff 50%, #22c55e 100%);
+  color: #0c150e;
+  font-weight: 900;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+html.event-theme-tricolor .bg-mesh::before {
+  background:
+    radial-gradient(ellipse 85% 65% at 10% 10%, rgba(249,115,22,0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 65% 75% at 85% 80%, rgba(34,197,94,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 55% 55% at 50% 50%, rgba(255,255,255,0.08) 0%, transparent 60%) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   11. RABINDRA JAYANTI THEME (Bengali Terracotta & Classical Parchment)
+   ────────────────────────────────────────────────────────────────────────── */
+html.event-theme-rabindraJayanti {
+  --background: #0e0705;
+  --foreground: #fdf6e2; /* Parchment cream */
+  --card: #1b0e0a;
+  --card-foreground: #fdf6e2;
+  --primary: #b45309; /* Amber/Ink */
+  --primary-foreground: #fdf6e2;
+  --secondary: #301711;
+  --secondary-foreground: #f59e0b;
+  --muted: #130a07;
+  --muted-foreground: #d97706;
+  --accent: #26120d;
+  --accent-foreground: #b45309;
+  --border: #301914;
+  --input: #21110e;
+  --ring: #b45309;
+}
+html.event-theme-rabindraJayanti button.bg-primary {
+  background: linear-gradient(135deg, #b45309 0%, #78350f 100%);
+  color: #fdf6e2;
+}
+html.event-theme-rabindraJayanti .bg-mesh::before {
+  background:
+    radial-gradient(ellipse 80% 60% at 15% 10%, rgba(180,83,9,0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 70% at 85% 80%, rgba(120,53,15,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(253,246,226,0.12) 0%, transparent 60%) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   12. WARM FESTIVAL THEME
+   ────────────────────────────────────────────────────────────────────────── */
+html.event-theme-warm {
+  --background: #0d0404;
+  --foreground: #fee2e2;
+  --card: #1a0808;
+  --card-foreground: #fee2e2;
+  --primary: #f43f5e;
+  --primary-foreground: #ffffff;
+  --secondary: #310e0e;
+  --secondary-foreground: #fda4af;
+  --muted: #110505;
+  --muted-foreground: #f43f5e;
+  --accent: #260b0b;
+  --accent-foreground: #f43f5e;
+  --border: #2d1111;
+  --input: #1e0b0b;
+  --ring: #f43f5e;
+}
+html.event-theme-warm .bg-mesh::before {
+  background:
+    radial-gradient(ellipse 80% 60% at 15% 10%, rgba(244,63,94,0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 70% at 85% 80%, rgba(225,29,72,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(253,164,175,0.12) 0%, transparent 60%) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   13. DIGITAL COOL THEME
+   ────────────────────────────────────────────────────────────────────────── */
+html.event-theme-cool {
+  --background: #02040a;
+  --foreground: #ecfeff;
+  --card: #070e1b;
+  --card-foreground: #ecfeff;
+  --primary: #06b6d4;
+  --primary-foreground: #02040a;
+  --secondary: #0e1e38;
+  --secondary-foreground: #22d3ee;
+  --muted: #040710;
+  --muted-foreground: #06b6d4;
+  --accent: #0f2547;
+  --accent-foreground: #06b6d4;
+  --border: #132747;
+  --input: #0a1b38;
+  --ring: #3b82f6;
+}
+html.event-theme-cool .bg-mesh::before {
+  background:
+    radial-gradient(ellipse 80% 60% at 15% 10%, rgba(6,182,212,0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 70% at 85% 80%, rgba(59,130,246,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(34,211,238,0.12) 0%, transparent 60%) !important;
+}

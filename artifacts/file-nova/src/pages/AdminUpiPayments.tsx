@@ -4,6 +4,7 @@ import { ChevronLeft, CheckCircle2, Loader, RefreshCw } from "lucide-react";
 import { useAdmin } from "@/lib/admin";
 import { toast } from "sonner";
 import { AdminLayout } from "@/components/AdminLayout";
+import { BACKEND_URL } from "@/lib/api";
 
 type UpiPayment = {
   id: string;
@@ -41,7 +42,7 @@ export default function AdminUpiPayments() {
     if (!admin.isAuthenticated) return;
     setLoading(true);
     try {
-      const res = await fetch("/api/upi-payments", { headers: adminHeaders });
+      const res = await fetch(`${BACKEND_URL}/api/upi-payments`, { headers: adminHeaders });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to load UPI payments.");
       setPayments(data.payments || []);
@@ -59,7 +60,7 @@ export default function AdminUpiPayments() {
   const approvePayment = async (id: string) => {
     setApprovingId(id);
     try {
-      const res = await fetch(`/api/upi-payments/${id}/approve`, {
+      const res = await fetch(`${BACKEND_URL}/api/upi-payments/${id}/approve`, {
         method: "POST",
         headers: adminHeaders,
       });
