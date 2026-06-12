@@ -18,6 +18,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { useSEO } from "@/hooks/useSEO";
 import { toolContentMap } from "@/data/toolContent";
 import ScholarshipZIPMaker from "@/pages/ScholarshipZIPMaker";
+import { ReactableGreeting } from "@/components/events/ReactableGreeting";
 
 // Import Workspace components
 import { UploadZone } from "@/components/workspace/UploadZone";
@@ -193,8 +194,9 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
              </div>
 
 
-              <LanguageSelector />
+             <LanguageSelector />
 
+             <ReactableGreeting />
              <ThemeToggle />
 
             <Link href="/workspace" className="hidden md:flex items-center gap-1 text-xs text-foreground hover:text-primary font-bold py-1.5 px-3 rounded-lg border border-border bg-card hover:border-indigo-500/35 hover:bg-indigo-500/10 transition-all">
@@ -254,6 +256,7 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
             </Link>
             <div className="flex items-center justify-between px-4 py-2 border border-border bg-card rounded-xl">
               <span className="text-xs font-bold text-muted-foreground">{tText("Theme Mode")}</span>
+              <ReactableGreeting />
               <ThemeToggle />
             </div>
           </div>

@@ -24,6 +24,7 @@ import { useSEO } from "@/hooks/useSEO";
 import { PopularToolsGrid } from "@/components/PopularToolsGrid";
 import { SmartSearchBar } from "@/components/SmartSearchBar";
 import { PopularToolsDropdown } from "@/components/PopularToolsDropdown";
+import { ReactableGreeting } from "@/components/events/ReactableGreeting";
 
 
 // Curated tools to display on the homepage grid
@@ -369,6 +370,7 @@ export default function SimpleHome() {
               <LanguageSelector />
             </div>
 
+            <ReactableGreeting />
             <ThemeToggle />
 
             <Link href="/workspace" className="hidden md:flex items-center gap-1 text-xs text-foreground hover:text-primary font-bold py-1.5 px-3 rounded-lg border border-border bg-card hover:border-primary/35 hover:bg-primary/10 transition-all">

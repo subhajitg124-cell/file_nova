@@ -9,6 +9,11 @@ import ToolPage from "@/pages/ToolPage";
 import { ToolSEO } from "@/seo/ToolSEO";
 import { ToolStructuredData } from "@/seo/ToolStructuredData";
 
+import { EventProvider } from "@/components/events/EventProvider";
+import { EventTheme } from "@/components/events/EventTheme";
+import { NoticeBar } from "@/components/events/NoticeBar";
+import { AnimatedBanner } from "@/components/events/AnimatedBanner";
+
 const MergePdf = React.lazy(() => import("@/tools/pdf/MergePDFWorkspace"));
 const SplitPdf = React.lazy(() => import("@/tools/pdf/SplitPDFWorkspace"));
 const CompressPdf = React.lazy(() => import("@/tools/pdf/CompressPDFWorkspace"));
@@ -175,12 +180,21 @@ function Router() {
 
   return (
     <>
+      <EventTheme />
+      <NoticeBar />
+      <AnimatedBanner placement="corner-decoration" />
+      <AnimatedBanner placement="background-overlay" />
       <ThemeEffects />
       <ScrollToTop />
       <ToolSEO />
       <ToolStructuredData />
       <Switch>
-        <Route path="/" component={Home} />
+        <Route path="/">
+          <>
+            <AnimatedBanner placement="hero" />
+            <Home />
+          </>
+        </Route>
         <Route path="/workspace" component={Workspace} />
         <Route path="/tools" component={ToolsPage} />
 
@@ -560,8 +574,10 @@ function App({ ssrPath }: { ssrPath?: string } = {}) {
                   <FloatingShortcuts />
                   <FileNovaAssistant isOpen={assistantOpen} onClose={() => setAssistantOpen(false)} />
                   <AdminProvider>
-                    <GlobalNotice />
-                    <Router />
+                    <EventProvider>
+                      <GlobalNotice />
+                      <Router />
+                    </EventProvider>
                     <FileExpiryBar />
                     <Toaster closeButton position="top-right" richColors />
                     <UpgradeLimitModal 
