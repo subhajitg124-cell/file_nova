@@ -217,10 +217,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         return;
       }
 
-      const res = await safeFetch(`${BACKEND_URL}/api/v1/auth/me`, {
+      // Enforce a fast 2-second timeout for the profile check to ensure the initial loader fades quickly if the backend is down
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+      const res = await fetch(`${BACKEND_URL}/api/v1/auth/me`, {
         credentials: 'include',
         headers: getAuthHeaders(),
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
+
       if (res.ok) {
         const data = await safeJsonParse(res);
         if (data.success && data.user) {

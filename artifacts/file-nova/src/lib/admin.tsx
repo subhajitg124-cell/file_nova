@@ -168,7 +168,10 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     }
 
     fetch(`${BACKEND_URL}/api/v1/premium/subscription/settings`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Server returned non-ok status");
+        return res.json();
+      })
       .then((data) => {
         if (data.success && data.settings) {
           // If eventTheme is set to "none", we use the automatic theme
@@ -182,7 +185,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         }
       })
       .catch((err) => {
-        console.error("Failed to load settings from server", err);
+        console.warn("Failed to load settings from server, using local/cached values.", err);
       });
   }, []);
 
@@ -242,10 +245,10 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify(updated),
       });
       if (!res.ok) {
-        toast.error("Failed to save settings to server");
+        console.warn("Failed to save settings to server");
       }
     } catch (e) {
-      toast.error("Network error saving settings");
+      console.warn("Network error saving settings to server, saved locally:", e);
     }
   };
 

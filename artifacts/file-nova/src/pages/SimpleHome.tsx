@@ -291,7 +291,7 @@ export default function SimpleHome() {
         <Link
           key={tool.id}
           href={tool.canonical}
-          className="group relative bg-white dark:bg-slate-900/30 hover:bg-slate-50 dark:hover:bg-slate-900/60 border border-gray-200 dark:border-slate-800 hover:border-indigo-400/40 dark:hover:border-indigo-500/25 rounded-2xl p-5 cursor-pointer transition-all duration-300 flex flex-col justify-between shadow-sm hover:shadow-lg hover:-translate-y-0.5 text-left block overflow-hidden"
+          className="group relative bg-card hover:bg-accent/40 border border-border hover:border-primary/45 rounded-2xl p-5 cursor-pointer transition-all duration-300 flex flex-col justify-between shadow-sm hover:shadow-lg hover:-translate-y-0.5 text-left block overflow-hidden"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/0 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
           <div>
@@ -310,16 +310,16 @@ export default function SimpleHome() {
                 </span>
               )}
             </div>
-            <h3 className="font-bold text-sm text-gray-900 dark:text-white mb-1.5 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+            <h3 className="font-bold text-sm text-foreground mb-1.5 group-hover:text-primary transition-colors">
               {tool.title}
             </h3>
-            <p className="text-xs text-gray-600 dark:text-slate-400 leading-relaxed">
+            <p className="text-xs text-muted-foreground leading-relaxed">
               {tool.description}
             </p>
           </div>
-          <div className="mt-4 pt-3 border-t border-gray-100 dark:border-slate-900/60 flex items-center justify-between text-[10px] text-gray-500 dark:text-slate-500 font-bold uppercase tracking-wider relative z-10">
+          <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-[10px] text-muted-foreground font-bold uppercase tracking-wider relative z-10">
             <span>{displayCategory}</span>
-            <span className="flex items-center gap-0.5 text-indigo-600 dark:text-indigo-400 opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-0.5">
+            <span className="flex items-center gap-0.5 text-primary opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-0.5">
               {tText("Open")} <ChevronRight className="h-3 w-3" />
             </span>
           </div>
@@ -371,7 +371,7 @@ export default function SimpleHome() {
 
             <ThemeToggle />
 
-            <Link href="/workspace" className="hidden md:flex items-center gap-1 text-xs text-foreground hover:text-primary font-bold py-1.5 px-3 rounded-lg border border-border bg-card hover:border-indigo-500/35 hover:bg-indigo-500/10 transition-all">
+            <Link href="/workspace" className="hidden md:flex items-center gap-1 text-xs text-foreground hover:text-primary font-bold py-1.5 px-3 rounded-lg border border-border bg-card hover:border-primary/35 hover:bg-primary/10 transition-all">
               <FileText className="h-3.5 w-3.5" />
               {tText("Workspace")}
             </Link>
@@ -466,7 +466,7 @@ export default function SimpleHome() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-4xl md:text-6xl font-black tracking-tight text-gray-900 dark:text-white mb-6 leading-tight"
+            className="text-4xl md:text-6xl font-black tracking-tight text-foreground mb-6 leading-tight"
           >
             {tText("What do you want to")} <br />
             <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 dark:from-indigo-400 dark:via-purple-400 dark:to-indigo-400 bg-clip-text text-transparent">{tText("do today?")}</span>
@@ -475,7 +475,7 @@ export default function SimpleHome() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-gray-600 dark:text-slate-400 text-sm md:text-lg mb-12 max-w-xl mx-auto"
+            className="text-muted-foreground text-sm md:text-lg mb-12 max-w-xl mx-auto"
           >
             {tText("Process certificates, passport photos, and PDFs safely in your local browser. Ideal for CSC kiosks, cyber cafes, and students.")}
           </motion.p>
@@ -489,44 +489,44 @@ export default function SimpleHome() {
           >
             <Link
               href="/scholarship-zip"
-              className="flex flex-col items-center justify-between p-6 bg-card hover:bg-slate-50 dark:bg-slate-900/40 dark:hover:bg-slate-900/80 border border-border dark:border-slate-900 hover:border-indigo-500/35 rounded-2xl transition-all duration-300 group shadow-lg hover:shadow-glow-indigo-subtle hover:shadow-xl hover:-translate-y-0.5 cursor-pointer text-left block"
+              className="flex flex-col items-center justify-between p-6 bg-card hover:bg-accent/40 border border-border hover:border-primary/45 rounded-2xl transition-all duration-300 group shadow-lg hover:shadow-xl hover:-translate-y-0.5 cursor-pointer text-left block"
             >
               <div className="h-12 w-12 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <GraduationCap className="h-6 w-6" />
               </div>
               <div className="text-center">
-                <span className="font-extrabold text-sm text-slate-900 dark:text-white block">{tText("Scholarship ZIP")}</span>
-                <span className="text-[11px] text-slate-600 dark:text-slate-500 block mt-1">{tText("Compile portal ZIPs")}</span>
+                <span className="font-extrabold text-sm text-foreground block">{tText("Scholarship ZIP")}</span>
+                <span className="text-[11px] text-muted-foreground block mt-1">{tText("Compile portal ZIPs")}</span>
               </div>
-              <ArrowRight className="h-4 w-4 text-slate-400 dark:text-slate-600 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 group-hover:translate-x-1 transition-all mt-4" />
+              <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all mt-4" />
             </Link>
 
             <Link
-              href="/resize-pdf"
-              className="flex flex-col items-center justify-between p-6 bg-card hover:bg-slate-50 dark:bg-slate-900/40 dark:hover:bg-slate-900/80 border border-border dark:border-slate-900 hover:border-emerald-500/35 rounded-2xl transition-all duration-300 group shadow-lg hover:shadow-glow-emerald-subtle cursor-pointer text-left block"
+              href="/resize-photo"
+              className="flex flex-col items-center justify-between p-6 bg-card hover:bg-accent/40 border border-border hover:border-primary/45 rounded-2xl transition-all duration-300 group shadow-lg hover:shadow-xl hover:-translate-y-0.5 cursor-pointer text-left block"
             >
               <div className="h-12 w-12 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <ImageIcon className="h-6 w-6" />
               </div>
               <div className="text-center">
-                <span className="font-extrabold text-sm text-slate-900 dark:text-white block">{tText("Resize Photo")}</span>
-                <span className="text-[11px] text-slate-600 dark:text-slate-500 block mt-1">{tText("Selfies to exact dimensions")}</span>
+                <span className="font-extrabold text-sm text-foreground block">{tText("Resize Photo")}</span>
+                <span className="text-[11px] text-muted-foreground block mt-1">{tText("Selfies to exact dimensions")}</span>
               </div>
-              <ArrowRight className="h-4 w-4 text-slate-400 dark:text-slate-600 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 group-hover:translate-x-1 transition-all mt-4" />
+              <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all mt-4" />
             </Link>
 
             <Link
               href="/compress-pdf"
-              className="flex flex-col items-center justify-between p-6 bg-card hover:bg-slate-50 dark:bg-slate-900/40 dark:hover:bg-slate-900/80 border border-border dark:border-slate-900 hover:border-purple-500/35 rounded-2xl transition-all duration-300 group shadow-lg hover:shadow-glow-purple-subtle cursor-pointer text-left block"
+              className="flex flex-col items-center justify-between p-6 bg-card hover:bg-accent/40 border border-border hover:border-primary/45 rounded-2xl transition-all duration-300 group shadow-lg hover:shadow-xl hover:-translate-y-0.5 cursor-pointer text-left block"
             >
               <div className="h-12 w-12 rounded-xl bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <FileText className="h-6 w-6" />
               </div>
               <div className="text-center">
-                <span className="font-extrabold text-sm text-slate-900 dark:text-white block">{tText("Compress PDF")}</span>
-                <span className="text-[11px] text-slate-600 dark:text-slate-500 block mt-1">{tText("Fit portal file limits")}</span>
+                <span className="font-extrabold text-sm text-foreground block">{tText("Compress PDF")}</span>
+                <span className="text-[11px] text-muted-foreground block mt-1">{tText("Fit portal file limits")}</span>
               </div>
-              <ArrowRight className="h-4 w-4 text-slate-400 dark:text-slate-600 group-hover:text-purple-600 dark:group-hover:text-purple-400 group-hover:translate-x-1 transition-all mt-4" />
+              <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all mt-4" />
             </Link>
           </motion.div>
         </div>
@@ -534,15 +534,15 @@ export default function SimpleHome() {
 
       {/* Site Description Block */}
       <section className="pb-10 px-4 relative z-10 max-w-3xl mx-auto text-center">
-        <p className="text-sm text-gray-500 dark:text-slate-400 leading-relaxed">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           {tText("FileNova is a free online PDF toolkit built for India. Merge, split, compress, convert PDFs and manage Indian government documents — Aadhaar, PAN, marksheets — right in your browser. No signup. No app. Just fast, secure PDF tools.")}
         </p>
       </section>
 
       {/* Flat horizontal Quick Actions */}
-      <section className="py-6 border-y border-border dark:border-slate-900 bg-card/40 dark:bg-slate-950/40 relative z-10 overflow-x-auto whitespace-nowrap scrollbar-none">
+      <section className="py-6 border-y border-border bg-card/40 relative z-10 overflow-x-auto whitespace-nowrap scrollbar-none">
         <div className="max-w-6xl mx-auto px-4 flex items-center gap-3.5">
-          <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wider shrink-0 mr-2">{tText("Quick Actions:")}</span>
+          <span className="text-[10px] text-muted-foreground font-extrabold uppercase tracking-wider shrink-0 mr-2">{tText("Quick Actions:")}</span>
           {[
             { label: tText("Aadhaar Card Mask"), href: "/aadhaar-mask-pdf" },
             { label: tText("NSDL PAN Resize"), href: "/pan-card-resize" },
@@ -553,7 +553,7 @@ export default function SimpleHome() {
             <Link
               key={i}
               href={act.href}
-              className="inline-flex items-center bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-850 border border-gray-200 dark:border-slate-800 text-gray-700 dark:text-slate-300 font-bold text-xs py-1.5 px-3.5 rounded-full transition-all cursor-pointer shadow-sm animate-pulse-hover"
+              className="inline-flex items-center bg-card hover:bg-accent border border-border text-foreground font-bold text-xs py-1.5 px-3.5 rounded-full transition-all cursor-pointer shadow-sm animate-pulse-hover"
             >
               {act.label}
             </Link>
@@ -570,11 +570,11 @@ export default function SimpleHome() {
           {/* Header */}
           <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 mb-10">
             <div>
-              <h2 className="text-2xl font-black text-gray-900 dark:text-white flex items-center gap-2">
-                <LayoutGrid className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                {tText("Featured Document Automation Tools")}
+              <h2 className="text-2xl font-black text-foreground flex items-center gap-2">
+                <ShieldCheck className="h-6 w-6 text-indigo-500" />
+                {tText("Guaranteed Data Privacy & Safety")}
               </h2>
-              <p className="text-gray-600 dark:text-slate-400 text-xs mt-1">{tText("Our client-side processors require zero file uploads to servers. Fast, secure, and private.")}</p>
+              <p className="text-muted-foreground text-xs mt-1">{tText("Our client-side processors require zero file uploads to servers. Fast, secure, and private.")}</p>
             </div>
             
             <Link href="/tools" className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-bold flex items-center gap-1 hover:underline">
@@ -585,7 +585,7 @@ export default function SimpleHome() {
           {searchQuery ? (
             <div className="space-y-6">
               <div className="border-b border-border pb-2 flex items-center justify-between">
-                <h3 className="text-base font-black text-gray-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                <h3 className="text-base font-black text-foreground uppercase tracking-wider flex items-center gap-2">
                   <Search className="h-4 w-4 text-indigo-500" />
                   {tText("Search Results")}
                 </h3>
@@ -629,7 +629,7 @@ export default function SimpleHome() {
 
               <div className="space-y-6">
                 <div className="border-b border-border pb-2">
-                  <h3 className="text-base font-black text-gray-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                  <h3 className="text-base font-black text-foreground uppercase tracking-wider flex items-center gap-2">
                     <FileText className="h-4.5 w-4.5 text-indigo-500" />
                     {tText("Popular PDF Tools")}
                   </h3>
@@ -641,7 +641,7 @@ export default function SimpleHome() {
 
               <div className="space-y-6">
                 <div className="border-b border-border pb-2">
-                  <h3 className="text-base font-black text-gray-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                  <h3 className="text-base font-black text-foreground uppercase tracking-wider flex items-center gap-2">
                     <ImageIcon className="h-4.5 w-4.5 text-indigo-500" />
                     {tText("Image & ID Formatting Lab")}
                   </h3>
@@ -653,7 +653,7 @@ export default function SimpleHome() {
 
               <div className="space-y-6">
                 <div className="border-b border-border pb-2">
-                  <h3 className="text-base font-black text-gray-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                  <h3 className="text-base font-black text-foreground uppercase tracking-wider flex items-center gap-2">
                     <Sparkles className="h-4.5 w-4.5 text-indigo-500" />
                     {tText("AI-Powered Suite")}
                   </h3>
@@ -665,7 +665,7 @@ export default function SimpleHome() {
 
               <div className="space-y-6">
                 <div className="border-b border-border pb-2">
-                  <h3 className="text-base font-black text-gray-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                  <h3 className="text-base font-black text-foreground uppercase tracking-wider flex items-center gap-2">
                     <GraduationCap className="h-4.5 w-4.5 text-indigo-500" />
                     {tText("Office & Document Suite")}
                   </h3>
@@ -680,12 +680,12 @@ export default function SimpleHome() {
       </section>
 
       {/* Trust & Features Section */}
-      <section className="py-20 bg-gray-50 dark:bg-slate-950 border-t border-gray-200 dark:border-slate-900 relative z-10">
+      <section className="py-20 bg-muted/40 border-t border-border relative z-10">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white mb-3">
-            {tText("Why 10,000+ Cyber Cafes & CSC Centers Trust FileNova")}
+          <h2 className="text-xl md:text-2xl font-black text-foreground mb-3">
+            {tText("Why Indian Cyber Cafes & CSC Operators Trust FileNova")}
           </h2>
-          <p className="text-gray-600 dark:text-slate-400 text-xs max-w-md mx-auto mb-12">
+          <p className="text-muted-foreground text-xs max-w-md mx-auto mb-12">
             {tText("Secure client-side utilities engineered for maximum confidentiality and offline capabilities.")}
           </p>
 
@@ -699,8 +699,8 @@ export default function SimpleHome() {
               <div className="h-12 w-12 mx-auto rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-110 group-hover:rotate-[6deg] transition-all duration-300">
                 <Star className="h-5 w-5 fill-current" />
               </div>
-              <h3 className="font-bold text-sm text-gray-900 dark:text-white">{tText("100% Free & Unlimited")}</h3>
-              <p className="text-xs text-gray-500 dark:text-slate-500 leading-relaxed">{tText("No registrations, no watermarks, completely free for student scholarship packing.")}</p>
+              <h3 className="font-bold text-sm text-foreground">{tText("100% Free & Unlimited")}</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">{tText("No registrations, no watermarks, completely free for student scholarship packing.")}</p>
             </motion.div>
             
             <motion.div
@@ -712,8 +712,8 @@ export default function SimpleHome() {
               <div className="h-12 w-12 mx-auto rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-110 group-hover:-rotate-[6deg] transition-all duration-300">
                 <Clock className="h-5 w-5" />
               </div>
-              <h3 className="font-bold text-sm text-gray-900 dark:text-white">{tText("Instant Auto-Delete")}</h3>
-              <p className="text-xs text-gray-500 dark:text-slate-500 leading-relaxed">{tText("Processed files are cleared immediately from the browser storage in 1 hour.")}</p>
+              <h3 className="font-bold text-sm text-foreground">{tText("Instant Auto-Delete")}</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">{tText("Processed files are cleared immediately from the browser storage in 1 hour.")}</p>
             </motion.div>
 
             <motion.div
@@ -725,8 +725,8 @@ export default function SimpleHome() {
               <div className="h-12 w-12 mx-auto rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-110 group-hover:rotate-[6deg] transition-all duration-300">
                 <Lock className="h-5 w-5" />
               </div>
-              <h3 className="font-bold text-sm text-gray-900 dark:text-white">{tText("Client-Side Security")}</h3>
-              <p className="text-xs text-gray-500 dark:text-slate-500 leading-relaxed">{tText("Conversions occur in your browser cache. Documents never upload to servers.")}</p>
+              <h3 className="font-bold text-sm text-foreground">{tText("Client-Side Security")}</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">{tText("Conversions occur in your browser cache. Documents never upload to servers.")}</p>
             </motion.div>
           </div>
         </div>
@@ -763,7 +763,7 @@ export default function SimpleHome() {
             </div>
             <div>
               <p className="text-xs text-muted-foreground mb-1">{tText("You dropped:")}</p>
-              <p className="text-xs font-black text-gray-900 dark:text-white truncate bg-slate-50 dark:bg-slate-950 p-2.5 rounded-xl border border-border">{droppedFile.name}</p>
+              <p className="text-xs font-black text-foreground truncate bg-muted p-2.5 rounded-xl border border-border">{droppedFile.name}</p>
             </div>
             <div className="space-y-2 max-h-60 overflow-y-auto">
               {getSuggestedTools(droppedFile).map((tool) => (

@@ -15,8 +15,8 @@ const TelegramContact: React.FC = () => {
     return (
       <li className="flex items-center gap-2">
         <span>📱</span>
-        <span className="text-slate-500">{tText("Telegram:")} </span>
-        <span className="text-slate-500">🔒 {tText("Upgrade to PRO")}</span>
+        <span className="text-muted-foreground/60">{tText("Telegram:")} </span>
+        <span className="text-muted-foreground/60">🔒 {tText("Upgrade to PRO")}</span>
       </li>
     );
   }
@@ -28,7 +28,7 @@ const TelegramContact: React.FC = () => {
         href="https://t.me/filenova_assistant"
         target="_blank"
         rel="noopener noreferrer"
-        className="hover:text-indigo-400 transition-colors"
+        className="hover:text-primary transition-colors"
       >
         Telegram: @filenova_assistant
       </a>
@@ -45,8 +45,8 @@ const WhatsAppContact: React.FC = () => {
     return (
       <li className="flex items-center gap-2">
         <span>💬</span>
-        <span className="text-slate-500">{tText("WhatsApp:")} </span>
-        <span className="text-slate-500">🔒 {tText("Upgrade to Elite")}</span>
+        <span className="text-muted-foreground/60">{tText("WhatsApp:")} </span>
+        <span className="text-muted-foreground/60">🔒 {tText("Upgrade to Elite")}</span>
       </li>
     );
   }
@@ -58,7 +58,7 @@ const WhatsAppContact: React.FC = () => {
         href="https://wa.me/919064560741?text=Hi! I am a FileNova Elite user and need assistance with..."
         target="_blank"
         rel="noopener noreferrer"
-        className="hover:text-indigo-400 transition-colors"
+        className="hover:text-primary transition-colors"
       >
         WhatsApp: +91 9064560741
       </a>
@@ -86,16 +86,16 @@ const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="bg-slate-900 text-white relative z-10">
+    <footer className="bg-card text-card-foreground border-t border-border relative z-10">
       <div className="max-w-6xl mx-auto px-4 py-16">
          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="col-span-1 sm:col-span-2 lg:col-span-1">
             <div className="flex items-center gap-3 mb-4">
               <img src="/logo.png" alt="FileNova" className="w-9 h-9 rounded-xl" />
-              <span className="text-white font-bold text-lg">FileNova</span>
+              <span className="text-foreground font-bold text-lg">FileNova</span>
             </div>
-            <p className="text-slate-400 text-sm mb-4">
+            <p className="text-muted-foreground text-sm mb-4">
               {tText("India's most trusted document automation platform.")}
               <br />
               {tText("Made with ❤️ for students & CSC operators.")}
@@ -139,25 +139,25 @@ const Footer: React.FC = () => {
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-semibold mb-4 text-white">{tText("Quick Links")}</h4>
+            <h4 className="font-semibold mb-4 text-foreground">{tText("Quick Links")}</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/tools" className="text-slate-400 hover:text-indigo-400 transition-colors">
+                <Link href="/tools" className="text-muted-foreground hover:text-primary transition-colors">
                   {tText("All Tools")}
                 </Link>
               </li>
               <li>
-                <Link href="/pricing" className="text-slate-400 hover:text-indigo-400 transition-colors">
+                <Link href="/pricing" className="text-muted-foreground hover:text-primary transition-colors">
                   {tText("Pricing")}
                 </Link>
               </li>
               <li>
-                <Link href="/resources" className="text-slate-400 hover:text-indigo-400 transition-colors">
+                <Link href="/resources" className="text-muted-foreground hover:text-primary transition-colors">
                   {tText("Resources")}
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-slate-400 hover:text-indigo-400 transition-colors">
+                <Link href="/contact" className="text-muted-foreground hover:text-primary transition-colors">
                   {tText("Contact")}
                 </Link>
               </li>
@@ -166,20 +166,20 @@ const Footer: React.FC = () => {
 
           {/* Learn & Earn */}
           <div>
-            <h4 className="font-semibold mb-4 text-white">{tText("Resources & Blog")}</h4>
+            <h4 className="font-semibold mb-4 text-foreground">{tText("Resources & Blog")}</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/blog" className="text-slate-400 hover:text-indigo-400 transition-colors">
+                <Link href="/blog" className="text-muted-foreground hover:text-primary transition-colors">
                   {tText("Latest Blog & News")}
                 </Link>
               </li>
               <li>
-                <Link href="/referral" className="text-slate-400 hover:text-indigo-400 transition-colors">
+                <Link href="/referral" className="text-muted-foreground hover:text-primary transition-colors">
                   {tText("Referral Program")}
                 </Link>
               </li>
               <li>
-                <Link href="/student-offer" className="text-slate-400 hover:text-indigo-400 transition-colors">
+                <Link href="/student-offer" className="text-muted-foreground hover:text-primary transition-colors">
                   {tText("Student Offers")}
                 </Link>
               </li>
@@ -189,13 +189,13 @@ const Footer: React.FC = () => {
 
           {/* Contact & Social */}
           <div>
-            <h4 className="font-semibold mb-4 text-white">{tText("Contact & Support")}</h4>
-            <ul className="space-y-2 text-sm text-slate-400">
+            <h4 className="font-semibold mb-4 text-foreground">{tText("Contact & Support")}</h4>
+            <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-center gap-2">
                 <span>📧</span>
                 <a
                   href="mailto:subhajiteditz90@gmail.com"
-                  className="hover:text-indigo-400 transition-colors"
+                  className="hover:text-primary transition-colors"
                 >
                   subhajiteditz90@gmail.com
                 </a>
@@ -211,14 +211,14 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-slate-800 mt-8 pt-8 text-center text-sm text-slate-400">
+        <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
           <p>© {new Date().getFullYear()} FileNova - All rights reserved</p>
           <p className="mt-2">
-            Made with ❤️ by <span className="text-purple-400">Subhajit Ghosh</span>
+            Made with ❤️ by <span className="text-primary font-bold">Subhajit Ghosh</span>
           </p>
           
           <div className="mt-6 flex flex-col items-center justify-center gap-3">
-            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{tText("Support FileNova Development")}</p>
+            <p className="text-[10px] text-muted-foreground/60 font-bold uppercase tracking-widest">{tText("Support FileNova Development")}</p>
             <div className="flex gap-4">
               <a
                 href={createUpiLink(10, "Chai for FileNova")}
@@ -245,16 +245,16 @@ const Footer: React.FC = () => {
           />
 
           <div className="flex justify-center gap-4 mt-6 text-xs flex-wrap">
-            <Link href="/privacy" className="hover:text-white transition-colors">
+            <Link href="/privacy" className="hover:text-foreground transition-colors">
               {tText("Privacy Policy")}
             </Link>
-            <Link href="/terms" className="hover:text-white transition-colors">
+            <Link href="/terms" className="hover:text-foreground transition-colors">
               {tText("Terms of Service")}
             </Link>
-            <Link href="/cookie-policy" className="hover:text-white transition-colors">
+            <Link href="/cookie-policy" className="hover:text-foreground transition-colors">
               {tText("Cookie Policy")}
             </Link>
-            <Link href="/contact" className="hover:text-white transition-colors">
+            <Link href="/contact" className="hover:text-foreground transition-colors">
               {tText("Contact Us")}
             </Link>
           </div>

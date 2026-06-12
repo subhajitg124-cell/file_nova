@@ -72,7 +72,6 @@ import { FileNovaAssistant } from "@/components/FileNovaAssistant";
 import { SmartAssistant } from "@/assistant/components/SmartAssistant";
 import { FloatingShortcuts } from "@/components/FloatingShortcuts";
 import { FloatingParticles } from "@/components/AnimatedEffects";
-import { YouTubePromo } from "@/components/YouTubePromo";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useFileStore } from "@/store/useFileStore";
 import { LoadingScreen } from "@/components/LoadingScreen";
@@ -559,7 +558,6 @@ function App({ ssrPath }: { ssrPath?: string } = {}) {
                   <OfflineBanner />
                   <FloatingParticles />
                   <FloatingShortcuts />
-                  <YouTubePromo />
                   <FileNovaAssistant isOpen={assistantOpen} onClose={() => setAssistantOpen(false)} />
                   <AdminProvider>
                     <GlobalNotice />
