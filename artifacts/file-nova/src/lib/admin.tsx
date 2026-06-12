@@ -16,6 +16,10 @@ type Settings = {
   globalNoticeType?: "info" | "warning" | "error" | "success";
   popupMessageActive?: boolean;
   popupMessageText?: string;
+  adType?: "none" | "internal" | "adsense" | "alternative";
+  alternativeAdCode?: string;
+  customBannerImg?: string;
+  customBannerLink?: string;
 };
 
 const CRED_KEY = "filenova-admin";
@@ -37,6 +41,10 @@ const defaultSettings: Settings = {
   globalNoticeType: "info",
   popupMessageActive: false,
   popupMessageText: "",
+  adType: "internal",
+  alternativeAdCode: "",
+  customBannerImg: "",
+  customBannerLink: "",
 };
 
 const AdminContext = createContext<{

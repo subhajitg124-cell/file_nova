@@ -94,6 +94,42 @@ const TIER_META = {
       "WhatsApp support",
     ],
   },
+  pass_24h: {
+    label: "24-HOUR PASS ⚡",
+    emoji: "🟣",
+    badgeClass: "badge-pro",
+    headerColor: "text-indigo-600 dark:text-indigo-400",
+    barFrom: "from-indigo-500",
+    barTo: "to-purple-500",
+    statusLabel: "24-Hour Pass Status",
+    limitLabel: "Usage Limit",
+    limitDesc: "24-Hour Pass gives you 100 document automations.",
+    dailyMax: 100,
+    icon: Zap,
+    ctaText: "Upgrade to Monthly Pro (₹99/mo)",
+    ctaHref: "/pricing",
+    ctaClass:
+      "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500",
+    perks: ["100 uses/day", "Priority speed", "QR validation", "24-hour duration"],
+  },
+  pass_7d: {
+    label: "WEEKLY PASS ⚡",
+    emoji: "🟣",
+    badgeClass: "badge-pro",
+    headerColor: "text-indigo-600 dark:text-indigo-400",
+    barFrom: "from-indigo-500",
+    barTo: "to-purple-500",
+    statusLabel: "Weekly Pass Status",
+    limitLabel: "Usage Limit",
+    limitDesc: "Weekly Pass gives you 100 document automations daily.",
+    dailyMax: 100,
+    icon: Zap,
+    ctaText: "Upgrade to Elite (₹199/mo)",
+    ctaHref: "/pricing",
+    ctaClass:
+      "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400",
+    perks: ["100 uses/day", "Priority speed", "QR validation", "7-day duration"],
+  },
 } as const;
 
 /* ─── Component ──────────────────────────────────────────────────────── */
@@ -114,7 +150,7 @@ export function PlanBadge() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const tier = TIER_META[premiumTier] ?? TIER_META.free;
+  const tier = TIER_META[premiumTier as keyof typeof TIER_META] ?? TIER_META.free;
   const IconComp = tier.icon;
 
   /* Usage progress */
@@ -206,7 +242,7 @@ export function PlanBadge() {
 
               {/* Perks */}
               <div className="grid grid-cols-2 gap-1">
-                {tier.perks.map((perk) => (
+                {(tier.perks as readonly string[]).map((perk: string) => (
                   <div
                     key={perk}
                     className="flex items-center gap-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400"

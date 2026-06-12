@@ -40,6 +40,8 @@ import AdminLogin from "@/pages/AdminLogin";
 import AdminAnalytics from "@/pages/AdminAnalytics";
 import PremiumSuite from "@/pages/PremiumSuite";
 import PricingPage from "@/pages/PricingPage";
+import OperatorDashboard from "@/pages/OperatorDashboard";
+import SEOPhotoCompressor from "@/pages/seo/SEOPhotoCompressor";
 import NotFound from "@/pages/not-found";
 
 const BetaTestingZone = React.lazy(() => import("@/pages/BetaTestingZone"));
@@ -293,6 +295,8 @@ function Router() {
         </Route>
         <Route path="/premium" component={PremiumSuite} />
         <Route path="/pricing" component={PricingPage} />
+        <Route path="/operator-dashboard" component={OperatorDashboard} />
+        <Route path="/tools/compress-pan-card" component={SEOPhotoCompressor} />
         <Route path="/nova-control" component={AdminDashboard} />
         <Route path="/admin/analytics" component={AdminAnalytics} />
         <Route path="/admin/upi-payments" component={AdminUpiPayments} />

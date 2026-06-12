@@ -9,7 +9,7 @@ import { BACKEND_URL } from "@/lib/api";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useFileStore } from "@/store/useFileStore";
 
-export type PremiumTier = "free" | "basic" | "pro" | "elite";
+export type PremiumTier = "free" | "basic" | "pro" | "elite" | "pass_24h" | "pass_7d";
 
 const getTodayKey = () => {
   const d = new Date();
@@ -147,9 +147,11 @@ export function useSubscription() {
     basic: 4900,
     pro: 9900,
     elite: 19900,
+    pass_24h: 900,
+    pass_7d: 2900,
   };
 
-  const startCheckout = useCallback(async (plan: "basic" | "pro" | "elite" | "pro_monthly", coupon?: string) => {
+  const startCheckout = useCallback(async (plan: "basic" | "pro" | "elite" | "pass_24h" | "pass_7d" | "pro_monthly", coupon?: string) => {
     const targetPlan = plan === "pro_monthly" ? "basic" : plan;
     setLoading(true);
     try {
@@ -356,6 +358,18 @@ export function useSubscription() {
   const shouldShowAdGate = useCallback((): boolean => {
     if (isTestingPeriodActive() || isDev) return false;
     if (premiumTier !== "free") return false;
+    
+    // Check if ad type is disabled in admin settings
+    try {
+      const settingsStr = localStorage.getItem("filenova-settings");
+      if (settingsStr) {
+        const parsed = JSON.parse(settingsStr);
+        if (parsed && parsed.adType === "none") {
+          return false;
+        }
+      }
+    } catch (_) {}
+
     // FREE user: watch 1 ad per use.
     // Condition: watched ads must be >= uses + 1 to run next feature
     const requiredAds = dbUsageToday + 1;

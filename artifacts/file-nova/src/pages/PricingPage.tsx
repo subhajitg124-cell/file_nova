@@ -663,6 +663,73 @@ export default function PricingPage() {
           {couponSuccess && <p className="text-xs font-bold text-emerald-500">{couponSuccess}</p>}
         </div>
 
+        {/* Sachet Passes Section */}
+        <div className="max-w-4xl mx-auto space-y-6 pt-4 text-center">
+          <div className="space-y-1.5">
+            <span className="inline-flex items-center gap-1.5 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-wider px-3.5 py-1 rounded-full border border-indigo-500/20">
+              ⚡ Sachet Pass (Single Use Cycles)
+            </span>
+            <h2 className="text-2xl font-black text-foreground">Only need it for a short project?</h2>
+            <p className="text-xs text-muted-foreground max-w-lg mx-auto">
+              Get full access to all premium tools, scanning filters, and high-speed compressions without a monthly recurring commitment.
+            </p>
+          </div>
+          
+          <div className="grid gap-6 sm:grid-cols-2 max-w-3xl mx-auto">
+            {/* 24 Hour pass */}
+            <div className="rounded-2xl border border-border/80 bg-gradient-to-br from-indigo-950/10 to-slate-900/40 p-6 flex flex-col justify-between hover:border-indigo-500/30 transition shadow-sm relative group text-left">
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-base font-black text-white">24-Hour Pass</h3>
+                  <span className="text-[9px] bg-indigo-500/15 text-indigo-300 font-bold px-2 py-0.5 rounded-full border border-indigo-500/20">Best Value</span>
+                </div>
+                <p className="text-xs text-slate-400 leading-normal">Complete access to pro tools, form autofills, and PDF builders for 24 hours.</p>
+              </div>
+              
+              <div className="flex items-baseline gap-1 pt-4 pb-4 border-t border-white/[0.04] mt-4">
+                <span className="text-2xl font-black text-white">₹9</span>
+                <span className="text-xs text-slate-500">/24 Hours</span>
+              </div>
+              
+              <div className="grid grid-cols-1 gap-2 xl:grid-cols-2">
+                <button
+                  onClick={() => handleSelectPlan("pass_24h")}
+                  className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-black text-xs hover:opacity-90 shadow-glow cursor-pointer transition flex items-center justify-center"
+                >
+                  Buy Pass
+                </button>
+                <UpiPaymentBox plan="pass_24h" amount={9} userEmail={user?.email} />
+              </div>
+            </div>
+
+            {/* 7 day pass */}
+            <div className="rounded-2xl border border-border/80 bg-gradient-to-br from-purple-950/10 to-slate-900/40 p-6 flex flex-col justify-between hover:border-purple-500/30 transition shadow-sm relative group text-left">
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-base font-black text-white">Weekly Pass</h3>
+                  <span className="text-[9px] bg-purple-500/15 text-purple-300 font-bold px-2 py-0.5 rounded-full border border-purple-500/20">Form Cycle</span>
+                </div>
+                <p className="text-xs text-slate-400 leading-normal">Perfect for processing admission sets and local scholarship forms over a week.</p>
+              </div>
+              
+              <div className="flex items-baseline gap-1 pt-4 pb-4 border-t border-white/[0.04] mt-4">
+                <span className="text-2xl font-black text-white">₹29</span>
+                <span className="text-xs text-slate-500">/7 Days</span>
+              </div>
+              
+              <div className="grid grid-cols-1 gap-2 xl:grid-cols-2">
+                <button
+                  onClick={() => handleSelectPlan("pass_7d")}
+                  className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-505 text-white font-black text-xs shadow-lg shadow-purple-500/10 transition cursor-pointer flex items-center justify-center"
+                >
+                  Buy Pass
+                </button>
+                <UpiPaymentBox plan="pass_7d" amount={29} userEmail={user?.email} />
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Plan Cards Grid */}
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 pt-4 max-w-6xl mx-auto">
           {plans.map((p) => (

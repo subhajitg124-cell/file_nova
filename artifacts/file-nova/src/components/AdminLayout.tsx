@@ -407,6 +407,64 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
                     </div>
                   </div>
 
+                  {/* Ad Settings */}
+                  <div className="border-t border-white/[0.05] pt-3 space-y-2.5">
+                    <p className="text-[9px] font-black uppercase tracking-wider text-indigo-400 flex items-center gap-1">
+                      <CreditCard className="h-3 w-3" /> Ad Monetization
+                    </p>
+                    <div>
+                      <label htmlFor="layout-ad-type" className="block text-[10px] text-slate-400 mb-1">Monetization Type</label>
+                      <select
+                        id="layout-ad-type"
+                        value={admin.settings.adType || "internal"}
+                        onChange={(e) => admin.setSettings({ adType: e.target.value as any })}
+                        className="w-full rounded-xl border border-white/10 bg-slate-900 px-2.5 py-1.5 text-xs text-white"
+                      >
+                        <option value="none">No Ads (Ad Gate Disabled)</option>
+                        <option value="internal">Internal Promos (Upsell Premium)</option>
+                        <option value="adsense">Google AdSense (Original)</option>
+                        <option value="alternative">Alternative Code (Adsterra, etc.)</option>
+                      </select>
+                    </div>
+                    {admin.settings.adType === "alternative" && (
+                      <div>
+                        <label htmlFor="layout-alt-ad-code" className="block text-[10px] text-slate-400 mb-1">Alternative Ad Script HTML</label>
+                        <textarea
+                          id="layout-alt-ad-code"
+                          value={admin.settings.alternativeAdCode || ""}
+                          onChange={(e) => admin.setSettings({ alternativeAdCode: e.target.value })}
+                          placeholder="Paste Adsterra / PopAds banner script here..."
+                          rows={3}
+                          className="w-full rounded-xl border border-white/10 bg-slate-900 px-2.5 py-1.5 text-xs resize-none font-mono"
+                        />
+                      </div>
+                    )}
+                    {admin.settings.adType === "internal" && (
+                      <>
+                        <div>
+                          <label htmlFor="layout-banner-img" className="block text-[10px] text-slate-400 mb-1">Custom Banner Image URL</label>
+                          <input
+                            id="layout-banner-img"
+                            value={admin.settings.customBannerImg || ""}
+                            onChange={(e) => admin.setSettings({ customBannerImg: e.target.value })}
+                            placeholder="Leave blank for auto premium upsell"
+                            className="w-full rounded-xl border border-white/10 bg-slate-900 px-2.5 py-1.5 text-xs"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="layout-banner-link" className="block text-[10px] text-slate-400 mb-1">Custom Banner Link URL</label>
+                          <input
+                            id="layout-banner-link"
+                            value={admin.settings.customBannerLink || ""}
+                            onChange={(e) => admin.setSettings({ customBannerLink: e.target.value })}
+                            placeholder="e.g. /pricing or affiliate link"
+                            className="w-full rounded-xl border border-white/10 bg-slate-900 px-2.5 py-1.5 text-xs"
+                          />
+                        </div>
+                      </>
+                    )}
+                  </div>
+
                   {/* Admin Credentials */}
                   <div className="border-t border-white/[0.05] pt-3 space-y-2.5">
                     <p className="text-[9px] font-black uppercase tracking-wider text-indigo-400 flex items-center gap-1">

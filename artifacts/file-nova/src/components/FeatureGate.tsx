@@ -22,6 +22,8 @@ const TIER_RANKS: Record<PremiumTier, number> = {
   basic: 1,
   pro: 2,
   elite: 3,
+  pass_24h: 2,
+  pass_7d: 2,
 };
 
 export function FeatureGate({

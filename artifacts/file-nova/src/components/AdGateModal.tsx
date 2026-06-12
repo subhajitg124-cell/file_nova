@@ -7,6 +7,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Play, Sparkles, Loader, ShieldAlert, CheckCircle2, ChevronRight } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useAdmin } from "@/lib/admin";
 import { toast } from "sonner";
 import { AdSenseUnit } from "./AdSenseUnit";
 
@@ -18,6 +19,9 @@ interface AdGateModalProps {
 export function AdGateModal({ isOpen, onClose }: AdGateModalProps) {
   const { adWatchCount, useCount, incrementAdWatch } = useSubscription();
   const [, setLocation] = useLocation();
+  const { settings } = useAdmin();
+
+  const adType = settings.adType || "internal";
 
   const [watching, setWatching] = useState(false);
   const [adTimeLeft, setAdTimeLeft] = useState(5);
@@ -71,12 +75,16 @@ export function AdGateModal({ isOpen, onClose }: AdGateModalProps) {
         {/* Banner header */}
         <div className="bg-gradient-to-r from-sky-500 via-indigo-500 to-primary p-6 text-white relative">
           <div className="absolute top-3 right-3 rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider">
-            Free Tier Support
+            {adType === "internal" ? "Premium Spotlight" : "Free Tier Support"}
           </div>
           <ShieldAlert className="h-10 w-10 text-white/90 mb-2" />
-          <h2 className="text-xl font-black">Feature Ad Gate</h2>
-          <p className="text-xs text-white/80 mt-1 leading-4">
-            Support FileNova servers. Watch 2 brief ads to unlock your next tool operation, or remove ads completely.
+          <h2 className="text-xl font-black">
+            {adType === "internal" ? "FileNova Feature Gate" : "Feature Ad Gate"}
+          </h2>
+          <p className="text-xs text-white/80 mt-1 leading-4 text-left">
+            {adType === "internal"
+              ? "Support FileNova development. Review our premium upgrades to unlock your next tool operation."
+              : "Support FileNova servers. Watch 2 brief sponsor ads to unlock your next tool operation, or remove ads completely."}
           </p>
         </div>
 
@@ -91,7 +99,7 @@ export function AdGateModal({ isOpen, onClose }: AdGateModalProps) {
                 <div className="z-10 space-y-3">
                   <Loader className="h-8 w-8 text-sky-400 animate-spin mx-auto" />
                   <p className="text-xs font-bold text-sky-400 tracking-widest uppercase">
-                    Streaming Sponsor Ad {currentAdIndex}/2
+                    {adType === "internal" ? "Verifying Premium Feature Spotlight" : `Streaming Sponsor Ad ${currentAdIndex}/2`}
                   </p>
                   <div className="inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-bold">
                     Closing in {adTimeLeft}s
@@ -112,12 +120,12 @@ export function AdGateModal({ isOpen, onClose }: AdGateModalProps) {
             <div className="space-y-4">
               {/* Progress summary card */}
               <div className="rounded-2xl border border-border bg-background/50 p-4 flex items-center justify-between">
-                <div>
+                <div className="text-left">
                   <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
                     Your Progress
                   </p>
                   <p className="text-sm font-black text-foreground">
-                    {adsRemaining === 0 ? "Unlock criteria met!" : `${adsRemaining} more ad${adsRemaining > 1 ? "s" : ""} required`}
+                    {adsRemaining === 0 ? "Unlock criteria met!" : `${adsRemaining} more verification${adsRemaining > 1 ? "s" : ""} required`}
                   </p>
                 </div>
                 <div className="flex gap-1.5">
@@ -133,20 +141,20 @@ export function AdGateModal({ isOpen, onClose }: AdGateModalProps) {
               {adsRemaining > 0 ? (
                 <button
                   onClick={startAd}
-                  className="w-full py-3.5 inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground font-black text-sm transition hover:opacity-90 shadow-glow"
+                  className="w-full py-3.5 inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground font-black text-sm transition hover:opacity-90 shadow-glow cursor-pointer"
                 >
                   <Play className="h-4 w-4" />
-                  Watch Ad {currentAdIndex} of 2
+                  {adType === "internal" ? `Unlock Verification ${currentAdIndex} of 2` : `Watch Ad ${currentAdIndex} of 2`}
                 </button>
               ) : (
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3 py-3 text-emerald-600 dark:text-emerald-400 font-bold text-sm">
-                    <CheckCircle2 className="h-4.5 w-4.5 shrink-0" />
-                    Ad verification complete! You can now proceed.
+                  <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3 py-3 text-emerald-600 dark:text-emerald-400 font-bold text-sm text-left">
+                    <CheckCircle2 className="h-4.5 w-4.5 shrink-0 animate-pulse" />
+                    Verification complete! You can now proceed.
                   </div>
                   <button
                     onClick={onClose}
-                    className="w-full py-3.5 inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground font-black text-sm transition hover:opacity-90 shadow-glow"
+                    className="w-full py-3.5 inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground font-black text-sm transition hover:opacity-90 shadow-glow cursor-pointer"
                   >
                     Unlock Feature Operation
                   </button>
@@ -159,11 +167,11 @@ export function AdGateModal({ isOpen, onClose }: AdGateModalProps) {
           <div className="border-t border-border pt-4">
             <button
               onClick={handleUpgrade}
-              className="w-full py-3 inline-flex items-center justify-between px-4 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary transition text-xs font-black"
+              className="w-full py-3 inline-flex items-center justify-between px-4 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary transition text-xs font-black cursor-pointer"
             >
               <span className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-amber-500" />
-                Go Premium – Remove ads & limits from ₹19
+                <Sparkles className="h-4 w-4 text-amber-500 animate-pulse-glow" />
+                Go Premium – Remove gates & limits from ₹19
               </span>
               <ChevronRight className="h-4 w-4" />
             </button>

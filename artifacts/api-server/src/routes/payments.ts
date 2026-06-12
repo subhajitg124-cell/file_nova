@@ -24,7 +24,7 @@ const getRazorpayInstance = () => {
 router.post("/create-order", authMiddleware, requireAuth, async (req: AuthRequest, res: Response) => {
   try {
     const { plan, amount, coupon } = z.object({
-      plan: z.enum(["basic", "pro", "elite"]),
+      plan: z.enum(["basic", "pro", "elite", "pass_24h", "pass_7d"]),
       amount: z.number().int().positive(),
       coupon: z.string().optional(),
     }).parse(req.body);
@@ -85,7 +85,7 @@ router.post("/verify", authMiddleware, requireAuth, async (req: AuthRequest, res
       razorpay_order_id: z.string(),
       razorpay_payment_id: z.string(),
       razorpay_signature: z.string().optional(),
-      plan: z.enum(["basic", "pro", "elite"]),
+      plan: z.enum(["basic", "pro", "elite", "pass_24h", "pass_7d"]),
     }).parse(req.body);
 
     const user = req.user!;
@@ -107,7 +107,13 @@ router.post("/verify", authMiddleware, requireAuth, async (req: AuthRequest, res
     if (verified) {
       try {
         const expiresAt = new Date();
-        expiresAt.setDate(expiresAt.getDate() + 30); // 30 days expiry
+        if (body.plan === "pass_24h") {
+          expiresAt.setHours(expiresAt.getHours() + 24);
+        } else if (body.plan === "pass_7d") {
+          expiresAt.setDate(expiresAt.getDate() + 7);
+        } else {
+          expiresAt.setDate(expiresAt.getDate() + 30); // 30 days default
+        }
 
         // Update subscriptions table status
         await db
