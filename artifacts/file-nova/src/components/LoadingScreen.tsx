@@ -20,7 +20,7 @@ export const LoadingScreen: React.FC = () => {
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-            className="absolute inset-0 rounded-full border border-white/5 border-t-purple-500 border-r-indigo-500 shadow-[0_0_25px_rgba(139,92,246,0.2)]"
+            className="absolute inset-0 rounded-full border-2 border-white/10 border-t-purple-500 border-r-indigo-500 shadow-[0_0_25px_rgba(139,92,246,0.3)]"
           />
 
           {/* Pulse glowing ring */}

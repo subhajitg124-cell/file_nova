@@ -206,9 +206,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   fetchMe: async () => {
     set({ loading: true, error: null });
+    const startTime = Date.now();
     try {
       if (isMockActive()) {
         const localUser = processUser(getLocalSession());
+        const elapsed = Date.now() - startTime;
+        if (elapsed < 1000) {
+          await new Promise((resolve) => setTimeout(resolve, 1000 - elapsed));
+        }
         set({
           user: localUser,
           subscription: processSubscription(localUser ? freeSubscription : null, localUser),
@@ -232,19 +237,35 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         const data = await safeJsonParse(res);
         if (data.success && data.user) {
           const processedUser = processUser(data.user);
+          const elapsed = Date.now() - startTime;
+          if (elapsed < 1000) {
+            await new Promise((resolve) => setTimeout(resolve, 1000 - elapsed));
+          }
           set({
             user: processedUser,
             subscription: processSubscription(data.subscription, processedUser),
             initialized: true,
           });
         } else {
+          const elapsed = Date.now() - startTime;
+          if (elapsed < 1000) {
+            await new Promise((resolve) => setTimeout(resolve, 1000 - elapsed));
+          }
           set({ user: null, subscription: null, initialized: true });
         }
       } else {
+        const elapsed = Date.now() - startTime;
+        if (elapsed < 1000) {
+          await new Promise((resolve) => setTimeout(resolve, 1000 - elapsed));
+        }
         set({ user: null, subscription: null, initialized: true });
       }
     } catch (err: any) {
       const localUser = processUser(getLocalSession());
+      const elapsed = Date.now() - startTime;
+      if (elapsed < 1000) {
+        await new Promise((resolve) => setTimeout(resolve, 1000 - elapsed));
+      }
       set({
         user: localUser,
         subscription: processSubscription(localUser ? freeSubscription : null, localUser),

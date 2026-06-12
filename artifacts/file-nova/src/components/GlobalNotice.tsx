@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useAdmin } from "@/lib/admin";
-import { Megaphone, AlertTriangle, CheckCircle, Info, X, Youtube } from "lucide-react";
+import { Megaphone, AlertTriangle, CheckCircle, Info, X, Youtube, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const YOUTUBE_CHANNEL_URL = "https://www.youtube.com/@CoverDriveBangla";
 const POPUP_EXPIRY_DATE = new Date("2026-06-21");
@@ -11,7 +12,8 @@ export function GlobalNotice() {
   const { settings } = useAdmin();
   const [bannerVisible, setBannerVisible] = useState(true);
   const [popupVisible, setPopupVisible] = useState(false);
-  const [ytPopupVisible, setYtPopupVisible] = useState(true);
+  const [ytPopupVisible, setYtPopupVisible] = useState(false);
+  const [isSubscribing, setIsSubscribing] = useState(false);
 
   // Load dismissal states from sessionStorage
   useEffect(() => {
@@ -44,13 +46,36 @@ export function GlobalNotice() {
 
   const handleDismissYtPopup = () => {
     setYtPopupVisible(false);
-    sessionStorage.setItem("dismissed-yt-popup", "true");
+    localStorage.setItem("dismissed-yt-popup", "true");
   };
 
   useEffect(() => {
-    const dismissedYtPopup = sessionStorage.getItem("dismissed-yt-popup");
+    const dismissedYtPopup = localStorage.getItem("dismissed-yt-popup");
     setYtPopupVisible(!dismissedYtPopup);
   }, []);
+
+  const handleSubscribe = () => {
+    setIsSubscribing(true);
+    window.open(YOUTUBE_CHANNEL_URL, "_blank");
+
+    const d = new Date();
+    const todayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+    // Boost their limit for today in localStorage
+    localStorage.setItem("fn_youtube_subscribed_at", todayStr);
+    localStorage.setItem("dismissed-yt-popup", "true");
+
+    // Sync metrics across tabs
+    window.dispatchEvent(new Event("filenova-metrics-sync"));
+
+    toast.success("Subscribed to @CoverDriveBangla! Your daily limit has been boosted.");
+
+    // Dismiss the modal after a short delay (1.5 seconds) for a smooth premium experience
+    setTimeout(() => {
+      setYtPopupVisible(false);
+      setIsSubscribing(false);
+    }, 1500);
+  };
 
   if (!settings) return null;
 
@@ -198,16 +223,27 @@ export function GlobalNotice() {
                 transition={{ delay: 0.4 }}
               >
                 <Button
-                  onClick={() => window.open(YOUTUBE_CHANNEL_URL, "_blank")}
-                  className="bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-600 text-white font-black text-sm px-6 py-3 rounded-2xl cursor-pointer flex items-center justify-center gap-2 shadow-lg shadow-red-500/30 transform transition-transform hover:scale-105"
+                  disabled={isSubscribing}
+                  onClick={handleSubscribe}
+                  className="bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-600 text-white font-black text-sm px-6 py-3 rounded-2xl cursor-pointer flex items-center justify-center gap-2 shadow-lg shadow-red-500/30 transform transition-transform hover:scale-105 disabled:opacity-80"
                 >
-                  <Youtube className="h-5 w-5" />
-                  🔔 SUBSCRIBE NOW
+                  {isSubscribing ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      Redirecting to YouTube...
+                    </>
+                  ) : (
+                    <>
+                      <Youtube className="h-5 w-5" />
+                      🔔 SUBSCRIBE NOW
+                    </>
+                  )}
                 </Button>
                 <Button
+                  disabled={isSubscribing}
                   onClick={handleDismissYtPopup}
                   variant="ghost"
-                  className="text-slate-400 font-bold text-xs cursor-pointer hover:text-slate-200"
+                  className="text-slate-400 font-bold text-xs cursor-pointer hover:text-slate-200 disabled:opacity-50"
                 >
                   Maybe Later
                 </Button>
