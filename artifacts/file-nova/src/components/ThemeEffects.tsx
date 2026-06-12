@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { useAdmin } from "@/lib/admin";
+import { useLocation } from "wouter";
 
 interface Particle {
   x: number;
@@ -17,7 +18,9 @@ interface Particle {
 
 export function ThemeEffects() {
   const { settings } = useAdmin();
+  const [location] = useLocation();
   const activeTheme = settings.eventTheme || "none";
+  const isAdminPath = location.startsWith('/admin') || location.startsWith('/nova-control') || location.startsWith('/nova-login');
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const frameId = useRef<number | null>(null);
   const particles = useRef<Particle[]>([]);
@@ -25,7 +28,7 @@ export function ThemeEffects() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || activeTheme === "none") {
+    if (!canvas || activeTheme === "none" || isAdminPath) {
       if (frameId.current) {
         cancelAnimationFrame(frameId.current);
         frameId.current = null;
@@ -557,9 +560,9 @@ export function ThemeEffects() {
         cancelAnimationFrame(frameId.current);
       }
     };
-  }, [activeTheme]);
+  }, [activeTheme, isAdminPath]);
 
-  if (activeTheme === "none") return null;
+  if (activeTheme === "none" || isAdminPath) return null;
 
   return (
     <canvas

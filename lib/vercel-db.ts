@@ -1,5 +1,39 @@
 import { Pool } from "pg";
 import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
+
+// ── Load Environment Variables Manually ──────────────────────────────────────
+const possibleEnvPaths = [
+  path.resolve(process.cwd(), ".env"),
+  path.resolve(process.cwd(), "../.env"),
+  path.resolve(process.cwd(), "../../.env"),
+  path.resolve(process.cwd(), "../../../.env"),
+];
+
+for (const envPath of possibleEnvPaths) {
+  try {
+    if (fs.existsSync(envPath)) {
+      const envContent = fs.readFileSync(envPath, "utf-8");
+      envContent.split(/\r?\n/).forEach((line) => {
+        const trimmed = line.trim();
+        if (trimmed && !trimmed.startsWith("#")) {
+          const index = trimmed.indexOf("=");
+          if (index !== -1) {
+            const key = trimmed.substring(0, index).trim();
+            const val = trimmed.substring(index + 1).trim();
+            if (key && !process.env[key]) {
+              process.env[key] = val;
+            }
+          }
+        }
+      });
+      break;
+    }
+  } catch (e) {
+    // Ignore errors
+  }
+}
 
 const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
 
@@ -8,7 +42,7 @@ if (!connectionString) {
 }
 
 export const pool = new Pool({
-  connectionString,
+  connectionString: connectionString || "postgresql://postgres:postgres@localhost:5432/postgres",
   ssl: {
     rejectUnauthorized: false,
   },

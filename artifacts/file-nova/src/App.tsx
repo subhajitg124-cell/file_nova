@@ -1,4 +1,4 @@
-import { Switch, Route, Redirect, Router as WouterRouter } from "wouter";
+import { Switch, Route, Redirect, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider, QueryErrorResetBoundary } from "@tanstack/react-query";
 import { LazyMotion, domAnimation } from "framer-motion";
 import React, { Component, ErrorInfo, ReactNode, useState, useEffect } from "react";
@@ -161,15 +161,18 @@ class ErrorBoundary extends Component<Props, State> {
 
 function Router() {
   const { settings } = useAdmin();
+  const [location] = useLocation();
   
   useEffect(() => {
     const classesToRemove = Array.from(document.documentElement.classList).filter(c => c.startsWith('event-theme-'));
     classesToRemove.forEach(c => document.documentElement.classList.remove(c));
     
-    if (settings.eventTheme && settings.eventTheme !== 'none') {
+    const isAdminPath = location.startsWith('/admin') || location.startsWith('/nova-control') || location.startsWith('/nova-login');
+    
+    if (!isAdminPath && settings.eventTheme && settings.eventTheme !== 'none') {
       document.documentElement.classList.add(`event-theme-${settings.eventTheme}`);
     }
-  }, [settings.eventTheme]);
+  }, [settings.eventTheme, location]);
 
   return (
     <>

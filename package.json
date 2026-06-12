@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "dev": "pnpm --parallel --filter @workspace/api-server --filter @workspace/file-nova run dev",
     "build": "pnpm --filter @workspace/api-spec run codegen && pnpm run typecheck && pnpm -r --if-present run build",
     "test": "node --import tsx --test lib/db/src/db.test.ts artifacts/api-server/src/app.test.ts",
     "typecheck:libs": "tsc --build",

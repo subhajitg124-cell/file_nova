@@ -1,17 +1,53 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
 import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
 import * as schema from "./schema";
 
 const { Pool } = pg;
 
-if (!process.env.DATABASE_URL) {
-  throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
-  );
+// ── Load Environment Variables Manually ──────────────────────────────────────
+const possibleEnvPaths = [
+  path.resolve(process.cwd(), ".env"),
+  path.resolve(process.cwd(), "../.env"),
+  path.resolve(process.cwd(), "../../.env"),
+  path.resolve(process.cwd(), "../../../.env"),
+];
+
+for (const envPath of possibleEnvPaths) {
+  try {
+    if (fs.existsSync(envPath)) {
+      const envContent = fs.readFileSync(envPath, "utf-8");
+      envContent.split(/\r?\n/).forEach((line) => {
+        const trimmed = line.trim();
+        if (trimmed && !trimmed.startsWith("#")) {
+          const index = trimmed.indexOf("=");
+          if (index !== -1) {
+            const key = trimmed.substring(0, index).trim();
+            const val = trimmed.substring(index + 1).trim();
+            if (key && !process.env[key]) {
+              process.env[key] = val;
+            }
+          }
+        }
+      });
+      break;
+    }
+  } catch (e) {
+    // Ignore errors
+  }
 }
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const dbUrl = process.env.DATABASE_URL;
+if (!dbUrl) {
+  console.warn("⚠️ DATABASE_URL environment variable is not set. Using fallback database connection.");
+}
+
+export const pool = new Pool({
+  connectionString: dbUrl || "postgresql://postgres:postgres@localhost:5432/postgres",
+});
+
 pool.on("error", (err) => {
   console.error("Unexpected error on idle pg client in db pool", err);
 });
