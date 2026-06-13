@@ -13,6 +13,8 @@ import { FileRecord } from "@/store/useFileStore";
 import { useSubscription } from "@/hooks/useSubscription";
 import { BACKEND_URL } from "@/lib/api";
 import { toast } from "sonner";
+import { AIToolHeader } from "./components/AIToolHeader";
+import { GenerateButton } from "./components/GenerateButton";
 
 type InputMode = "topic" | "paste";
 type Step = "input" | "configure" | "outline" | "done";
@@ -165,6 +167,7 @@ export function AIPPTMakerWorkspace() {
       acceptedTypes={[]}
       configPanel={
         <div className="space-y-5">
+          <AIToolHeader />
           {step === "input" && (
             <>
               <div className="flex gap-2 p-1 bg-slate-950/60 border border-white/5 rounded-2xl">
@@ -229,20 +232,17 @@ export function AIPPTMakerWorkspace() {
               <ThemeSelector value={themeId} onChange={setThemeId} />
 
               {error && (
-                <p className="text-xs text-rose-405 bg-rose-950/40 border border-rose-500/20 rounded-2xl p-3">
+                <p className="text-xs text-rose-400 bg-rose-950/40 border border-rose-500/20 rounded-2xl p-3">
                   {error}
                 </p>
               )}
 
-              <button
+              <GenerateButton
                 onClick={handleGenerateOutline}
                 disabled={isGenerating || inputText.trim().length < 3}
-                className="w-full py-3.5 rounded-2xl font-black text-xs text-white uppercase tracking-wider
-                           bg-gradient-to-r from-purple-600 to-indigo-650 shadow-lg cursor-pointer
-                           hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 disabled:scale-100 disabled:cursor-not-allowed transition-all"
-              >
-                {isGenerating ? "Generating outline..." : "Generate Outline ✨"}
-              </button>
+                isGenerating={isGenerating}
+                label="Generate Outline ✨"
+              />
             </>
           )}
 

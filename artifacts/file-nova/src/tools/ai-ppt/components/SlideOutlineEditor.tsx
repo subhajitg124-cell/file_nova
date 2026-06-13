@@ -1,26 +1,20 @@
-import React, { useState } from "react";
-import { ArrowUp, ArrowDown, Trash2, Plus, Sparkles, AlertCircle } from "lucide-react";
+import { useState } from "react";
+import { ArrowUp, ArrowDown, Trash2, Plus, RefreshCw, ChevronDown, ChevronUp, FileText, Sparkles } from "lucide-react";
 import type { OutlineData, SlideData } from "../lib/pptGenerator";
-import { PPT_THEMES } from "../lib/themes";
+import { ThemeSelector } from "./ThemeSelector";
 
-interface SlideOutlineEditorProps {
+interface Props {
   outline: OutlineData;
-  onChange: (updated: OutlineData) => void;
-  onRegenerateSlide: (slideIndex: number, instructions?: string) => Promise<void>;
+  onChange: (outline: OutlineData) => void;
+  onRegenerateSlide: (index: number, instructions?: string) => Promise<void>;
   themeId: string;
   onThemeChange: (id: string) => void;
 }
 
-export const SlideOutlineEditor: React.FC<SlideOutlineEditorProps> = ({
-  outline,
-  onChange,
-  onRegenerateSlide,
-  themeId,
-  onThemeChange
-}) => {
+export function SlideOutlineEditor({ outline, onChange, onRegenerateSlide, themeId, onThemeChange }: Props) {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
-  const [instructions, setInstructions] = useState<Record<number, string>>({});
-  const [loadingSlide, setLoadingSlide] = useState<Record<number, boolean>>({});
+  const [regeneratingIndex, setRegeneratingIndex] = useState<number | null>(null);
+  const [feedback, setFeedback] = useState<Record<number, string>>({});
 
   // Slide ordering / manipulation
   const moveSlide = (index: number, direction: "up" | "down") => {
@@ -99,168 +93,175 @@ export const SlideOutlineEditor: React.FC<SlideOutlineEditorProps> = ({
     onChange({ ...outline, slides: updatedSlides });
   };
 
-  const triggerRegen = async (index: number) => {
-    setLoadingSlide(prev => ({ ...prev, [index]: true }));
+  const handleRegenerate = async (index: number) => {
+    setRegeneratingIndex(index);
     try {
-      await onRegenerateSlide(index, instructions[index] || "");
-      setInstructions(prev => ({ ...prev, [index]: "" }));
+      await onRegenerateSlide(index, feedback[index] || undefined);
+      setFeedback(prev => ({ ...prev, [index]: "" }));
     } finally {
-      setLoadingSlide(prev => ({ ...prev, [index]: false }));
+      setRegeneratingIndex(null);
     }
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Title Slide Header Editing */}
-      <div className="bg-slate-900/40 border border-white/10 rounded-2xl p-4 space-y-3">
-        <label className="text-xs font-black uppercase tracking-wider text-slate-400">
-          Presentation Title
-        </label>
-        <input
-          value={outline.title}
-          onChange={(e) => onChange({ ...outline, title: e.target.value })}
-          className="w-full bg-slate-950 border border-white/10 rounded-xl px-3.5 py-2 text-xs font-bold text-white focus:outline-none focus:border-purple-500"
-          placeholder="Main presentation title..."
-        />
+      <div className="flex flex-col gap-4 pb-4 border-b border-gray-100 dark:border-gray-800">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <FileText className="h-4 w-4 text-purple-500" />
+            Edit Outline
+          </h3>
+          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400">
+            {outline.slides.length} slides
+          </span>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-xs font-black uppercase tracking-wider text-slate-400">
+            Presentation Title
+          </label>
+          <input
+            value={outline.title}
+            onChange={(e) => onChange({ ...outline, title: e.target.value })}
+            title="Presentation Title"
+            placeholder="Main presentation title..."
+            className="w-full bg-white dark:bg-slate-950 border border-gray-200 dark:border-gray-800 rounded-xl px-3.5 py-2 text-xs font-bold text-gray-900 dark:text-white focus:outline-none focus:border-purple-500"
+          />
+        </div>
       </div>
 
-      {/* Theme Quick Switcher in Config */}
-      <div className="space-y-2">
-        <label className="text-xs font-black uppercase tracking-wider text-slate-400">
-          Quick Theme Swap
-        </label>
-        <select
-          value={themeId}
-          onChange={(e) => onThemeChange(e.target.value)}
-          title="Select theme"
-          className="w-full bg-slate-950/60 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500 font-bold"
-        >
-          {PPT_THEMES.map((theme) => (
-            <option key={theme.id} value={theme.id}>
-              {theme.label} ({theme.pptx.layoutStyle})
-            </option>
-          ))}
-        </select>
+      {/* Theme selector in workspace outline edit step */}
+      <div className="space-y-3 pb-4 border-b border-gray-100 dark:border-gray-800">
+        <ThemeSelector value={themeId} onChange={onThemeChange} />
       </div>
 
-      {/* Slide Cards Accordion */}
-      <div className="space-y-2.5">
+      {/* Slide Cards Accordion Header */}
+      <div className="space-y-3">
         <div className="flex justify-between items-center">
           <label className="text-xs font-black uppercase tracking-wider text-slate-400">
-            Presentation Outline ({outline.slides.length} Slides)
+            Slides Outline
           </label>
           <button
             onClick={addSlide}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-dashed border-purple-500/30 hover:border-purple-500 bg-purple-500/10 hover:bg-purple-500/20 text-[10px] font-black text-purple-400 hover:text-white transition cursor-pointer"
+            title="Add a new slide at the end"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-dashed border-purple-500/30 hover:border-purple-500 bg-purple-500/5 hover:bg-purple-500/10 text-[10px] font-black text-purple-600 dark:text-purple-400 hover:text-purple-700 transition cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" /> Add Slide
           </button>
         </div>
 
-        <div className="space-y-2">
-          {outline.slides.map((slide, sIdx) => {
-            const isExpanded = expandedIndex === sIdx;
-            const isFirst = sIdx === 0;
-            const isLast = sIdx === outline.slides.length - 1;
+        {/* Accordion List */}
+        <div className="space-y-3">
+          {outline.slides.map((slide, i) => {
+            const isExpanded = expandedIndex === i;
+            const isRegenerating = regeneratingIndex === i;
+            const isFirst = i === 0;
+            const isLast = i === outline.slides.length - 1;
 
             return (
               <div
-                key={sIdx}
-                className={`border rounded-2xl transition-all ${
-                  isExpanded
-                    ? "border-purple-500 bg-slate-900/50 shadow-lg"
-                    : "border-white/[0.06] bg-slate-950/40 hover:bg-slate-900/20"
-                }`}
+                key={i}
+                className={`rounded-xl border transition-all duration-200 overflow-hidden
+                            ${isExpanded
+                              ? "border-purple-300 dark:border-purple-800 shadow-md shadow-purple-500/5"
+                              : "border-gray-200 dark:border-gray-800 hover:border-purple-200 dark:hover:border-purple-900"}`}
               >
-                {/* Accordion Header */}
+                {/* Card Title Bar */}
                 <div
-                  onClick={() => setExpandedIndex(isExpanded ? null : sIdx)}
-                  className="flex items-center justify-between p-3.5 cursor-pointer select-none"
+                  onClick={() => setExpandedIndex(isExpanded ? null : i)}
+                  className="w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-900 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors cursor-pointer select-none"
                 >
-                  <div className="flex items-center gap-2 min-w-0 pr-4">
-                    <span className="text-[10px] font-black font-mono text-slate-500 bg-slate-950 px-1.5 py-0.5 rounded uppercase">
-                      Slide {sIdx + 1}
+                  <div className="flex items-center gap-2.5 min-w-0 pr-4">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-purple-50 dark:bg-purple-900/30 text-[10px] font-bold text-purple-600 dark:text-purple-400">
+                      {i + 1}
                     </span>
-                    <span className="text-xs font-bold text-slate-200 truncate">
+                    <span className="flex-1 text-xs font-semibold text-gray-950 dark:text-gray-100 truncate">
                       {slide.heading || "(No Heading)"}
                     </span>
                   </div>
 
-                  {/* Ordering Controls */}
-                  <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                  {/* Move & Delete controls */}
+                  <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
                     <button
                       disabled={isFirst}
-                      onClick={() => moveSlide(sIdx, "up")}
+                      onClick={() => moveSlide(i, "up")}
                       title="Move slide up"
-                      className="p-1 rounded hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent text-slate-400 hover:text-white cursor-pointer"
+                      className="p-1 rounded hover:bg-gray-200 dark:hover:bg-slate-700 disabled:opacity-30 text-gray-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 cursor-pointer"
                     >
                       <ArrowUp className="w-3.5 h-3.5" />
                     </button>
                     <button
                       disabled={isLast}
-                      onClick={() => moveSlide(sIdx, "down")}
+                      onClick={() => moveSlide(i, "down")}
                       title="Move slide down"
-                      className="p-1 rounded hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent text-slate-400 hover:text-white cursor-pointer"
+                      className="p-1 rounded hover:bg-gray-200 dark:hover:bg-slate-700 disabled:opacity-30 text-gray-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 cursor-pointer"
                     >
                       <ArrowDown className="w-3.5 h-3.5" />
                     </button>
                     <button
                       disabled={outline.slides.length <= 3}
-                      onClick={() => deleteSlide(sIdx)}
+                      onClick={() => deleteSlide(i)}
                       title="Delete slide"
-                      className="p-1 rounded hover:bg-rose-950 text-slate-400 hover:text-rose-400 cursor-pointer"
+                      className="p-1 rounded hover:bg-rose-100 dark:hover:bg-rose-950/50 disabled:opacity-30 text-gray-500 dark:text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
+                    {isExpanded ? (
+                      <ChevronUp className="h-4 w-4 text-gray-400 ml-1" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4 text-gray-400 ml-1" />
+                    )}
                   </div>
                 </div>
 
-                {/* Accordion Body */}
+                {/* Card expanded body */}
                 {isExpanded && (
-                  <div className="p-4 border-t border-white/[0.06] space-y-4 animate-fade-down">
+                  <div className="p-4 bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-gray-800 space-y-4">
                     {/* Heading Input */}
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-black uppercase text-slate-500">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">
                         Slide Heading
                       </label>
                       <input
                         value={slide.heading}
-                        onChange={(e) => handleSlideChange(sIdx, "heading", e.target.value)}
+                        onChange={(e) => handleSlideChange(i, "heading", e.target.value)}
                         title="Slide Heading"
                         placeholder="Slide Heading"
-                        className="w-full bg-slate-950 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-purple-500 font-bold"
+                        className="w-full bg-white dark:bg-slate-950 border border-gray-200 dark:border-gray-800 rounded-xl px-3.5 py-2 text-xs font-bold text-gray-900 dark:text-white focus:outline-none focus:border-purple-500"
                       />
                     </div>
 
-                    {/* Bullets Input */}
+                    {/* Bullets Input List */}
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <label className="text-[10px] font-black uppercase text-slate-500">
+                        <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">
                           Bullet Points
                         </label>
                         <button
-                          onClick={() => addBullet(sIdx)}
-                          className="text-[9px] font-bold text-purple-400 hover:text-white flex items-center gap-0.5 cursor-pointer"
+                          onClick={() => addBullet(i)}
+                          title="Add a new bullet point"
+                          className="text-[10px] font-bold text-purple-600 dark:text-purple-400 hover:text-purple-700 flex items-center gap-0.5 cursor-pointer"
                         >
                           + Add Bullet
                         </button>
                       </div>
 
-                      <div className="space-y-2">
+                      <div className="space-y-2.5">
                         {slide.bullets.map((bullet, bIdx) => (
                           <div key={bIdx} className="flex gap-2 items-center">
                             <span className="text-purple-500 text-xs shrink-0 select-none">•</span>
                             <input
                               value={bullet}
-                              onChange={(e) => handleBulletChange(sIdx, bIdx, e.target.value)}
-                              title="Bullet point"
-                              placeholder="Bullet point"
-                              className="flex-1 bg-slate-950 border border-white/5 rounded-xl px-3 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-purple-500 leading-normal"
+                              onChange={(e) => handleBulletChange(i, bIdx, e.target.value)}
+                              title={`Bullet point ${bIdx + 1}`}
+                              placeholder={`Bullet point ${bIdx + 1}`}
+                              className="flex-1 bg-white dark:bg-slate-950 border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-1.5 text-xs text-gray-850 dark:text-gray-250 focus:outline-none focus:border-purple-500 leading-normal"
                             />
                             <button
-                              onClick={() => removeBullet(sIdx, bIdx)}
+                              onClick={() => removeBullet(i, bIdx)}
                               title="Delete bullet point"
-                              className="text-slate-500 hover:text-rose-400 cursor-pointer shrink-0"
+                              className="text-gray-400 hover:text-rose-500 cursor-pointer shrink-0 transition-colors"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -270,41 +271,47 @@ export const SlideOutlineEditor: React.FC<SlideOutlineEditorProps> = ({
                     </div>
 
                     {/* Speaker Notes */}
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-black uppercase text-slate-500">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">
                         Speaker Notes
                       </label>
                       <textarea
                         value={slide.speakerNotes || ""}
-                        onChange={(e) => handleSlideChange(sIdx, "speakerNotes", e.target.value)}
+                        onChange={(e) => handleSlideChange(i, "speakerNotes", e.target.value)}
                         rows={2}
-                        className="w-full bg-slate-950 border border-white/5 rounded-xl p-3 text-xs text-slate-400 focus:outline-none focus:border-purple-500 resize-none leading-relaxed"
-                        placeholder="Speaker notes..."
+                        title="Speaker Notes"
+                        placeholder="Speaker notes for this slide..."
+                        className="w-full bg-white dark:bg-slate-950 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-xs text-gray-700 dark:text-slate-350 focus:outline-none focus:border-purple-500 resize-none leading-relaxed"
                       />
                     </div>
 
                     {/* Slide AI Regeneration */}
-                    <div className="pt-3 border-t border-white/[0.04] space-y-2">
-                      <div className="flex items-center gap-1 text-[10px] font-black uppercase text-purple-400">
+                    <div className="pt-3.5 border-t border-gray-100 dark:border-gray-800 space-y-2">
+                      <div className="flex items-center gap-1.5 text-[10px] font-black uppercase text-purple-600 dark:text-purple-400">
                         <Sparkles className="w-3.5 h-3.5" />
                         <span>Regenerate this slide</span>
                       </div>
                       <div className="flex gap-2">
                         <input
-                          value={instructions[sIdx] || ""}
+                          value={feedback[i] || ""}
                           onChange={(e) => {
                             const val = e.target.value;
-                            setInstructions(prev => ({ ...prev, [sIdx]: val }));
+                            setFeedback(prev => ({ ...prev, [i]: val }));
                           }}
-                          placeholder="Instructions (e.g. 'make it shorter', 'add technical terms')"
-                          className="flex-1 bg-slate-950 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-purple-500"
+                          title="Regenerate instructions"
+                          placeholder="e.g. make it shorter, add technical terms"
+                          className="flex-1 text-xs px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700
+                                     bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-purple-500"
                         />
                         <button
-                          disabled={loadingSlide[sIdx]}
-                          onClick={() => triggerRegen(sIdx)}
-                          className="px-3.5 bg-purple-600 hover:bg-purple-500 disabled:opacity-40 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer"
+                          disabled={isRegenerating}
+                          onClick={() => handleRegenerate(i)}
+                          title="Redo this slide"
+                          className="shrink-0 px-3.5 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer
+                                     bg-purple-50 dark:bg-purple-900/30 text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/50 disabled:opacity-50"
                         >
-                          {loadingSlide[sIdx] ? "..." : "Rewrite"}
+                          <RefreshCw className={`h-3.5 w-3.5 ${isRegenerating ? "animate-spin" : ""}`} />
+                          Redo
                         </button>
                       </div>
                     </div>
@@ -317,5 +324,6 @@ export const SlideOutlineEditor: React.FC<SlideOutlineEditorProps> = ({
       </div>
     </div>
   );
-};
+}
+
 export default SlideOutlineEditor;
