@@ -3,7 +3,7 @@ import { useLocation, Link } from "wouter";
 import {
   GitMerge, Scissors, FileArchive, RotateCw, Lock, Unlock,
   IdCard, Fingerprint, FileCheck2, FileUp, GraduationCap,
-  ScanLine, Sparkles, BrainCircuit, FileText, FileImage, Image
+  ScanLine, Sparkles, BrainCircuit, FileText, FileImage, Image, Presentation
 } from "lucide-react";
 
 export interface Tool {
@@ -166,6 +166,15 @@ export const TOOLS: Tool[] = [
     route: "/word-to-pdf",
     gradient: "from-green-500/20 to-emerald-600/20",
     glow: "hover:shadow-green-500/30",
+  },
+  {
+    label: "AI Slide Maker",
+    description: "Topic to PPT in seconds, with themes",
+    icon: Presentation,
+    route: "/ai-ppt-maker",
+    gradient: "from-purple-500/20 to-indigo-600/20",
+    glow: "hover:shadow-purple-500/30",
+    badge: "AI",
   },
 ];
 

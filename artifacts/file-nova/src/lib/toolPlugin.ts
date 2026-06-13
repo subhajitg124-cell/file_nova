@@ -621,5 +621,37 @@ export const TOOL_REGISTRY: Record<string, ToolRegistryItem> = {
     title: "Convert Word to PDF",
     description: "Convert DOCX/DOC files to PDF files instantly.",
     relatedTools: ["pdf-to-word", "merge-pdf"],
+  },
+  "ai-ppt-maker": {
+    id: "ai-ppt-maker",
+    name: "AI Slide Maker",
+    category: "ai",
+    workspaceType: WorkspaceType.UTILITY,
+    previewType: PreviewType.NONE,
+    capabilities: {
+      preview: true,
+      batchProcessing: false,
+      beforeAfter: false,
+      undoRedo: false,
+      dragDrop: false,
+      exportCenter: true,
+      offlineReady: false
+    },
+    metadata: {
+      keywords: ["ai ppt maker", "presentation maker", "slide maker", "powerpoint generator"],
+      synonyms: ["slide", "presentation", "powerpoint", "ppt"],
+      useCases: ["Class presentations", "Project viva", "Seminar decks"],
+      difficulty: "easy"
+    },
+    errorStrategies: ["retry"],
+    icon: "Presentation",
+    title: "AI PowerPoint Presentation Maker",
+    description: "Generate beautiful, themed slide presentations from a topic or pasted notes.",
+    relatedTools: ["ocr", "ai-pdf-summary"],
+    seoOverride: {
+      title: "AI PPT Maker Free – Topic to Presentation | FileNova",
+      description: "Generate a complete, themed PowerPoint presentation from any topic or your notes for free. Choose theme and writing tone.",
+    }
   }
 };
+

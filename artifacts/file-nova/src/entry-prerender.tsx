@@ -44,4 +44,5 @@ export const prerenderRoutes = [
   "/word-to-pdf",
   "/compress-for-upload",
   "/government-form-fill",
+  "/ai-ppt-maker",
 ];

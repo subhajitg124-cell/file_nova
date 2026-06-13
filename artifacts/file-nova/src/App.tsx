@@ -34,6 +34,7 @@ const ScholarshipZip = React.lazy(() => import("@/tools/india/ScholarshipZIPWork
 const AiPdfSummary = React.lazy(() => import("@/pages/tools/AiPdfSummary"));
 const ResizeImage = React.lazy(() => import("@/tools/image/ResizePhotoWorkspace"));
 const WordToPdf = React.lazy(() => import("@/pages/tools/WordToPdf"));
+const AIPPTMakerWorkspace = React.lazy(() => import("@/tools/ai-ppt/AIPPTMakerWorkspace"));
 import PdfToolsPage from "@/pages/PdfToolsPage";
 import ImageToolsPage from "@/pages/ImageToolsPage";
 import VideoToolsPage from "@/pages/VideoToolsPage";
@@ -258,6 +259,9 @@ function Router() {
         </Route>
         <Route path="/word-to-pdf">
           <React.Suspense fallback={<LoadingScreen />}><WordToPdf /></React.Suspense>
+        </Route>
+        <Route path="/ai-ppt-maker">
+          <React.Suspense fallback={<LoadingScreen />}><AIPPTMakerWorkspace /></React.Suspense>
         </Route>
 
         <Route path="/pdf-tools">

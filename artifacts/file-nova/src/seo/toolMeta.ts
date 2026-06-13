@@ -160,6 +160,13 @@ export const TOOL_META: Record<string, ToolMeta> = {
     keywords: "fill pdf forms, government form filler online, write on pdf form",
     ogImage: OG_INDIA,
   },
+  "/ai-ppt-maker": {
+    title: "AI PPT Maker Free – Topic to Presentation | FileNova",
+    description: "Generate a complete, themed PowerPoint presentation from any topic or your notes for free. Choose theme and writing tone. Perfect for school & college projects.",
+    canonical: "https://filenova.in/ai-ppt-maker",
+    keywords: "ai ppt maker free india, topic to presentation generator, ai presentation maker for students, free powerpoint generator",
+    ogImage: "https://filenova.in/og/ai-tools.png",
+  },
   // Homepage
   "/": {
     title: "FileNova – Free Online PDF Tools for India | Aadhaar, PAN, Scholarship",

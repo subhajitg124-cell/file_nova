@@ -88,6 +88,7 @@
     "marked": "^18.0.4",
     "onnxruntime-web": "^1.26.0",
     "pdfjs-dist": "^5.7.284",
+    "pptxgenjs": "^4.0.1",
     "tesseract.js": "^7.0.0",
     "turndown": "^7.2.4",
     "xlsx": "^0.18.5"
