@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useFileStore } from '@/store/useFileStore';
 import { useTranslation } from '@/lib/i18n';
 import { apiClient, apiMock } from '@/lib/api';
@@ -21,6 +21,37 @@ export const ToolSettingsPanel: React.FC<ToolSettingsPanelProps> = ({ slug }) =>
     ['compress-pdf', 'compress-image'].includes(slug) ? 'medium' : 'custom'
   );
   const [isProcessingLocal, setIsProcessingLocal] = useState(false);
+  const [naturalDimensions, setNaturalDimensions] = useState<{ width: number; height: number } | null>(null);
+  const [aspectRatioLocked, setAspectRatioLocked] = useState(true);
+
+  useEffect(() => {
+    if (slug === 'resize-image' && rawFiles && rawFiles[0]) {
+      const img = new Image();
+      img.src = URL.createObjectURL(rawFiles[0]);
+      img.onload = () => {
+        setNaturalDimensions({ width: img.naturalWidth, height: img.naturalHeight });
+        const store = useFileStore.getState();
+        const opts = store.operationOptions;
+        if (!opts.cropWidth) {
+          store.updateOptions({
+            cropX: 0,
+            cropY: 0,
+            cropWidth: img.naturalWidth,
+            cropHeight: img.naturalHeight,
+            resizeWidth: img.naturalWidth,
+            resizeHeight: img.naturalHeight,
+            cropEnabled: false,
+            rotation: 0,
+            flipH: false,
+            flipV: false,
+            quality: 92,
+            targetFormat: 'png'
+          });
+        }
+        URL.revokeObjectURL(img.src);
+      };
+    }
+  }, [rawFiles, slug]);
 
   const handlePresetChange = (preset: PresetKey) => {
     setActivePreset(preset);
@@ -147,7 +178,7 @@ export const ToolSettingsPanel: React.FC<ToolSettingsPanelProps> = ({ slug }) =>
           <Sliders className="h-4 w-4 text-primary" />
           <h3 className="text-sm font-black text-foreground">Tool Settings</h3>
         </div>
-        {renderSettings(slug, operationOptions, updateOptions, activePreset, setActivePreset)}
+        {renderSettings(slug, operationOptions, updateOptions, activePreset, setActivePreset, naturalDimensions, aspectRatioLocked, setAspectRatioLocked)}
       </div>
 
       {/* Estimated Output */}
@@ -218,7 +249,16 @@ function getButtonLabel(slug: string): string {
   return labels[slug] || 'Process';
 }
 
-function renderSettings(slug: string, options: Record<string, any>, update: (o: Record<string, any>) => void, preset: PresetKey, setPreset: (p: PresetKey) => void): React.ReactNode {
+function renderSettings(
+  slug: string,
+  options: Record<string, any>,
+  update: (o: Record<string, any>) => void,
+  preset: PresetKey,
+  setPreset: (p: PresetKey) => void,
+  naturalDimensions: { width: number; height: number } | null,
+  aspectRatioLocked: boolean,
+  setAspectRatioLocked: (v: boolean) => void
+): React.ReactNode {
   if (slug === 'compress-pdf' || slug === 'compress-pdf-for-upload') return renderCompressSettings(options, update, preset, setPreset, slug);
   if (slug === 'compress-image') return renderCompressImageSettings(options, update, preset, setPreset);
   if (slug === 'merge-pdf') return renderMergeSettings(options, update);
@@ -227,7 +267,8 @@ function renderSettings(slug: string, options: Record<string, any>, update: (o: 
   if (slug === 'protect-pdf') return renderProtectSettings(options, update);
   if (slug === 'unlock-pdf') return renderUnlockSettings(options, update);
   if (slug === 'ocr') return renderOcrSettings(options, update);
-  if (['jpg-to-pdf', 'pdf-to-jpg', 'remove-background', 'pan-card-resize', 'resize-image', 'word-to-pdf'].includes(slug)) return renderImageSettings(slug, options, update);
+  if (slug === 'resize-image') return renderResizeImageSettings(options, update, naturalDimensions, aspectRatioLocked, setAspectRatioLocked);
+  if (['jpg-to-pdf', 'pdf-to-jpg', 'remove-background', 'pan-card-resize', 'word-to-pdf'].includes(slug)) return renderImageSettings(slug, options, update);
   return <p className="text-xs text-muted-foreground">Upload a file to see options.</p>;
 }
 
@@ -462,6 +503,253 @@ function renderCompressImageSettings(options: Record<string, any>, update: (o: R
             <label className="text-[10px] text-muted-foreground">Max Height (px)</label>
             <input type="number" value={options.resizeHeight || options.resize_height || ''} onChange={(e) => update({ resizeHeight: parseInt(e.target.value) || undefined, resize_height: parseInt(e.target.value) || undefined })} className="w-full p-2 bg-card border border-border rounded-lg text-sm font-mono" placeholder="Original" />
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function renderResizeImageSettings(
+  options: Record<string, any>,
+  update: (o: Record<string, any>) => void,
+  naturalDimensions: { width: number; height: number } | null,
+  aspectRatioLocked: boolean,
+  setAspectRatioLocked: (v: boolean) => void
+): React.ReactNode {
+  const aspect = naturalDimensions ? naturalDimensions.width / naturalDimensions.height : 1;
+
+  const handleWidthChange = (w: number) => {
+    if (aspectRatioLocked) {
+      update({ resizeWidth: w, resizeHeight: Math.round(w / aspect) });
+    } else {
+      update({ resizeWidth: w });
+    }
+  };
+
+  const handleHeightChange = (h: number) => {
+    if (aspectRatioLocked) {
+      update({ resizeWidth: Math.round(h * aspect), resizeHeight: h });
+    } else {
+      update({ resizeHeight: h });
+    }
+  };
+
+  const handleRotate = (deg: number) => {
+    const currentRot = options.rotation || 0;
+    const nextRot = (currentRot + deg + 360) % 360;
+    update({ rotation: nextRot });
+  };
+
+  return (
+    <div className="space-y-6">
+      {naturalDimensions && (
+        <div className="p-3 bg-secondary/50 rounded-xl flex items-center justify-between text-xs">
+          <span className="text-muted-foreground font-bold">Original Image Size:</span>
+          <span className="font-mono text-primary font-bold">{naturalDimensions.width} × {naturalDimensions.height} px</span>
+        </div>
+      )}
+
+      {/* Resize Options */}
+      <div className="space-y-3">
+        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">1. Resize Dimensions (px)</label>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1">
+            <label className="text-[10px] text-muted-foreground font-bold">Width</label>
+            <input
+              type="number"
+              value={options.resizeWidth || ''}
+              onChange={(e) => handleWidthChange(parseInt(e.target.value) || 0)}
+              className="w-full p-2.5 bg-slate-950/40 border border-border rounded-xl text-xs font-mono focus:outline-none focus:border-primary"
+              placeholder="Width"
+              title="Resize Width"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-[10px] text-muted-foreground font-bold">Height</label>
+            <input
+              type="number"
+              value={options.resizeHeight || ''}
+              onChange={(e) => handleHeightChange(parseInt(e.target.value) || 0)}
+              className="w-full p-2.5 bg-slate-950/40 border border-border rounded-xl text-xs font-mono focus:outline-none focus:border-primary"
+              placeholder="Height"
+              title="Resize Height"
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between pt-1">
+          <span className="text-xs text-muted-foreground">Keep Aspect Ratio Lock</span>
+          <button
+            type="button"
+            onClick={() => setAspectRatioLocked(!aspectRatioLocked)}
+            className={`p-1.5 rounded-lg border flex items-center gap-1.5 transition-all text-xs font-bold cursor-pointer ${
+              aspectRatioLocked ? 'bg-primary/10 text-primary border-primary/30' : 'bg-card border-border text-muted-foreground'
+            }`}
+          >
+            {aspectRatioLocked ? <Lock className="h-3.5 w-3.5" /> : <Unlock className="h-3.5 w-3.5" />}
+            {aspectRatioLocked ? 'Locked' : 'Unlocked'}
+          </button>
+        </div>
+      </div>
+
+      {/* Rotate & Flip Options */}
+      <div className="space-y-3 pt-2 border-t border-border/40">
+        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">2. Rotate & Mirror</label>
+        <div className="flex gap-2 flex-wrap">
+          <button
+            type="button"
+            onClick={() => handleRotate(90)}
+            className="flex-1 py-2 px-3 rounded-xl border border-border bg-card text-muted-foreground hover:text-foreground hover:border-primary/50 text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer"
+          >
+            <RotateCw className="h-3.5 w-3.5" />
+            +90° CW
+          </button>
+          <button
+            type="button"
+            onClick={() => handleRotate(-90)}
+            className="flex-1 py-2 px-3 rounded-xl border border-border bg-card text-muted-foreground hover:text-foreground hover:border-primary/50 text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer"
+          >
+            <RotateCw className="h-3.5 w-3.5 transform -scale-x-100" />
+            -90° CCW
+          </button>
+        </div>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => update({ flipH: !options.flipH })}
+            className={`flex-1 py-2 px-3 rounded-xl border text-xs font-bold transition cursor-pointer ${
+              options.flipH ? 'bg-primary/10 text-primary border-primary/30' : 'border-border bg-card text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            ↔️ Flip Horizontal
+          </button>
+          <button
+            type="button"
+            onClick={() => update({ flipV: !options.flipV })}
+            className={`flex-1 py-2 px-3 rounded-xl border text-xs font-bold transition cursor-pointer ${
+              options.flipV ? 'bg-primary/10 text-primary border-primary/30' : 'border-border bg-card text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            ↕️ Flip Vertical
+          </button>
+        </div>
+        {options.rotation > 0 && (
+          <div className="text-[11px] text-primary/85 font-bold text-center mt-1">
+            Active rotation: <span className="font-mono">{options.rotation}°</span>
+          </div>
+        )}
+      </div>
+
+      {/* Crop Options */}
+      <div className="space-y-3 pt-2 border-t border-border/40">
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+            <Scissors className="h-3.5 w-3.5" />
+            3. Crop Tool
+          </label>
+          <button
+            type="button"
+            onClick={() => update({ cropEnabled: !options.cropEnabled })}
+            className={`px-3 py-1 rounded-full text-[10px] font-black uppercase transition-all cursor-pointer ${
+              options.cropEnabled ? 'bg-emerald-550/10 text-emerald-500 border border-emerald-500/30' : 'bg-slate-800 text-muted-foreground border border-border'
+            }`}
+          >
+            {options.cropEnabled ? 'Enabled' : 'Disabled'}
+          </button>
+        </div>
+
+        {options.cropEnabled && (
+          <div className="space-y-3 p-3 bg-slate-950/20 rounded-2xl border border-border/60 animate-fadeIn">
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <label className="text-[10px] text-muted-foreground font-bold">X Offset (Left)</label>
+                <input
+                  type="number"
+                  min="0"
+                  max={naturalDimensions ? naturalDimensions.width : undefined}
+                  value={options.cropX ?? 0}
+                  onChange={(e) => update({ cropX: Math.max(0, parseInt(e.target.value) || 0) })}
+                  className="w-full p-2 bg-card border border-border rounded-lg text-xs font-mono focus:outline-none"
+                  placeholder="0"
+                  title="Crop X Offset"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] text-muted-foreground font-bold">Y Offset (Top)</label>
+                <input
+                  type="number"
+                  min="0"
+                  max={naturalDimensions ? naturalDimensions.height : undefined}
+                  value={options.cropY ?? 0}
+                  onChange={(e) => update({ cropY: Math.max(0, parseInt(e.target.value) || 0) })}
+                  className="w-full p-2 bg-card border border-border rounded-lg text-xs font-mono focus:outline-none"
+                  placeholder="0"
+                  title="Crop Y Offset"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <label className="text-[10px] text-muted-foreground font-bold">Crop Width</label>
+                <input
+                  type="number"
+                  min="1"
+                  max={naturalDimensions ? naturalDimensions.width : undefined}
+                  value={options.cropWidth ?? (naturalDimensions ? naturalDimensions.width : 500)}
+                  onChange={(e) => update({ cropWidth: Math.max(1, parseInt(e.target.value) || 1) })}
+                  className="w-full p-2 bg-card border border-border rounded-lg text-xs font-mono focus:outline-none"
+                  placeholder="Width"
+                  title="Crop Width"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] text-muted-foreground font-bold">Crop Height</label>
+                <input
+                  type="number"
+                  min="1"
+                  max={naturalDimensions ? naturalDimensions.height : undefined}
+                  value={options.cropHeight ?? (naturalDimensions ? naturalDimensions.height : 500)}
+                  onChange={(e) => update({ cropHeight: Math.max(1, parseInt(e.target.value) || 1) })}
+                  className="w-full p-2 bg-card border border-border rounded-lg text-xs font-mono focus:outline-none"
+                  placeholder="Height"
+                  title="Crop Height"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Format & Quality Settings */}
+      <div className="space-y-3 pt-2 border-t border-border/40">
+        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">4. Format & Quality</label>
+        <div className="space-y-2">
+          <label className="text-[10px] text-muted-foreground font-bold">Output Format</label>
+          <select
+            value={options.targetFormat || options.imageFormat || 'png'}
+            onChange={(e) => update({ targetFormat: e.target.value, imageFormat: e.target.value })}
+            className="w-full p-2.5 bg-card border border-border rounded-xl text-xs"
+            title="Output Format"
+          >
+            <option value="jpeg">JPEG (Best compression)</option>
+            <option value="png">PNG (Lossless / Transparent)</option>
+            <option value="webp">WebP (High efficiency)</option>
+          </select>
+        </div>
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-[10px] text-muted-foreground font-bold">Quality</span>
+            <span className="text-[10px] text-primary font-bold">{options.quality || 92}%</span>
+          </div>
+          <input
+            type="range"
+            min="10"
+            max="100"
+            value={options.quality || 92}
+            onChange={(e) => update({ quality: parseInt(e.target.value) })}
+            className="w-full h-2 bg-secondary rounded-full appearance-none cursor-pointer accent-primary"
+            title="Quality Slider"
+          />
         </div>
       </div>
     </div>

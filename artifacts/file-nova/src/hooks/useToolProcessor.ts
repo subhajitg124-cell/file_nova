@@ -161,11 +161,64 @@ export function useToolProcessor(slug: string, operation: string) {
             const { runClientSidePdfToImages } = await import("@/lib/processing/pdf/client-pdf");
             resultBlob = await runClientSidePdfToImages(rawFiles[0], 150);
           } else if (slug === "resize-image") {
-            const { resizeImage } = await import("@/lib/processing/image/client-image");
-            const width = configOptions.width || 800;
-            const height = configOptions.height || 600;
-            const format = configOptions.outputFormat || "png";
-            resultBlob = await resizeImage(rawFiles[0], width, height, format);
+            const { cropImage, rotateFlipImage, resizeImage } = await import("@/lib/processing/image/client-image");
+            let currentFile = rawFiles[0];
+
+            // 1. Crop if parameters are present and enabled
+            if (
+              configOptions.cropEnabled &&
+              typeof configOptions.cropX === "number" &&
+              typeof configOptions.cropY === "number" &&
+              typeof configOptions.cropWidth === "number" &&
+              typeof configOptions.cropHeight === "number"
+            ) {
+              const croppedBlob = await cropImage(
+                currentFile,
+                configOptions.cropX,
+                configOptions.cropY,
+                configOptions.cropWidth,
+                configOptions.cropHeight,
+                configOptions.outputFormat || configOptions.imageFormat || undefined
+              );
+              currentFile = new File([croppedBlob], currentFile.name, { type: croppedBlob.type });
+            }
+
+            // 2. Rotate / Flip if parameters are present
+            if (configOptions.rotation || configOptions.flipH || configOptions.flipV) {
+              const rotatedBlob = await rotateFlipImage(
+                currentFile,
+                configOptions.rotation || 0,
+                !!configOptions.flipH,
+                !!configOptions.flipV,
+                configOptions.outputFormat || configOptions.imageFormat || undefined
+              );
+              currentFile = new File([rotatedBlob], currentFile.name, { type: rotatedBlob.type });
+            }
+
+            // 3. Resize if width/height are set
+            const targetW = configOptions.resizeWidth || configOptions.width;
+            const targetH = configOptions.resizeHeight || configOptions.height;
+            if (targetW || targetH) {
+              const img = new Image();
+              img.src = URL.createObjectURL(currentFile);
+              await new Promise<void>((resolve) => {
+                img.onload = () => resolve();
+              });
+              const w = targetW || Math.round((img.naturalWidth * (targetH || img.naturalHeight)) / img.naturalHeight);
+              const h = targetH || Math.round((img.naturalHeight * (targetW || img.naturalWidth)) / img.naturalWidth);
+              URL.revokeObjectURL(img.src);
+
+              const resizedBlob = await resizeImage(
+                currentFile,
+                w,
+                h,
+                (configOptions.outputFormat || configOptions.imageFormat || "png") as any,
+                configOptions.quality ? configOptions.quality / 100 : 0.92
+              );
+              currentFile = new File([resizedBlob], currentFile.name, { type: resizedBlob.type });
+            }
+
+            resultBlob = currentFile;
           } else if (slug === "remove-background") {
             const { removeImageBackground } = await import("@/lib/processing/image/client-image");
             resultBlob = await removeImageBackground(rawFiles[0], configOptions.outputFormat || "png");
