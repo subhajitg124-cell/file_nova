@@ -162,8 +162,6 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   // Load settings from the server on mount
   useEffect(() => {
     if (!HAS_BACKEND) {
-      const autoTheme = getAutomaticEventTheme();
-      setSettingsState((current) => current.eventTheme === "none" ? { ...current, eventTheme: autoTheme } : current);
       return;
     }
 
@@ -174,14 +172,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
       })
       .then((data) => {
         if (data.success && data.settings) {
-          // If eventTheme is set to "none", we use the automatic theme
-          // Otherwise, we keep the admin-set theme
-          if (data.settings.eventTheme === "none") {
-            const autoTheme = getAutomaticEventTheme();
-            setSettingsState({ ...data.settings, eventTheme: autoTheme });
-          } else {
-            setSettingsState(data.settings);
-          }
+          setSettingsState(data.settings);
         }
       })
       .catch((err) => {
