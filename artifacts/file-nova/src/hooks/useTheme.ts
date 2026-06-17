@@ -2,15 +2,34 @@ import { useState, useEffect } from "react";
 
 type Theme = "dark" | "light";
 
-export function useTheme() {
-  const [theme, setTheme] = useState<Theme>(() => {
-    try {
-      const saved = localStorage.getItem("filenova-theme") as Theme | null;
-      return saved === "dark" || saved === "light" ? saved : "dark";
-    } catch {
-      return "dark";
+let currentGlobalTheme: Theme = (() => {
+  try {
+    const saved = localStorage.getItem("filenova-theme") as Theme | null;
+    if (saved === "dark" || saved === "light") return saved;
+    const legacy = localStorage.getItem("theme") as Theme | null;
+    if (legacy === "dark" || legacy === "light") {
+      localStorage.setItem("filenova-theme", legacy);
+      localStorage.removeItem("theme");
+      return legacy;
     }
-  });
+  } catch {}
+  return "dark";
+})();
+
+const subscribers = new Set<(theme: Theme) => void>();
+
+export function useTheme() {
+  const [theme, setTheme] = useState<Theme>(currentGlobalTheme);
+
+  useEffect(() => {
+    const handleChange = (newTheme: Theme) => {
+      setTheme(newTheme);
+    };
+    subscribers.add(handleChange);
+    return () => {
+      subscribers.delete(handleChange);
+    };
+  }, []);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -20,7 +39,9 @@ export function useTheme() {
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme(prev => prev === "dark" ? "light" : "dark");
+    const next = theme === "dark" ? "light" : "dark";
+    currentGlobalTheme = next;
+    subscribers.forEach((cb) => cb(next));
   };
 
   return { theme, toggleTheme };
