@@ -213,7 +213,7 @@ export const ToolGrid: React.FC = () => {
   const [recentTools, setRecentTools] = useState<string[]>(() => readStoredList(RECENTS_KEY));
 
   const isToolAllowedOnFree = (tool: ToolItem) => {
-    return tool.category === 'pdf' && (tool.actionName === 'merge' || tool.actionName === 'compress');
+    return (tool.category === 'pdf' && (tool.actionName === 'merge' || tool.actionName === 'compress')) || (tool.category === 'image' && tool.actionName === 'compress');
   };
 
   const activeCategory = selectedSection || 'all';

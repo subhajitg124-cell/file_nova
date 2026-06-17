@@ -595,6 +595,33 @@ export const TOOL_REGISTRY: Record<string, ToolRegistryItem> = {
     description: "Configure, scale, and adjust photo resolutions to custom pixels.",
     relatedTools: ["remove-background", "pan-card-resize"],
   },
+  "compress-image": {
+    id: "compress-image",
+    name: "Compress Image",
+    category: "image",
+    workspaceType: WorkspaceType.UTILITY,
+    previewType: PreviewType.COMPARISON,
+    capabilities: {
+      preview: true,
+      batchProcessing: true,
+      beforeAfter: true,
+      undoRedo: false,
+      dragDrop: true,
+      exportCenter: true,
+      offlineReady: true
+    },
+    metadata: {
+      keywords: ["compress image", "reduce image size", "shrink image", "jpg compressor"],
+      synonyms: ["optimize", "shrink", "resize size", "image compress"],
+      useCases: ["Reduce candidate photo size", "Upload photo under 50KB"],
+      difficulty: "easy"
+    },
+    errorStrategies: ["retry"],
+    icon: "FileArchive",
+    title: "Compress Image File",
+    description: "Reduce PNG/JPEG/WEBP size with quality presets and custom quality slider.",
+    relatedTools: ["resize-image", "pan-card-resize", "remove-background"],
+  },
   "word-to-pdf": {
     id: "word-to-pdf",
     name: "Word to PDF",

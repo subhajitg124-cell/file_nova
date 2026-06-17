@@ -169,6 +169,16 @@ export function useToolProcessor(slug: string, operation: string) {
           } else if (slug === "remove-background") {
             const { removeImageBackground } = await import("@/lib/processing/image/client-image");
             resultBlob = await removeImageBackground(rawFiles[0], configOptions.outputFormat || "png");
+          } else if (slug === "compress-image") {
+            const { compressImage } = await import("@/lib/processing/image/client-image");
+            const qualOpt = configOptions.quality;
+            const qual = typeof qualOpt === 'number'
+              ? (qualOpt <= 1 ? qualOpt : qualOpt / 100)
+              : 0.82;
+            const maxW = configOptions.resizeWidth || configOptions.resize_width || undefined;
+            const maxH = configOptions.resizeHeight || configOptions.resize_height || undefined;
+            const format = configOptions.targetFormat || configOptions.imageFormat || undefined;
+            resultBlob = await compressImage(rawFiles[0], qual, maxW, maxH, format);
           }
         } catch (localErr) {
           console.error("Local client-side execution failed, falling back to mock simulation:", localErr);

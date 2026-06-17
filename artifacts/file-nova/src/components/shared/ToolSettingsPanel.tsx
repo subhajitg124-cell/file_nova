@@ -17,7 +17,9 @@ type PresetKey = 'low' | 'medium' | 'high' | 'custom';
 export const ToolSettingsPanel: React.FC<ToolSettingsPanelProps> = ({ slug }) => {
   const { files, rawFiles, updateOptions, operationOptions, isProcessing } = useFileStore();
   const { tText } = useTranslation();
-  const [activePreset, setActivePreset] = useState<PresetKey>(slug === 'compress-pdf' ? 'medium' : 'custom');
+  const [activePreset, setActivePreset] = useState<PresetKey>(
+    ['compress-pdf', 'compress-image'].includes(slug) ? 'medium' : 'custom'
+  );
   const [isProcessingLocal, setIsProcessingLocal] = useState(false);
 
   const handlePresetChange = (preset: PresetKey) => {
@@ -182,7 +184,7 @@ function getToolCategory(slug: string): 'pdf' | 'image' | 'video' | 'office' | n
     'pan-card-resize': 'image', 'aadhaar-mask-pdf': 'pdf',
     'government-form-fill': 'pdf', 'compress-pdf-for-upload': 'pdf',
     'ai-pdf-summary': 'pdf', 'scholarship-zip': 'pdf',
-    'resize-image': 'image', 'word-to-pdf': 'office',
+    'resize-image': 'image', 'word-to-pdf': 'office', 'compress-image': 'image',
   };
   return (map[slug] as any) || null;
 }
@@ -194,6 +196,7 @@ function getOutputMime(slug: string): string | undefined {
     'word-to-pdf': 'application/pdf',
     'remove-background': 'image/png',
     'resize-image': 'image/jpeg',
+    'compress-image': 'image/jpeg',
   };
   return map[slug];
 }
@@ -210,12 +213,14 @@ function getButtonLabel(slug: string): string {
     'aadhaar-mask-pdf': 'Mask Aadhaar', 'government-form-fill': 'Fill Form',
     'ai-pdf-summary': 'Summarize PDF', 'scholarship-zip': 'Create ZIP',
     'resize-image': 'Resize Image', 'word-to-pdf': 'Convert to PDF',
+    'compress-image': 'Compress Image',
   };
   return labels[slug] || 'Process';
 }
 
 function renderSettings(slug: string, options: Record<string, any>, update: (o: Record<string, any>) => void, preset: PresetKey, setPreset: (p: PresetKey) => void): React.ReactNode {
   if (slug === 'compress-pdf' || slug === 'compress-pdf-for-upload') return renderCompressSettings(options, update, preset, setPreset, slug);
+  if (slug === 'compress-image') return renderCompressImageSettings(options, update, preset, setPreset);
   if (slug === 'merge-pdf') return renderMergeSettings(options, update);
   if (slug === 'split-pdf') return renderSplitSettings(options, update);
   if (slug === 'rotate-pdf') return renderRotateSettings(options, update);
@@ -405,3 +410,61 @@ function renderImageSettings(slug: string, options: Record<string, any>, update:
     </div>
   );
 }
+
+function renderCompressImageSettings(options: Record<string, any>, update: (o: Record<string, any>) => void, preset: PresetKey, setPreset: (p: PresetKey) => void): React.ReactNode {
+  return (
+    <div className="space-y-5">
+      <div className="space-y-2">
+        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Compression Level</label>
+        <div className="flex gap-2 flex-wrap">
+          {(['low', 'medium', 'high'] as PresetKey[]).map((p) => (
+            <button key={p} type="button" onClick={() => {
+              setPreset(p);
+              if (p === 'low') update({ quality: 92, compress_preset: 'low' });
+              else if (p === 'medium') update({ quality: 82, compress_preset: 'balanced' });
+              else if (p === 'high') update({ quality: 55, compress_preset: 'high' });
+            }}
+              className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${preset === p ? 'bg-primary text-primary-foreground border-primary shadow-glow' : 'bg-card text-muted-foreground border-border hover:border-primary/50'}`}>
+              {p === 'low' ? 'Low (Best Quality)' : p === 'medium' ? 'Medium (Balanced)' : 'High (Smallest Size)'}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Quality</label>
+          <span className="text-xs font-bold text-primary">{options.quality || 82}%</span>
+        </div>
+        <input type="range" min="10" max="100" value={options.quality || 82} onChange={(e) => {
+          setPreset('custom');
+          update({ quality: parseInt(e.target.value) });
+        }} title="Quality" className="w-full h-2 bg-secondary rounded-full appearance-none cursor-pointer accent-primary" />
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Output Format</label>
+        <select value={options.targetFormat || options.imageFormat || 'jpeg'} onChange={(e) => update({ targetFormat: e.target.value, imageFormat: e.target.value })} title="Select Output Format" className="w-full p-2.5 bg-card border border-border rounded-xl text-sm">
+          <option value="jpeg">JPEG (Best compression)</option>
+          <option value="png">PNG (Lossless/Transparent)</option>
+          <option value="webp">WebP (Modern high-efficiency)</option>
+        </select>
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Resize Dimensions (Optional)</label>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="space-y-1">
+            <label className="text-[10px] text-muted-foreground">Max Width (px)</label>
+            <input type="number" value={options.resizeWidth || options.resize_width || ''} onChange={(e) => update({ resizeWidth: parseInt(e.target.value) || undefined, resize_width: parseInt(e.target.value) || undefined })} className="w-full p-2 bg-card border border-border rounded-lg text-sm font-mono" placeholder="Original" />
+          </div>
+          <div className="space-y-1">
+            <label className="text-[10px] text-muted-foreground">Max Height (px)</label>
+            <input type="number" value={options.resizeHeight || options.resize_height || ''} onChange={(e) => update({ resizeHeight: parseInt(e.target.value) || undefined, resize_height: parseInt(e.target.value) || undefined })} className="w-full p-2 bg-card border border-border rounded-lg text-sm font-mono" placeholder="Original" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+

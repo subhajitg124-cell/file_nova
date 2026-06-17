@@ -28,6 +28,8 @@ const SITEMAP_URLS: SitemapUrl[] = [
   { loc: "/ocr",                       changefreq: "weekly", priority: 0.85 },
   { loc: "/remove-background",         changefreq: "weekly", priority: 0.85 },
   { loc: "/ai-pdf-summary",            changefreq: "weekly", priority: 0.85 },
+  { loc: "/compress-image",            changefreq: "weekly", priority: 0.9 },
+  { loc: "/resize-photo",              changefreq: "weekly", priority: 0.85 },
 ];
 
 function buildSitemapXml(urls: SitemapUrl[]): string {

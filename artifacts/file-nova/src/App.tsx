@@ -35,6 +35,7 @@ const AiPdfSummary = React.lazy(() => import("@/pages/tools/AiPdfSummary"));
 const ResizeImage = React.lazy(() => import("@/tools/image/ResizePhotoWorkspace"));
 const WordToPdf = React.lazy(() => import("@/pages/tools/WordToPdf"));
 const AIPPTMakerWorkspace = React.lazy(() => import("@/tools/ai-ppt/AIPPTMakerWorkspace"));
+const CompressImage = React.lazy(() => import("@/pages/tools/CompressImage"));
 import PdfToolsPage from "@/pages/PdfToolsPage";
 import ImageToolsPage from "@/pages/ImageToolsPage";
 import VideoToolsPage from "@/pages/VideoToolsPage";
@@ -283,7 +284,9 @@ function Router() {
         <Route path="/compress"><Redirect to="/compress-pdf" /></Route>
         <Route path="/split"><Redirect to="/split-pdf" /></Route>
         <Route path="/resize-image"><Redirect to="/resize-photo" /></Route>
-        <Route path="/compress-image"><Redirect to="/resize-photo" /></Route>
+        <Route path="/compress-image">
+          <React.Suspense fallback={<LoadingScreen />}><CompressImage /></React.Suspense>
+        </Route>
         <Route path="/document-converter"><Redirect to="/document-tools" /></Route>
         <Route path="/image-converter"><Redirect to="/image-tools" /></Route>
         <Route path="/ocr-pdf"><Redirect to="/ocr" /></Route>
@@ -303,6 +306,7 @@ function Router() {
         <Route path="/tools/pdf-ocr"><Redirect to="/ocr" /></Route>
         <Route path="/tools/resize-image"><Redirect to="/resize-photo" /></Route>
         <Route path="/tools/resize-photo"><Redirect to="/resize-photo" /></Route>
+        <Route path="/tools/compress-image"><Redirect to="/compress-image" /></Route>
         <Route path="/tools/word-to-pdf"><Redirect to="/word-to-pdf" /></Route>
         <Route path="/tools/docx-to-pdf"><Redirect to="/word-to-pdf" /></Route>
         <Route path="/tools/scholarship-zip"><Redirect to="/scholarship-zip" /></Route>

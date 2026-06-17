@@ -901,6 +901,51 @@ export const toolContentMap: Record<string, ToolContent> = {
     toolCategory: "image",
   },
 
+  "compress-image": {
+    slug: "compress-image",
+    title: "Compress Image – Reduce JPG/PNG/WEBP File Size Free | FileNova",
+    h1: "Compress Image – Reduce Image File Size Online Free",
+    metaDescription:
+      "Compress images online for free. Reduce the file size of JPG, PNG, and WebP photos without losing quality. Perfect for online applications and government portals.",
+    keywords:
+      "compress image, reduce image size, compress photo online, shrink jpeg size, image compressor free, compress image under 50kb",
+    toolName: "FileNova Image Compressor",
+    toolDescription:
+      "Free online tool to compress and reduce the file size of JPG, PNG, and WebP images. Optimize your photos instantly while maintaining high visual quality.",
+    seoBody: [
+      "Compressing image files is a necessary step when uploading photos, certificates, or signatures to online forms and government portals in India. Large file sizes are often rejected, prompting users to find ways to compress them without making them unreadable.",
+      "FileNova's free image compressor solves this problem directly in your browser. Since all processing runs locally on your device, your private photographs and signature scans never touch our servers.",
+      "You can choose from low, medium, or high quality presets, or fine-tune quality parameters manually using the interactive slider. You can also specify target formats (like JPEG or WebP) and maximum pixel limits.",
+      "No registration or email is required. Simply drag your photo, adjust the quality settings, and download the compressed image instantly."
+    ],
+    faqs: [
+      {
+        q: "How do I compress image files online for free?",
+        a: "Upload your image to FileNova's Image Compressor, choose a compression level (low, medium, or high), and click Compress. Your optimized image will be ready to download instantly."
+      },
+      {
+        q: "Can I convert formats while compressing images?",
+        a: "Yes. You can select your desired output format (JPEG, PNG, or WebP) in the options panel, and the compressor will handle conversion and size reduction in a single step."
+      },
+      {
+        q: "Are my photos uploaded to a server?",
+        a: "No. FileNova processes all image compression locally in your browser using the Canvas API. Your files remain completely secure on your device."
+      }
+    ],
+    relatedTools: [
+      { label: "Resize Image", slug: "resize-image", icon: "resize" },
+      { label: "PAN Card Resize", slug: "pan-card-resize", icon: "credit-card" },
+      { label: "Remove Background", slug: "remove-background", icon: "eraser" }
+    ],
+    steps: [
+      { title: "Upload your image", description: "Select or drag and drop your JPEG, PNG, or WebP photo into the workspace.", icon: "upload" },
+      { title: "Configure compression", description: "Choose a balanced quality preset, change the target format, or limit max pixel dimensions.", icon: "configure" },
+      { title: "Download optimized file", description: "Click 'Compress Image' and save your compressed file instantly.", icon: "download" }
+    ],
+    howToName: "Compress Images Online",
+    toolCategory: "image"
+  },
+
   "word-to-pdf": {
     slug: "word-to-pdf",
     title: "Word to PDF – Convert DOC/DOCX to PDF Free | FileNova",
