@@ -39,6 +39,93 @@ interface CuratedTool {
   tags?: string[];
 }
 
+interface ToolCardProps {
+  tool: any;
+  categoryOverride?: string;
+  index: number;
+  tText: (key: string) => string;
+}
+
+const ToolCard: React.FC<ToolCardProps> = ({ tool, categoryOverride, index, tText }) => {
+  const ToolIcon = tool.icon || HelpCircle;
+  const cat = categoryOverride || tool.category || "pdf";
+  const displayCategory = 
+    cat === "india" ? tText("Indian Portals") :
+    cat === "pdf" ? tText("PDF Tools") :
+    cat === "image" ? tText("Image Tools") :
+    cat === "office" ? tText("Office & Docs") :
+    cat === "ai" ? tText("AI Suite") :
+    tText(cat);
+
+  const [coords, setCoords] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setCoords({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: index * 0.05 }}
+    >
+      <Link
+        href={tool.canonical}
+        onMouseMove={handleMouseMove}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className="group relative bg-card hover:bg-accent/40 border border-border hover:border-primary/45 rounded-2xl p-5 cursor-pointer transition-all duration-300 flex flex-col justify-between shadow-sm hover:shadow-lg hover:-translate-y-0.5 text-left block overflow-hidden"
+      >
+        {/* Dynamic cursor-spotlight shine overlay */}
+        {isHovered && (
+          <div
+            className="absolute inset-0 pointer-events-none transition-opacity duration-300 z-0"
+            style={{
+              background: `radial-gradient(130px circle at ${coords.x}px ${coords.y}px, rgba(99, 102, 241, 0.12), transparent 80%)`,
+            }}
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/0 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+        
+        <div className="relative z-10">
+          <div className="flex items-start justify-between mb-4">
+            <div className="h-10 w-10 rounded-xl bg-indigo-50 dark:bg-slate-950 border border-indigo-100 dark:border-slate-850 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:scale-110 group-hover:rotate-[4deg] transition-all duration-300">
+              <ToolIcon className="h-5 w-5" />
+            </div>
+            {tool.badge && (
+              <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border ${
+                tool.badge === "Popular" ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/25" :
+                tool.badge === "Secure" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25" :
+                tool.badge === "AI" ? "bg-purple-500/10 text-purple-650 dark:text-purple-400 border-purple-500/25" :
+                "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-border dark:border-slate-700"
+              }`}>
+                {tool.badge}
+              </span>
+            )}
+          </div>
+          <h3 className="font-bold text-sm text-foreground mb-1.5 group-hover:text-primary transition-colors">
+            {tool.title}
+          </h3>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            {tool.description}
+          </p>
+        </div>
+        <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-[10px] text-muted-foreground font-bold uppercase tracking-wider relative z-10">
+          <span>{displayCategory}</span>
+          <span className="flex items-center gap-0.5 text-primary opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-0.5">
+            {tText("Open")} <ChevronRight className="h-3 w-3" />
+          </span>
+        </div>
+      </Link>
+    </motion.div>
+  );
+};
+
 export default function SimpleHome() {
   const [, setLocation] = useLocation();
   const { user } = useAuthStore();
@@ -273,60 +360,7 @@ export default function SimpleHome() {
   });
 
   const renderToolCard = (tool: any, categoryOverride?: string, index: number = 0) => {
-    const ToolIcon = tool.icon || HelpCircle;
-    const cat = categoryOverride || tool.category || "pdf";
-    const displayCategory = 
-      cat === "india" ? tText("Indian Portals") :
-      cat === "pdf" ? tText("PDF Tools") :
-      cat === "image" ? tText("Image Tools") :
-      cat === "office" ? tText("Office & Docs") :
-      cat === "ai" ? tText("AI Suite") :
-      tText(cat);
-
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: index * 0.05 }}
-      >
-        <Link
-          key={tool.id}
-          href={tool.canonical}
-          className="group relative bg-card hover:bg-accent/40 border border-border hover:border-primary/45 rounded-2xl p-5 cursor-pointer transition-all duration-300 flex flex-col justify-between shadow-sm hover:shadow-lg hover:-translate-y-0.5 text-left block overflow-hidden"
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/0 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-          <div>
-            <div className="flex items-start justify-between mb-4">
-              <div className="h-10 w-10 rounded-xl bg-indigo-50 dark:bg-slate-950 border border-indigo-100 dark:border-slate-850 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:scale-110 group-hover:rotate-[4deg] transition-all duration-300">
-                <ToolIcon className="h-5 w-5" />
-              </div>
-              {tool.badge && (
-                <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border ${
-                  tool.badge === "Popular" ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/25" :
-                  tool.badge === "Secure" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25" :
-                  tool.badge === "AI" ? "bg-purple-500/10 text-purple-650 dark:text-purple-400 border-purple-500/25" :
-                  "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-border dark:border-slate-700"
-                }`}>
-                  {tool.badge}
-                </span>
-              )}
-            </div>
-            <h3 className="font-bold text-sm text-foreground mb-1.5 group-hover:text-primary transition-colors">
-              {tool.title}
-            </h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              {tool.description}
-            </p>
-          </div>
-          <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-[10px] text-muted-foreground font-bold uppercase tracking-wider relative z-10">
-            <span>{displayCategory}</span>
-            <span className="flex items-center gap-0.5 text-primary opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-0.5">
-              {tText("Open")} <ChevronRight className="h-3 w-3" />
-            </span>
-          </div>
-        </Link>
-      </motion.div>
-    );
+    return <ToolCard tool={tool} categoryOverride={categoryOverride} index={index} tText={tText} />;
   };
 
   return (

@@ -177,3 +177,39 @@ export const Confetti: React.FC<ConfettiProps> = ({ show }) => {
     </div>
   );
 };
+
+// Global mouse-spotlight glow backdrop
+export const CursorGlow: React.FC = () => {
+  const [mousePos, setMousePos] = React.useState({ x: 0, y: 0 });
+  const [isVisible, setIsVisible] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+      if (!isVisible) setIsVisible(true);
+    };
+
+    const handleMouseLeave = () => {
+      setIsVisible(false);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseleave", handleMouseLeave);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseleave", handleMouseLeave);
+    };
+  }, [isVisible]);
+
+  if (!isVisible) return null;
+
+  return (
+    <div
+      className="fixed inset-0 pointer-events-none z-0 transition-opacity duration-300 hidden md:block"
+      style={{
+        background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, rgba(99, 102, 241, 0.08), transparent 80%)`,
+      }}
+    />
+  );
+};

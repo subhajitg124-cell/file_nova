@@ -78,7 +78,7 @@ import { ConnectionStatusIndicator } from "@/components/ConnectionStatusIndicato
 import { FileNovaAssistant } from "@/components/FileNovaAssistant";
 import { SmartAssistant } from "@/assistant/components/SmartAssistant";
 import { FloatingShortcuts } from "@/components/FloatingShortcuts";
-import { FloatingParticles } from "@/components/AnimatedEffects";
+import { FloatingParticles, CursorGlow } from "@/components/AnimatedEffects";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useFileStore } from "@/store/useFileStore";
 import { LoadingScreen } from "@/components/LoadingScreen";
@@ -579,6 +579,7 @@ function App({ ssrPath }: { ssrPath?: string } = {}) {
                   )}
                   <OfflineBanner />
                   <FloatingParticles />
+                  <CursorGlow />
                   <FloatingShortcuts />
                   <FileNovaAssistant isOpen={assistantOpen} onClose={() => setAssistantOpen(false)} />
                   <AdminProvider>
