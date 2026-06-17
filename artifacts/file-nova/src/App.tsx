@@ -13,6 +13,7 @@ import { EventProvider } from "@/components/events/EventProvider";
 import { EventTheme } from "@/components/events/EventTheme";
 import { NoticeBar } from "@/components/events/NoticeBar";
 import { AnimatedBanner } from "@/components/events/AnimatedBanner";
+import { NewsTicker } from "@/components/events/NewsTicker";
 
 const MergePdf = React.lazy(() => import("@/pages/tools/MergePdf"));
 const SplitPdf = React.lazy(() => import("@/pages/tools/SplitPdf"));
@@ -184,6 +185,7 @@ function Router() {
     <>
       <EventTheme />
       <NoticeBar />
+      <NewsTicker />
       <AnimatedBanner placement="corner-decoration" />
       <AnimatedBanner placement="background-overlay" />
       <ThemeEffects />
