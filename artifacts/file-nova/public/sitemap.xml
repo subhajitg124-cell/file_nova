@@ -74,7 +74,7 @@
 
   <!-- India-exclusive tools — highest strategic priority -->
   <url>
-    <loc>https://filenova.in/aadhaar-mask</loc>
+    <loc>https://filenova.in/aadhaar-mask-pdf</loc>
     <lastmod>2026-06-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
@@ -106,7 +106,7 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://filenova.in/ai-background-remover</loc>
+    <loc>https://filenova.in/remove-background</loc>
     <lastmod>2026-06-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -117,16 +117,34 @@
     <changefreq>monthly</changefreq>
     <priority>0.95</priority>
   </url>
-
-  <!-- Upload & Form tools -->
   <url>
-    <loc>https://filenova.in/compress-for-upload</loc>
+    <loc>https://filenova.in/compress-image</loc>
+    <lastmod>2026-06-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Upload, Form & Additional tools -->
+  <url>
+    <loc>https://filenova.in/compress-pdf-for-upload</loc>
     <lastmod>2026-06-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://filenova.in/government-form-fill</loc>
+    <lastmod>2026-06-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://filenova.in/resize-pdf</loc>
+    <lastmod>2026-06-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://filenova.in/ai-pdf-summary</loc>
     <lastmod>2026-06-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>

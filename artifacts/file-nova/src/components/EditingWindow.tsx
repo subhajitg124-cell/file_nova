@@ -1272,7 +1272,24 @@ export const EditingWindow: React.FC<EditingWindowProps> = ({ file, fileType, on
               </AnimatePresence>
 
               {toolType === 'compress' && <CompressSidebar quality={operationOptions.quality ?? 0.82} onQualityChange={(q) => updateOptions({ quality: q })} grayscale={false} onGrayscaleChange={() => {}} onCompress={() => {}} disabled={false} estimate={null} formatSize={() => '0 B'} />}
-              {toolType === 'merge' && <MergeSidebar files={[]} onFilesChange={() => {}} onMerge={() => {}} disabled={false} />}
+              {toolType === 'merge' && (
+                <MergeSidebar 
+                  files={pdfMergeFiles} 
+                  onFilesChange={setPdfMergeFiles} 
+                  onMerge={async () => {
+                    try {
+                      setStatusMessage("Merging PDF documents...");
+                      const { runClientSidePdfMerge } = await import("@/lib/processing/pdf/client-pdf");
+                      const mergedBlob = await runClientSidePdfMerge(pdfMergeFiles);
+                      onDone(mergedBlob);
+                      setStatusMessage("Merge complete!");
+                    } catch (err: any) {
+                      setStatusMessage(`Merge failed: ${err.message}`);
+                    }
+                  }} 
+                  disabled={pdfMergeFiles.length < 2} 
+                />
+              )}
               {toolType === 'split' && <SplitSidebar onSplit={() => {}} disabled={false} totalPages={totalPages || 1} />}
               {toolType === 'rotate' && <RotateSidebar onRotate={() => {}} disabled={false} />}
               {toolType === 'protect' && <ProtectSidebar onProtect={() => {}} disabled={false} />}

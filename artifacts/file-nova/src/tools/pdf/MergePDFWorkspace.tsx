@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { ToolWorkspace } from "@/components/workspace/ToolWorkspace";
 import { PreviewPanel } from "@/components/workspace/PreviewPanel";
 import { useToolProcessor } from "@/hooks/useToolProcessor";
-import { FileText, ArrowRight, Settings2, Sparkles } from "lucide-react";
+import { FileText, ArrowRight, Settings2, Sparkles, Plus } from "lucide-react";
+import { useFileStore } from "@/store/useFileStore";
 
 export const MergePDFWorkspace: React.FC = () => {
   const {
@@ -48,6 +49,35 @@ export const MergePDFWorkspace: React.FC = () => {
     setApplyRanges((prev) => ({ ...prev, [id]: checked }));
   };
 
+  const sortFiles = (type: 'name-asc' | 'name-desc' | 'size-asc' | 'size-desc' | 'reverse' | 'clear') => {
+    if (type === 'clear') {
+      handleReset();
+      return;
+    }
+
+    const pairs = files.map((file, idx) => ({
+      fileRecord: file,
+      rawFile: rawFiles[idx] || new File([], file.name, { type: file.type })
+    }));
+
+    if (type === 'name-asc') {
+      pairs.sort((a, b) => a.fileRecord.name.localeCompare(b.fileRecord.name));
+    } else if (type === 'name-desc') {
+      pairs.sort((a, b) => b.fileRecord.name.localeCompare(a.fileRecord.name));
+    } else if (type === 'size-asc') {
+      pairs.sort((a, b) => a.fileRecord.size - b.fileRecord.size);
+    } else if (type === 'size-desc') {
+      pairs.sort((a, b) => b.fileRecord.size - a.fileRecord.size);
+    } else if (type === 'reverse') {
+      pairs.reverse();
+    }
+
+    const nextFiles = pairs.map(p => p.fileRecord);
+    const nextRaw = pairs.map(p => p.rawFile);
+
+    useFileStore.setState({ files: nextFiles, rawFiles: nextRaw });
+  };
+
   const configPanel = (
     <div className="space-y-6">
       {/* Output Filename */}
@@ -60,6 +90,53 @@ export const MergePDFWorkspace: React.FC = () => {
           placeholder="merged.pdf"
           className="w-full bg-slate-950/60 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-violet-500 font-mono"
         />
+      </div>
+
+      {/* Add More Files & Organise Options */}
+      <div className="space-y-2.5 pt-4 border-t border-white/[0.05]">
+        <label className="text-xs font-black uppercase tracking-wider text-slate-400 block">
+          Add & Organise Queue
+        </label>
+        <div className="grid grid-cols-2 gap-2">
+          {/* Add Files Button */}
+          <label className="flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-white/20 bg-slate-950/60 hover:bg-slate-900 px-3 py-2.5 text-xs font-bold text-slate-305 hover:text-white cursor-pointer transition">
+            <Plus className="h-3.5 w-3.5" /> Add PDFs
+            <input
+              type="file"
+              accept=".pdf"
+              multiple
+              onChange={(e) => {
+                const list = Array.from(e.target.files || []);
+                if (list.length > 0) {
+                  handleFilesSelected(list);
+                }
+              }}
+              className="hidden"
+            />
+          </label>
+
+          {/* Sort Dropdown */}
+          <select
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val) {
+                sortFiles(val as any);
+                e.target.value = ""; // Reset
+              }
+            }}
+            defaultValue=""
+            className="bg-slate-950/60 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-slate-355 font-bold focus:outline-none focus:border-violet-500 hover:bg-slate-900 cursor-pointer transition"
+            title="Sort files queue"
+          >
+            <option value="" disabled>⇅ Organise</option>
+            <option value="name-asc">Sort Name: A → Z</option>
+            <option value="name-desc">Sort Name: Z → A</option>
+            <option value="size-asc">Sort Size: Smallest</option>
+            <option value="size-desc">Sort Size: Largest</option>
+            <option value="reverse">Reverse Order</option>
+            <option value="clear">Clear All</option>
+          </select>
+        </div>
       </div>
 
       {/* Pages constraints per file */}

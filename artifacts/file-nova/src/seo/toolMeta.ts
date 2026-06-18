@@ -65,7 +65,7 @@ export const TOOL_META: Record<string, ToolMeta> = {
   "/aadhaar-mask-pdf": {
     title: "Aadhaar Card Masking Online Free – FileNova India",
     description: "Mask Aadhaar number online for free as per UIDAI guidelines. Hide first 8 digits, keep last 4. Works offline — your Aadhaar never leaves your device.",
-    canonical: "https://filenova.in/aadhaar-mask", // Points to primary
+    canonical: "https://filenova.in/aadhaar-mask-pdf",
     keywords: "aadhaar masking online free, mask aadhaar card, uidai aadhaar mask india",
     ogImage: OG_INDIA,
   },
@@ -114,7 +114,7 @@ export const TOOL_META: Record<string, ToolMeta> = {
   "/remove-background": {
     title: "AI Background Remover Free Online – FileNova India",
     description: "Remove photo background online free using AI. Get a transparent background or white background instantly. Perfect for passport photos and ID cards.",
-    canonical: "https://filenova.in/ai-background-remover", // Points to primary
+    canonical: "https://filenova.in/remove-background",
     keywords: "remove background online free india, ai background remover, transparent background photo",
     ogImage: OG_IMAGE,
   },
@@ -146,12 +146,33 @@ export const TOOL_META: Record<string, ToolMeta> = {
     keywords: "word to pdf converter free india, docx to pdf online, convert word document to pdf",
     ogImage: OG_PDF,
   },
-  "/compress-for-upload": {
-    title: "Compress PDF for Government Upload – FileNova India",
-    description: "Compress PDF files for online uploads to exact targets under 100KB, 200KB, or 1MB for Indian government portals.",
-    canonical: "https://filenova.in/compress-for-upload",
-    keywords: "compress pdf online free india, reduce pdf size, pdf compressor for government portal",
+  "/compress-pdf-for-upload": {
+    title: "Compress PDF to Target Size Free – Upload Ready | FileNova",
+    description: "Compress PDF files online to exact target sizes like under 100KB, 200KB, 550KB, or 1MB for Indian portals. Secure and offline-enabled.",
+    canonical: "https://filenova.in/compress-pdf-for-upload",
+    keywords: "compress pdf to target size, reduce pdf size to 200kb, compress pdf to 100kb free, nsp pdf size reducer",
     ogImage: OG_PDF,
+  },
+  "/resize-pdf": {
+    title: "Resize PDF Pages Online Free – Change PDF Dimensions | FileNova",
+    description: "Resize PDF page dimensions online free. Change page size to A4, Letter, or custom width and height instantly in your browser.",
+    canonical: "https://filenova.in/resize-pdf",
+    keywords: "resize pdf page, change pdf page size free, resize pdf to A4 online, pdf layout resizer",
+    ogImage: OG_PDF,
+  },
+  "/ai-pdf-summary": {
+    title: "AI PDF Summarizer Free – Extract Key Insights Online | FileNova",
+    description: "Summarize PDF documents online free using AI. Get quick summaries, bulleted insights, and key takeaways instantly from large PDFs.",
+    canonical: "https://filenova.in/ai-pdf-summary",
+    keywords: "ai pdf summarizer, summarize pdf online free, extract insights from pdf, chat with pdf free",
+    ogImage: "https://filenova.in/og/ai-tools.png",
+  },
+  "/compress-image": {
+    title: "Compress Image Free Online – Reduce Photo File Size | FileNova",
+    description: "Compress images and reduce photo file size online for free. Support JPG, PNG, WebP format compression. Adjust quality and download instantly.",
+    canonical: "https://filenova.in/compress-image",
+    keywords: "compress image online free, reduce photo size kb, jpeg size reducer online, compress png webp",
+    ogImage: OG_IMAGE,
   },
   "/government-form-fill": {
     title: "Fill Government PDF Forms Online – FileNova India",

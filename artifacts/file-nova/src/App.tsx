@@ -362,7 +362,8 @@ function App({ ssrPath }: { ssrPath?: string } = {}) {
     addRawFiles, 
     addFiles, 
     setError, 
-    setProcessing 
+    setProcessing,
+    selectedOperation
   } = useFileStore();
   const [limitModalOpen, setLimitModalOpen] = useState(false);
   const [modalLimit, setModalLimit] = useState(3);
@@ -601,6 +602,7 @@ function App({ ssrPath }: { ssrPath?: string } = {}) {
                       <EditingWindow
                         file={editorFile}
                         fileType={editorFileType}
+                        toolType={selectedOperation === 'pancard' ? 'pan-resize' : (selectedOperation || 'default') as any}
                         onClose={closeEditor}
                         onDone={async (resultBlob) => {
                           const editedFile = new File([resultBlob], editorFile.name, { type: resultBlob.type });
