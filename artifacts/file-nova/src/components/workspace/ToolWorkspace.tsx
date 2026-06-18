@@ -23,6 +23,7 @@ import { ExportCenter } from "./ExportCenter";
 import { toast } from "sonner";
 import { fileDatabase, DBFileRecord } from "@/lib/fileDatabase";
 import { analytics } from "@/lib/analytics";
+import { getBrandedFileName, getExtensionForMime, getOutputExtensionForSlug } from "@/hooks/useToolProcessor";
 
 export interface ToolWorkspaceProps {
   toolName: string;
@@ -88,7 +89,9 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
   error,
 }) => {
   const [location, setLocation] = useLocation();
-  const { premiumTier } = useSubscription();
+  const slug = location.replace(/^\//, "");
+  const { premiumTier, premiumEnabled } = useSubscription();
+  const { customFileName, setCustomFileName } = useFileStore();
 
   // Core UI States
   const [zoom, setZoom] = useState<number>(100);
@@ -131,10 +134,9 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
   const theme = TOOL_THEMES[accentColor] || TOOL_THEMES.violet;
-  const hasFiles = files.length > 0;
+  const hasFiles = files.length > 0 || slug === "scholarship-zip" || slug === "ai-ppt-maker";
 
   // Retrieve current active registry item
-  const slug = location.replace(/^\//, "");
   const currentPlugin = TOOL_REGISTRY[slug] || {
     id: slug,
     name: toolName,
@@ -1202,10 +1204,49 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
               Drag additional files here to append to document queue. Maximum files: {maxFiles}
             </div>
           </main>
-
-          {/* RIGHT SIDEBAR (Col span 3) */}
           <aside className="hidden md:flex md:col-span-3 border-l border-white/[0.06] bg-slate-900/20 p-4 flex-col gap-5 overflow-y-auto">
-            
+            {/* Output Filename Configuration Card */}
+            {hasFiles && (
+              <div className="space-y-3 animate-fade-in">
+                <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-500">Output Settings</h3>
+                <div className="p-4 rounded-2xl bg-slate-950/60 border border-white/[0.05] space-y-3">
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-slate-400">
+                      <span>Output Filename</span>
+                      {!premiumEnabled && (
+                        <span className="text-[8px] bg-amber-500/10 text-amber-500 border border-amber-500/25 px-1.5 py-0.5 rounded-md flex items-center gap-0.5 font-bold">
+                          🔒 Premium Lock
+                        </span>
+                      )}
+                    </div>
+                    <div className="relative flex items-center">
+                      <input
+                        type="text"
+                        disabled={!premiumEnabled}
+                        value={premiumEnabled ? customFileName : getBrandedFileName(slug, getOutputExtensionForSlug(slug, files))}
+                        onChange={(e) => setCustomFileName(e.target.value)}
+                        placeholder={
+                          files[0]?.name 
+                            ? `${files[0].name.replace(/\.[^/.]+$/, "")}_processed` 
+                            : "e.g. customized-output"
+                        }
+                        className={`w-full bg-slate-950/60 border rounded-xl px-3 py-2 text-xs text-white focus:outline-none font-mono ${
+                          premiumEnabled 
+                            ? "border-white/10 focus:border-indigo-500" 
+                            : "border-white/5 text-slate-555 cursor-not-allowed select-none bg-slate-950/30 font-medium"
+                        }`}
+                      />
+                    </div>
+                    {!premiumEnabled && (
+                      <p className="text-[9.5px] text-slate-500 leading-normal">
+                        Free users output is branding-locked to <span className="font-mono text-slate-400 font-bold">{getBrandedFileName(slug, getOutputExtensionForSlug(slug, files))}</span>. Upgrade to Pro to customize output names.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Custom Tool-Specific Config Panel */}
             <div className="space-y-3">
               <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-500">Adjustment Parameters</h3>
@@ -1316,6 +1357,38 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                 </button>
               </div>
 
+              {hasFiles && (
+                <div className="p-4 rounded-2xl bg-slate-950/60 border border-white/[0.05] space-y-3">
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-slate-400">
+                      <span>Output Filename</span>
+                      {!premiumEnabled && (
+                        <span className="text-[8px] bg-amber-500/10 text-amber-500 border border-amber-500/25 px-1.5 py-0.5 rounded-md flex items-center gap-0.5 font-bold">
+                          🔒 Premium Lock
+                        </span>
+                      )}
+                    </div>
+                    <div className="relative flex items-center">
+                      <input
+                        type="text"
+                        disabled={!premiumEnabled}
+                        value={premiumEnabled ? customFileName : getBrandedFileName(slug, getOutputExtensionForSlug(slug, files))}
+                        onChange={(e) => setCustomFileName(e.target.value)}
+                        placeholder={
+                          files[0]?.name 
+                            ? `${files[0].name.replace(/\.[^/.]+$/, "")}_processed` 
+                            : "e.g. customized-output"
+                        }
+                        className={`w-full bg-slate-950/60 border rounded-xl px-3 py-2 text-xs text-white focus:outline-none font-mono ${
+                          premiumEnabled 
+                            ? "border-white/10 focus:border-indigo-500" 
+                            : "border-white/5 text-slate-555 cursor-not-allowed select-none bg-slate-950/30 font-medium"
+                        }`}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
               <div className="py-2">
                 {configPanel}
               </div>

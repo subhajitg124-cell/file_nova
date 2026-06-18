@@ -97,7 +97,16 @@ export const EditingWindow: React.FC<EditingWindowProps> = ({ file, fileType, on
   } = useImageEditor(canvasRef);
   const { operationOptions, updateOptions } = useFileStore();
 
-  const [activeSection, setActiveSection] = useState<string>("crop");
+  const [activeSection, setActiveSection] = useState<string>(() => {
+    if (toolType === "aadhaar-mask") return "aadhaar";
+    if (["compress", "merge", "split", "rotate", "protect", "unlock"].includes(toolType)) return "pdf";
+    return "crop";
+  });
+  const [sidebarTab, setSidebarTab] = useState<"adjust" | "smart" | "export">(() => {
+    if (toolType === "aadhaar-mask" || toolType === "pan-resize") return "smart";
+    if (["compress", "merge", "split", "rotate", "protect", "unlock"].includes(toolType)) return "export";
+    return "adjust";
+  });
   const [zoomLevel, setZoomLevel] = useState(1);
 
   const [cropPreset, setCropPreset] = useState<string>("Free");
@@ -468,706 +477,808 @@ export const EditingWindow: React.FC<EditingWindowProps> = ({ file, fileType, on
           </div>
         </div>
 
-        <div className="space-y-4 px-4 py-4">
-          {activeHeading("📐 Crop & Resize", <Scissors className="h-5 w-5" />, "crop")}
-          <AnimatePresence initial={false}>
-            {activeSection === "crop" ? (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                className="overflow-hidden"
-              >
-                <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900 p-4">
-                  <div className="grid grid-cols-2 gap-2">
-                    { ["Free", "1:1", "4:3", "16:9", "A4", "Passport (3.5x4.5cm)", "Passport (5x5cm)" ].map((preset) => (
-                      <button
-                        key={preset}
-                        onClick={() => setCropPreset(preset)}
-                        className={`rounded-2xl border px-3 py-2 text-[12px] font-semibold transition ${cropPreset === preset ? "border-emerald-400 bg-emerald-500/10 text-emerald-200" : "border-slate-800 bg-slate-950 hover:border-slate-700"}`}
-                      >
-                        {preset}
-                      </button>
-                    )) }
-                  </div>
+        <div className="flex border border-white/[0.06] bg-slate-950/40 p-1 mx-4 mt-4 rounded-2xl gap-1 backdrop-blur-md shadow-inner shrink-0">
+          {[
+            { id: "adjust", label: "Edit", icon: <Scissors className="h-3.5 w-3.5" /> },
+            { id: "smart", label: "Smart Tools", icon: <Sparkles className="h-3.5 w-3.5" /> },
+            { id: "export", label: "Export", icon: <Share2 className="h-3.5 w-3.5" /> }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => {
+                setSidebarTab(tab.id as any);
+                if (tab.id === "adjust") setActiveSection("crop");
+                else if (tab.id === "smart") setActiveSection(toolType === "aadhaar-mask" ? "aadhaar" : "crop");
+                else if (tab.id === "export") setActiveSection("pdf");
+              }}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-200 cursor-pointer ${
+                sidebarTab === tab.id 
+                  ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black shadow-md shadow-emerald-500/10 scale-[1.02]"
+                  : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+              }`}
+            >
+              {tab.icon}
+              <span>{tab.label}</span>
+            </button>
+          ))}
+        </div>
 
-                  <div className="space-y-2">
-                    <label className="text-xs uppercase tracking-[0.2em] text-slate-400">Custom size</label>
-                    <div className="grid grid-cols-[1fr_1fr_auto] gap-2">
-                      <input
-                        type="number"
-                        value={width}
-                        onChange={(e) => setWidth(Number(e.target.value))}
-                        title="Width"
-                        aria-label="Width"
-                        className="rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-white"
-                        placeholder="Width"
-                      />
-                      <input
-                        type="number"
-                        value={height}
-                        onChange={(e) => setHeight(Number(e.target.value))}
-                        title="Height"
-                        aria-label="Height"
-                        className="rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-white"
-                        placeholder="Height"
-                      />
-                      <select
-                        value={sizeUnit}
-                        onChange={(e) => setSizeUnit(e.target.value as "px" | "cm" | "mm")}
-                        title="Select size unit"
-                        aria-label="Select size unit"
-                        className="rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-white"
-                      >
-                        <option value="px">px</option>
-                        <option value="cm">cm</option>
-                        <option value="mm">mm</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-xs uppercase tracking-[0.2em] text-slate-400">Search preset</label>
-                    <div className="relative">
-                      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
-                      <input
-                        type="search"
-                        value={sizeSearch}
-                        onChange={(e) => setSizeSearch(e.target.value)}
-                        title="Search sizes"
-                        aria-label="Search sizes"
-                        placeholder="Search sizes"
-                        className="w-full rounded-2xl border border-slate-800 bg-slate-950 pl-10 pr-3 py-2 text-sm text-white"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-xs uppercase tracking-[0.2em] text-slate-400">Country passport sizes</label>
-                    <div className="grid gap-2">
-                      {passportPresets
-                        .filter((preset) => preset.label.toLowerCase().includes(sizeSearch.toLowerCase()))
-                        .map((preset) => (
+        <div className="space-y-4 px-4 py-4 flex-1 overflow-y-auto">
+          {sidebarTab === "adjust" && (
+            <>
+              {activeHeading("📐 Crop & Resize", <Scissors className="h-5 w-5" />, "crop")}
+              <AnimatePresence initial={false}>
+                {activeSection === "crop" ? (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="space-y-4 rounded-2xl border border-white/[0.05] bg-slate-900/40 p-4">
+                      <div className="grid grid-cols-2 gap-2">
+                        {["Free", "1:1", "4:3", "16:9", "A4", "Passport (3.5x4.5cm)", "Passport (5x5cm)"].map((preset) => (
                           <button
-                            key={preset.label}
-                            onClick={() => {
-                              setWidth(preset.width);
-                              setHeight(preset.height);
-                              setCropPreset(preset.label);
-                            }}
-                            className="rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-left text-sm transition hover:border-slate-700"
+                            key={preset}
+                            type="button"
+                            onClick={() => setCropPreset(preset)}
+                            className={`rounded-xl border px-3 py-2 text-[11px] font-bold transition-all duration-200 hover:scale-[1.02] active:scale-98 cursor-pointer ${
+                              cropPreset === preset 
+                                ? "border-emerald-500 bg-emerald-500/10 text-emerald-350 shadow-md shadow-emerald-500/5" 
+                                : "border-white/[0.08] bg-slate-950/60 hover:bg-slate-900 text-slate-405"
+                            }`}
                           >
-                            <div className="font-semibold text-white">{preset.label}</div>
-                            <div className="text-xs text-slate-400">{preset.width} × {preset.height}px</div>
+                            {preset}
                           </button>
                         ))}
-                    </div>
-                  </div>
+                      </div>
 
-                  <button
-                    type="button"
-                    onClick={handleApplyCrop}
-                    className="w-full rounded-2xl bg-emerald-500 px-4 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-400"
-                  >
-                    Apply Crop
-                  </button>
-                </div>
-              </motion.div>
-            ) : null}
-          </AnimatePresence>
+                      <div className="space-y-2">
+                        <label className="text-[10px] uppercase tracking-wider text-slate-450 font-bold">Custom size</label>
+                        <div className="grid grid-cols-[1fr_1fr_auto] gap-2">
+                          <input
+                            type="number"
+                            value={width}
+                            onChange={(e) => setWidth(Number(e.target.value))}
+                            title="Width"
+                            aria-label="Width"
+                            className="rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                            placeholder="Width"
+                          />
+                          <input
+                            type="number"
+                            value={height}
+                            onChange={(e) => setHeight(Number(e.target.value))}
+                            title="Height"
+                            aria-label="Height"
+                            className="rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                            placeholder="Height"
+                          />
+                          <select
+                            value={sizeUnit}
+                            onChange={(e) => setSizeUnit(e.target.value as "px" | "cm" | "mm")}
+                            title="Select size unit"
+                            aria-label="Select size unit"
+                            className="rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-xs text-white focus:outline-none"
+                          >
+                            <option value="px">px</option>
+                            <option value="cm">cm</option>
+                            <option value="mm">mm</option>
+                          </select>
+                        </div>
+                      </div>
 
-          {activeHeading("🎨 Background", <ImageIcon className="h-5 w-5" />, "background")}
-          <AnimatePresence initial={false}>
-            {activeSection === "background" ? (
-              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900 p-4">
-                  <label className="inline-flex items-center gap-3 rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3">
-                    <input
-                      type="checkbox"
-                      checked={removeBackground}
-                      onChange={(e) => setRemoveBackground(e.target.checked)}
-                      title="Remove Background"
-                      aria-label="Remove Background"
-                      className="h-4 w-4 rounded border-slate-700 bg-slate-800 text-emerald-500"
-                    />
-                    <span className="text-sm text-slate-200">Remove Background</span>
-                  </label>
+                      <div className="space-y-2">
+                        <label className="text-[10px] uppercase tracking-wider text-slate-450 font-bold">Search preset</label>
+                        <div className="relative">
+                          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />
+                          <input
+                            type="search"
+                            value={sizeSearch}
+                            onChange={(e) => setSizeSearch(e.target.value)}
+                            title="Search sizes"
+                            aria-label="Search sizes"
+                            placeholder="Search standard dimensions..."
+                            className="w-full rounded-xl border border-white/10 bg-slate-950 pl-10 pr-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                          />
+                        </div>
+                      </div>
 
-                  <div className="space-y-2">
-                    <label className="text-xs uppercase tracking-[0.2em] text-slate-400">Background color</label>
-                    <input
-                      type="color"
-                      value={backgroundColor}
-                      onChange={(e) => setBackgroundColor(e.target.value)}
-                      title="Background color"
-                      aria-label="Background color"
-                      className="h-11 w-full cursor-pointer rounded-2xl border border-slate-800 bg-slate-950 px-3"
-                    />
-                  </div>
+                      <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1">
+                        <label className="text-[10px] uppercase tracking-wider text-slate-450 font-bold block mb-1">Country passport sizes</label>
+                        <div className="grid gap-2">
+                          {passportPresets
+                            .filter((preset) => preset.label.toLowerCase().includes(sizeSearch.toLowerCase()))
+                            .map((preset) => (
+                              <button
+                                key={preset.label}
+                                type="button"
+                                onClick={() => {
+                                  setWidth(preset.width);
+                                  setHeight(preset.height);
+                                  setCropPreset(preset.label);
+                                }}
+                                className={`rounded-xl border p-2.5 text-left transition-all duration-200 hover:scale-[1.01] cursor-pointer ${
+                                  cropPreset === preset.label
+                                    ? "border-emerald-500 bg-emerald-500/10"
+                                    : "border-white/[0.06] bg-slate-950 hover:border-white/15"
+                                }`}
+                              >
+                                <div className="font-bold text-xs text-white">{preset.label}</div>
+                                <div className="text-[9.5px] text-slate-500 mt-0.5 font-mono">{preset.width} × {preset.height} px</div>
+                              </button>
+                            ))}
+                        </div>
+                      </div>
 
-                  <div className="grid grid-cols-2 gap-2">
-                    { ["White", "Light Gray", "Blue (visa)", "Transparent", "Custom" ].map((preset) => (
                       <button
-                        key={preset}
-                        onClick={() => {
-                          setBackgroundPreset(preset);
-                          if (preset === "White") setBackgroundColor("#ffffff");
-                          if (preset === "Light Gray") setBackgroundColor("#e5e7eb");
-                          if (preset === "Blue (visa)") setBackgroundColor("#dbeafe");
-                          if (preset === "Transparent") setBackgroundColor("#00000000");
-                        }}
-                        className={`rounded-2xl border px-3 py-2 text-xs font-semibold transition ${backgroundPreset === preset ? "border-emerald-400 bg-emerald-500/10 text-emerald-200" : "border-slate-800 bg-slate-950 hover:border-slate-700"}`}
+                        type="button"
+                        onClick={handleApplyCrop}
+                        className="w-full rounded-xl bg-emerald-500 py-2.5 text-xs font-black text-slate-950 transition hover:bg-emerald-450 cursor-pointer shadow-md"
                       >
-                        {preset}
+                        Apply Crop
                       </button>
-                    )) }
-                  </div>
+                    </div>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
 
-                  <div className="space-y-2">
-                    <label className="text-xs uppercase tracking-[0.2em] text-slate-400">Background image</label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(event) => handleBackgroundUpload(event.target.files?.[0] ?? null)}
-                      title="Upload background image"
-                      aria-label="Upload background image"
-                      className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-slate-200"
-                    />
-                  </div>
-                </div>
-              </motion.div>
-            ) : null}
-          </AnimatePresence>
-
-          {activeHeading("✂️ Aadhaar Masking", <Shield className="h-5 w-5" />, "aadhaar")}
-          <AnimatePresence initial={false}>
-            {activeSection === "aadhaar" ? (
-              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900 p-4">
-                  <div className="flex items-center gap-3">
-                    <button
-                      type="button"
-                      className={`rounded-2xl border px-4 py-2 text-sm font-semibold transition ${aadhaarAutoDetect ? "border-emerald-400 bg-emerald-500/10 text-emerald-200" : "border-slate-800 bg-slate-950 hover:border-slate-700"}`}
-                      onClick={() => setAadhaarAutoDetect((value) => !value)}
-                    >
-                      {aadhaarAutoDetect ? "Auto-detect On" : "Auto-detect Off"}
-                    </button>
-                    <span className="text-xs text-slate-400">Mask format</span>
-                  </div>
-                  <input
-                    type="text"
-                    value={aadhaarMaskFormat}
-                    onChange={(e) => setAadhaarMaskFormat(e.target.value)}
-                    title="Aadhaar mask format"
-                    aria-label="Aadhaar mask format"
-                    className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-white"
-                  />
-                  <div className="rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3 text-sm text-slate-200">
-                    <p className="font-semibold text-slate-100">Masked preview</p>
-                    <p className="mt-2 text-xs text-slate-400">{aadhaarResult || "No preview yet."}</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleApplyMasking}
-                    className="w-full rounded-2xl bg-emerald-500 px-4 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-400"
-                  >
-                    Apply Masking
-                  </button>
-                </div>
-              </motion.div>
-            ) : null}
-          </AnimatePresence>
-
-          {activeHeading("🔍 OCR & Text Extract", <MousePointer2 className="h-5 w-5" />, "ocr")}
-          <AnimatePresence initial={false}>
-            {activeSection === "ocr" ? (
-              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900 p-4">
-                  <button
-                    type="button"
-                    onClick={handleExtractText}
-                    disabled={ocrLoading}
-                    className="w-full rounded-2xl bg-emerald-500 px-4 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-400 disabled:opacity-60"
-                  >
-                    {ocrLoading ? "Extracting…" : "Extract Text"}
-                  </button>
-                  <div className="space-y-2">
-                    <label className="text-xs uppercase tracking-[0.2em] text-slate-400">Language</label>
-                    <select
-                      value={ocrLanguage}
-                      onChange={(e) => setOcrLanguage(e.target.value)}
-                      title="Select OCR language"
-                      aria-label="Select OCR language"
-                      className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-white"
-                    >
-                      <option>English</option>
-                      <option>Hindi</option>
-                      <option>Bengali</option>
-                    </select>
-                  </div>
-                  <textarea
-                    value={ocrText}
-                    onChange={(e) => setOcrText(e.target.value)}
-                    rows={6}
-                    title="Extracted text"
-                    aria-label="Extracted text"
-                    className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-3 py-3 text-sm text-white outline-none focus:border-emerald-400"
-                    placeholder="Extracted text appears here..."
-                  />
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={handleCopyText}
-                      className="rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3 text-sm font-semibold transition hover:border-slate-700"
-                    >
-                      <Copy className="inline h-4 w-4" /> Copy
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleDownloadText}
-                      className="rounded-2xl bg-slate-100 px-4 py-3 text-sm font-black text-slate-950 transition hover:bg-slate-200"
-                    >
-                      <Download className="inline h-4 w-4" /> Download .txt
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            ) : null}
-          </AnimatePresence>
-
-          {activeHeading("📋 Form Autofill", <Layers className="h-5 w-5" />, "autofill")}
-          <AnimatePresence initial={false}>
-            {activeSection === "autofill" ? (
-              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900 p-4">
-                  <button
-                    type="button"
-                    onClick={handleDetectFields}
-                    className="w-full rounded-2xl bg-emerald-500 px-4 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-400"
-                  >
-                    Detect Fields
-                  </button>
-                  <div className="space-y-3">
-                    {Object.entries(autofillFields).map(([label, value]) => (
-                      <div key={label} className="space-y-1">
-                        <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-slate-400">
-                          <span>{label}</span>
-                          <span>{value ? "Editable" : "Empty"}</span>
+              {activeHeading("🖼️ Image Adjustments", <Pencil className="h-5 w-5" />, "image")}
+              <AnimatePresence initial={false}>
+                {activeSection === "image" ? (
+                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                    <div className="space-y-4 rounded-2xl border border-white/[0.05] bg-slate-900/40 p-4">
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center text-[10.5px] font-bold text-slate-400 uppercase tracking-wider">
+                          <span>Brightness</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-emerald-400 font-mono">{brightness > 0 ? `+${brightness}` : brightness}%</span>
+                            <button type="button" onClick={() => setBrightness(0)} className="text-[9.5px] text-slate-500 hover:text-emerald-400 transition cursor-pointer">Reset</button>
+                          </div>
                         </div>
                         <input
-                          value={value}
-                          onChange={(e) => setAutofillFields((prev) => ({ ...prev, [label]: e.target.value }))}
-                          title={label}
-                          aria-label={label}
-                          className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-white"
+                          type="range"
+                          min={-100}
+                          max={100}
+                          value={brightness}
+                          onChange={(e) => setBrightness(Number(e.target.value))}
+                          title="Brightness"
+                          aria-label="Brightness"
+                          className="h-1 w-full bg-slate-950 rounded-lg appearance-none cursor-pointer accent-emerald-400"
                         />
                       </div>
-                    ))}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setStatusMessage("Form filled from detected fields.")}
-                    className="w-full rounded-2xl bg-slate-100 px-4 py-3 text-sm font-black text-slate-950 transition hover:bg-slate-200"
-                  >
-                    Fill Form
-                  </button>
-                </div>
-              </motion.div>
-            ) : null}
-          </AnimatePresence>
 
-          {activeHeading("📄 PDF Tools", <Menu className="h-5 w-5" />, "pdf")}
-          <AnimatePresence initial={false}>
-            {activeSection === "pdf" ? (
-              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900 p-4">
-                  <div className="space-y-2">
-                    <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Compress PDF</p>
-                    <div className="grid grid-cols-3 gap-2">
-                      { ["Low", "Medium", "High" ].map((level) => (
-                        <button
-                          key={level}
-                          onClick={() => setPdfQuality(level)}
-                          className={`rounded-2xl border px-3 py-2 text-sm font-semibold transition ${pdfQuality === level ? "border-emerald-400 bg-emerald-500/10 text-emerald-200" : "border-slate-800 bg-slate-950 hover:border-slate-700"}`}
-                        >
-                          {level}
-                        </button>
-                      )) }
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Convert</p>
-                    <select
-                      value={pdfConvertType}
-                      onChange={(e) => setPdfConvertType(e.target.value)}
-                      title="Select PDF conversion format"
-                      aria-label="Select PDF conversion format"
-                      className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-white"
-                    >
-                      {pdfConvertOptions.map((option) => (
-                        <option key={option.value} value={option.value}>{option.label}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="space-y-2 rounded-2xl border border-slate-800 bg-slate-950 p-3">
-                    <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-slate-400">
-                      <span>Merge PDFs</span>
-                      <span>{pdfMergeFiles.length} files</span>
-                    </div>
-                    <input
-                      type="file"
-                      accept="application/pdf"
-                      multiple
-                      onChange={(event) => setPdfMergeFiles(Array.from(event.target.files || []))}
-                      title="Select PDFs to merge"
-                      aria-label="Select PDFs to merge"
-                      className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-white"
-                    />
-                    <div className="space-y-2">
-                      {pdfMergeFiles.map((item, index) => (
-                        <div key={`${item.name}-${index}`} className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-slate-200">
-                          <span className="truncate">{item.name}</span>
-                          <button
-                            type="button"
-                            onClick={() => setPdfMergeFiles((prev) => prev.filter((_, i) => i !== index))}
-                            className="text-slate-400 hover:text-white"
-                          >
-                            Remove
-                          </button>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center text-[10.5px] font-bold text-slate-400 uppercase tracking-wider">
+                          <span>Contrast</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-emerald-400 font-mono">{contrast > 0 ? `+${contrast}` : contrast}%</span>
+                            <button type="button" onClick={() => setContrast(0)} className="text-[9.5px] text-slate-500 hover:text-emerald-400 transition cursor-pointer">Reset</button>
+                          </div>
                         </div>
-                      ))}
+                        <input
+                          type="range"
+                          min={-100}
+                          max={100}
+                          value={contrast}
+                          onChange={(e) => setContrast(Number(e.target.value))}
+                          title="Contrast"
+                          aria-label="Contrast"
+                          className="h-1 w-full bg-slate-950 rounded-lg appearance-none cursor-pointer accent-emerald-400"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center text-[10.5px] font-bold text-slate-400 uppercase tracking-wider">
+                          <span>Saturation</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-emerald-400 font-mono">{saturation > 0 ? `+${saturation}` : saturation}%</span>
+                            <button type="button" onClick={() => setSaturation(0)} className="text-[9.5px] text-slate-500 hover:text-emerald-400 transition cursor-pointer">Reset</button>
+                          </div>
+                        </div>
+                        <input
+                          type="range"
+                          min={-100}
+                          max={100}
+                          value={saturation}
+                          onChange={(e) => setSaturation(Number(e.target.value))}
+                          title="Saturation"
+                          aria-label="Saturation"
+                          className="h-1 w-full bg-slate-950 rounded-lg appearance-none cursor-pointer accent-emerald-400"
+                        />
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setSharpness((active) => !active)}
+                          className={`flex-1 rounded-xl border py-2 text-xs font-bold transition-all duration-200 cursor-pointer ${
+                            sharpness 
+                              ? "border-emerald-500 bg-emerald-500/10 text-emerald-350" 
+                              : "border-white/10 bg-slate-950 hover:bg-slate-900 text-slate-400"
+                          }`}
+                        >
+                          Sharpness
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setRotation((value) => (value - 90 + 360) % 360);
+                            applyRotation(-90);
+                          }}
+                          className="rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-xs font-bold text-slate-300 hover:bg-slate-900 transition-all cursor-pointer"
+                        >
+                          90° L
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setRotation((value) => (value + 90) % 360);
+                            applyRotation(90);
+                          }}
+                          className="rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-xs font-bold text-slate-300 hover:bg-slate-900 transition-all cursor-pointer"
+                        >
+                          90° R
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFlipHorizontal((active) => !active);
+                            applyFlip(true, false);
+                          }}
+                          className={`rounded-xl border py-2 text-xs font-bold transition-all duration-200 cursor-pointer ${
+                            flipHorizontal 
+                              ? "border-emerald-500 bg-emerald-500/10 text-emerald-350" 
+                              : "border-white/10 bg-slate-950 hover:bg-slate-900 text-slate-400"
+                          }`}
+                        >
+                          Flip Horizontal
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFlipVertical((active) => !active);
+                            applyFlip(false, true);
+                          }}
+                          className={`rounded-xl border py-2 text-xs font-bold transition-all duration-200 cursor-pointer ${
+                            flipVertical 
+                              ? "border-emerald-500 bg-emerald-500/10 text-emerald-350" 
+                              : "border-white/10 bg-slate-950 hover:bg-slate-900 text-slate-400"
+                          }`}
+                        >
+                          Flip Vertical
+                        </button>
+                      </div>
+
+                      <div className="grid gap-2">
+                        <label className="text-[10px] uppercase tracking-wider text-slate-450 font-bold">Filter presets</label>
+                        <select
+                          value={filterPreset}
+                          onChange={(e) => setFilterPreset(e.target.value)}
+                          title="Filter preset"
+                          aria-label="Filter preset"
+                          className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-xs text-white focus:outline-none"
+                        >
+                          {filterOptions.map((option) => (
+                            <option key={option.value} value={option.value}>{option.label}</option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
-                  </div>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
 
-                  <div className="grid gap-2">
-                    <label className="text-xs uppercase tracking-[0.2em] text-slate-400">Split range</label>
-                    <input
-                      type="text"
-                      value={pdfSplitRange}
-                      onChange={(e) => setPdfSplitRange(e.target.value)}
-                      placeholder="1-3,5"
-                      title="Split range"
-                      aria-label="Split range"
-                      className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-white"
-                    />
-                  </div>
+              {activeHeading("🎨 Background", <ImageIcon className="h-5 w-5" />, "background")}
+              <AnimatePresence initial={false}>
+                {activeSection === "background" ? (
+                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                    <div className="space-y-4 rounded-2xl border border-white/[0.05] bg-slate-900/40 p-4">
+                      <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950/60 px-4 py-2.5 cursor-pointer hover:bg-slate-900 transition">
+                        <input
+                          type="checkbox"
+                          checked={removeBackground}
+                          onChange={(e) => setRemoveBackground(e.target.checked)}
+                          title="Remove Background"
+                          aria-label="Remove Background"
+                          className="h-4 w-4 rounded border-slate-700 bg-slate-800 text-emerald-500 focus:ring-0 cursor-pointer"
+                        />
+                        <span className="text-xs font-bold text-slate-200">Remove Background</span>
+                      </label>
 
-                  <div className="space-y-2">
-                    <label className="text-xs uppercase tracking-[0.2em] text-slate-400">Add Watermark</label>
-                    <input
-                      type="text"
-                      value={watermarkText}
-                      onChange={(e) => setWatermarkText(e.target.value)}
-                      placeholder="Watermark text"
-                      title="Watermark text"
-                      aria-label="Watermark text"
-                      className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-white"
-                    />
-                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-2">
+                        <label className="text-[10px] uppercase tracking-wider text-slate-450 font-bold">Background color</label>
+                        <input
+                          type="color"
+                          value={backgroundColor}
+                          onChange={(e) => setBackgroundColor(e.target.value)}
+                          title="Background color"
+                          aria-label="Background color"
+                          className="h-10 w-full cursor-pointer rounded-xl border border-white/10 bg-slate-950 px-3 py-1"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        {["White", "Light Gray", "Blue (visa)", "Transparent", "Custom"].map((preset) => (
+                          <button
+                            key={preset}
+                            type="button"
+                            onClick={() => {
+                              setBackgroundPreset(preset);
+                              if (preset === "White") setBackgroundColor("#ffffff");
+                              if (preset === "Light Gray") setBackgroundColor("#e5e7eb");
+                              if (preset === "Blue (visa)") setBackgroundColor("#dbeafe");
+                              if (preset === "Transparent") setBackgroundColor("#00000000");
+                            }}
+                            className={`rounded-xl border px-3 py-2 text-[11px] font-bold transition-all duration-200 hover:scale-[1.02] active:scale-98 cursor-pointer ${
+                              backgroundPreset === preset
+                                ? "border-emerald-500 bg-emerald-500/10 text-emerald-350 shadow-md shadow-emerald-500/5"
+                                : "border-white/[0.08] bg-slate-950/60 hover:bg-slate-900 text-slate-400"
+                            }`}
+                          >
+                            {preset}
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-[10px] uppercase tracking-wider text-slate-450 font-bold block mb-1">Background Image</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleBackgroundUpload(e.target.files?.[0] ?? null)}
+                          title="Upload background image"
+                          placeholder="Upload background image"
+                          aria-label="Upload background image"
+                          className="w-full text-xs text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[11px] file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700 file:cursor-pointer"
+                        />
+                      </div>
+                    </div>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+            </>
+          )}
+
+          {sidebarTab === "smart" && (
+            <>
+              {activeHeading("🛡️ Aadhaar Masking", <Shield className="h-5 w-5" />, "aadhaar")}
+              <AnimatePresence initial={false}>
+                {activeSection === "aadhaar" ? (
+                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                    <div className="space-y-4 rounded-2xl border border-white/[0.05] bg-slate-900/40 p-4">
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          className={`rounded-xl border px-3 py-1.5 text-xs font-semibold transition ${aadhaarAutoDetect ? "border-emerald-500 bg-emerald-500/10 text-emerald-350" : "border-white/10 bg-slate-950 hover:bg-slate-900"}`}
+                          onClick={() => setAadhaarAutoDetect((value) => !value)}
+                        >
+                          {aadhaarAutoDetect ? "Auto-detect On" : "Auto-detect Off"}
+                        </button>
+                        <span className="text-[10px] uppercase tracking-wider text-slate-450 font-bold">Mask format</span>
+                      </div>
                       <input
-                        type="range"
-                        min={0}
-                        max={100}
-                        value={watermarkOpacity}
-                        onChange={(e) => setWatermarkOpacity(Number(e.target.value))}
-                        title="Watermark opacity"
-                        aria-label="Watermark opacity"
-                        className="h-2 w-full accent-emerald-400"
+                        type="text"
+                        value={aadhaarMaskFormat}
+                        onChange={(e) => setAadhaarMaskFormat(e.target.value)}
+                        title="Aadhaar mask format"
+                        aria-label="Aadhaar mask format"
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
                       />
-                      <span className="text-right text-xs text-slate-400">{watermarkOpacity}%</span>
-                    </div>
-                    <select
-                      value={watermarkPosition}
-                      onChange={(e) => setWatermarkPosition(e.target.value)}
-                      title="Watermark position"
-                      aria-label="Watermark position"
-                      className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-white"
-                    >
-                      <option value="center">Center</option>
-                      <option value="top-left">Top Left</option>
-                      <option value="top-right">Top Right</option>
-                      <option value="bottom-left">Bottom Left</option>
-                      <option value="bottom-right">Bottom Right</option>
-                    </select>
-                  </div>
-                </div>
-              </motion.div>
-            ) : null}
-          </AnimatePresence>
-
-          {activeHeading("🖼️ Image Adjustments", <Pencil className="h-5 w-5" />, "image")}
-          <AnimatePresence initial={false}>
-            {activeSection === "image" ? (
-              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900 p-4">
-                  <div className="space-y-3">
-                    <label className="text-xs uppercase tracking-[0.2em] text-slate-400">Brightness</label>
-                    <input
-                      type="range"
-                      min={-100}
-                      max={100}
-                      value={brightness}
-                      onChange={(e) => setBrightness(Number(e.target.value))}
-                      title="Brightness"
-                      aria-label="Brightness"
-                      className="h-2 w-full accent-emerald-400"
-                    />
-                  </div>
-                  <div className="space-y-3">
-                    <label className="text-xs uppercase tracking-[0.2em] text-slate-400">Contrast</label>
-                    <input
-                      type="range"
-                      min={-100}
-                      max={100}
-                      value={contrast}
-                      onChange={(e) => setContrast(Number(e.target.value))}
-                      title="Contrast"
-                      aria-label="Contrast"
-                      className="h-2 w-full accent-emerald-400"
-                    />
-                  </div>
-                  <div className="space-y-3">
-                    <label className="text-xs uppercase tracking-[0.2em] text-slate-400">Saturation</label>
-                    <input
-                      type="range"
-                      min={-100}
-                      max={100}
-                      value={saturation}
-                      onChange={(e) => setSaturation(Number(e.target.value))}
-                      title="Saturation"
-                      aria-label="Saturation"
-                      className="h-2 w-full accent-emerald-400"
-                    />
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setSharpness((active) => !active)}
-                      className={`flex-1 rounded-2xl border px-3 py-2 text-sm font-semibold transition ${sharpness ? "border-emerald-400 bg-emerald-500/10 text-emerald-200" : "border-slate-800 bg-slate-950 hover:border-slate-700"}`}
-                    >
-                      Sharpness
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setRotation((value) => (value - 90 + 360) % 360);
-                        applyRotation(-90);
-                      }}
-                      className="rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm font-semibold hover:border-slate-700"
-                    >
-                      90° L
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setRotation((value) => (value + 90) % 360);
-                        applyRotation(90);
-                      }}
-                      className="rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm font-semibold hover:border-slate-700"
-                    >
-                      90° R
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setRotation((value) => (value + 180) % 360);
-                        applyRotation(180);
-                      }}
-                      className="rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm font-semibold hover:border-slate-700"
-                    >
-                      180°
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFlipHorizontal((active) => !active);
-                        applyFlip(true, false);
-                      }}
-                      className={`rounded-2xl border px-3 py-2 text-sm font-semibold transition ${flipHorizontal ? "border-emerald-400 bg-emerald-500/10 text-emerald-200" : "border-slate-800 bg-slate-950 hover:border-slate-700"}`}
-                    >
-                      Flip H
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFlipVertical((active) => !active);
-                        applyFlip(false, true);
-                      }}
-                      className={`rounded-2xl border px-3 py-2 text-sm font-semibold transition ${flipVertical ? "border-emerald-400 bg-emerald-500/10 text-emerald-200" : "border-slate-800 bg-slate-950 hover:border-slate-700"}`}
-                    >
-                      Flip V
-                    </button>
-                  </div>
-                  <div className="grid gap-2">
-                    <label className="text-xs uppercase tracking-[0.2em] text-slate-400">Filter presets</label>
-                    <select
-                      value={filterPreset}
-                      onChange={(e) => setFilterPreset(e.target.value)}
-                      title="Filter preset"
-                      aria-label="Filter preset"
-                      className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-white"
-                    >
-                      {filterOptions.map((option) => (
-                        <option key={option.value} value={option.value}>{option.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              </motion.div>
-            ) : null}
-          </AnimatePresence>
-
-          {activeHeading("📱 QR Code", <Sparkles className="h-5 w-5" />, "qr")}
-          <AnimatePresence initial={false}>
-            {activeSection === "qr" ? (
-              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900 p-4">
-                  <div className="space-y-2">
-                    <label className="text-xs uppercase tracking-[0.2em] text-slate-400">Text or URL</label>
-                    <input
-                      type="text"
-                      value={qrPayload}
-                      onChange={(e) => setQrPayload(e.target.value)}
-                      title="QR code text or URL"
-                      aria-label="QR code text or URL"
-                      className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-white"
-                      placeholder="Enter text, link or share URL"
-                    />
-                  </div>
-                  <div className="grid grid-cols-3 gap-2">
-                    {qrSizes.map((option) => (
+                      <div className="rounded-xl border border-white/[0.05] bg-slate-950 px-4 py-3 text-xs text-slate-200">
+                        <p className="font-bold text-slate-100 mb-1">Masked preview</p>
+                        <p className="text-slate-400 font-mono">{aadhaarResult || "No preview yet."}</p>
+                      </div>
                       <button
-                        key={option.value}
                         type="button"
-                        onClick={() => setQrSize(option.value)}
-                        className={`rounded-2xl border px-3 py-2 text-sm font-semibold transition ${qrSize === option.value ? "border-emerald-400 bg-emerald-500/10 text-emerald-200" : "border-slate-800 bg-slate-950 hover:border-slate-700"}`}
+                        onClick={handleApplyMasking}
+                        className="w-full rounded-xl bg-emerald-500 py-2.5 text-xs font-black text-slate-950 transition hover:bg-emerald-450 cursor-pointer shadow-md"
                       >
-                        {option.label}
+                        Apply Masking
                       </button>
-                    ))}
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={handleGenerateQr}
-                      className="rounded-2xl bg-emerald-500 px-4 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-400"
-                    >
-                      Generate QR
-                    </button>
-                    <label className="rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-slate-200">
-                      <span className="text-xs uppercase tracking-[0.2em] text-slate-400">Scan QR</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(event) => handleScanQr(event.target.files?.[0] ?? null)}
-                        title="Upload QR code image to scan"
-                        aria-label="Upload QR code image to scan"
-                        className="mt-2 block w-full text-xs text-slate-200"
-                      />
-                    </label>
-                  </div>
-                  <div className="rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3 text-sm text-slate-200">
-                    <p className="font-semibold text-slate-100">Decoded result</p>
-                    <p className="mt-2 text-xs text-slate-400">{qrScanText || "Upload a QR image to scan."}</p>
-                  </div>
-                  {qrResult && (
-                    <div className="rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3 text-sm text-slate-200">
-                      <p className="font-semibold text-slate-100">Generated QR</p>
-                      <p className="mt-2 text-xs text-slate-400 break-all">{qrResult}</p>
                     </div>
-                  )}
-                </div>
-              </motion.div>
-            ) : null}
-          </AnimatePresence>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
 
-          {activeHeading("📤 Export & Share", <Share2 className="h-5 w-5" />, "export")}
-          <AnimatePresence initial={false}>
-            {activeSection === "export" ? (
-              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900 p-4">
-                  <div className="grid gap-3">
-                    <div className="grid gap-2">
-                      <label className="text-xs uppercase tracking-[0.2em] text-slate-400">Export format</label>
-                      <select
-                        value={exportFormat}
-                        onChange={(e) => setExportFormat(e.target.value as "jpg" | "png" | "pdf" | "webp")}
-                        title="Export format"
-                        aria-label="Export format"
-                        className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-white"
+              {activeHeading("🔍 OCR & Text Extract", <MousePointer2 className="h-5 w-5" />, "ocr")}
+              <AnimatePresence initial={false}>
+                {activeSection === "ocr" ? (
+                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                    <div className="space-y-4 rounded-2xl border border-white/[0.05] bg-slate-900/40 p-4">
+                      <button
+                        type="button"
+                        onClick={handleExtractText}
+                        disabled={ocrLoading}
+                        className="w-full rounded-xl bg-emerald-500 py-2.5 text-xs font-black text-slate-950 transition hover:bg-emerald-450 disabled:opacity-60 cursor-pointer shadow-md"
                       >
-                        <option value="jpg">JPG</option>
-                        <option value="png">PNG</option>
-                        <option value="pdf">PDF</option>
-                        <option value="webp">WebP</option>
-                      </select>
-                    </div>
-                    <div className="grid gap-2">
-                      <label className="text-xs uppercase tracking-[0.2em] text-slate-400">Quality</label>
-                      <input
-                        type="range"
-                        min={10}
-                        max={100}
-                        value={exportQuality}
-                        onChange={(e) => setExportQuality(Number(e.target.value))}
-                        title="Export quality"
-                        aria-label="Export quality"
-                        className="h-2 w-full accent-emerald-400"
+                        {ocrLoading ? "Extracting..." : "Extract Text"}
+                      </button>
+                      <div className="space-y-2">
+                        <label className="text-[10px] uppercase tracking-wider text-slate-450 font-bold">Language</label>
+                        <select
+                          value={ocrLanguage}
+                          onChange={(e) => setOcrLanguage(e.target.value)}
+                          title="Select OCR language"
+                          aria-label="Select OCR language"
+                          className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-xs text-white focus:outline-none"
+                        >
+                          <option>English</option>
+                          <option>Hindi</option>
+                          <option>Bengali</option>
+                        </select>
+                      </div>
+                      <textarea
+                        value={ocrText}
+                        onChange={(e) => setOcrText(e.target.value)}
+                        rows={6}
+                        title="Extracted text"
+                        aria-label="Extracted text"
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-3 text-xs text-white outline-none focus:border-emerald-500"
+                        placeholder="Extracted text appears here..."
                       />
-                      <div className="text-right text-xs text-slate-400">{exportQuality}%</div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={handleCopyText}
+                          className="rounded-xl border border-white/10 bg-slate-950 py-2 text-xs font-bold transition hover:bg-slate-900 cursor-pointer"
+                        >
+                          <Copy className="inline h-3.5 w-3.5 mr-1" /> Copy
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleDownloadText}
+                          className="rounded-xl bg-slate-100 py-2 text-xs font-black text-slate-950 transition hover:bg-slate-200 cursor-pointer"
+                        >
+                          <Download className="inline h-3.5 w-3.5 mr-1" /> Download
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleDone}
-                    className="w-full rounded-2xl bg-slate-100 px-4 py-3 text-sm font-black text-slate-950 transition hover:bg-slate-200"
-                  >
-                    Save Result
-                  </button>
-                  <QuickShareButton documentId={file?.name || "file-preview"} documentName={file?.name || "file"} />
-                  <button
-                    type="button"
-                    onClick={handleWhatsAppShare}
-                    className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3 text-sm font-semibold text-white transition hover:border-slate-700"
-                  >
-                    Copy share link
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleGenerateShareQr}
-                    className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3 text-sm font-semibold text-white transition hover:border-slate-700"
-                  >
-                    QR share link
-                  </button>
-                  {shareLink && (
-                    <div className="rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3 text-xs text-slate-300">
-                      <span className="font-semibold text-slate-100">Share link</span>
-                      <p className="mt-2 break-all">{shareLink}</p>
-                    </div>
-                  )}
-                  {qrShareLink && (
-                    <div className="rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3 text-xs text-slate-300">
-                      <span className="font-semibold text-slate-100">Share QR</span>
-                      <img src={qrShareLink} alt="Share QR" className="mt-3 w-full rounded-2xl border border-slate-800 bg-white" />
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            ) : null}
-          </AnimatePresence>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
 
-          {toolType === 'compress' && <CompressSidebar quality={operationOptions.quality ?? 0.82} onQualityChange={(q) => updateOptions({ quality: q })} grayscale={false} onGrayscaleChange={() => {}} onCompress={() => {}} disabled={false} estimate={null} formatSize={() => '0 B'} />}
-          {toolType === 'merge' && <MergeSidebar files={[]} onFilesChange={() => {}} onMerge={() => {}} disabled={false} />}
-          {toolType === 'split' && <SplitSidebar onSplit={() => {}} disabled={false} totalPages={totalPages || 1} />}
-          {toolType === 'rotate' && <RotateSidebar onRotate={() => {}} disabled={false} />}
-          {toolType === 'protect' && <ProtectSidebar onProtect={() => {}} disabled={false} />}
-          {toolType === 'unlock' && <UnlockSidebar onUnlock={() => {}} disabled={false} />}
-          {toolType === 'aadhaar-mask' && <AadhaarSidebar onMask={() => {}} disabled={false} />}
-          {toolType === 'pan-resize' && <PANSidebar onApply={() => {}} disabled={false} />}
+              {activeHeading("📋 Form Autofill", <Layers className="h-5 w-5" />, "autofill")}
+              <AnimatePresence initial={false}>
+                {activeSection === "autofill" ? (
+                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                    <div className="space-y-4 rounded-2xl border border-white/[0.05] bg-slate-900/40 p-4">
+                      <button
+                        type="button"
+                        onClick={handleDetectFields}
+                        className="w-full rounded-xl bg-emerald-500 py-2.5 text-xs font-black text-slate-950 transition hover:bg-emerald-450 cursor-pointer shadow-md"
+                      >
+                        Detect Fields
+                      </button>
+                      <div className="space-y-3">
+                        {Object.entries(autofillFields).map(([label, value]) => (
+                          <div key={label} className="space-y-1">
+                            <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-slate-450 font-bold">
+                              <span>{label}</span>
+                              <span className={value ? "text-emerald-400" : "text-slate-500"}>{value ? "Filled" : "Empty"}</span>
+                            </div>
+                            <input
+                              value={value}
+                              onChange={(e) => setAutofillFields((prev) => ({ ...prev, [label]: e.target.value }))}
+                              title={label}
+                              aria-label={label}
+                              className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setStatusMessage("Form filled from detected fields.")}
+                        className="w-full rounded-xl bg-slate-100 py-2.5 text-xs font-black text-slate-950 transition hover:bg-slate-200 cursor-pointer"
+                      >
+                        Fill Form
+                      </button>
+                    </div>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+
+              {activeHeading("📱 QR Code", <Sparkles className="h-5 w-5" />, "qr")}
+              <AnimatePresence initial={false}>
+                {activeSection === "qr" ? (
+                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                    <div className="space-y-4 rounded-2xl border border-white/[0.05] bg-slate-900/40 p-4">
+                      <div className="space-y-2">
+                        <label className="text-[10px] uppercase tracking-wider text-slate-450 font-bold">Text or URL</label>
+                        <input
+                          type="text"
+                          value={qrPayload}
+                          onChange={(e) => setQrPayload(e.target.value)}
+                          title="QR code text or URL"
+                          aria-label="QR code text or URL"
+                          className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                          placeholder="Enter text, link or share URL"
+                        />
+                      </div>
+                      <div className="grid grid-cols-3 gap-2">
+                        {qrSizes.map((option) => (
+                          <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => setQrSize(option.value)}
+                            className={`rounded-xl border py-2 text-xs font-bold transition-all duration-200 cursor-pointer ${
+                              qrSize === option.value
+                                ? "border-emerald-500 bg-emerald-500/10 text-emerald-350"
+                                : "border-white/10 bg-slate-950 hover:bg-slate-900 text-slate-400"
+                            }`}
+                          >
+                            {option.label}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={handleGenerateQr}
+                          className="rounded-xl bg-emerald-500 py-2.5 text-xs font-black text-slate-950 transition hover:bg-emerald-450 cursor-pointer shadow-md"
+                        >
+                          Generate QR
+                        </button>
+                        <label className="rounded-xl border border-white/10 bg-slate-950 px-3 py-1.5 text-[10px] text-slate-200 cursor-pointer flex flex-col justify-center">
+                          <span className="font-bold text-slate-400 uppercase tracking-wider">Scan QR</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(event) => handleScanQr(event.target.files?.[0] ?? null)}
+                            title="Upload QR code image to scan"
+                            aria-label="Upload QR code image to scan"
+                            className="mt-1 block w-full text-[9px] text-slate-400 file:hidden"
+                          />
+                        </label>
+                      </div>
+                      <div className="rounded-xl border border-white/[0.05] bg-slate-950 px-4 py-3 text-xs text-slate-200">
+                        <p className="font-bold text-slate-100 mb-1">Decoded result</p>
+                        <p className="text-slate-400">{qrScanText || "Upload a QR image to scan."}</p>
+                      </div>
+                      {qrResult && (
+                        <div className="rounded-xl border border-white/[0.05] bg-slate-950 px-4 py-3 text-xs text-slate-200">
+                          <p className="font-bold text-slate-100 mb-1">Generated QR</p>
+                          <p className="text-slate-455 break-all font-mono">{qrResult}</p>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+
+              {toolType === 'aadhaar-mask' && <AadhaarSidebar onMask={() => {}} disabled={false} />}
+              {toolType === 'pan-resize' && <PANSidebar onApply={() => {}} disabled={false} />}
+            </>
+          )}
+
+          {sidebarTab === "export" && (
+            <>
+              {activeHeading("📄 PDF Tools", <Menu className="h-5 w-5" />, "pdf")}
+              <AnimatePresence initial={false}>
+                {activeSection === "pdf" ? (
+                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                    <div className="space-y-4 rounded-2xl border border-white/[0.05] bg-slate-900/40 p-4">
+                      <div className="space-y-2">
+                        <p className="text-[10px] uppercase tracking-wider text-slate-455 font-bold">Compress PDF</p>
+                        <div className="grid grid-cols-3 gap-2">
+                          {["Low", "Medium", "High"].map((level) => (
+                            <button
+                              key={level}
+                              type="button"
+                              onClick={() => setPdfQuality(level)}
+                              className={`rounded-xl border py-2 text-xs font-bold transition-all duration-200 cursor-pointer ${
+                                pdfQuality === level
+                                  ? "border-emerald-500 bg-emerald-500/10 text-emerald-350"
+                                  : "border-white/10 bg-slate-950 hover:bg-slate-900 text-slate-400"
+                              }`}
+                            >
+                              {level}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <p className="text-[10px] uppercase tracking-wider text-slate-455 font-bold">Convert</p>
+                        <select
+                          value={pdfConvertType}
+                          onChange={(e) => setPdfConvertType(e.target.value)}
+                          title="Select PDF conversion format"
+                          aria-label="Select PDF conversion format"
+                          className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-xs text-white focus:outline-none"
+                        >
+                          {pdfConvertOptions.map((option) => (
+                            <option key={option.value} value={option.value}>{option.label}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="space-y-2 rounded-xl border border-white/[0.05] bg-slate-950 p-3">
+                        <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-slate-455 font-bold mb-2">
+                          <span>Merge PDFs</span>
+                          <span className="text-emerald-450 font-mono">{pdfMergeFiles.length} files</span>
+                        </div>
+                        <input
+                          type="file"
+                          accept="application/pdf"
+                          multiple
+                          onChange={(event) => setPdfMergeFiles(Array.from(event.target.files || []))}
+                          title="Select PDFs to merge"
+                          aria-label="Select PDFs to merge"
+                          className="w-full text-xs text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[11px] file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700 file:cursor-pointer"
+                        />
+                        <div className="space-y-2 mt-2 max-h-[120px] overflow-y-auto pr-1">
+                          {pdfMergeFiles.map((item, index) => (
+                            <div key={`${item.name}-${index}`} className="flex items-center justify-between rounded-xl border border-white/[0.05] bg-slate-900/60 px-3 py-2 text-xs text-slate-200">
+                              <span className="truncate max-w-[150px]">{item.name}</span>
+                              <button
+                                type="button"
+                                onClick={() => setPdfMergeFiles((prev) => prev.filter((_, i) => i !== index))}
+                                className="text-slate-400 hover:text-red-400 transition cursor-pointer"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="grid gap-2">
+                        <label className="text-[10px] uppercase tracking-wider text-slate-455 font-bold">Split range</label>
+                        <input
+                          type="text"
+                          value={pdfSplitRange}
+                          onChange={(e) => setPdfSplitRange(e.target.value)}
+                          placeholder="1-3,5"
+                          title="Split range"
+                          aria-label="Split range"
+                          className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-[10px] uppercase tracking-wider text-slate-455 font-bold">Add Watermark</label>
+                        <input
+                          type="text"
+                          value={watermarkText}
+                          onChange={(e) => setWatermarkText(e.target.value)}
+                          placeholder="Watermark text"
+                          title="Watermark text"
+                          aria-label="Watermark text"
+                          className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                        />
+                        <div className="grid grid-cols-[1fr_auto] items-center gap-3">
+                          <input
+                            type="range"
+                            min={0}
+                            max={100}
+                            value={watermarkOpacity}
+                            onChange={(e) => setWatermarkOpacity(Number(e.target.value))}
+                            title="Watermark opacity"
+                            aria-label="Watermark opacity"
+                            className="h-1 w-full bg-slate-950 rounded-lg appearance-none cursor-pointer accent-emerald-400"
+                          />
+                          <span className="text-xs text-slate-400 w-8 text-right">{watermarkOpacity}%</span>
+                        </div>
+                        <select
+                          value={watermarkPosition}
+                          onChange={(e) => setWatermarkPosition(e.target.value)}
+                          title="Watermark position"
+                          aria-label="Watermark position"
+                          className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-xs text-white focus:outline-none"
+                        >
+                          <option value="center">Center</option>
+                          <option value="top-left">Top Left</option>
+                          <option value="top-right">Top Right</option>
+                          <option value="bottom-left">Bottom Left</option>
+                          <option value="bottom-right">Bottom Right</option>
+                        </select>
+                      </div>
+                    </div>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+
+              {activeHeading("📤 Export & Share", <Share2 className="h-5 w-5" />, "export")}
+              <AnimatePresence initial={false}>
+                {activeSection === "export" ? (
+                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                    <div className="space-y-4 rounded-2xl border border-white/[0.05] bg-slate-900/40 p-4">
+                      <div className="grid gap-3">
+                        <div className="grid gap-2">
+                          <label className="text-[10px] uppercase tracking-wider text-slate-455 font-bold">Export format</label>
+                          <div className="grid grid-cols-2 gap-2">
+                            {(["jpg", "png", "webp", "pdf"] as const).map((format) => (
+                              <button
+                                key={format}
+                                type="button"
+                                onClick={() => setExportFormat(format)}
+                                className={`flex flex-col items-center justify-center rounded-xl border p-2.5 transition-all duration-200 hover:scale-[1.02] cursor-pointer ${
+                                  exportFormat === format
+                                    ? "border-emerald-500 bg-emerald-500/10 text-emerald-350 shadow-md shadow-emerald-500/5 font-black"
+                                    : "border-white/[0.08] bg-slate-950/60 hover:bg-slate-900 text-slate-400"
+                                }`}
+                              >
+                                <span className="text-[11px] uppercase font-bold tracking-wider">{format}</span>
+                                <span className="text-[8.5px] text-slate-500 mt-0.5 font-mono">
+                                  {format === "png" && "Lossless"}
+                                  {format === "jpg" && "Compressed"}
+                                  {format === "webp" && "Modern Web"}
+                                  {format === "pdf" && "Document"}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="grid gap-2">
+                          <div className="flex justify-between items-center text-[10px] uppercase tracking-wider text-slate-455 font-bold">
+                            <span>Quality</span>
+                            <span className="text-emerald-400 font-mono">{exportQuality}%</span>
+                          </div>
+                          <input
+                            type="range"
+                            min={10}
+                            max={100}
+                            value={exportQuality}
+                            onChange={(e) => setExportQuality(Number(e.target.value))}
+                            title="Export quality"
+                            aria-label="Export quality"
+                            className="h-1 w-full bg-slate-950 rounded-lg appearance-none cursor-pointer accent-emerald-400"
+                          />
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleDone}
+                        className="w-full rounded-xl bg-slate-100 py-2.5 text-xs font-black text-slate-950 transition hover:bg-slate-200 cursor-pointer shadow-md"
+                      >
+                        Save Result
+                      </button>
+                      <QuickShareButton documentId={file?.name || "file-preview"} documentName={file?.name || "file"} />
+                      <button
+                        type="button"
+                        onClick={handleWhatsAppShare}
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 py-2 text-xs font-semibold text-white transition hover:bg-slate-900 cursor-pointer"
+                      >
+                        Copy share link
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleGenerateShareQr}
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 py-2 text-xs font-semibold text-white transition hover:bg-slate-900 cursor-pointer"
+                      >
+                        QR share link
+                      </button>
+                      {shareLink && (
+                        <div className="rounded-xl border border-white/[0.05] bg-slate-950 px-4 py-3 text-xs text-slate-300">
+                          <span className="font-bold text-slate-100">Share link</span>
+                          <p className="mt-1 break-all font-mono text-[10px]">{shareLink}</p>
+                        </div>
+                      )}
+                      {qrShareLink && (
+                        <div className="rounded-xl border border-white/[0.05] bg-slate-950 px-4 py-3 text-xs text-slate-300">
+                          <span className="font-bold text-slate-100">Share QR</span>
+                          <img src={qrShareLink} alt="Share QR" className="mt-2.5 w-full rounded-xl border border-white/10 bg-white p-1" />
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+
+              {toolType === 'compress' && <CompressSidebar quality={operationOptions.quality ?? 0.82} onQualityChange={(q) => updateOptions({ quality: q })} grayscale={false} onGrayscaleChange={() => {}} onCompress={() => {}} disabled={false} estimate={null} formatSize={() => '0 B'} />}
+              {toolType === 'merge' && <MergeSidebar files={[]} onFilesChange={() => {}} onMerge={() => {}} disabled={false} />}
+              {toolType === 'split' && <SplitSidebar onSplit={() => {}} disabled={false} totalPages={totalPages || 1} />}
+              {toolType === 'rotate' && <RotateSidebar onRotate={() => {}} disabled={false} />}
+              {toolType === 'protect' && <ProtectSidebar onProtect={() => {}} disabled={false} />}
+              {toolType === 'unlock' && <UnlockSidebar onUnlock={() => {}} disabled={false} />}
+            </>
+          )}
         </div>
       </aside>
 

@@ -9,8 +9,9 @@ import { SlidePreview } from "./components/SlidePreview";
 import { PPT_THEMES, getThemeById } from "./lib/themes";
 import { generatePptx, type OutlineData } from "./lib/pptGenerator";
 import { Presentation } from "lucide-react";
-import { FileRecord } from "@/store/useFileStore";
+import { useFileStore, FileRecord } from "@/store/useFileStore";
 import { useSubscription } from "@/hooks/useSubscription";
+import { getBrandedFileName } from "@/hooks/useToolProcessor";
 import { BACKEND_URL } from "@/lib/api";
 import { toast } from "sonner";
 import { AIToolHeader } from "./components/AIToolHeader";
@@ -32,7 +33,8 @@ export function AIPPTMakerWorkspace() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<{ url: string; name: string; size: string } | null>(null);
 
-  const { incrementFeatureUse } = useSubscription();
+  const { premiumEnabled, incrementFeatureUse } = useSubscription();
+  const { customFileName } = useFileStore();
 
   // Mock file to bypass ToolWorkspace's empty dropzone check
   const mockFile: FileRecord = {
@@ -131,7 +133,16 @@ export function AIPPTMakerWorkspace() {
       const theme = getThemeById(themeId);
       const blob = await generatePptx(outline, theme);
       const url = URL.createObjectURL(blob);
-      const name = `${outline.title.replace(/[^a-z0-9]+/gi, "_")}.pptx`;
+      const ext = ".pptx";
+      let name = "";
+      if (!premiumEnabled) {
+        name = getBrandedFileName("ai-ppt-maker", ext);
+      } else if (customFileName.trim()) {
+        const cleanName = customFileName.trim();
+        name = cleanName.toLowerCase().endsWith(ext) ? cleanName : `${cleanName}${ext}`;
+      } else {
+        name = `${outline.title.replace(/[^a-z0-9]+/gi, "_")}${ext}`;
+      }
       const sizeMb = (blob.size / (1024 * 1024)).toFixed(2);
       setResult({ url, name, size: `${sizeMb} MB` });
       setStep("done");

@@ -96,7 +96,7 @@ export const ScholarshipZIPWorkspace: React.FC = () => {
       }
 
       const zipBlob = await zip.generateAsync({ type: "blob" });
-      await runProcessing({ zipName }, zipBlob);
+      await runProcessing({ outputName: zipName }, zipBlob);
     } catch (err: any) {
       toast.error(err.message || "Failed to generate ZIP archive.");
     }

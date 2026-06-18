@@ -20,9 +20,10 @@ export function useToolProcessor(slug: string, operation: string) {
     addFiles,
     clearStore,
     removeFile,
+    customFileName,
   } = useFileStore();
 
-  const { incrementFeatureUse } = useSubscription();
+  const { premiumEnabled, incrementFeatureUse } = useSubscription();
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -78,6 +79,22 @@ export function useToolProcessor(slug: string, operation: string) {
     setError(null);
     const activeJobId = Math.random().toString(36).substring(2, 15);
 
+    const getFinalName = (defaultExt: string, configOutputName?: string): string => {
+      const ext = defaultExt.startsWith(".") ? defaultExt : `.${defaultExt}`;
+      if (!premiumEnabled) {
+        return getBrandedFileName(slug, ext);
+      }
+      if (customFileName.trim()) {
+        const cleanName = customFileName.trim();
+        return cleanName.toLowerCase().endsWith(ext.toLowerCase()) ? cleanName : `${cleanName}${ext}`;
+      }
+      if (configOutputName) {
+        return configOutputName;
+      }
+      const baseInputName = files[0]?.name ? files[0].name.replace(/\.[^/.]+$/, "") : "output";
+      return baseInputName + "_processed" + ext;
+    };
+
     try {
       // 1. Check if client-side result is provided directly (for local tools)
       if (clientSideResultBlob) {
@@ -87,7 +104,8 @@ export function useToolProcessor(slug: string, operation: string) {
           await new Promise(r => setTimeout(r, 100));
         }
         const url = URL.createObjectURL(clientSideResultBlob);
-        const name = files[0].name.replace(/\.[^/.]+$/, "") + "_processed" + getExtensionForMime(clientSideResultBlob.type);
+        const ext = getExtensionForMime(clientSideResultBlob.type, files[0].name);
+        const name = getFinalName(ext, configOptions.outputName);
         const sizeStr = formatSize(clientSideResultBlob.size);
         
         // Calculate savings
@@ -111,8 +129,26 @@ export function useToolProcessor(slug: string, operation: string) {
             resultBlob = await runClientSidePdfMerge(rawFiles, configOptions.pageRanges as string[] | undefined);
           } else if (slug === "compress-pdf") {
             const { runClientSidePdfCompress } = await import("@/lib/processing/pdf/client-pdf");
-            const quality = configOptions.level === "screen" ? 40 : configOptions.level === "ebook" ? 70 : 90;
-            resultBlob = await runClientSidePdfCompress(rawFiles[0], quality);
+            const targetSizeKb = configOptions.targetSizeKb;
+            if (targetSizeKb) {
+              const targetBytes = targetSizeKb * 1024;
+              let quality = 90;
+              let lastBlob: Blob | null = null;
+              
+              // Iterate quality downwards to meet target size, max 5 iterations
+              for (let iter = 0; iter < 5; iter++) {
+                const blob = await runClientSidePdfCompress(rawFiles[0], quality);
+                lastBlob = blob;
+                if (blob.size <= targetBytes || quality <= 30) {
+                  break;
+                }
+                quality -= 15;
+              }
+              resultBlob = lastBlob;
+            } else {
+              const quality = configOptions.level === "screen" ? 40 : configOptions.level === "ebook" ? 70 : 90;
+              resultBlob = await runClientSidePdfCompress(rawFiles[0], quality);
+            }
           } else if (slug === "split-pdf") {
             const { runClientSidePdfSplit } = await import("@/lib/processing/pdf/client-pdf");
             const mode = configOptions.split_mode || "all";
@@ -240,8 +276,8 @@ export function useToolProcessor(slug: string, operation: string) {
         if (resultBlob) {
           setProgress(100);
           const isZip = resultBlob.type.includes("zip") || resultBlob.type.includes("octet-stream");
-          const ext = isZip ? ".zip" : getExtensionForMime(resultBlob.type);
-          const name = rawFiles[0].name.replace(/\.[^/.]+$/, "") + "_processed" + ext;
+          const ext = isZip ? ".zip" : getExtensionForMime(resultBlob.type, rawFiles[0].name);
+          const name = getFinalName(ext, configOptions.outputName);
           const url = URL.createObjectURL(resultBlob);
           const sizeStr = formatSize(resultBlob.size);
 
@@ -262,7 +298,8 @@ export function useToolProcessor(slug: string, operation: string) {
               files,
               (p) => setProgress(p),
               (downloadUrl, savings) => {
-                const name = files[0].name.replace(/\.[^/.]+$/, "") + "_processed" + getExtensionForMime(files[0].type);
+                const ext = getExtensionForMime(files[0].type, files[0].name);
+                const name = getFinalName(ext, configOptions.outputName);
                 const totalSize = files.reduce((acc, f) => acc + f.size, 0);
                 const newSize = savings ? savings.newSize : Math.round(totalSize * 0.75);
                 const pct = savings ? savings.percent : 25;
@@ -306,8 +343,10 @@ export function useToolProcessor(slug: string, operation: string) {
               if (pct > 0) savings = `${pct}% smaller`;
             }
 
+            const ext = getExtensionForMime(files[0].type, files[0].name);
+            const name = getFinalName(ext, configOptions.outputName);
             setResult({
-              name: files[0].name.replace(/\.[^/.]+$/, "") + "_processed" + getExtensionForMime(files[0].type),
+              name,
               url: downloadUrl,
               size: sizeStr,
               savings,
@@ -350,12 +389,74 @@ export function useToolProcessor(slug: string, operation: string) {
   };
 }
 
-function getExtensionForMime(mime: string): string {
-  if (mime.includes("pdf")) return ".pdf";
-  if (mime.includes("jpeg") || mime.includes("jpg")) return ".jpg";
-  if (mime.includes("png")) return ".png";
-  if (mime.includes("webp")) return ".webp";
-  if (mime.includes("word") || mime.includes("docx")) return ".docx";
-  if (mime.includes("zip")) return ".zip";
+export function getExtensionForMime(mime: string, filename = ""): string {
+  const m = mime.toLowerCase();
+  const f = filename.toLowerCase();
+  if (m.includes("pdf") || f.endsWith(".pdf")) return ".pdf";
+  if (m.includes("jpeg") || m.includes("jpg") || f.endsWith(".jpg") || f.endsWith(".jpeg")) return ".jpg";
+  if (m.includes("png") || f.endsWith(".png")) return ".png";
+  if (m.includes("webp") || f.endsWith(".webp")) return ".webp";
+  if (m.includes("word") || m.includes("docx") || f.endsWith(".docx")) return ".docx";
+  if (m.includes("zip") || f.endsWith(".zip")) return ".zip";
+  
+  if (filename.includes(".")) {
+    const ext = filename.split('.').pop();
+    if (ext) return `.${ext.toLowerCase()}`;
+  }
   return ".bin";
+}
+
+export function getBrandedFileName(slug: string, extension: string): string {
+  const ext = extension.startsWith(".") ? extension : `.${extension}`;
+  const mapping: Record<string, string> = {
+    "compress-pdf": "filenovapdfcompress",
+    "compress-pdf-for-upload": "filenovapdfcompress",
+    "merge-pdf": "filenovapdfmerge",
+    "split-pdf": "filenovapdfsplit",
+    "rotate-pdf": "filenovapdfrotate",
+    "protect-pdf": "filenovapdfprotect",
+    "unlock-pdf": "filenovapdfunlock",
+    "aadhaar-mask-pdf": "filenovaaadhaarmask",
+    "pan-card-resize": "filenovapancardresize",
+    "scholarship-zip": "filenovascholarshipzip",
+    "compress-image": "filenovaimagecompress",
+    "resize-image": "filenovaimageresize",
+    "resize-photo": "filenovaimageresize",
+    "remove-background": "filenovabgremove",
+    "ocr": "filenovaocrscan",
+    "pdf-to-word": "filenovapdftoword",
+    "pdf-to-jpg": "filenovapdftojpg",
+    "jpg-to-pdf": "filenovajpgtopdf",
+    "word-to-pdf": "filenovawordtopdf",
+    "ai-ppt-maker": "filenovaaipptmaker",
+    "ai-pdf-summary": "filenovaaipdfsummary",
+  };
+  const baseName = mapping[slug] || `filenova${slug.replace(/-/g, "")}`;
+  return `${baseName}${ext}`;
+}
+
+export function getOutputExtensionForSlug(slug: string, inputFiles: any[] = []): string {
+  switch (slug) {
+    case "pdf-to-word":
+      return ".docx";
+    case "word-to-pdf":
+    case "jpg-to-pdf":
+      return ".pdf";
+    case "pdf-to-jpg":
+      return ".jpg";
+    case "scholarship-zip":
+      return ".zip";
+    case "ai-ppt-maker":
+      return ".pptx";
+    case "remove-background":
+      return ".png";
+    case "ocr":
+    case "ai-pdf-summary":
+      return ".txt";
+    default:
+      if (inputFiles && inputFiles.length > 0) {
+        return getExtensionForMime(inputFiles[0].type, inputFiles[0].name);
+      }
+      return ".pdf";
+  }
 }

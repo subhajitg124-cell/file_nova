@@ -37,6 +37,8 @@ interface FileState {
   backendHealthy: boolean;
   backendCapabilities: { libreoffice: boolean; ffmpeg: boolean };
   processingQueue: { position: number; total: number } | null;
+  customFileName: string;
+  setCustomFileName: (name: string) => void;
   addFiles: (newFiles: FileRecord[]) => void;
   removeFile: (id: string) => void;
   clearStore: () => void;
@@ -84,6 +86,8 @@ export const useFileStore = create<FileState>((set) => ({
   isMockMode: typeof window !== 'undefined' ? localStorage.getItem("filenova_mock_mode") === "true" : false,
   backendHealthy: true,
   backendCapabilities: { libreoffice: false, ffmpeg: false },
+  customFileName: "",
+  setCustomFileName: (customFileName) => set({ customFileName }),
   addFiles: (newFiles) => set((state) => {
     const updatedFiles = [...state.files, ...newFiles];
     let suggestedOp: OperationType | null = state.selectedOperation;
@@ -122,7 +126,8 @@ export const useFileStore = create<FileState>((set) => ({
   clearStore: () => set({
     selectedSection: null, rawFiles: [], files: [], selectedOperation: null,
     operationOptions: {}, isProcessing: false, progress: 0, jobId: null,
-    downloadUrl: null, error: null, savings: null, ttlRemaining: null, processingQueue: null
+    downloadUrl: null, error: null, savings: null, ttlRemaining: null, processingQueue: null,
+    customFileName: ""
   }),
   setOperation: (operation) => set((state) => {
     if (operation === null) {

@@ -38,6 +38,9 @@ export const CompressPDFWorkspace: React.FC = () => {
 
   const getEstimatedSize = () => {
     if (files.length === 0) return "";
+    if (targetSize) {
+      return `under ${targetSize} KB`;
+    }
     const totalSize = files.reduce((acc, f) => acc + f.size, 0);
     const multiplier = level === "screen" ? 0.35 : level === "ebook" ? 0.6 : 0.85;
     const est = totalSize * multiplier;
@@ -138,7 +141,12 @@ export const CompressPDFWorkspace: React.FC = () => {
           </div>
           <div className="text-right space-y-1">
             <span className="text-slate-500 uppercase text-[9px] font-black tracking-wider block">Savings</span>
-            <span className="text-slate-200 font-bold">~{level === "screen" ? "65%" : level === "ebook" ? "40%" : "15%"} smaller</span>
+            <span className="text-slate-200 font-bold">
+              {targetSize 
+                ? `Custom compression`
+                : `~${level === "screen" ? "65%" : level === "ebook" ? "40%" : "15%"} smaller`
+              }
+            </span>
           </div>
         </div>
       )}
