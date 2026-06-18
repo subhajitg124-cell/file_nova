@@ -836,12 +836,24 @@ export default function AdminDashboard() {
             </div>
 
             {admin.settings.eventTheme === "none" && (
-              <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300 flex items-start gap-2.5">
-                <Info className="h-4 w-4 shrink-0 mt-0.5" />
+              <div className={`p-3.5 rounded-xl text-xs flex items-start gap-2.5 border ${
+                admin.settings.enableSeasonalThemes !== false
+                  ? "bg-amber-500/10 border-amber-500/20 text-amber-300"
+                  : "bg-slate-900/60 border-white/[0.06] text-slate-400"
+              }`}>
+                <Info className="h-4 w-4 shrink-0 mt-0.5 text-indigo-400" />
                 <div>
-                  <span className="font-bold">Automatic Seasonal Theme is Active!</span>
-                  <p className="mt-0.5 opacity-80">
-                    Because your theme is set to "Standard Dark (None)", the portal will automatically apply themed decorations based on the current calendar date (e.g., Durga Puja in Oct, Christmas in Dec, College Admission Season in June-Aug). Select a theme below to override it.
+                  <span className="font-bold">
+                    {admin.settings.enableSeasonalThemes !== false
+                      ? "Automatic Seasonal Theme is Active!"
+                      : "Automatic Seasonal Themes are Disabled"
+                    }
+                  </span>
+                  <p className="mt-0.5 opacity-80 leading-relaxed">
+                    {admin.settings.enableSeasonalThemes !== false
+                      ? 'Because your theme is set to "Standard Dark (None)", the portal will automatically apply themed decorations based on the current calendar date (e.g., Durga Puja in Oct, Christmas in Dec, College Admission Season in June-Aug). Select a theme below to override it.'
+                      : 'Automatic seasonal cycling is turned off. The portal will remain in the Standard Dark theme. You can re-enable automatic themes from the engine panel in the sidebar settings.'
+                    }
                   </p>
                 </div>
               </div>

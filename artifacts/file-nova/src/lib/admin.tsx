@@ -20,6 +20,7 @@ type Settings = {
   alternativeAdCode?: string;
   customBannerImg?: string;
   customBannerLink?: string;
+  enableSeasonalThemes?: boolean;
 };
 
 const CRED_KEY = "filenova-admin";
@@ -45,6 +46,7 @@ const defaultSettings: Settings = {
   alternativeAdCode: "",
   customBannerImg: "",
   customBannerLink: "",
+  enableSeasonalThemes: false,
 };
 
 const AdminContext = createContext<{

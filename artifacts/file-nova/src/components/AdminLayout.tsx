@@ -312,7 +312,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
                     </p>
                     
                     <div>
-                      <span className="block text-[10px] text-slate-450 mb-1">Active Event Theme</span>
+                      <span className="block text-[10px] text-slate-455 mb-1">Active Event Theme</span>
                       <button
                         type="button"
                         onClick={() => setIsThemeModalOpen(true)}
@@ -330,6 +330,16 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
                         <span className="text-[10px] text-indigo-400 font-bold shrink-0 group-hover:text-indigo-300">Change</span>
                       </button>
                     </div>
+
+                    <label className="flex items-center justify-between cursor-pointer" title="Automatically apply seasonal themes based on dates">
+                      <span className="text-[11px] text-slate-400">Seasonal Themes (Auto)</span>
+                      <input
+                        type="checkbox"
+                        checked={admin.settings.enableSeasonalThemes !== false}
+                        onChange={(e) => admin.setSettings({ enableSeasonalThemes: e.target.checked })}
+                        className="accent-indigo-500 h-3.5 w-3.5 rounded border-white/10"
+                      />
+                    </label>
 
                     <div>
                       <label htmlFor="layout-offer-text" className="block text-[10px] text-slate-400 mb-1">Offer Title</label>
@@ -588,7 +598,10 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
               <div className="border-t border-white/[0.06] pt-3 flex items-start gap-2 text-[10px] text-slate-500">
                 <Info className="h-4 w-4 shrink-0 mt-0.5 text-indigo-400" />
                 <p>
-                  Setting to <strong>Standard Dark</strong> restores automatic seasonal cycling (Saraswati Puja, Poila Baisakh, Durga Puja, Eid, Christmas, and College Admission season).
+                  {admin.settings.enableSeasonalThemes !== false
+                    ? "Setting to Standard Dark restores automatic seasonal cycling (Saraswati Puja, Poila Baisakh, Durga Puja, Eid, Christmas, and College Admission season)."
+                    : "Automatic seasonal cycling is disabled. To enable it, check the 'Seasonal Themes (Auto)' toggle in the engine panel."
+                  }
                 </p>
               </div>
 

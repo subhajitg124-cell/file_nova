@@ -176,10 +176,12 @@ export const SITE_EVENTS: SiteEvent[] = [
  * Priority: explicit `active: true` flag > date-range auto-activation.
  * If multiple match, the first in the array wins — order by priority.
  */
-export function getActiveEvent(now: Date = new Date()): SiteEvent | null {
+export function getActiveEvent(now: Date = new Date(), disableAuto: boolean = false): SiteEvent | null {
   // 1. Explicit override takes priority
   const explicit = SITE_EVENTS.find((e) => e.active);
   if (explicit) return explicit;
+
+  if (disableAuto) return null;
 
   // 2. Date-range auto-activation
   const byDate = SITE_EVENTS.find((e) => {
