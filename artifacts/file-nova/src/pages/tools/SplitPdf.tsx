@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import { ToolPageLayout } from "@/components/ToolPageLayout";
 import { useFileStore } from "@/store/useFileStore";
+import SplitPDFWorkspace from "@/tools/pdf/SplitPDFWorkspace";
 
 export default function SplitPdfPage() {
   useEffect(() => {
@@ -10,5 +10,5 @@ export default function SplitPdfPage() {
     store.setOperation("split");
   }, []);
 
-  return <ToolPageLayout slug="split-pdf" />;
+  return <SplitPDFWorkspace />;
 }

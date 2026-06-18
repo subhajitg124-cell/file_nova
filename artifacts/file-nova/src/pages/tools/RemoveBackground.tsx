@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import { ToolPageLayout } from "@/components/ToolPageLayout";
 import { useFileStore } from "@/store/useFileStore";
+import BGRemoverWorkspace from "@/tools/image/BGRemoverWorkspace";
 
 export default function RemoveBackgroundPage() {
   useEffect(() => {
@@ -8,8 +8,7 @@ export default function RemoveBackgroundPage() {
     store.clearStore();
     store.setSelectedSection("image");
     store.setOperation("edit");
-    store.updateOptions({ operation: "remove_bg" });
   }, []);
 
-  return <ToolPageLayout slug="remove-background" />;
+  return <BGRemoverWorkspace />;
 }

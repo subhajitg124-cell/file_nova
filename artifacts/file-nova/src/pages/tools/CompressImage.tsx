@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import { ToolPageLayout } from "@/components/ToolPageLayout";
 import { useFileStore } from "@/store/useFileStore";
+import CompressImageWorkspace from "@/tools/image/CompressImageWorkspace";
 
 export default function CompressImagePage() {
   useEffect(() => {
@@ -10,5 +10,5 @@ export default function CompressImagePage() {
     store.setOperation("compress");
   }, []);
 
-  return <ToolPageLayout slug="compress-image" />;
+  return <CompressImageWorkspace />;
 }

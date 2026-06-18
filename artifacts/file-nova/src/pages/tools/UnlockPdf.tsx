@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import { ToolPageLayout } from "@/components/ToolPageLayout";
 import { useFileStore } from "@/store/useFileStore";
+import UnlockPDFWorkspace from "@/tools/pdf/UnlockPDFWorkspace";
 
 export default function UnlockPdfPage() {
   useEffect(() => {
@@ -8,8 +8,7 @@ export default function UnlockPdfPage() {
     store.clearStore();
     store.setSelectedSection("pdf");
     store.setOperation("edit");
-    store.updateOptions({ operation: "pdf_unlock" });
   }, []);
 
-  return <ToolPageLayout slug="unlock-pdf" />;
+  return <UnlockPDFWorkspace />;
 }

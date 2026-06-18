@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import { ToolPageLayout } from "@/components/ToolPageLayout";
 import { useFileStore } from "@/store/useFileStore";
+import MergePDFWorkspace from "@/tools/pdf/MergePDFWorkspace";
 
 export default function MergePdfPage() {
   useEffect(() => {
@@ -10,5 +10,5 @@ export default function MergePdfPage() {
     store.setOperation("merge");
   }, []);
 
-  return <ToolPageLayout slug="merge-pdf" />;
+  return <MergePDFWorkspace />;
 }

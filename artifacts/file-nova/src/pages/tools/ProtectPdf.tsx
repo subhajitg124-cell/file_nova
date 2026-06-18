@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import { ToolPageLayout } from "@/components/ToolPageLayout";
 import { useFileStore } from "@/store/useFileStore";
+import ProtectPDFWorkspace from "@/tools/pdf/ProtectPDFWorkspace";
 
 export default function ProtectPdfPage() {
   useEffect(() => {
@@ -8,8 +8,7 @@ export default function ProtectPdfPage() {
     store.clearStore();
     store.setSelectedSection("pdf");
     store.setOperation("edit");
-    store.updateOptions({ operation: "pdf_protect" });
   }, []);
 
-  return <ToolPageLayout slug="protect-pdf" />;
+  return <ProtectPDFWorkspace />;
 }

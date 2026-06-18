@@ -110,7 +110,7 @@ export const RotatePDFWorkspace: React.FC = () => {
   );
 
   const previewPanel = (
-    <PreviewPanel files={rawFiles} slug="rotate-pdf" options={{ rotation }} />
+    <PreviewPanel files={rawFiles} slug="rotate-pdf" options={{ rotation, pageScope, customRange }} />
   );
 
   return (

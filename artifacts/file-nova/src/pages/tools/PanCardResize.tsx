@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import { ToolPageLayout } from "@/components/ToolPageLayout";
 import { useFileStore } from "@/store/useFileStore";
+import PANCardResizeWorkspace from "@/tools/india/PANCardResizeWorkspace";
 
 export default function PanCardResizePage() {
   useEffect(() => {
@@ -10,5 +10,5 @@ export default function PanCardResizePage() {
     store.setOperation("pancard");
   }, []);
 
-  return <ToolPageLayout slug="pan-card-resize" />;
+  return <PANCardResizeWorkspace />;
 }

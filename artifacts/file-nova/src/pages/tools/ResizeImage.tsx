@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import { ToolPageLayout } from "@/components/ToolPageLayout";
 import { useFileStore } from "@/store/useFileStore";
+import ResizePhotoWorkspace from "@/tools/image/ResizePhotoWorkspace";
 
 export default function ResizeImagePage() {
   useEffect(() => {
@@ -10,5 +10,5 @@ export default function ResizeImagePage() {
     store.setOperation("resize");
   }, []);
 
-  return <ToolPageLayout slug="resize-image" />;
+  return <ResizePhotoWorkspace />;
 }

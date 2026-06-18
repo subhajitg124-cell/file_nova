@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import { ToolPageLayout } from "@/components/ToolPageLayout";
 import { useFileStore } from "@/store/useFileStore";
+import ScholarshipZIPWorkspace from "@/tools/india/ScholarshipZIPWorkspace";
 
 export default function ScholarshipZipPage() {
   useEffect(() => {
@@ -8,8 +8,7 @@ export default function ScholarshipZipPage() {
     store.clearStore();
     store.setSelectedSection("office");
     store.setOperation("convert");
-    store.updateOptions({ operation: "docx_to_pdf" });
   }, []);
 
-  return <ToolPageLayout slug="scholarship-zip" />;
+  return <ScholarshipZIPWorkspace />;
 }

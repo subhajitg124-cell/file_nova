@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import { ToolPageLayout } from "@/components/ToolPageLayout";
 import { useFileStore } from "@/store/useFileStore";
+import CompressPDFWorkspace from "@/tools/pdf/CompressPDFWorkspace";
 
 export default function CompressPdfPage() {
   useEffect(() => {
@@ -10,5 +10,5 @@ export default function CompressPdfPage() {
     store.setOperation("compress");
   }, []);
 
-  return <ToolPageLayout slug="compress-pdf" />;
+  return <CompressPDFWorkspace />;
 }

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import { ToolPageLayout } from "@/components/ToolPageLayout";
 import { useFileStore } from "@/store/useFileStore";
+import RotatePDFWorkspace from "@/tools/pdf/RotatePDFWorkspace";
 
 export default function RotatePdfPage() {
   useEffect(() => {
@@ -8,8 +8,7 @@ export default function RotatePdfPage() {
     store.clearStore();
     store.setSelectedSection("pdf");
     store.setOperation("edit");
-    store.updateOptions({ operation: "pdf_rotate" });
   }, []);
 
-  return <ToolPageLayout slug="rotate-pdf" />;
+  return <RotatePDFWorkspace />;
 }

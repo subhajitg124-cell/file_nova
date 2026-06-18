@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, AlertTriangle, FileText, Lock, ShieldAlert } from "lucide-react";
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, AlertTriangle, FileText, Lock, ShieldAlert, X } from "lucide-react";
+import { PageThumbnailGrid } from "@/tools/_shared/PageThumbnailGrid";
 
 interface PreviewPanelProps {
   files: File[];
   slug: string; // e.g. "merge-pdf", "split-pdf", "compress-pdf", "rotate-pdf", "aadhaar-mask", etc.
   options?: Record<string, any>;
   onPreviewClick?: (pageIndex: number) => void;
+  onReorder?: (newOrder: number[]) => void;
 }
 
 export const PreviewPanel: React.FC<PreviewPanelProps> = ({
@@ -13,6 +15,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
   slug,
   options = {},
   onPreviewClick,
+  onReorder,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -45,8 +48,8 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
         setTotalPages(pdf.numPages);
 
         const renderedPages: string[] = [];
-        // Render up to first 12 pages for preview grids/scrollbars
-        const pagesToRender = Math.min(pdf.numPages, 12);
+        // Render up to first 100 pages for preview grids/scrollbars
+        const pagesToRender = Math.min(pdf.numPages, 100);
         
         for (let i = 1; i <= pagesToRender; i++) {
           const page = await pdf.getPage(i);
@@ -119,26 +122,55 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
       );
     }
 
-    // ROTATE PREVIEW (Apply CSS Transform inline)
+    // ROTATE PREVIEW (PageThumbnailGrid with applied rotation)
     if (slug === "rotate-pdf") {
       const rotationAngle = options.rotation || 0;
+      const pageScope = options.pageScope || "all";
+      const customRange = options.customRange || "";
+
+      // Parse custom range set of page numbers
+      const getRotatedPages = (): Set<number> => {
+        const rotated = new Set<number>();
+        if (pageScope === "all") {
+          for (let i = 1; i <= totalPages; i++) rotated.add(i);
+        } else if (pageScope === "custom" && customRange) {
+          const parts = customRange.split(",");
+          for (const p of parts) {
+            const range = p.trim().split("-");
+            if (range.length === 2) {
+              const start = parseInt(range[0]);
+              const end = parseInt(range[1]);
+              if (!isNaN(start) && !isNaN(end)) {
+                for (let k = start; k <= end; k++) rotated.add(k);
+              }
+            } else {
+              const val = parseInt(p.trim());
+              if (!isNaN(val)) rotated.add(val);
+            }
+          }
+        }
+        return rotated;
+      };
+
+      const rotatedPages = getRotatedPages();
+
+      const pagesData = Array.from({ length: totalPages }).map((_, i) => {
+        const pageNum = i + 1;
+        const isRotated = rotatedPages.has(pageNum);
+        return {
+          pageNumber: pageNum,
+          thumbnailUrl: pdfPages[i] || "",
+          rotation: isRotated ? rotationAngle : 0,
+        };
+      });
+
       return (
-        <div className="flex flex-col items-center gap-4 py-4 max-w-md mx-auto">
-          <div 
-            className={`transition-transform duration-300 shadow-2xl bg-white rounded-lg overflow-hidden max-w-[200px] sm:max-w-[240px] ${
-              rotationAngle === 90 ? "rotate-90" :
-              rotationAngle === 180 ? "rotate-180" :
-              rotationAngle === 270 || rotationAngle === -90 ? "rotate-270" :
-              "rotate-0"
-            }`}
-          >
-            {pdfPages.length > 0 ? (
-              <img src={pdfPages[0]} alt="rotated preview" className="w-full object-contain" />
-            ) : (
-              <div className="p-10 text-slate-400 flex flex-col items-center"><FileText className="h-10 w-10" /></div>
-            )}
-          </div>
-          <span className="text-[10px] text-slate-400 font-mono">Current Rotation: {rotationAngle}°</span>
+        <div className="space-y-4">
+          <p className="text-[10px] text-slate-400 uppercase font-black tracking-wider text-center">Live rotation preview grid</p>
+          <PageThumbnailGrid
+            pages={pagesData}
+            mode="view-only"
+          />
         </div>
       );
     }
@@ -174,37 +206,137 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
 
       const selectedPages = getSelectedPages();
 
+      const pagesData = Array.from({ length: totalPages }).map((_, i) => ({
+        pageNumber: i + 1,
+        thumbnailUrl: pdfPages[i] || "",
+        rotation: 0,
+      }));
+
       return (
         <div className="space-y-4">
           <p className="text-[10px] text-slate-400 uppercase font-black tracking-wider text-center">Click thumbnails to select pages for extraction</p>
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
-            {Array.from({ length: totalPages }).map((_, i) => {
-              const pageNum = i + 1;
-              const isSelected = selectedPages.has(pageNum);
-              return (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => onPreviewClick?.(pageNum)}
-                  className={`relative aspect-[3/4] bg-slate-900 border rounded-xl overflow-hidden group hover:scale-[1.03] transition-all cursor-pointer ${
-                    isSelected ? "border-indigo-500 ring-2 ring-indigo-500/30" : "border-white/10 brightness-75 hover:brightness-100"
-                  }`}
-                >
-                  {pdfPages[i] ? (
-                    <img src={pdfPages[i]} alt={`page ${pageNum}`} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="h-full w-full flex items-center justify-center text-xs font-bold text-slate-500">{pageNum}</div>
-                  )}
-                  {/* Selected Overlay */}
-                  <div className={`absolute inset-0 flex items-center justify-center bg-indigo-600/20 transition-opacity ${isSelected ? "opacity-100" : "opacity-0"}`} />
-                  {/* Page Indicator Tag */}
-                  <span className={`absolute bottom-1 right-1 text-[9px] font-black px-1.5 py-0.5 rounded ${isSelected ? "bg-indigo-500 text-white" : "bg-slate-950/80 text-slate-400"}`}>
-                    P. {pageNum}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+          <PageThumbnailGrid
+            pages={pagesData}
+            mode="select"
+            selectedPages={selectedPages}
+            onSelectionChange={(nextSelected) => {
+              // Find which page was toggled (added or removed)
+              let toggledPage = -1;
+              for (let i = 1; i <= totalPages; i++) {
+                if (nextSelected.has(i) !== selectedPages.has(i)) {
+                  toggledPage = i;
+                  break;
+                }
+              }
+              if (toggledPage !== -1) {
+                onPreviewClick?.(toggledPage);
+              }
+            }}
+          />
+        </div>
+      );
+    }
+
+    // DELETE PREVIEW (PageThumbnailGrid with red X overlays)
+    if (slug === "pdf_delete" || slug === "delete-pdf") {
+      const deletePagesStr = options.delete_pages || "";
+      const getDeletedPages = (): Set<number> => {
+        const deleted = new Set<number>();
+        if (deletePagesStr) {
+          const parts = deletePagesStr.split(",");
+          for (const p of parts) {
+            const range = p.trim().split("-");
+            if (range.length === 2) {
+              const start = parseInt(range[0]);
+              const end = parseInt(range[1]);
+              if (!isNaN(start) && !isNaN(end)) {
+                for (let k = start; k <= end; k++) deleted.add(k);
+              }
+            } else {
+              const val = parseInt(p.trim());
+              if (!isNaN(val)) deleted.add(val);
+            }
+          }
+        }
+        return deleted;
+      };
+
+      const deletedPages = getDeletedPages();
+
+      const pagesData = Array.from({ length: totalPages }).map((_, i) => ({
+        pageNumber: i + 1,
+        thumbnailUrl: pdfPages[i] || "",
+        rotation: 0,
+      }));
+
+      return (
+        <div className="space-y-4">
+          <p className="text-[10px] text-slate-400 uppercase font-black tracking-wider text-center">
+            Select pages to delete (marked with X)
+          </p>
+          <PageThumbnailGrid
+            pages={pagesData}
+            mode="select"
+            selectedPages={deletedPages}
+            onSelectionChange={(nextSelected) => {
+              let toggledPage = -1;
+              for (let i = 1; i <= totalPages; i++) {
+                if (nextSelected.has(i) !== deletedPages.has(i)) {
+                  toggledPage = i;
+                  break;
+                }
+              }
+              if (toggledPage !== -1) {
+                onPreviewClick?.(toggledPage);
+              }
+            }}
+            renderOverlay={(pageNum) => {
+              if (deletedPages.has(pageNum)) {
+                return (
+                  <div className="absolute inset-0 bg-rose-500/25 flex items-center justify-center pointer-events-none">
+                    <div className="h-7 w-7 rounded-full bg-rose-600 border border-rose-400 flex items-center justify-center text-white shadow-lg animate-scale-in">
+                      <X className="h-4 w-4 stroke-[3]" />
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            }}
+          />
+        </div>
+      );
+    }
+
+    // REORDER PREVIEW (PageThumbnailGrid in mode="reorder")
+    if (slug === "pdf_reorder" || slug === "reorder-pdf") {
+      const orderOption = options.reorder_pages || "";
+      const getPageOrder = (): number[] => {
+        if (orderOption) {
+          return orderOption.split(",").map(Number).filter((n: number) => !isNaN(n));
+        }
+        return Array.from({ length: totalPages }, (_, i) => i + 1);
+      };
+
+      const order = getPageOrder();
+
+      const pagesData = order.map((pageNum) => ({
+        pageNumber: pageNum,
+        thumbnailUrl: pdfPages[pageNum - 1] || "",
+        rotation: 0,
+      }));
+
+      return (
+        <div className="space-y-4">
+          <p className="text-[10px] text-slate-400 uppercase font-black tracking-wider text-center">
+            Drag and drop thumbnails to reorder pages
+          </p>
+          <PageThumbnailGrid
+            pages={pagesData}
+            mode="reorder"
+            onReorder={(newOrder) => {
+              onReorder?.(newOrder);
+            }}
+          />
         </div>
       );
     }
