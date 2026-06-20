@@ -1,6 +1,6 @@
 import React, { useEffect, useState, type ReactNode } from "react";
 import { useLocation, Link } from "wouter";
-import { 
+import {
   ChevronRight, ChevronLeft, Languages, Sparkles, FileText, Image as ImageIcon,
   Crown, User, Menu, X, ArrowLeft, Upload, HelpCircle, AlertTriangle, BookOpen, PlayCircle, CheckCircle2, ArrowDown, Settings2, Download, Zap
 } from "lucide-react";
@@ -245,6 +245,11 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
              
              <ThemeToggle />
 
+            <Link href="/workflows" className="hidden md:flex items-center gap-1 text-xs text-indigo-500 hover:text-indigo-400 font-bold py-1.5 px-3 rounded-lg border border-indigo-500/25 bg-indigo-500/5 hover:bg-indigo-500/10 transition-all">
+              <Zap className="h-3.5 w-3.5" />
+              {tText("Workflows")}
+            </Link>
+
             <Link href="/workspace" className="hidden md:flex items-center gap-1 text-xs text-foreground hover:text-primary font-bold py-1.5 px-3 rounded-lg border border-border bg-card hover:border-indigo-500/35 hover:bg-indigo-500/10 transition-all">
               <FileText className="h-3.5 w-3.5" />
               {tText("Workspace")}
@@ -296,6 +301,10 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
             </Link>
             <Link onClick={() => setMobileMenuOpen(false)} href="/workspace" className="text-center text-sm bg-card border border-border text-foreground font-bold py-2 rounded-lg">
               {tText("Open Document Workspace")}
+            </Link>
+            <Link onClick={() => setMobileMenuOpen(false)} href="/workflows" className="flex items-center justify-center gap-2 text-sm text-indigo-500 font-bold py-2 border border-indigo-500/20 bg-indigo-500/5 rounded-lg">
+              <Zap className="h-4 w-4" />
+              {tText("Workflows")}
             </Link>
             <Link onClick={() => setMobileMenuOpen(false)} href="/contact" className="text-center text-sm border border-border text-foreground font-bold py-2 rounded-lg">
               {tText("📞 Contact Support")}
@@ -508,6 +517,31 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
         )}
 
       </main>
+
+      {/* Workflow Suggestion Banner */}
+      {['compress-pdf', 'merge-pdf', 'resize-photo', 'aadhaar-mask', 'compress-image', 'protect-pdf'].includes(slug) && (
+        <div className="max-w-6xl mx-auto px-4 mb-8">
+          <Link
+            href="/workflows"
+            className="flex items-center gap-4 bg-gradient-to-r from-indigo-500/10 via-violet-500/10 to-indigo-500/10 border border-indigo-500/20 rounded-2xl p-5 hover:border-indigo-500/40 hover:from-indigo-500/15 hover:via-violet-500/15 hover:to-indigo-500/15 transition-all group"
+          >
+            <div className="h-12 w-12 rounded-xl bg-indigo-500/15 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+              <Zap className="h-6 w-6 text-indigo-500" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-foreground">
+                Combine this with other tools →
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Build a workflow: compress + resize + protect — all in one click. No code, no signup.
+              </p>
+            </div>
+            <span className="text-xs text-indigo-500 font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 shrink-0">
+              Open Workflows <ChevronRight className="h-3.5 w-3.5" />
+            </span>
+          </Link>
+        </div>
+      )}
 
       <Footer />
     </div>

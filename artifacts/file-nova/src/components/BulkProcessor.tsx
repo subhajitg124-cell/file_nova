@@ -2,12 +2,14 @@ import { useMemo, useState } from "react";
 import JSZip from "jszip";
 import {
   CheckCircle2, Crown, Download, FileArchive, Loader2,
-  Lock, Play, Square, XCircle
+  Lock, Play, Square, XCircle, AlertTriangle
 } from "lucide-react";
 import { useFileStore } from "@/store/useFileStore";
 import { useSubscription } from "@/hooks/useSubscription";
 import { toast } from "sonner";
 import { Link } from "wouter";
+import { runClientSidePdfCompress } from "@/lib/processing/pdf/client-pdf";
+import { compressImage, resizeImage, convertImageFormat } from "@/lib/processing/image/client-image";
 
 type BulkStatus = "queued" | "processing" | "completed" | "failed";
 
@@ -15,12 +17,20 @@ interface BulkItemState {
   selected: boolean;
   status: BulkStatus;
   progress: number;
+  note?: string;
 }
 
 const formatBytes = (bytes: number) => {
   if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))}KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
 };
+
+/** Derive a reasonable output filename for a processed file. */
+function outputFilename(file: File, newExt: string): string {
+  const dot = file.name.lastIndexOf(".");
+  const base = dot > 0 ? file.name.slice(0, dot) : file.name;
+  return `${base}_processed.${newExt}`;
+}
 
 /** Pro tier: 10 files max, 10 MB each. Free tier: 1 file */
 const LIMITS = {
@@ -29,7 +39,7 @@ const LIMITS = {
 };
 
 export function BulkProcessor() {
-  const { rawFiles, selectedOperation } = useFileStore();
+  const { rawFiles, selectedOperation, operationOptions } = useFileStore();
   const { premiumTier } = useSubscription();
 
   const isPro = premiumTier === "basic" || premiumTier === "pro" || premiumTier === "elite";
@@ -79,17 +89,73 @@ export function BulkProcessor() {
     setProcessing(true);
     setZipUrl(null);
     const zip = new JSZip();
+    let successCount = 0;
+    let failCount = 0;
 
     try {
       for (const file of selectedFiles) {
         updateItem(file.name, { status: "processing", progress: 15 });
-        await new Promise((resolve) => setTimeout(resolve, 250));
-        updateItem(file.name, { progress: 55 });
-        await new Promise((resolve) => setTimeout(resolve, 250));
-        zip.file(file.name, await file.arrayBuffer());
-        updateItem(file.name, { status: "completed", progress: 100 });
+
+        const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+        const isImage = file.type.startsWith("image/");
+
+        try {
+          let blob: Blob;
+          let ext: string;
+
+          if (selectedOperation === "compress" && isPdf) {
+            const quality = (operationOptions.quality as number) ?? 75;
+            updateItem(file.name, { progress: 40 });
+            blob = await runClientSidePdfCompress(file, quality);
+            ext = "pdf";
+          } else if (selectedOperation === "compress" && isImage) {
+            const quality = ((operationOptions.quality as number) ?? 80) / 100;
+            const scale = (operationOptions.resize_pct as number) ?? 1.0;
+            updateItem(file.name, { progress: 40 });
+            blob = await compressImage(file, quality,
+              scale < 1 ? Math.round(file.size ** 0.5 * scale) : undefined,
+              scale < 1 ? Math.round(file.size ** 0.5 * scale) : undefined
+            );
+            const outMime = blob.type || file.type;
+            ext = outMime.split("/")[1] ?? "jpg";
+          } else if (selectedOperation === "resize" && isImage) {
+            const w = (operationOptions.resize_width as number) ?? 800;
+            const h = (operationOptions.resize_height as number) ?? 600;
+            const fmt = ((operationOptions.resize_format as string) ?? "png") as "png" | "jpeg" | "webp";
+            updateItem(file.name, { progress: 40 });
+            blob = await resizeImage(file, w, h, fmt, 0.92);
+            ext = fmt === "jpeg" ? "jpg" : fmt;
+          } else if (selectedOperation === "convert" && isImage) {
+            const fmt = ((operationOptions.target_format as string) ?? "webp") as "png" | "jpeg" | "webp";
+            const quality = ((operationOptions.quality as number) ?? 92) / 100;
+            updateItem(file.name, { progress: 40 });
+            blob = await convertImageFormat(file, fmt, quality);
+            ext = fmt === "jpeg" ? "jpg" : fmt;
+          } else {
+            // Unsupported combination — mark failed, skip cleanly (no dead output)
+            updateItem(file.name, { status: "failed", progress: 0, note: "Not supported in batch for this file type" });
+            failCount++;
+            continue;
+          }
+
+          updateItem(file.name, { progress: 90 });
+          zip.file(outputFilename(file, ext), await blob.arrayBuffer());
+          updateItem(file.name, { status: "completed", progress: 100 });
+          successCount++;
+
+        } catch (fileErr: any) {
+          // Per-file error: mark it failed but continue with other files
+          updateItem(file.name, { status: "failed", progress: 0, note: fileErr.message ?? "Processing error" });
+          failCount++;
+        }
       }
 
+      if (successCount === 0) {
+        toast.error("No files could be processed. Check that the selected operation matches the file types.");
+        return;
+      }
+
+      // Only build the ZIP if at least one file succeeded — never return partial/empty output silently
       const blob = await zip.generateAsync({
         type: "blob",
         compression: "DEFLATE",
@@ -97,8 +163,15 @@ export function BulkProcessor() {
       });
       const url = URL.createObjectURL(blob);
       setZipUrl(url);
-      toast.success(`Batch ${selectedOperation || "processing"} complete — ${selectedFiles.length} files bundled.`);
+
+      if (failCount > 0) {
+        toast.warning(`${successCount} file${successCount !== 1 ? "s" : ""} processed. ${failCount} failed — see list above.`);
+      } else {
+        toast.success(`Batch ${selectedOperation || "processing"} complete — ${successCount} file${successCount !== 1 ? "s" : ""} ready.`);
+      }
     } catch (err: any) {
+      // Catastrophic failure — discard any partial ZIP, mark remaining files failed
+      setZipUrl(null);
       selectedFiles.forEach((file) => {
         if (items[file.name]?.status !== "completed")
           updateItem(file.name, { status: "failed", progress: 0 });
@@ -136,7 +209,7 @@ export function BulkProcessor() {
         <button
           onClick={processAll}
           disabled={processing || selectedFiles.length === 0}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-black text-primary-foreground shadow-glow-sm disabled:opacity-60 transition hover:opacity-90 cursor-pointer"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-black text-primary-foreground shadow-glow-sm disabled:opacity-60 transition hover:opacity-90 cursor-pointer min-h-[44px]"
         >
           {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
           {processing ? "Processing…" : `Process ${selectedFiles.length} file${selectedFiles.length !== 1 ? "s" : ""}`}
@@ -182,6 +255,11 @@ export function BulkProcessor() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-xs font-black text-foreground">{file.name}</p>
                   <p className="text-[10px] font-bold text-muted-foreground">{formatBytes(file.size)}</p>
+                  {item.note && item.status === "failed" && (
+                    <p className="text-[10px] text-destructive mt-0.5 flex items-center gap-1">
+                      <AlertTriangle className="h-3 w-3" />{item.note}
+                    </p>
+                  )}
                 </div>
                 {item.status === "processing" && <Loader2 className="h-4 w-4 animate-spin text-primary shrink-0" />}
                 {item.status === "completed" && <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />}
@@ -231,7 +309,7 @@ export function BulkProcessor() {
           className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 px-4 py-3 text-xs font-black text-white transition shadow-glow-green"
         >
           <Download className="h-4 w-4" />
-          Download Batch ZIP ({selectedFiles.length} files)
+          Download Batch ZIP ({selectedFiles.filter(f => items[f.name]?.status === "completed").length} files processed)
         </a>
       )}
     </section>

@@ -63,6 +63,7 @@ import ReferralPage from "@/pages/ReferralPage";
 import StudentOfferPage from "@/pages/StudentOfferPage";
 import ResourcesPage from "@/pages/ResourcesPage";
 import ContactPage from "@/pages/Contact";
+const WorkflowsPage = React.lazy(() => import("@/pages/WorkflowsPage"));
 import ProfilePage from "@/pages/ProfilePage";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import TermsOfService from "@/pages/TermsOfService";
@@ -201,6 +202,9 @@ function Router() {
         </Route>
         <Route path="/workspace" component={Workspace} />
         <Route path="/tools" component={ToolsPage} />
+        <Route path="/workflows">
+          <React.Suspense fallback={<LoadingScreen />}><WorkflowsPage /></React.Suspense>
+        </Route>
 
         {/* 18 Dedicated SEO-friendly Canonical Tool Pages */}
         <Route path="/merge-pdf">

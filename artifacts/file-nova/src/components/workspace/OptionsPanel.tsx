@@ -34,6 +34,10 @@ import {
   convertMdToHtml, convertHtmlToMd, convertXlsxToCsv, convertCsvToXlsx, cleanDocx,
 } from '@/lib/processing/office/client-office';
 import { runClientSidePdfToImages } from '@/lib/processing/pdf/client-pdf';
+import {
+  recordLocalHistory, getLastEntryForTool, isDismissedForTool, dismissForTool,
+  type LocalHistoryEntry,
+} from '@/features/history/localHistory';
 
 // ── Shared primitives ───────────────────────────────────────────────────────
 
@@ -441,6 +445,8 @@ export const OptionsPanel: React.FC = () => {
   };
 
   const [showAdvanced, setShowAdvanced] = useState(false);
+
+
   const [naturalDims, setNaturalDims] = useState<{ width: number; height: number } | null>(null);
   const [annotations, setAnnotations] = useState<Array<PdfAnnotation & { id: string }>>([
     { id: 'ann-0', page: 1, type: 'text', x: 50, y: 100, width: 300, height: 20, text: '', fontSize: 12, colorHex: '#000000', fillColorHex: '#ffffff' }
@@ -483,6 +489,21 @@ export const OptionsPanel: React.FC = () => {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedOperation, actionName, rawFiles[0]?.name]);
+
+  // ── Local history: "Use same settings?" banner ────────────────────────────
+  // Placed after actionName declaration to avoid TS2448 (used before declared)
+  const [historySuggestion, setHistorySuggestion] = useState<LocalHistoryEntry | null>(null);
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    if (!selectedOperation) return;
+    const toolId = String(actionName || selectedOperation);
+    if (isDismissedForTool(toolId)) return;
+    const last = getLastEntryForTool(toolId);
+    if (last && Object.keys(last.configUsed).length > 0) {
+      setHistorySuggestion(last);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [actionName, selectedOperation]);
 
   // ── Helpers ──────────────────────────────────────────────────────────────
   const parsePageList = (input: string): number[] =>
@@ -607,6 +628,13 @@ export const OptionsPanel: React.FC = () => {
         setSavings({ originalSize: orig, newSize: finalBlob.size, percent: Math.max(0, Math.round(((orig - finalBlob.size) / orig) * 100)) });
         setProcessing(false);
         incrementFeatureUse();
+        // Record this tool use in local history (allowlisted keys only)
+        recordLocalHistory({
+          toolId: String(actionName || selectedOperation),
+          toolLabel: panelTitleForHistory(actionName, selectedOperation),
+          timestamp: Date.now(),
+          configUsed: operationOptions,
+        });
       };
 
       // ── PDF ────────────────────────────────────────────────────────────
@@ -1999,9 +2027,50 @@ export const OptionsPanel: React.FC = () => {
 
   const fileCount = isScanMode ? (scannedFile ? 1 : 0) : files.length;
 
+  // Helper for history label — defined inline to avoid hoisting issues
+  const panelTitleForHistory = (action: string, op: string | null) =>
+    actionLabels[action] || operationLabels[op ?? ''] || 'Operation';
+
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
       className="w-full max-w-2xl mx-auto">
+
+      {/* ── "Use same settings?" banner ──────────────────────────────────── */}
+      {historySuggestion && (
+        <div className="mb-3 flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-2.5 text-xs">
+          <span className="text-primary shrink-0">↩</span>
+          <span className="text-muted-foreground flex-1 min-w-0">
+            Last time: <strong className="text-foreground">
+              {historySuggestion.configUsed.compress_preset
+                ? String(historySuggestion.configUsed.compress_preset)
+                : historySuggestion.configUsed.quality
+                ? `${historySuggestion.configUsed.quality}% quality`
+                : 'previous settings'}
+            </strong>
+          </span>
+          <button
+            onClick={() => {
+              updateOptions(historySuggestion.configUsed);
+              setHistorySuggestion(null);
+            }}
+            className="shrink-0 px-2.5 py-1 rounded-lg bg-primary text-primary-foreground font-bold hover:opacity-90 transition min-h-[32px] cursor-pointer"
+          >
+            Use again
+          </button>
+          <button
+            onClick={() => {
+              const tid = String(actionName || selectedOperation);
+              dismissForTool(tid);
+              setHistorySuggestion(null);
+            }}
+            aria-label="Dismiss suggestion"
+            className="shrink-0 h-6 w-6 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/40 transition cursor-pointer"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
+
       <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-premium">
         <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-gradient-to-r from-primary/5 to-transparent">
           <div className="flex items-center gap-3">

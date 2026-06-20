@@ -485,6 +485,11 @@ export default function SimpleHome() {
             </div>
             <ThemeToggle />
 
+            <Link href="/workflows" className="hidden md:flex items-center gap-1 text-xs text-indigo-500 hover:text-indigo-400 font-bold py-1.5 px-3 rounded-lg border border-indigo-500/25 bg-indigo-500/5 hover:bg-indigo-500/10 transition-all">
+              <Zap className="h-3.5 w-3.5" />
+              {tText("Workflows")}
+            </Link>
+
             <Link href="/workspace" className="hidden md:flex items-center gap-1 text-xs text-foreground hover:text-primary font-bold py-1.5 px-3 rounded-lg border border-border bg-card hover:border-primary/35 hover:bg-primary/10 transition-all">
               <FileText className="h-3.5 w-3.5" />
               {tText("Workspace")}
@@ -539,6 +544,10 @@ export default function SimpleHome() {
             </Link>
             <Link onClick={() => setMobileMenuOpen(false)} href="/workspace" className="text-center text-sm bg-card border border-border text-foreground font-bold py-2 rounded-lg">
               {tText("Open Document Workspace")}
+            </Link>
+            <Link onClick={() => setMobileMenuOpen(false)} href="/workflows" className="flex items-center justify-center gap-2 text-sm text-indigo-500 font-bold py-2 border border-indigo-500/20 bg-indigo-500/5 rounded-lg">
+              <Zap className="h-4 w-4" />
+              {tText("Workflows")}
             </Link>
             <Link onClick={() => setMobileMenuOpen(false)} href="/contact" className="text-center text-sm border border-border text-foreground font-bold py-2 rounded-lg">
               {tText("📞 Contact Support")}
