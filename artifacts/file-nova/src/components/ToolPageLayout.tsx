@@ -27,6 +27,7 @@ import { OptionsPanel } from "@/components/workspace/OptionsPanel";
 import { ProgressTracker } from "@/components/workspace/ProgressTracker";
 import { DownloadHub } from "@/components/workspace/DownloadHub";
 import { BulkProcessor } from "@/components/BulkProcessor";
+import { WorkspaceProgress } from "@/components/workspace/WorkspaceProgress";
 import { apiClient, apiMock } from "@/lib/api";
 
 // Import shared tool components
@@ -124,6 +125,7 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
     // Check for preloaded/dropped file in history state
     const store = useFileStore.getState();
     const droppedFile = window.history.state?.droppedFile;
+    const shouldAutoProcess = window.history.state?.autoProcess;
     if (droppedFile) {
       window.history.replaceState(null, "");
       (async () => {
@@ -137,6 +139,46 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
             ? await apiMock.uploadFiles([droppedFile], activeJobId)
             : await apiClient.uploadFiles([droppedFile], activeJobId);
           store.addFiles(uploaded);
+
+          if (shouldAutoProcess) {
+            const freshState = useFileStore.getState();
+            const op = freshState.selectedOperation || (slug === 'merge-pdf' ? 'merge' : 'compress');
+            freshState.setOperation(op);
+            freshState.setProcessing(true);
+            
+            const processJobId = Math.random().toString(36).substring(2, 15);
+            freshState.setJobId(processJobId);
+            
+            if (isMock) {
+              await apiMock.simulateProcessing(
+                processJobId,
+                op,
+                freshState.files,
+                (p) => freshState.setProgress(p),
+                (downloadUrl, savings) => {
+                  freshState.setDownloadUrl(downloadUrl);
+                  if (savings) freshState.setSavings(savings);
+                },
+                (err) => freshState.setError(err)
+              );
+            } else {
+              await apiClient.startProcessing(processJobId, op, freshState.operationOptions);
+              let attempts = 0;
+              const maxAttempts = 60;
+              while (attempts < maxAttempts) {
+                await new Promise(r => setTimeout(r, 2000));
+                const status = await apiClient.pollStatus(processJobId);
+                if (status.status === 'completed') {
+                  const downloadUrl = apiClient.getDownloadUrl(processJobId);
+                  freshState.setDownloadUrl(downloadUrl);
+                  break;
+                } else if (status.status === 'failed') {
+                  throw new Error(status.error || 'Processing failed');
+                }
+                attempts++;
+              }
+            }
+          }
         } catch (err: any) {
           store.setError(err.message || 'Preload upload failed.');
         } finally {
@@ -338,23 +380,18 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-30" />
 
            {/* Step indicator */}
-           {files.length > 0 && !isScholarshipZip && (
-             <div className="w-full max-w-sm mx-auto flex items-center justify-between relative px-2 mb-8">
-               <div className="absolute top-1/2 left-0 right-0 h-px bg-border -translate-y-1/2 -z-10" />
-               <div
-                 className="absolute top-1/2 left-0 h-px bg-primary -translate-y-1/2 -z-10 transition-all duration-500"
-                 style={{ width: step === 1 ? '0%' : step === 2 ? '50%' : '100%' }}
-               />
-               {[{l:'Upload',n:1},{l:'Configure',n:2},{l:'Export',n:3}].map(({l,n}) => (
-                 <div key={n} className="flex flex-col items-center bg-card px-3 gap-1.5">
-                   <span className={`h-7 w-7 rounded-full border-2 flex items-center justify-center font-bold text-xs transition-all duration-300 ${step >= n ? 'border-primary bg-primary text-primary-foreground shadow-glow' : 'border-border bg-slate-900 text-muted-foreground'}`}>
-                     {n}
-                   </span>
-                   <span className={`text-[10px] uppercase font-bold tracking-wider transition-colors ${step >= n ? 'text-primary' : 'text-muted-foreground'}`}>{l}</span>
-                 </div>
-               ))}
-             </div>
-           )}
+           {!isScholarshipZip && (
+              <WorkspaceProgress currentStep={step} />
+            )}
+
+            {/* Sensitive Client-side Badge */}
+            {['aadhaar-mask-pdf', 'pan-card-resize', 'scholarship-zip'].includes(slug) && (
+              <div className="mb-6 flex justify-center">
+                <span className="inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25 px-3.5 py-1.5 rounded-full text-xs font-extrabold tracking-tight shadow-sm select-none">
+                  🔒 Processed in your browser — never uploaded
+                </span>
+              </div>
+            )}
 
            {/* Tool-specific Preview (before upload) */}
            {!isConfigured ? (

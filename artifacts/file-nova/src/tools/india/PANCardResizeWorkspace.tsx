@@ -51,6 +51,13 @@ export const PANCardResizeWorkspace: React.FC = () => {
 
   const isReady = files.length > 0;
 
+  useEffect(() => {
+    if (isReady && typeof window !== "undefined" && window.history.state?.autoProcess) {
+      window.history.replaceState({ ...window.history.state, autoProcess: false }, "");
+      handleProcess();
+    }
+  }, [files, isReady]);
+
   const handleProcess = async () => {
     if (rawFiles.length === 0) return;
     

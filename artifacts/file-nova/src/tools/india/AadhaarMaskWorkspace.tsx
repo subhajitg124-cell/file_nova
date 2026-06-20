@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ToolWorkspace } from "@/components/workspace/ToolWorkspace";
 import { PreviewPanel } from "@/components/workspace/PreviewPanel";
 import { useToolProcessor } from "@/hooks/useToolProcessor";
@@ -24,6 +24,13 @@ export const AadhaarMaskWorkspace: React.FC = () => {
   const [manualMasks, setManualMasks] = useState<any[]>([]);
 
   const isReady = files.length > 0;
+
+  useEffect(() => {
+    if (isReady && typeof window !== "undefined" && window.history.state?.autoProcess) {
+      window.history.replaceState({ ...window.history.state, autoProcess: false }, "");
+      handleProcess();
+    }
+  }, [files, isReady]);
 
   const handleProcess = async () => {
     const options = {

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900;1,14..32,400&family=Outfit:wght@400;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900;1,14..32,400&family=Lexend:wght@400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -22,7 +22,16 @@
   --color-accent-foreground:  var(--accent-foreground);
   --color-destructive:        var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  
+  /* Brand Tokens */
+  --color-brand-primary:      var(--brand-primary);
+  --color-brand-primary-dark: var(--brand-primary-dark);
+  --color-brand-accent:       var(--brand-accent);
+  --color-brand-ink:          var(--brand-ink);
+  --color-brand-paper:        var(--brand-paper);
+  
   --font-sans: 'Google Sans Flex', 'Google Sans', 'Inter', sans-serif;
+  --font-display: 'Lexend', 'Google Sans Flex', 'Inter', sans-serif;
   --radius-xs: 4px;
   --radius-sm: 2376px;
   --radius-md: 9999px;
@@ -58,21 +67,27 @@
 
 /* ── Light Theme ─────────────────────────────────────────────────────────── */
 :root {
-  --background:        #ffffff;
-  --foreground:        #121317;
+  --brand-primary:      #4f46e5;
+  --brand-primary-dark: #3730a3;
+  --brand-accent:       #f59e0b;
+  --brand-ink:          #0f172a;
+  --brand-paper:        #fafafa;
+
+  --background:        var(--brand-paper);
+  --foreground:        var(--brand-ink);
   --card:              #ffffff;
-  --card-foreground:   #121317;
-  --primary:           #000000;
+  --card-foreground:   var(--brand-ink);
+  --primary:           var(--brand-primary);
   --primary-foreground:#ffffff;
-  --secondary:         #f5f6f8;
-  --secondary-foreground: #121317;
-  --muted:             #f1f5f9;
-  --muted-foreground:  #45474d;
-  --accent:            #b7bfd9;
-  --accent-foreground: #121317;
-  --border:            #b7bfd9;
-  --input:             #b7bfd9;
-  --ring:              #121317;
+  --secondary:         #f1f5f9;
+  --secondary-foreground: var(--brand-ink);
+  --muted:             #f8fafc;
+  --muted-foreground:  #64748b;
+  --accent:            #e2e8f0;
+  --accent-foreground: var(--brand-ink);
+  --border:            #e2e8f0;
+  --input:             #e2e8f0;
+  --ring:              var(--brand-primary);
   --destructive:       #ea4335;
   --destructive-foreground: #ffffff;
   --radius: 16px;
@@ -81,21 +96,27 @@
 
 /* ── Dark Theme ──────────────────────────────────────────────────────────── */
 .dark {
-  --background:        #000000;
-  --foreground:        #ffffff;
-  --card:              #121317;
+  --brand-primary:      #6366f1;
+  --brand-primary-dark: #4f46e5;
+  --brand-accent:       #f59e0b;
+  --brand-ink:          #0f172a;
+  --brand-paper:        #fafafa;
+
+  --background:        var(--brand-ink);
+  --foreground:        #f8fafc;
+  --card:              #171d38;
   --card-foreground:   #ffffff;
-  --primary:           #ffffff;
-  --primary-foreground:#000000;
-  --secondary:         #1c1d22;
+  --primary:           var(--brand-primary);
+  --primary-foreground:#ffffff;
+  --secondary:         #1e293b;
   --secondary-foreground: #ffffff;
-  --muted:             #1c1d22;
-  --muted-foreground:  #b7bfd9;
-  --accent:            #45474d;
+  --muted:             #1e293b;
+  --muted-foreground:  #94a3b8;
+  --accent:            #334155;
   --accent-foreground: #ffffff;
-  --border:            #45474d;
-  --input:             #45474d;
-  --ring:              #ffffff;
+  --border:            #334155;
+  --input:             #334155;
+  --ring:              var(--brand-primary);
   --destructive:       #ea4335;
   --destructive-foreground: #ffffff;
 }
@@ -107,14 +128,14 @@
   body {
     background-color: var(--background);
     color: var(--foreground);
-    font-family: 'Google Sans Flex', 'Google Sans', 'Inter', sans-serif;
+    font-family: var(--font-sans);
     font-feature-settings: "cv02","cv03","cv04","cv11";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     padding-top: var(--banner-height, 0px);
     transition: background-color 0.4s ease, color 0.4s ease, padding-top 0.3s cubic-bezier(0.22, 1, 0.36, 1);
   }
-  h1, h2, h3, h4 { font-family: 'Google Sans Flex', 'Google Sans', 'Outfit', sans-serif; }
+  h1, h2, h3, h4 { font-family: var(--font-display); }
   *:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
   ::-webkit-scrollbar { width: 5px; height: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }

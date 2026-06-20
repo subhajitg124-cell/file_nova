@@ -932,17 +932,44 @@ export const OptionsPanel: React.FC = () => {
 
   const renderPdfProtectOptions = () => (
     <div className="space-y-5">
-      <div className="space-y-1.5">
-        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Open password</label>
-        <input type="password" placeholder="Password required to open…" value={operationOptions.protect_user_pwd || ''}
-          onChange={(e) => updateOptions({ protect_user_pwd: e.target.value })}
-          className="w-full p-2.5 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
+      {/* User-friendly security level framing */}
+      <div className="space-y-2">
+        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Security level</span>
+        <div className="grid grid-cols-2 gap-2">
+          {[
+            { value: 'standard', label: 'Standard', sub: 'View only', hint: 'Recipients can open and read but not edit or print' },
+            { value: 'maximum', label: 'Maximum', sub: 'No copy/print', hint: 'Blocks all editing, printing, and copying' },
+          ].map((lvl) => {
+            const isActive = (operationOptions.protect_level || 'standard') === lvl.value;
+            return (
+              <button
+                key={lvl.value}
+                onClick={() => updateOptions({ protect_level: lvl.value })}
+                title={lvl.hint}
+                className={`flex flex-col items-center justify-center gap-0.5 px-3 py-3 min-h-[56px] rounded-xl border-2 text-xs font-bold transition-all cursor-pointer ${
+                  isActive
+                    ? 'bg-brand-primary text-white border-brand-primary shadow-sm'
+                    : 'bg-card text-muted-foreground border-border hover:border-brand-primary/45 hover:text-foreground'
+                }`}
+              >
+                <span>{lvl.label}</span>
+                <span className={`text-[10px] font-medium ${isActive ? 'text-white/80' : 'text-muted-foreground'}`}>{lvl.sub}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
       <div className="space-y-1.5">
-        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Owner password (restrict editing)</label>
-        <input type="password" placeholder="Optional — controls edit/print permissions…" value={operationOptions.protect_owner_pwd || ''}
+        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Set a password to open</label>
+        <input type="password" placeholder="Password required to open the PDF…" value={operationOptions.protect_user_pwd || ''}
+          onChange={(e) => updateOptions({ protect_user_pwd: e.target.value })}
+          className="w-full p-2.5 min-h-[44px] bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
+      </div>
+      <div className="space-y-1.5">
+        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Owner password (optional — restricts editing)</label>
+        <input type="password" placeholder="Controls edit / print permissions…" value={operationOptions.protect_owner_pwd || ''}
           onChange={(e) => updateOptions({ protect_owner_pwd: e.target.value })}
-          className="w-full p-2.5 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
+          className="w-full p-2.5 min-h-[44px] bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
       </div>
       <InfoBox icon={<ShieldCheck className="h-4 w-4 text-amber-400" />} text="PDF encryption requires backend processing. Connect the API server to enable this feature." color="bg-amber-500/5 border-amber-500/20" />
     </div>
@@ -1272,9 +1299,53 @@ export const OptionsPanel: React.FC = () => {
     );
     return (
       <div className="space-y-5">
-        <SliderField id="compression-target-pdf" label="Compress Target" unit="%" value={operationOptions.compression_target ?? 40} min={0} max={90} onChange={applyCompressionTarget} hint="Choose how aggressively to compress. Very high compression can soften images inside the PDF." />
-        <SliderField id="pdf-quality" label="Image Quality" unit="%" value={operationOptions.quality || 80} min={35} max={100} onChange={(v) => updateOptions({ quality: v, compression_target: undefined })} hint="Higher quality keeps images sharper but produces a larger PDF." />
-        <InfoBox icon={<FileArchive className="h-4 w-4 text-primary" />} text="PDF streams, fonts, and embedded objects will be re-compressed to shrink physical file size." color="bg-primary/5 border-primary/15" />
+        {/* User-friendly compression level preset */}
+        <div className="space-y-2">
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Compression Level</span>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { value: 'web', label: 'Web', sub: 'Small file', quality: 55, hint: 'Optimised for email and web portals (< 200 KB)' },
+              { value: 'standard', label: 'Standard', sub: 'Balanced', quality: 75, hint: 'Good balance of size and readability' },
+              { value: 'print', label: 'Print-ready', sub: 'High quality', quality: 92, hint: 'Keeps images sharp for printing' },
+            ].map((preset) => {
+              const activeQuality = operationOptions.quality || 80;
+              const isActive = preset.value === 'web' ? activeQuality <= 60 : preset.value === 'print' ? activeQuality >= 88 : (activeQuality > 60 && activeQuality < 88);
+              return (
+                <button
+                  key={preset.value}
+                  onClick={() => updateOptions({ quality: preset.quality, compression_target: undefined })}
+                  title={preset.hint}
+                  className={`flex flex-col items-center justify-center gap-0.5 px-2 py-3 min-h-[56px] rounded-xl border-2 text-xs font-bold transition-all cursor-pointer ${
+                    isActive
+                      ? 'bg-brand-primary text-white border-brand-primary shadow-sm'
+                      : 'bg-card text-muted-foreground border-border hover:border-brand-primary/45 hover:text-foreground'
+                  }`}
+                >
+                  <span className="text-sm">{preset.label}</span>
+                  <span className={`text-[10px] font-medium ${isActive ? 'text-white/80' : 'text-muted-foreground'}`}>{preset.sub}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Advanced toggle */}
+        <button
+          onClick={() => setShowAdvanced(!showAdvanced)}
+          className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer py-1 min-h-[44px]"
+        >
+          <Settings2 className="h-3.5 w-3.5" />
+          {showAdvanced ? 'Hide advanced options ▴' : 'Advanced options ▾'}
+        </button>
+
+        {showAdvanced && (
+          <div className="space-y-4 border-t border-border pt-4">
+            <SliderField id="compression-target-pdf" label="Target size reduction" unit="%" value={operationOptions.compression_target ?? 40} min={0} max={90} onChange={applyCompressionTarget} hint="How aggressively to compress. Very high values can soften images inside the PDF." />
+            <SliderField id="pdf-quality" label="Image quality" unit="%" value={operationOptions.quality || 80} min={35} max={100} onChange={(v) => updateOptions({ quality: v, compression_target: undefined })} hint="Higher quality = sharper images but larger file." />
+          </div>
+        )}
+
+        <InfoBox icon={<FileArchive className="h-4 w-4 text-primary" />} text="PDF streams, fonts, and embedded objects are re-compressed in your browser — nothing is uploaded." color="bg-primary/5 border-primary/15" />
       </div>
     );
   };
@@ -1944,7 +2015,7 @@ export const OptionsPanel: React.FC = () => {
           </div>
           {selectedOperation === 'compress' && isVideo && (
             <button onClick={() => setShowAdvanced(!showAdvanced)}
-              className="flex items-center gap-1.5 px-2.5 py-1 bg-secondary border border-border text-secondary-foreground rounded-lg text-xs font-semibold hover:bg-muted transition-all">
+              className="flex items-center gap-1.5 px-2.5 py-1 min-h-[36px] bg-secondary border border-border text-secondary-foreground rounded-lg text-xs font-semibold hover:bg-muted transition-all cursor-pointer">
               <Settings2 className="h-3 w-3" />{showAdvanced ? 'Simple' : 'Advanced'}
             </button>
           )}
@@ -1957,7 +2028,7 @@ export const OptionsPanel: React.FC = () => {
         )}
         <div className="px-6 pb-6">
           <button onClick={handleClickProcess} disabled={isProcessing || editingDisabled}
-            className="w-full relative overflow-hidden flex items-center justify-center gap-2.5 py-3.5 rounded-xl font-bold text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full relative overflow-hidden flex items-center justify-center gap-2.5 py-3.5 min-h-[52px] rounded-xl font-bold text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-60 disabled:cursor-not-allowed"
             style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: 'white' }}>
             <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full hover:translate-x-full transition-transform duration-700" />
             {isProcessing

@@ -5,7 +5,9 @@ import CompressPDFWorkspace from "@/tools/pdf/CompressPDFWorkspace";
 export default function CompressPdfPage() {
   useEffect(() => {
     const store = useFileStore.getState();
-    store.clearStore();
+    if (!window.history.state?.droppedFile) {
+      store.clearStore();
+    }
     store.setSelectedSection("pdf");
     store.setOperation("compress");
   }, []);

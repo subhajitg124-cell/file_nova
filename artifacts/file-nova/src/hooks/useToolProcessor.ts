@@ -31,6 +31,16 @@ export function useToolProcessor(slug: string, operation: string) {
   const [error, setError] = useState<string | null>(null);
 
   // Sync with store values
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const droppedFile = window.history.state?.droppedFile;
+      if (droppedFile) {
+        window.history.replaceState({ ...window.history.state, droppedFile: null }, "");
+        handleFilesSelected([droppedFile]);
+      }
+    }
+  }, []);
+
   const handleFilesSelected = async (selected: File[]) => {
     setError(null);
     setIsProcessing(true);

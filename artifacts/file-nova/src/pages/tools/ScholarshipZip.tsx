@@ -5,7 +5,9 @@ import ScholarshipZIPWorkspace from "@/tools/india/ScholarshipZIPWorkspace";
 export default function ScholarshipZipPage() {
   useEffect(() => {
     const store = useFileStore.getState();
-    store.clearStore();
+    if (!window.history.state?.droppedFile) {
+      store.clearStore();
+    }
     store.setSelectedSection("office");
     store.setOperation("convert");
   }, []);

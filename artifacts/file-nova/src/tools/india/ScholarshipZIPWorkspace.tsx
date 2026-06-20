@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ToolWorkspace } from "@/components/workspace/ToolWorkspace";
 import { useToolProcessor } from "@/hooks/useToolProcessor";
 import { FileArchive, CheckCircle, AlertTriangle, Upload, HelpCircle } from "lucide-react";
@@ -53,6 +53,13 @@ export const ScholarshipZIPWorkspace: React.FC = () => {
     }));
 
   const isReady = slots.every((s) => !s.required || s.file !== null);
+
+  useEffect(() => {
+    if (isReady && typeof window !== "undefined" && window.history.state?.autoProcess) {
+      window.history.replaceState({ ...window.history.state, autoProcess: false }, "");
+      handleProcess();
+    }
+  }, [slots, isReady]);
 
   const handleFileSlotUpload = (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {

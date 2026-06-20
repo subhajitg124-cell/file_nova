@@ -5,7 +5,9 @@ import AadhaarMaskWorkspace from "@/tools/india/AadhaarMaskWorkspace";
 export default function AadhaarMaskPdfPage() {
   useEffect(() => {
     const store = useFileStore.getState();
-    store.clearStore();
+    if (!window.history.state?.droppedFile) {
+      store.clearStore();
+    }
     store.setSelectedSection("pdf");
     store.setOperation("edit");
   }, []);

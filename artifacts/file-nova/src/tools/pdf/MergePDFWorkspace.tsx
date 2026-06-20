@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ToolWorkspace } from "@/components/workspace/ToolWorkspace";
 import { PreviewPanel } from "@/components/workspace/PreviewPanel";
 import { useToolProcessor } from "@/hooks/useToolProcessor";
@@ -24,6 +24,13 @@ export const MergePDFWorkspace: React.FC = () => {
   const [applyRanges, setApplyRanges] = useState<Record<string, boolean>>({});
 
   const isReady = files.length >= 2; // Needs at least 2 files to merge
+
+  useEffect(() => {
+    if (isReady && typeof window !== "undefined" && window.history.state?.autoProcess) {
+      window.history.replaceState({ ...window.history.state, autoProcess: false }, "");
+      handleProcess();
+    }
+  }, [files, isReady]);
 
   const handleProcess = async () => {
     // Generate ranges map if checkbox is ticked
