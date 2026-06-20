@@ -22,3 +22,17 @@ if (typeof globalThis.DOMMatrix === 'undefined') {
     transformPoint(p: any) { return p; }
   } as any;
 }
+
+// Polyfill localStorage for Node.js pre-rendering/SSR environments
+if (typeof globalThis.localStorage === 'undefined') {
+  console.log("Polyfilling localStorage...");
+  const mockStorage: Record<string, string> = {};
+  globalThis.localStorage = {
+    getItem: (key: string) => mockStorage[key] ?? null,
+    setItem: (key: string, value: string) => { mockStorage[key] = String(value); },
+    removeItem: (key: string) => { delete mockStorage[key]; },
+    clear: () => { for (const k of Object.keys(mockStorage)) delete mockStorage[k]; },
+    key: (index: number) => Object.keys(mockStorage)[index] ?? null,
+    get length() { return Object.keys(mockStorage).length; }
+  } as any;
+}

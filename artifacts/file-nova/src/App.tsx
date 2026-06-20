@@ -562,7 +562,7 @@ function App({ ssrPath }: { ssrPath?: string } = {}) {
     });
   }, []);
 
-  if (!initialized) {
+  if (!initialized && !ssrPath) {
     return <LoadingScreen />;
   }
 
