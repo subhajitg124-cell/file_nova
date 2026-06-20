@@ -65,7 +65,7 @@ export const TOOL_META: Record<string, ToolMeta> = {
   "/aadhaar-mask-pdf": {
     title: "Aadhaar Masking Online Free UIDAI Compliant – FileNova",
     description: "Aadhaar masking online free UIDAI compliant tool. Hide first 8 digits of your Aadhaar card scan. 100% private offline calculations in your browser.",
-    canonical: "https://filenova.in/aadhaar-mask-pdf",
+    canonical: "https://filenova.in/aadhaar-mask",
     keywords: "aadhaar masking online free uidai compliant, aadhaar masking online free, mask aadhaar card, uidai aadhaar mask",
     ogImage: OG_INDIA,
   },
@@ -107,7 +107,7 @@ export const TOOL_META: Record<string, ToolMeta> = {
   "/ai-background-remover": {
     title: "AI Background Remover Free Online – FileNova India",
     description: "Remove photo background online free using AI. Get a transparent background or white background instantly. Perfect for passport photos and ID cards.",
-    canonical: "https://filenova.in/ai-background-remover",
+    canonical: "https://filenova.in/remove-background",
     keywords: "remove background online free india, ai background remover, transparent background photo",
     ogImage: OG_IMAGE,
   },
