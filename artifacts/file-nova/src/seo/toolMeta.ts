@@ -28,10 +28,10 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogImage: OG_PDF,
   },
   "/compress-pdf": {
-    title: "Compress PDF Free – Reduce PDF Size Online | FileNova",
-    description: "Compress PDF file size for free. Fit scholarship portal limits, government uploads, and email attachments. Works offline in your browser.",
+    title: "Secure Local Browser PDF Compressor Free – FileNova",
+    description: "Use our secure local browser PDF compressor to reduce file sizes instantly. 100% private offline calculations with zero upload latency.",
     canonical: "https://filenova.in/compress-pdf",
-    keywords: "compress pdf online free india, reduce pdf size, pdf compressor for scholarship",
+    keywords: "secure local browser pdf compressor, compress pdf online free india, reduce pdf size, pdf compressor for scholarship",
     ogImage: OG_PDF,
   },
   "/rotate-pdf": {
@@ -56,17 +56,17 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogImage: OG_PDF,
   },
   "/aadhaar-mask": {
-    title: "Aadhaar Card Masking Online Free – FileNova India",
-    description: "Mask Aadhaar number online for free as per UIDAI guidelines. Hide first 8 digits, keep last 4. Works offline — your Aadhaar never leaves your device.",
+    title: "Aadhaar Masking Online Free UIDAI Compliant – FileNova",
+    description: "Aadhaar masking online free UIDAI compliant tool. Hide first 8 digits of your Aadhaar card scan. 100% private offline calculations in your browser.",
     canonical: "https://filenova.in/aadhaar-mask",
-    keywords: "aadhaar masking online free, mask aadhaar card, uidai aadhaar mask india",
+    keywords: "aadhaar masking online free uidai compliant, aadhaar masking online free, mask aadhaar card, uidai aadhaar mask",
     ogImage: OG_INDIA,
   },
   "/aadhaar-mask-pdf": {
-    title: "Aadhaar Card Masking Online Free – FileNova India",
-    description: "Mask Aadhaar number online for free as per UIDAI guidelines. Hide first 8 digits, keep last 4. Works offline — your Aadhaar never leaves your device.",
+    title: "Aadhaar Masking Online Free UIDAI Compliant – FileNova",
+    description: "Aadhaar masking online free UIDAI compliant tool. Hide first 8 digits of your Aadhaar card scan. 100% private offline calculations in your browser.",
     canonical: "https://filenova.in/aadhaar-mask-pdf",
-    keywords: "aadhaar masking online free, mask aadhaar card, uidai aadhaar mask india",
+    keywords: "aadhaar masking online free uidai compliant, aadhaar masking online free, mask aadhaar card, uidai aadhaar mask",
     ogImage: OG_INDIA,
   },
   "/pan-card-resize": {
@@ -91,17 +91,17 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogImage: OG_OCR,
   },
   "/resize-photo": {
-    title: "Resize Photo Free Online – Passport, Scholarship, ID | FileNova",
-    description: "Resize photos online free to exact dimensions for passport, scholarship portals, Aadhaar, PAN, and government forms. Supports all Indian portal size requirements.",
+    title: "Offline Passport Photo Resizer Free Online – FileNova",
+    description: "Offline passport photo resizer to resize photo & signature to exact portal requirements. Secure browser-based tool with zero upload latency.",
     canonical: "https://filenova.in/resize-photo",
-    keywords: "resize photo online free india, passport photo resize, scholarship photo resize, photo size reducer india",
+    keywords: "offline passport photo resizer, resize photo online free india, passport photo resize, scholarship photo resize, photo size reducer",
     ogImage: OG_IMAGE,
   },
   "/resize-image": {
-    title: "Resize Photo Free Online – Passport, Scholarship, ID | FileNova",
-    description: "Resize photos online free to exact dimensions for passport, scholarship portals, Aadhaar, PAN, and government forms. Supports all Indian portal size requirements.",
+    title: "Offline Passport Photo Resizer Free Online – FileNova",
+    description: "Offline passport photo resizer to resize photo & signature to exact portal requirements. Secure browser-based tool with zero upload latency.",
     canonical: "https://filenova.in/resize-photo", // Points to primary
-    keywords: "resize photo online free india, passport photo resize, scholarship photo resize, photo size reducer india",
+    keywords: "offline passport photo resizer, resize photo online free india, passport photo resize, scholarship photo resize, photo size reducer",
     ogImage: OG_IMAGE,
   },
   "/ai-background-remover": {
@@ -147,10 +147,10 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogImage: OG_PDF,
   },
   "/compress-pdf-for-upload": {
-    title: "Compress PDF to Target Size Free – Upload Ready | FileNova",
-    description: "Compress PDF files online to exact target sizes like under 100KB, 200KB, 550KB, or 1MB for Indian portals. Secure and offline-enabled.",
+    title: "Secure Local Browser PDF Compressor to Target Size – FileNova",
+    description: "Secure local browser PDF compressor to target size (under 100KB, 200KB). 100% private offline calculations with zero latency over ilovepdf/smallpdf.",
     canonical: "https://filenova.in/compress-pdf-for-upload",
-    keywords: "compress pdf to target size, reduce pdf size to 200kb, compress pdf to 100kb free, nsp pdf size reducer",
+    keywords: "secure local browser pdf compressor target size, compress pdf to target size, reduce pdf size to 200kb, compress pdf to 100kb free",
     ogImage: OG_PDF,
   },
   "/resize-pdf": {

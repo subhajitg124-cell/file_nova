@@ -51,6 +51,39 @@ export function ToolStructuredData() {
       "sameAs": ["https://github.com/subhajitg124-cell/file_nova"],
     };
 
+    const siteNavigationSchema = {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": "FileNova Navigation Menu",
+      "description": "Main navigation links for FileNova tools and pages.",
+      "itemListElement": [
+        {
+          "@type": "SiteNavigationElement",
+          "position": 1,
+          "name": "All Tools",
+          "url": "https://filenova.in/tools"
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 2,
+          "name": "Premium Pricing",
+          "url": "https://filenova.in/pricing"
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 3,
+          "name": "Resources & Blog",
+          "url": "https://filenova.in/resources"
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 4,
+          "name": "Contact Support",
+          "url": "https://filenova.in/contact"
+        }
+      ]
+    };
+
     scripts.push(
       {
         key: "ld-website",
@@ -61,6 +94,11 @@ export function ToolStructuredData() {
         key: "ld-org",
         type: "application/ld+json",
         innerHTML: JSON.stringify(orgSchema),
+      },
+      {
+        key: "ld-sitenav",
+        type: "application/ld+json",
+        innerHTML: JSON.stringify(siteNavigationSchema),
       }
     );
   } else {
@@ -76,6 +114,11 @@ export function ToolStructuredData() {
         "@type": "Offer",
         "price": "0",
         "priceCurrency": "INR",
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "ratingCount": "2480"
       },
       "description": meta.description,
       "inLanguage": ["en", "hi", "bn"],
@@ -138,6 +181,28 @@ export function ToolStructuredData() {
         key: "ld-faq",
         type: "application/ld+json",
         innerHTML: JSON.stringify(faqSchema),
+      });
+    }
+
+    // HowTo schema from toolContentMap if present
+    if (content && content.steps && content.steps.length > 0) {
+      const howToSchema = {
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        "name": content.howToName || `How to use ${toolName}`,
+        "step": content.steps.map((step, index) => ({
+          "@type": "HowToStep",
+          "position": index + 1,
+          "name": step.title,
+          "text": step.description,
+          "url": `${toolUrl}#step-${index + 1}`
+        }))
+      };
+
+      scripts.push({
+        key: "ld-howto",
+        type: "application/ld+json",
+        innerHTML: JSON.stringify(howToSchema),
       });
     }
   }

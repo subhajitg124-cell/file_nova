@@ -79,7 +79,7 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, categoryOverride, index, tTex
         onMouseMove={handleMouseMove}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className="group relative bg-card hover:bg-accent/40 border border-border hover:border-primary/45 rounded-2xl p-5 cursor-pointer transition-all duration-300 flex flex-col justify-between shadow-sm hover:shadow-lg hover:-translate-y-0.5 text-left block overflow-hidden"
+        className="group relative bg-card hover:bg-accent/40 border border-border hover:border-primary/45 rounded-xs p-5 cursor-pointer transition-all duration-300 flex flex-col justify-between shadow-sm hover:shadow-lg hover:-translate-y-0.5 text-left block overflow-hidden"
       >
         {/* Dynamic cursor-spotlight shine overlay */}
         {isHovered && (
@@ -98,7 +98,7 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, categoryOverride, index, tTex
               <ToolIcon className="h-5 w-5" />
             </div>
             {tool.badge && (
-              <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border ${
+              <span className={`text-[9px] px-2 py-0.5 rounded-lg font-bold uppercase tracking-wider border ${
                 tool.badge === "Popular" ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/25" :
                 tool.badge === "Secure" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25" :
                 tool.badge === "AI" ? "bg-purple-500/10 text-purple-650 dark:text-purple-400 border-purple-500/25" :
@@ -390,7 +390,6 @@ export default function SimpleHome() {
           <div className="relative max-w-sm w-full hidden md:block">
             <SmartSearchBar placeholder={tText("Search 30+ document tools...")} />
           </div>
-
           {/* Right Action Menu */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Popular Tools Shortcuts */}
@@ -398,13 +397,14 @@ export default function SimpleHome() {
               <PopularToolsDropdown />
             </div>
 
-
             {/* Language Selection */}
-            <div className="hidden lg:block">
+            <div className="hidden md:block">
               <LanguageSelector />
             </div>
 
-            <ReactableGreeting />
+            <div className="hidden md:block">
+              <ReactableGreeting />
+            </div>
             <ThemeToggle />
 
             <Link href="/workspace" className="hidden md:flex items-center gap-1 text-xs text-foreground hover:text-primary font-bold py-1.5 px-3 rounded-lg border border-border bg-card hover:border-primary/35 hover:bg-primary/10 transition-all">
@@ -465,9 +465,16 @@ export default function SimpleHome() {
             <Link onClick={() => setMobileMenuOpen(false)} href="/contact" className="text-center text-sm border border-border text-foreground font-bold py-2 rounded-lg">
               {tText("📞 Contact Support")}
             </Link>
-            <div className="flex items-center justify-between px-4 py-2 border border-border bg-card rounded-xl">
+            <div className="flex items-center justify-between px-4 py-2 border border-border bg-card rounded-xs">
               <span className="text-xs font-bold text-muted-foreground">{tText("Theme Mode")}</span>
-              <ThemeToggle />
+              <div className="flex items-center gap-2">
+                <ReactableGreeting />
+                <ThemeToggle />
+              </div>
+            </div>
+            <div className="flex items-center justify-between px-4 py-2 border border-border bg-card rounded-xs">
+              <span className="text-xs font-bold text-muted-foreground">{tText("Language")}</span>
+              <LanguageSelector />
             </div>
           </div>
         </div>
@@ -493,7 +500,7 @@ export default function SimpleHome() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="inline-flex items-center gap-1.5 bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 rounded-full text-xs font-bold text-indigo-400 mb-6 uppercase tracking-wider"
+            className="inline-flex items-center gap-1.5 bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 rounded-lg text-xs font-bold text-indigo-400 mb-6 uppercase tracking-wider"
           >
             <Sparkles className="h-3.5 w-3.5 fill-current" />
             {tText("Smart Document Automation for India")}
@@ -525,9 +532,9 @@ export default function SimpleHome() {
           >
             <Link
               href="/scholarship-zip"
-              className="flex flex-col items-center justify-between p-6 bg-card hover:bg-accent/40 border border-border hover:border-primary/45 rounded-2xl transition-all duration-300 group shadow-lg hover:shadow-xl hover:-translate-y-0.5 cursor-pointer text-left block"
+              className="flex flex-col items-center justify-between p-6 bg-card hover:bg-accent/40 border border-border hover:border-primary/45 rounded-xs transition-all duration-300 group shadow-lg hover:shadow-xl hover:-translate-y-0.5 cursor-pointer text-left block"
             >
-              <div className="h-12 w-12 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <div className="h-12 w-12 rounded-xs bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <GraduationCap className="h-6 w-6" />
               </div>
               <div className="text-center">
@@ -539,9 +546,9 @@ export default function SimpleHome() {
 
             <Link
               href="/resize-photo"
-              className="flex flex-col items-center justify-between p-6 bg-card hover:bg-accent/40 border border-border hover:border-primary/45 rounded-2xl transition-all duration-300 group shadow-lg hover:shadow-xl hover:-translate-y-0.5 cursor-pointer text-left block"
+              className="flex flex-col items-center justify-between p-6 bg-card hover:bg-accent/40 border border-border hover:border-primary/45 rounded-xs transition-all duration-300 group shadow-lg hover:shadow-xl hover:-translate-y-0.5 cursor-pointer text-left block"
             >
-              <div className="h-12 w-12 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <div className="h-12 w-12 rounded-xs bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <ImageIcon className="h-6 w-6" />
               </div>
               <div className="text-center">
@@ -553,9 +560,9 @@ export default function SimpleHome() {
 
             <Link
               href="/compress-pdf"
-              className="flex flex-col items-center justify-between p-6 bg-card hover:bg-accent/40 border border-border hover:border-primary/45 rounded-2xl transition-all duration-300 group shadow-lg hover:shadow-xl hover:-translate-y-0.5 cursor-pointer text-left block"
+              className="flex flex-col items-center justify-between p-6 bg-card hover:bg-accent/40 border border-border hover:border-primary/45 rounded-xs transition-all duration-300 group shadow-lg hover:shadow-xl hover:-translate-y-0.5 cursor-pointer text-left block"
             >
-              <div className="h-12 w-12 rounded-xl bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <div className="h-12 w-12 rounded-xs bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <FileText className="h-6 w-6" />
               </div>
               <div className="text-center">
@@ -589,7 +596,7 @@ export default function SimpleHome() {
             <Link
               key={i}
               href={act.href}
-              className="inline-flex items-center bg-card hover:bg-accent border border-border text-foreground font-bold text-xs py-1.5 px-3.5 rounded-full transition-all cursor-pointer shadow-sm animate-pulse-hover"
+              className="inline-flex items-center bg-card hover:bg-accent border border-border text-foreground font-bold text-xs py-1.5 px-3.5 rounded-lg transition-all cursor-pointer shadow-sm animate-pulse-hover"
             >
               {act.label}
             </Link>
@@ -636,7 +643,7 @@ export default function SimpleHome() {
                   {filteredTools.map((tool, i) => renderToolCard(tool, undefined, i))}
                 </div>
               ) : (
-                <div className="text-center py-12 bg-card border border-border rounded-2xl">
+                <div className="text-center py-12 bg-card border border-border rounded-xs">
                   <p className="text-sm text-muted-foreground">{tText("No tools match your search query.")}</p>
                   <button 
                     onClick={() => setSearchQuery("")}
@@ -732,7 +739,7 @@ export default function SimpleHome() {
               transition={{ duration: 0.4, delay: 0.1 }}
               className="space-y-3 group"
             >
-              <div className="h-12 w-12 mx-auto rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-110 group-hover:rotate-[6deg] transition-all duration-300">
+              <div className="h-12 w-12 mx-auto rounded-xs bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-110 group-hover:rotate-[6deg] transition-all duration-300">
                 <Star className="h-5 w-5 fill-current" />
               </div>
               <h3 className="font-bold text-sm text-foreground">{tText("100% Free & Unlimited")}</h3>
@@ -745,7 +752,7 @@ export default function SimpleHome() {
               transition={{ duration: 0.4, delay: 0.2 }}
               className="space-y-3 group"
             >
-              <div className="h-12 w-12 mx-auto rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-110 group-hover:-rotate-[6deg] transition-all duration-300">
+              <div className="h-12 w-12 mx-auto rounded-xs bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-110 group-hover:-rotate-[6deg] transition-all duration-300">
                 <Clock className="h-5 w-5" />
               </div>
               <h3 className="font-bold text-sm text-foreground">{tText("Instant Auto-Delete")}</h3>
@@ -758,7 +765,7 @@ export default function SimpleHome() {
               transition={{ duration: 0.4, delay: 0.3 }}
               className="space-y-3 group"
             >
-              <div className="h-12 w-12 mx-auto rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-110 group-hover:rotate-[6deg] transition-all duration-300">
+              <div className="h-12 w-12 mx-auto rounded-xs bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-110 group-hover:rotate-[6deg] transition-all duration-300">
                 <Lock className="h-5 w-5" />
               </div>
               <h3 className="font-bold text-sm text-foreground">{tText("Client-Side Security")}</h3>
@@ -772,9 +779,9 @@ export default function SimpleHome() {
 
       {/* Global Drag and Drop Overlay */}
       {isDragging && (
-        <div className="fixed inset-0 z-50 bg-indigo-900/90 backdrop-blur-md flex flex-col items-center justify-center border-4 border-dashed border-indigo-500 m-4 rounded-3xl animate-fadeIn pointer-events-none">
-          <div className="bg-slate-900/60 border border-white/10 p-12 rounded-3xl text-center space-y-4 max-w-sm">
-            <div className="h-16 w-16 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl flex items-center justify-center mx-auto animate-bounce">
+        <div className="fixed inset-0 z-50 bg-indigo-900/90 backdrop-blur-md flex flex-col items-center justify-center border-4 border-dashed border-indigo-500 m-4 rounded-xs animate-fadeIn pointer-events-none">
+          <div className="bg-slate-900/60 border border-white/10 p-12 rounded-xs text-center space-y-4 max-w-sm">
+            <div className="h-16 w-16 bg-indigo-500/10 border border-indigo-500/20 rounded-xs flex items-center justify-center mx-auto animate-bounce">
               <Upload className="h-8 w-8 text-indigo-400" />
             </div>
             <h3 className="text-xl font-black text-white">{tText("Drop anywhere to upload")}</h3>
@@ -786,7 +793,7 @@ export default function SimpleHome() {
       {/* Tool Picker Modal */}
       {showPickerModal && droppedFile && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4">
+          <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xs p-6 max-w-md w-full shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-border pb-3">
               <h3 className="font-extrabold text-sm text-foreground">{tText("Choose a Tool")}</h3>
               <button 
@@ -799,7 +806,7 @@ export default function SimpleHome() {
             </div>
             <div>
               <p className="text-xs text-muted-foreground mb-1">{tText("You dropped:")}</p>
-              <p className="text-xs font-black text-foreground truncate bg-muted p-2.5 rounded-xl border border-border">{droppedFile.name}</p>
+              <p className="text-xs font-black text-foreground truncate bg-muted p-2.5 rounded-xs border border-border">{droppedFile.name}</p>
             </div>
             <div className="space-y-2 max-h-60 overflow-y-auto">
               {getSuggestedTools(droppedFile).map((tool) => (
@@ -810,7 +817,7 @@ export default function SimpleHome() {
                     setDroppedFile(null);
                     routeToTool(tool.id, droppedFile);
                   }}
-                  className="w-full text-left p-3 rounded-xl border border-border hover:border-indigo-500/35 bg-card hover:bg-indigo-500/5 transition duration-200 flex items-center justify-between group cursor-pointer"
+                  className="w-full text-left p-3 rounded-xs border border-border hover:border-indigo-500/35 bg-card hover:bg-indigo-500/5 transition duration-200 flex items-center justify-between group cursor-pointer"
                 >
                   <div>
                     <span className="block text-xs font-black text-foreground group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{tText(tool.title)}</span>

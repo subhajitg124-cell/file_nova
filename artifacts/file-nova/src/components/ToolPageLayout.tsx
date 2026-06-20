@@ -186,17 +186,21 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
             </div>
           </Link>
 
-{/* Right Action Menu */}
-           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          {/* Right Action Menu */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
              {/* Popular Tools Shortcuts */}
              <div className="hidden md:block">
                <PopularToolsDropdown />
              </div>
 
+             <div className="hidden md:block">
+               <LanguageSelector />
+             </div>
 
-             <LanguageSelector />
-
-             <ReactableGreeting />
+             <div className="hidden md:block">
+               <ReactableGreeting />
+             </div>
+             
              <ThemeToggle />
 
             <Link href="/workspace" className="hidden md:flex items-center gap-1 text-xs text-foreground hover:text-primary font-bold py-1.5 px-3 rounded-lg border border-border bg-card hover:border-indigo-500/35 hover:bg-indigo-500/10 transition-all">
@@ -254,10 +258,16 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
             <Link onClick={() => setMobileMenuOpen(false)} href="/contact" className="text-center text-sm border border-border text-foreground font-bold py-2 rounded-lg">
               {tText("📞 Contact Support")}
             </Link>
-            <div className="flex items-center justify-between px-4 py-2 border border-border bg-card rounded-xl">
+            <div className="flex items-center justify-between px-4 py-2 border border-border bg-card rounded-xs">
               <span className="text-xs font-bold text-muted-foreground">{tText("Theme Mode")}</span>
-              <ReactableGreeting />
-              <ThemeToggle />
+              <div className="flex items-center gap-2">
+                <ReactableGreeting />
+                <ThemeToggle />
+              </div>
+            </div>
+            <div className="flex items-center justify-between px-4 py-2 border border-border bg-card rounded-xs">
+              <span className="text-xs font-bold text-muted-foreground">{tText("Language")}</span>
+              <LanguageSelector />
             </div>
           </div>
         </div>
@@ -290,7 +300,7 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
                {content.h1}
              </h1>
              {content.badge && (
-               <span className="text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/25 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+               <span className="text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/25 px-2.5 py-0.5 rounded-lg uppercase tracking-wider">
                  {content.badge}
                </span>
              )}
@@ -303,7 +313,7 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
          {/* Benefits Grid */}
          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
            {BENEFITS.map((benefit, i) => (
-             <div key={i} className="bg-card/40 border border-border/80 rounded-2xl p-5 hover:border-indigo-500/30 transition-all duration-300">
+             <div key={i} className="bg-card/40 border border-border/80 rounded-xs p-5 hover:border-indigo-500/30 transition-all duration-300">
                <div className="text-2xl mb-3">{benefit.icon}</div>
                <h3 className="font-extrabold text-sm text-foreground mb-1.5">{benefit.title}</h3>
                <p className="text-xs text-muted-foreground leading-relaxed">{benefit.description}</p>
@@ -323,7 +333,7 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
          )}
 
          {/* Workspace Area */}
-         <div id="workspace-area" className="bg-card border border-border/80 rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden mb-12">
+         <div id="workspace-area" className="bg-card border border-border/80 rounded-xs p-6 sm:p-8 shadow-xl relative overflow-hidden mb-12">
            {/* Workspace Accent Glow */}
            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-30" />
 
@@ -445,7 +455,7 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
                 <Link
                   key={i}
                   href={`/${tool.slug}`}
-                  className="group bg-card/40 hover:bg-card border border-border/80 hover:border-primary/30 rounded-2xl p-5 transition-all duration-350 flex items-start gap-3.5 shadow-sm hover:shadow-md"
+                  className="group bg-card/40 hover:bg-card border border-border/80 hover:border-primary/30 rounded-xs p-5 transition-all duration-350 flex items-start gap-3.5 shadow-sm hover:shadow-md"
                 >
                   <div className="h-10 w-10 rounded-xl bg-slate-50 dark:bg-slate-950 border border-border flex items-center justify-center text-xl shrink-0">
                     {ICON_MAP[tool.icon] ?? "🔧"}

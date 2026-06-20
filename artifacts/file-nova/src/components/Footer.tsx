@@ -92,7 +92,7 @@ const Footer: React.FC = () => {
           {/* Brand */}
           <div className="col-span-1 sm:col-span-2 lg:col-span-1">
             <div className="flex items-center gap-3 mb-4">
-              <img src="/logo.png" alt="FileNova" className="w-9 h-9 rounded-xl" />
+              <img src="/logo.png" alt="FileNova" className="w-9 h-9 rounded-xs" />
               <span className="text-foreground font-bold text-lg">FileNova</span>
             </div>
             <p className="text-muted-foreground text-sm mb-4">
@@ -105,7 +105,7 @@ const Footer: React.FC = () => {
                 href="https://www.instagram.com/filenova.in?igsh=MWt2NG1udjRyZXlnYg=="
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 bg-gradient-to-tr from-[#f58529] via-[#dd2a7b] to-[#8134af] rounded-xl flex items-center justify-center hover:scale-110 hover:shadow-lg hover:shadow-pink-500/25 transition duration-300"
+                className="w-10 h-10 bg-gradient-to-tr from-[#f58529] via-[#dd2a7b] to-[#8134af] rounded-xs flex items-center justify-center hover:scale-110 hover:shadow-lg hover:shadow-pink-500/25 transition duration-300"
                 title="FileNova Instagram"
               >
                 <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current text-white">
@@ -116,7 +116,7 @@ const Footer: React.FC = () => {
                 href="https://www.facebook.com/share/18ypRATS29/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 bg-[#1877F2] rounded-xl flex items-center justify-center hover:scale-110 hover:shadow-lg hover:shadow-[#1877F2]/25 transition duration-300"
+                className="w-10 h-10 bg-[#1877F2] rounded-xs flex items-center justify-center hover:scale-110 hover:shadow-lg hover:shadow-[#1877F2]/25 transition duration-300"
                 title="Facebook"
               >
                 <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current text-white">
@@ -127,7 +127,7 @@ const Footer: React.FC = () => {
                 href="https://www.linkedin.com/in/subhajit-ghosh-634968349?utm_source=share_via&utm_content=profile&utm_medium=member_android"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 bg-[#0077B5] rounded-xl flex items-center justify-center hover:scale-110 hover:shadow-lg hover:shadow-[#0077B5]/25 transition duration-300"
+                className="w-10 h-10 bg-[#0077B5] rounded-xs flex items-center justify-center hover:scale-110 hover:shadow-lg hover:shadow-[#0077B5]/25 transition duration-300"
                 title="LinkedIn"
               >
                 <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current text-white">
