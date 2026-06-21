@@ -11,6 +11,7 @@ export const OCRScanWorkspace: React.FC = () => {
     files,
     rawFiles,
     isProcessing: processorProcessing,
+    isUploading,
     progress: processorProgress,
     result,
     error,
@@ -213,6 +214,7 @@ export const OCRScanWorkspace: React.FC = () => {
       previewPanel={previewPanel}
       onProcess={handleProcess}
       isProcessing={localProcessing || processorProcessing}
+      isUploading={isUploading}
       progress={localProgress || processorProgress}
       isReady={isReady}
       resultFile={result}

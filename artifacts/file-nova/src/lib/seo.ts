@@ -7,6 +7,11 @@
  *   setPageMeta({ title: "Compress PDF | FileNova", description: "...", canonical: "/tools/compress-pdf" });
  */
 
+export interface FAQItem {
+  question: string;
+  answer: string;
+}
+
 export interface PageMeta {
   title: string;
   description: string;

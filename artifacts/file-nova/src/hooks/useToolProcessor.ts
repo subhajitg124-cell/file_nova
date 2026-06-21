@@ -10,6 +10,8 @@ export interface ProcessedResult {
   size: string;
   savings?: string;
   warning?: string;
+  /** Processing duration in seconds */
+  processingTime?: number;
 }
 
 export function useToolProcessor(slug: string, operation: string) {
@@ -27,12 +29,15 @@ export function useToolProcessor(slug: string, operation: string) {
   const { premiumEnabled, incrementFeatureUse } = useSubscription();
 
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<ProcessedResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [processingStatus, setProcessingStatus] = useState<string>("");
+  const [lastProcessingTime, setLastProcessingTime] = useState<number | null>(null);
   const activeWorkerRef = useRef<Worker | null>(null);
   const isCancelledRef = useRef<boolean>(false);
+  const processingStartRef = useRef<number>(0);
 
   useEffect(() => {
     return () => {
@@ -55,7 +60,8 @@ export function useToolProcessor(slug: string, operation: string) {
 
   const handleFilesSelected = async (selected: File[]) => {
     setError(null);
-    setIsProcessing(true);
+    // Use isUploading (not isProcessing) so the workspace controls stay interactive
+    setIsUploading(true);
     setProgress(15);
     try {
       const activeJobId = Math.random().toString(36).substring(2, 15);
@@ -70,7 +76,7 @@ export function useToolProcessor(slug: string, operation: string) {
       setError(err.message || "File upload failed.");
       toast.error(err.message || "File upload failed");
     } finally {
-      setIsProcessing(false);
+      setIsUploading(false);
       setProgress(0);
     }
   };
@@ -101,6 +107,10 @@ export function useToolProcessor(slug: string, operation: string) {
       toast.error("Please select a file first.");
       return;
     }
+
+    // Start timing
+    processingStartRef.current = performance.now();
+    setLastProcessingTime(null);
 
     setIsProcessing(true);
     setProgress(10);
@@ -142,7 +152,9 @@ export function useToolProcessor(slug: string, operation: string) {
         const savingsPct = Math.round((reduction / originalSize) * 100);
         const savings = savingsPct > 0 ? `${savingsPct}% smaller` : undefined;
 
-        setResult({ name, url, size: sizeStr, savings });
+        const processingTime = (performance.now() - processingStartRef.current) / 1000;
+        setLastProcessingTime(processingTime);
+        setResult({ name, url, size: sizeStr, savings, processingTime });
         incrementFeatureUse();
         toast.success("Processing complete!");
         return;
@@ -416,7 +428,9 @@ export function useToolProcessor(slug: string, operation: string) {
           const savingsPct = Math.round((reduction / originalSize) * 100);
           const savings = savingsPct > 0 ? `${savingsPct}% smaller` : undefined;
 
-          setResult({ name, url, size: sizeStr, savings, warning: configOptions.warningMessage });
+          const processingTime = (performance.now() - processingStartRef.current) / 1000;
+          setLastProcessingTime(processingTime);
+          setResult({ name, url, size: sizeStr, savings, warning: configOptions.warningMessage, processingTime });
           incrementFeatureUse();
           toast.success("Processing complete!");
         } else {
@@ -433,11 +447,14 @@ export function useToolProcessor(slug: string, operation: string) {
                 const totalSize = files.reduce((acc, f) => acc + f.size, 0);
                 const newSize = savings ? savings.newSize : Math.round(totalSize * 0.75);
                 const pct = savings ? savings.percent : 25;
+                const processingTime = (performance.now() - processingStartRef.current) / 1000;
+                setLastProcessingTime(processingTime);
                 setResult({
                   name,
                   url: downloadUrl,
                   size: formatSize(newSize),
                   savings: pct > 0 ? `${pct}% smaller` : undefined,
+                  processingTime,
                 });
                 incrementFeatureUse();
                 resolve();
@@ -475,11 +492,14 @@ export function useToolProcessor(slug: string, operation: string) {
 
             const ext = getExtensionForMime(files[0].type, files[0].name);
             const name = getFinalName(ext, configOptions.outputName);
+            const processingTime = (performance.now() - processingStartRef.current) / 1000;
+            setLastProcessingTime(processingTime);
             setResult({
               name,
               url: downloadUrl,
               size: sizeStr,
               savings,
+              processingTime,
             });
             incrementFeatureUse();
             completed = true;
@@ -510,6 +530,7 @@ export function useToolProcessor(slug: string, operation: string) {
     files,
     rawFiles,
     isProcessing,
+    isUploading,
     progress,
     result,
     error,
@@ -517,6 +538,7 @@ export function useToolProcessor(slug: string, operation: string) {
     handleReset,
     runProcessing,
     processingStatus,
+    lastProcessingTime,
   };
 }
 

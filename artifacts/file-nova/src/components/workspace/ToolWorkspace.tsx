@@ -20,6 +20,7 @@ import { CommandPalette } from "./CommandPalette";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { workspaceRegistry, UtilityWorkspace } from "./WorkspaceRegistry";
 import { ExportCenter } from "./ExportCenter";
+import { ProcessingBadge } from "./ProcessingBadge";
 import { toast } from "sonner";
 import { fileDatabase, DBFileRecord } from "@/lib/fileDatabase";
 import { analytics } from "@/lib/analytics";
@@ -58,9 +59,10 @@ export interface ToolWorkspaceProps {
   previewPanel: React.ReactNode;
   onProcess: () => Promise<void>;
   isProcessing: boolean;
+  isUploading?: boolean;
   progress?: number;
   isReady: boolean;
-  resultFile?: { name: string; url: string; size: string; savings?: string; warning?: string } | null;
+  resultFile?: { name: string; url: string; size: string; savings?: string; warning?: string; processingTime?: number } | null;
   onReset: () => void;
   maxFiles?: number;
   acceptedTypes?: string[];
@@ -108,6 +110,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
   previewPanel,
   onProcess,
   isProcessing,
+  isUploading = false,
   progress = 0,
   isReady,
   resultFile,
@@ -176,6 +179,9 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
 
   const theme = TOOL_THEMES[accentColor] || TOOL_THEMES.violet;
   const hasFiles = files.length > 0 || slug === "scholarship-zip" || slug === "ai-ppt-maker";
+
+  // Logs panel state — collapsed by default to save vertical space
+  const [logsOpen, setLogsOpen] = useState(false);
 
   // Retrieve current active registry item
   const currentPlugin = TOOL_REGISTRY[slug] || {
@@ -1089,7 +1095,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#090d16] text-[#f8fafc] flex flex-col font-sans select-none overflow-x-hidden relative">
+    <div className="min-h-screen max-h-screen bg-[#090d16] text-[#f8fafc] flex flex-col font-sans select-none overflow-hidden relative">
       <style>{`
         .fn-dynamic-filter {
           filter: brightness(${brightness}%) contrast(${contrast}%);
@@ -1257,6 +1263,11 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
       {!hasFiles ? (
         /* UNIVERSAL UPLOAD HUB EMPTY STATE */
         <div className="flex-1 flex flex-col items-center justify-center p-6 max-w-xl mx-auto w-full animate-fade-up">
+          {/* Privacy badge - prominent above fold */}
+          <div className="w-full mb-4 flex items-center justify-center gap-2 p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-emerald-400">
+            <Shield className="h-4 w-4 shrink-0" />
+            <span className="text-[11px] font-bold">100% processed locally in your browser — files never leave your device</span>
+          </div>
           <div className="w-full bg-slate-900/40 border border-white/[0.08] rounded-3xl p-6 sm:p-10 shadow-2xl backdrop-blur-2xl text-center space-y-4">
             <div className="flex justify-center gap-4 text-slate-400 text-xs font-bold mb-2">
               <button title="Upload document" className="flex items-center gap-1 p-2 rounded-xl bg-slate-950/60 border border-white/5 hover:bg-slate-800 transition"><Upload className="h-4 w-4 text-indigo-400" /> Upload Any File</button>
@@ -1304,8 +1315,8 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
           </div>
         </div>
       ) : (
-        /* BENTO GRID WORKSPACE WITH COLLAPSIBLE SIDEBAR */
-        <div className="flex-1 flex overflow-hidden h-[calc(100vh-3.5rem)]">
+        /* BENTO GRID WORKSPACE - fits full viewport, no scroll needed */
+        <div className="flex-1 flex overflow-hidden" style={{ height: 'calc(100vh - 3.5rem - 4.5rem)' }}>
           
           {/* LEFT SIDEBAR - Collapsible (spans width on desktop, slides in) */}
           <AnimatePresence>
@@ -1482,11 +1493,20 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
           </AnimatePresence>
 
           {/* MAIN BENTO GRID WORKSPACE */}
-          <div className="flex-1 overflow-y-auto lg:overflow-hidden p-4 lg:p-6 bg-[#090d16]/30">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full min-h-0">
+          <div className="flex-1 p-3 lg:p-4 bg-[#090d16]/30 flex flex-col gap-3 h-full overflow-hidden">
+            {/* Upload progress bar — absolute positioned for visibility */}
+            {isUploading && (
+              <div className="absolute top-0 left-0 w-full z-50 px-4 pt-2">
+                <Progress value={progress} className="h-1 bg-slate-800" />
+                <p className="text-[9px] text-center text-slate-500 mt-0.5 font-mono">Uploading file...</p>
+              </div>
+            )}
+
+            {/* MAIN BENTO GRID: preview + settings side by side */}
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-0">
               
-              {/* LEFT COLUMN: Bento Primary Cell & Stats Strip (Col 1 to 8) */}
-              <div className="col-span-1 lg:col-span-8 flex flex-col gap-6 order-1 lg:order-none min-h-0 h-auto lg:h-full">
+              {/* LEFT COLUMN: Preview + Stats Strip (65%) */}
+              <div className="col-span-1 lg:col-span-8 flex flex-col gap-3 order-1 lg:order-none min-h-0">
                 {/* Bento Primary Cell: Preview & Upload */}
                 <div 
                   className={`flex-1 flex flex-col min-h-[45vh] lg:min-h-0 bg-slate-900/10 glass border rounded-2xl p-4 shadow-soft transition-all duration-300 hover:scale-[1.002] hover:shadow-premium relative overflow-hidden ${
@@ -1635,6 +1655,15 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                               </div>
                             )}
 
+                            {/* Processing Speed & Privacy Badge */}
+                            {resultFile.processingTime && (
+                              <ProcessingBadge
+                                durationSeconds={resultFile.processingTime}
+                                isLocalOnly={currentPlugin.capabilities.offlineReady}
+                                toolName={toolName}
+                              />
+                            )}
+
                             <ExportCenter
                               fileName={resultFile.name}
                               fileSize={resultFile.size}
@@ -1666,14 +1695,14 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                   </div>
                 </div>
 
-                {/* Stat Strip Cell */}
+                {/* Stat Strip Cell — below preview, always visible */}
                 {renderStatStrip()}
               </div>
 
-              {/* RIGHT COLUMN: Bento Settings Sidebar & Status Info (Col 9 to 12) */}
-              <div className="col-span-1 lg:col-span-4 flex flex-col gap-6 order-3 lg:order-none min-h-0 h-auto lg:h-full">
+              {/* RIGHT COLUMN: Settings Sidebar (35%) */}
+              <div className="col-span-1 lg:col-span-4 flex flex-col gap-3 order-3 lg:order-none min-h-0 overflow-y-auto">
                 {/* Bento Settings Sidebar Cell */}
-                <div className="glass border border-white/10 rounded-2xl p-5 shadow-soft flex flex-col gap-4 overflow-y-auto max-h-[60vh] lg:max-h-none lg:flex-1">
+                <div className="glass border border-white/10 rounded-2xl p-4 shadow-soft flex flex-col gap-3 overflow-y-auto flex-1">
                   
                   {/* Desktop Sidebar Layout */}
                   <div className="hidden lg:flex flex-col gap-4">
@@ -1864,14 +1893,14 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                     </AnimatePresence>
                   </div>
                 </div>
-                {/* Small Status/Info Cell */}
-                <div className="glass border border-white/10 rounded-2xl p-4 shadow-soft hover:scale-[1.01] transition-all duration-200 flex flex-col justify-between gap-2.5">
-                  <div className="text-[10px] font-black uppercase tracking-wider text-slate-550 flex items-center justify-between w-full border-b border-white/5 pb-1">
+                {/* Status/Info Cell — compact, below settings */}
+                <div className="glass border border-white/10 rounded-2xl p-3 shadow-soft shrink-0">
+                  <div className="text-[10px] font-black uppercase tracking-wider text-slate-550 flex items-center justify-between w-full border-b border-white/5 pb-1 mb-2">
                     <span>Status Info</span>
-                    <span className={`h-2 w-2 rounded-full ${isProcessing ? 'bg-blue-400 animate-pulse' : 'bg-emerald-400'}`} />
+                    <span className={`h-2 w-2 rounded-full ${isProcessing ? 'bg-blue-400 animate-pulse' : isUploading ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}`} />
                   </div>
                   
-                  <div className="flex flex-col gap-2 text-xs w-full">
+                  <div className="flex flex-col gap-1.5 text-xs w-full">
                     {statusPanel ? (
                       statusPanel
                     ) : (
@@ -1879,23 +1908,60 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                         <div className="flex items-center justify-between p-2 rounded-xl bg-slate-955/40 border border-white/[0.02]">
                           <span className="text-slate-400 font-bold">Process State</span>
                           <span className="font-mono font-extrabold text-white">
-                            {isProcessing ? (processingStatus || "Processing...") : (resultFile ? "Complete" : "Ready")}
+                            {isUploading ? "Uploading..." : isProcessing ? (processingStatus || "Processing...") : (resultFile ? "Complete" : "Ready")}
                           </span>
                           <span className={`h-2 w-2 rounded-full ${isProcessing ? 'bg-indigo-400 animate-pulse' : 'bg-emerald-400'}`} />
                         </div>
                         
-                        <div className="grid grid-cols-2 md:grid-cols-1 gap-2 text-xs w-full">
+                        <div className="grid grid-cols-2 gap-1.5 text-xs w-full">
                           <div className="flex items-center justify-between p-2 rounded-xl bg-slate-955/40 border border-white/[0.02]">
-                            <span className="text-slate-455 font-bold">Queue Size</span>
-                            <span className="font-mono font-extrabold text-white">{files.length} {files.length === 1 ? 'file' : 'files'}</span>
+                            <span className="text-slate-455 font-bold">Files</span>
+                            <span className="font-mono font-extrabold text-white">{files.length}</span>
                           </div>
                           <div className="flex items-center justify-between p-2 rounded-xl bg-slate-955/40 border border-white/[0.02]">
-                            <span className="text-slate-455 font-bold">Total Weight</span>
+                            <span className="text-slate-455 font-bold">Size</span>
                             <span className="font-mono font-extrabold text-white">
                               {formatBytes(files.reduce((acc, f) => acc + f.size, 0))}
                             </span>
                           </div>
                         </div>
+
+                        {/* Privacy badge in settings panel */}
+                        <button
+                          onClick={() => setPrivacyModalOpen(true)}
+                          className="w-full p-2.5 border border-emerald-500/20 rounded-xl bg-emerald-500/5 hover:bg-emerald-500/10 transition flex items-center gap-2 cursor-pointer"
+                        >
+                          <Shield className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                          <span className="text-[9px] font-bold text-emerald-400 text-left leading-tight">100% local processing — files never leave your browser</span>
+                        </button>
+
+                        {/* Collapsible logs */}
+                        <button
+                          onClick={() => setLogsOpen(o => !o)}
+                          className="flex items-center justify-between w-full text-[9px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-300 transition cursor-pointer pt-1"
+                        >
+                          <span className="flex items-center gap-1"><Activity className="h-3 w-3" /> Timeline Logs</span>
+                          <ChevronRight className={`h-3 w-3 transition-transform ${logsOpen ? 'rotate-90' : ''}`} />
+                        </button>
+                        <AnimatePresence>
+                          {logsOpen && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="space-y-0.5 font-mono text-[8.5px] text-slate-400 max-h-28 overflow-y-auto bg-slate-950/60 rounded-xl p-2">
+                                {timelineLogs.slice(-8).map((log, i) => (
+                                  <div key={i} className="flex gap-2">
+                                    <span className="text-slate-500 shrink-0">[{log.time}]</span>
+                                    <span className="truncate">{log.text}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </>
                     )}
                   </div>

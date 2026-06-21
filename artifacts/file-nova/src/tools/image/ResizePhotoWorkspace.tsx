@@ -10,6 +10,7 @@ export const ResizePhotoWorkspace: React.FC = () => {
     files,
     rawFiles,
     isProcessing,
+    isUploading,
     progress,
     result,
     error,
@@ -161,20 +162,26 @@ export const ResizePhotoWorkspace: React.FC = () => {
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <label className="text-[10px] text-slate-400 font-bold uppercase">Width</label>
+              <label className="text-[10px] text-slate-400 font-bold uppercase" htmlFor="resize-width">Width</label>
               <input
+                id="resize-width"
                 type="number"
                 value={width}
                 onChange={(e) => setWidth(parseInt(e.target.value) || 1)}
+                title={`Width in ${unit}`}
+                placeholder={unit === "mm" ? "35" : "200"}
                 className="w-full bg-slate-950/60 border border-white/10 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-sky-500 font-mono"
               />
             </div>
             <div className="space-y-1">
-              <label className="text-[10px] text-slate-400 font-bold uppercase">Height</label>
+              <label className="text-[10px] text-slate-400 font-bold uppercase" htmlFor="resize-height">Height</label>
               <input
+                id="resize-height"
                 type="number"
                 value={height}
                 onChange={(e) => setHeight(parseInt(e.target.value) || 1)}
+                title={`Height in ${unit}`}
+                placeholder={unit === "mm" ? "45" : "250"}
                 className="w-full bg-slate-950/60 border border-white/10 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-sky-500 font-mono"
               />
             </div>
@@ -221,8 +228,14 @@ export const ResizePhotoWorkspace: React.FC = () => {
               }`}
             >
               <span
-                className="h-3.5 w-3.5 rounded-full border border-white/10"
-                style={{ backgroundColor: c.value === "transparent" ? "#00000000" : c.value }}
+                className={`h-3.5 w-3.5 rounded-full border border-white/10 ${
+                  c.value === "transparent"
+                    ? "bg-transparent"
+                    : c.value === "#ffffff"
+                    ? "bg-white"
+                    : "bg-blue-500"
+                }`}
+                aria-hidden="true"
               />
               <span>{c.name}</span>
             </button>
@@ -260,6 +273,7 @@ export const ResizePhotoWorkspace: React.FC = () => {
       previewPanel={previewPanel}
       onProcess={handleProcess}
       isProcessing={isProcessing}
+      isUploading={isUploading}
       progress={progress}
       isReady={isReady}
       resultFile={result}

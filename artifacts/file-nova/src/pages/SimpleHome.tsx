@@ -485,6 +485,10 @@ export default function SimpleHome() {
             </div>
             <ThemeToggle />
 
+            <Link href="/india-tools" className="hidden md:flex items-center gap-1 text-xs text-emerald-500 hover:text-emerald-400 font-bold py-1.5 px-3 rounded-lg border border-emerald-500/25 bg-emerald-500/5 hover:bg-emerald-500/10 transition-all">
+              🇮🇳 {tText("India Tools")}
+            </Link>
+
             <Link href="/workflows" className="hidden md:flex items-center gap-1 text-xs text-indigo-500 hover:text-indigo-400 font-bold py-1.5 px-3 rounded-lg border border-indigo-500/25 bg-indigo-500/5 hover:bg-indigo-500/10 transition-all">
               <Zap className="h-3.5 w-3.5" />
               {tText("Workflows")}
@@ -548,6 +552,9 @@ export default function SimpleHome() {
             <Link onClick={() => setMobileMenuOpen(false)} href="/workflows" className="flex items-center justify-center gap-2 text-sm text-indigo-500 font-bold py-2 border border-indigo-500/20 bg-indigo-500/5 rounded-lg">
               <Zap className="h-4 w-4" />
               {tText("Workflows")}
+            </Link>
+            <Link onClick={() => setMobileMenuOpen(false)} href="/india-tools" className="flex items-center justify-center gap-2 text-sm text-emerald-500 font-bold py-2 border border-emerald-500/20 bg-emerald-500/5 rounded-lg">
+              🇮🇳 {tText("India Tools")}
             </Link>
             <Link onClick={() => setMobileMenuOpen(false)} href="/contact" className="text-center text-sm border border-border text-foreground font-bold py-2 rounded-lg">
               {tText("📞 Contact Support")}

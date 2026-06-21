@@ -10,6 +10,7 @@ export const PANCardResizeWorkspace: React.FC = () => {
     files,
     rawFiles,
     isProcessing,
+    isUploading,
     progress,
     result,
     error,
@@ -291,6 +292,7 @@ export const PANCardResizeWorkspace: React.FC = () => {
       previewPanel={previewPanel}
       onProcess={handleProcess}
       isProcessing={isProcessing}
+      isUploading={isUploading}
       progress={progress}
       isReady={isReady}
       resultFile={result}

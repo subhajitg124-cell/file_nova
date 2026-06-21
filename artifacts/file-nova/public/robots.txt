@@ -1,9 +1,18 @@
 User-agent: *
 Allow: /
 Disallow: /api/
-Disallow: /fast/tools/
 Disallow: /admin/
 Disallow: /dashboard/
 Disallow: /workspace/
+
+# Allow Googlebot to crawl all tool pages
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+
+# Crawl-delay hint for bandwidth-limited bots
+User-agent: Bingbot
+Crawl-delay: 10
 
 Sitemap: https://filenova.in/sitemap.xml

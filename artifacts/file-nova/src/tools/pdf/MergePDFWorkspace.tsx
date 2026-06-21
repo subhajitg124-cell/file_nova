@@ -10,6 +10,7 @@ export const MergePDFWorkspace: React.FC = () => {
     files,
     rawFiles,
     isProcessing,
+    isUploading,
     progress,
     result,
     error,
@@ -230,6 +231,7 @@ export const MergePDFWorkspace: React.FC = () => {
       previewPanel={previewPanel}
       onProcess={handleProcess}
       isProcessing={isProcessing}
+      isUploading={isUploading}
       progress={progress}
       isReady={isReady}
       resultFile={result}

@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import {defineConfig} from 'vite';
 import { vitePrerenderPlugin } from 'vite-prerender-plugin';
+import { VitePWA } from 'vite-plugin-pwa';
 
 if (typeof globalThis.DOMMatrix === 'undefined') {
   globalThis.DOMMatrix = class DOMMatrix {
@@ -25,6 +26,66 @@ export default defineConfig(() => {
     plugins: [
       react(),
       tailwindcss(),
+      VitePWA({
+        registerType: 'autoUpdate',
+        includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
+        manifest: {
+          name: 'FileNova - Free PDF Tools for India',
+          short_name: 'FileNova',
+          description: 'Free online PDF tools built for India. Merge, split, compress, convert PDFs and manage Indian government documents offline.',
+          theme_color: '#4f46e5',
+          background_color: '#090d16',
+          display: 'standalone',
+          orientation: 'portrait-primary',
+          scope: '/',
+          start_url: '/',
+          icons: [
+            { src: '/icon-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+            { src: '/icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+          ],
+        },
+        workbox: {
+          // Cache all static assets, WASM binaries, and workers
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,wasm}'],
+          // Runtime caching for large WASM binaries and model files
+          runtimeCaching: [
+            {
+              urlPattern: /^https:\/\/cdn\.tailwindcss\.com/,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'tailwind-cdn',
+                expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              },
+            },
+            {
+              urlPattern: /^https:\/\/.*\.wasm$/,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'wasm-binaries',
+                expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 2487 * 24 },
+              },
+            },
+            {
+              urlPattern: /^https:\/\/.*\.onnx$/,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'onnx-models',
+                expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 7 * 24 },
+              },
+            },
+          ],
+          // Skip waiting for new SW to activate
+          skipWaiting: true,
+          clientsClaim: true,
+          // Cleanup outdated caches
+          cleanupOutdatedCaches: true,
+        },
+        // Dev options for testing
+        devOptions: {
+          enabled: false,
+          type: 'module',
+        },
+      }),
       vitePrerenderPlugin({
         prerenderScript: path.resolve(__dirname, 'src/entry-prerender.tsx'),
         renderTarget: '#root',

@@ -65,6 +65,7 @@ import StudentOfferPage from "@/pages/StudentOfferPage";
 import ResourcesPage from "@/pages/ResourcesPage";
 import ContactPage from "@/pages/Contact";
 const WorkflowsPage = React.lazy(() => import("@/pages/WorkflowsPage"));
+const IndiaToolsPage = React.lazy(() => import("@/pages/IndiaToolsPage"));
 import ProfilePage from "@/pages/ProfilePage";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import TermsOfService from "@/pages/TermsOfService";
@@ -205,6 +206,9 @@ function Router() {
         <Route path="/tools" component={ToolsPage} />
         <Route path="/workflows">
           <React.Suspense fallback={<LoadingScreen />}><WorkflowsPage /></React.Suspense>
+        </Route>
+        <Route path="/india-tools">
+          <React.Suspense fallback={<LoadingScreen />}><IndiaToolsPage /></React.Suspense>
         </Route>
 
         {/* 18 Dedicated SEO-friendly Canonical Tool Pages */}
