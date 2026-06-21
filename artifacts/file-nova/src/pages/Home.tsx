@@ -159,6 +159,13 @@ export default function Home() {
           </button>
 
           <div className="flex items-center gap-2.5">
+            <button
+              onClick={() => { clearStore(); setLocation('/'); }}
+              className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-foreground border border-border hover:border-primary/35 bg-card hover:bg-accent/50 py-1.5 px-2.5 rounded-lg transition-all whitespace-nowrap cursor-pointer"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Home
+            </button>
             {/* Standalone mode toggle */}
             <div className="hidden sm:flex items-center gap-2 bg-card/60 border border-border rounded-xl px-3 py-1.5 text-xs">
               <span className="text-muted-foreground font-medium">Standalone</span>
