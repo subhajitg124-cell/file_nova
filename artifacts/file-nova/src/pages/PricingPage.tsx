@@ -57,10 +57,10 @@ function PlanCard({
 
   return (
     <div
-      className={`rounded-3xl border p-6 flex flex-col relative transition-all duration-300 ${
+      className={`rounded-3xl border p-6 flex flex-col relative transition-all duration-300 h-full ${
         isPopular
-          ? "border-primary bg-primary/5 shadow-premium scale-105 z-10 hover:scale-[1.07]"
-          : "border-border bg-card/60 hover:-translate-y-1 hover:border-primary/30 shadow-sm"
+          ? "border-primary/40 bg-gradient-to-br from-primary/8 via-card to-violet-500/5 shadow-premium scale-[1.02] z-10 hover:scale-[1.04] hover:shadow-glow"
+          : "border-border/60 bg-card/60 hover:-translate-y-1 hover:border-primary/25 shadow-sm hover:shadow-md"
       }`}
     >
       {isPopular && (
@@ -71,8 +71,8 @@ function PlanCard({
       )}
 
       {/* Plan Header */}
-      <div className="mb-5">
-        <h3 className="text-xl font-black text-foreground">{title}</h3>
+      <div className={isPopular ? "mb-6" : "mb-5"}>
+        <h3 className={`${isPopular ? "text-2xl" : "text-xl"} font-black text-foreground`}>{title}</h3>
         <p className="text-xs text-muted-foreground mt-1 leading-relaxed min-h-8">
           {description}
         </p>
@@ -84,9 +84,9 @@ function PlanCard({
       </div>
 
       {/* Feature list */}
-      <ul className="space-y-3 mb-8 flex-1 border-t border-border pt-5">
+      <ul className={`space-y-3 mb-8 flex-1 border-t border-border pt-5 ${isPopular ? "space-y-3.5" : ""}`}>
         {features.map((feat) => (
-          <li key={feat} className="flex items-start gap-2.5 text-xs text-foreground/90 font-medium">
+          <li key={feat} className={`flex items-start gap-2.5 text-foreground/90 font-medium ${isPopular ? "text-sm" : "text-xs"}`}>
             <CheckCircle2 className={`h-4 w-4 shrink-0 mt-0.5 ${accent}`} />
             <span>{feat}</span>
           </li>
@@ -655,54 +655,80 @@ export default function PricingPage() {
           </p>
         </div>
 
-        {/* Coupon Input Box */}
-        <div className="max-w-md mx-auto bg-card/60 backdrop-blur-md rounded-2xl border border-border p-4 shadow-sm flex flex-col gap-2.5">
-          <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">Have a coupon code?</label>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              placeholder="e.g. STUDENT20, CYBER50, FIRST30"
-              value={couponCode}
-              onChange={(e) => setCouponCode(e.target.value)}
-              className="flex-1 rounded-xl border border-border bg-background px-3 py-2 text-sm font-semibold outline-none focus:border-primary uppercase"
-            />
-            <button
-              onClick={handleValidateCoupon}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-xl text-sm font-bold shadow-glow hover:opacity-90 transition cursor-pointer"
-            >
-              Apply
-            </button>
+        {/* Coupon Input — Bento Card */}
+        <div className="max-w-4xl mx-auto grid gap-4 sm:grid-cols-2">
+          <div className="bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-md rounded-2xl border border-border/60 p-5 shadow-sm flex flex-col gap-3">
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Zap className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm font-black text-foreground">Have a coupon?</p>
+                <p className="text-[10px] text-muted-foreground font-medium">Enter code for instant discounts</p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="STUDENT20, CYBER50, FIRST30"
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value)}
+                className="flex-1 rounded-xl border border-border bg-background px-3 py-2.5 text-xs font-semibold outline-none focus:border-primary uppercase"
+              />
+              <button
+                onClick={handleValidateCoupon}
+                className="px-4 py-2.5 bg-primary text-primary-foreground rounded-xl text-xs font-black shadow-glow hover:opacity-90 transition cursor-pointer"
+              >
+                Apply
+              </button>
+            </div>
+            {couponError && <p className="text-xs font-bold text-red-500">{couponError}</p>}
+            {couponSuccess && <p className="text-xs font-bold text-emerald-500">{couponSuccess}</p>}
           </div>
-          {couponError && <p className="text-xs font-bold text-red-500">{couponError}</p>}
-          {couponSuccess && <p className="text-xs font-bold text-emerald-500">{couponSuccess}</p>}
+
+          <div className="bg-gradient-to-br from-emerald-500/5 to-teal-500/5 backdrop-blur-md rounded-2xl border border-emerald-500/15 p-5 flex flex-col justify-center gap-3">
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                <ShieldCheck className="h-4 w-4 text-emerald-500" />
+              </div>
+              <div>
+                <p className="text-sm font-black text-foreground">Secure &amp; Encrypted</p>
+                <p className="text-[10px] text-muted-foreground font-medium">All transactions are protected</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 text-[11px] text-muted-foreground font-medium">
+              <span className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-emerald-500" /> Instant activation</span>
+              <span className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-emerald-500" /> Cancel anytime</span>
+            </div>
+          </div>
         </div>
 
-        {/* Sachet Passes Section */}
-        <div className="max-w-4xl mx-auto space-y-6 pt-4 text-center">
-          <div className="space-y-1.5">
+        {/* Sachet Passes — Bento Cards */}
+        <div className="max-w-4xl mx-auto space-y-6 pt-4">
+          <div className="space-y-1.5 text-center">
             <span className="inline-flex items-center gap-1.5 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-wider px-3.5 py-1 rounded-full border border-indigo-500/20">
               ⚡ Sachet Pass (Single Use Cycles)
             </span>
             <h2 className="text-2xl font-black text-foreground">Only need it for a short project?</h2>
             <p className="text-xs text-muted-foreground max-w-lg mx-auto">
-              Get full access to all premium tools, scanning filters, and high-speed compressions without a monthly recurring commitment.
+              Get full access to all premium tools without a monthly recurring commitment.
             </p>
           </div>
           
-          <div className="grid gap-6 sm:grid-cols-2 max-w-3xl mx-auto">
+          <div className="grid gap-4 sm:grid-cols-2 max-w-3xl mx-auto">
             {/* 24 Hour pass */}
-            <div className="rounded-2xl border border-border/80 bg-gradient-to-br from-indigo-950/10 to-slate-900/40 p-6 flex flex-col justify-between hover:border-indigo-500/30 transition shadow-sm relative group text-left">
+            <div className="rounded-2xl border border-indigo-500/20 bg-gradient-to-br from-indigo-950/20 via-card to-slate-900/40 p-6 flex flex-col justify-between hover:border-indigo-500/40 transition-all shadow-sm hover:shadow-md relative group text-left">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-base font-black text-white">24-Hour Pass</h3>
-                  <span className="text-[9px] bg-indigo-500/15 text-indigo-300 font-bold px-2 py-0.5 rounded-full border border-indigo-500/20">Best Value</span>
+                  <h3 className="text-base font-black text-foreground">24-Hour Pass</h3>
+                  <span className="text-[9px] bg-indigo-500/15 text-indigo-400 font-bold px-2 py-0.5 rounded-full border border-indigo-500/20">Best Value</span>
                 </div>
-                <p className="text-xs text-slate-400 leading-normal">Complete access to pro tools, form autofills, and PDF builders for 24 hours.</p>
+                <p className="text-xs text-muted-foreground leading-normal">Complete access to pro tools, form autofills, and PDF builders for 24 hours.</p>
               </div>
               
-              <div className="flex items-baseline gap-1 pt-4 pb-4 border-t border-white/[0.04] mt-4">
-                <span className="text-2xl font-black text-white">₹9</span>
-                <span className="text-xs text-slate-500">/24 Hours</span>
+              <div className="flex items-baseline gap-1 pt-4 pb-4 border-t border-border/40 mt-4">
+                <span className="text-2xl font-black text-foreground">₹9</span>
+                <span className="text-xs text-muted-foreground">/24 Hours</span>
               </div>
               
               <div className="grid grid-cols-1 gap-2 xl:grid-cols-2">
@@ -717,24 +743,24 @@ export default function PricingPage() {
             </div>
 
             {/* 7 day pass */}
-            <div className="rounded-2xl border border-border/80 bg-gradient-to-br from-purple-950/10 to-slate-900/40 p-6 flex flex-col justify-between hover:border-purple-500/30 transition shadow-sm relative group text-left">
+            <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-purple-950/20 via-card to-slate-900/40 p-6 flex flex-col justify-between hover:border-purple-500/40 transition-all shadow-sm hover:shadow-md relative group text-left">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-base font-black text-white">Weekly Pass</h3>
-                  <span className="text-[9px] bg-purple-500/15 text-purple-300 font-bold px-2 py-0.5 rounded-full border border-purple-500/20">Form Cycle</span>
+                  <h3 className="text-base font-black text-foreground">Weekly Pass</h3>
+                  <span className="text-[9px] bg-purple-500/15 text-purple-400 font-bold px-2 py-0.5 rounded-full border border-purple-500/20">Form Cycle</span>
                 </div>
-                <p className="text-xs text-slate-400 leading-normal">Perfect for processing admission sets and local scholarship forms over a week.</p>
+                <p className="text-xs text-muted-foreground leading-normal">Perfect for processing admission sets and local scholarship forms over a week.</p>
               </div>
               
-              <div className="flex items-baseline gap-1 pt-4 pb-4 border-t border-white/[0.04] mt-4">
-                <span className="text-2xl font-black text-white">₹29</span>
-                <span className="text-xs text-slate-500">/7 Days</span>
+              <div className="flex items-baseline gap-1 pt-4 pb-4 border-t border-border/40 mt-4">
+                <span className="text-2xl font-black text-foreground">₹29</span>
+                <span className="text-xs text-muted-foreground">/7 Days</span>
               </div>
               
               <div className="grid grid-cols-1 gap-2 xl:grid-cols-2">
                 <button
                   onClick={() => handleSelectPlan("pass_7d")}
-                  className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-505 text-white font-black text-xs shadow-lg shadow-purple-500/10 transition cursor-pointer flex items-center justify-center"
+                  className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-black text-xs shadow-lg shadow-purple-500/10 transition cursor-pointer flex items-center justify-center"
                 >
                   Buy Pass
                 </button>
@@ -744,27 +770,37 @@ export default function PricingPage() {
           </div>
         </div>
 
-        {/* Plan Cards Grid */}
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 pt-4 max-w-6xl mx-auto">
-          {plans.map((p) => (
-            <PlanCard
+        {/* Plan Cards — Bento Grid */}
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 auto-rows-[minmax(0,1fr)] pt-4 max-w-6xl mx-auto">
+          {plans.map((p, i) => (
+            <div
               key={p.id}
-              id={p.id}
-              title={p.title}
-              price={getPlanPrice(p.id, p.originalPrice)}
-              period={p.period}
-              limit={p.limit}
-              description={p.description}
-              features={p.features}
-              accent={p.accent}
-              isPopular={p.isPopular}
-              ctaText={getPlanCta(p.id, p.ctaText)}
-              onSelect={() => handleSelectPlan(p.id)}
-              currentTier={premiumTier}
-              loading={loading}
-              amount={getPayableAmount(p.id, p.originalPrice)}
-              userEmail={user?.email}
-            />
+              className={
+                p.isPopular
+                  ? "sm:col-span-2 sm:row-span-2"
+                  : i === 3
+                    ? "sm:col-start-2 lg:col-start-4"
+                    : ""
+              }
+            >
+              <PlanCard
+                id={p.id}
+                title={p.title}
+                price={getPlanPrice(p.id, p.originalPrice)}
+                period={p.period}
+                limit={p.limit}
+                description={p.description}
+                features={p.features}
+                accent={p.accent}
+                isPopular={p.isPopular}
+                ctaText={getPlanCta(p.id, p.ctaText)}
+                onSelect={() => handleSelectPlan(p.id)}
+                currentTier={premiumTier}
+                loading={loading}
+                amount={getPayableAmount(p.id, p.originalPrice)}
+                userEmail={user?.email}
+              />
+            </div>
           ))}
         </div>
 
