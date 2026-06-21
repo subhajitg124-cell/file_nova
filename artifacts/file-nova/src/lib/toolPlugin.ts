@@ -622,6 +622,33 @@ export const TOOL_REGISTRY: Record<string, ToolRegistryItem> = {
     description: "Reduce PNG/JPEG/WEBP size with quality presets and custom quality slider.",
     relatedTools: ["resize-image", "pan-card-resize", "remove-background"],
   },
+  "compress-doc": {
+    id: "compress-doc",
+    name: "Compress Document",
+    category: "document",
+    workspaceType: WorkspaceType.UTILITY,
+    previewType: PreviewType.NONE,
+    capabilities: {
+      preview: true,
+      batchProcessing: true,
+      beforeAfter: false,
+      undoRedo: false,
+      dragDrop: true,
+      exportCenter: true,
+      offlineReady: true
+    },
+    metadata: {
+      keywords: ["compress doc", "reduce doc size", "shrink word file", "excel compressor", "ppt compressor"],
+      synonyms: ["optimize document", "shrink doc", "office compressor"],
+      useCases: ["Reduce word document size", "Upload excel or ppt under size limits"],
+      difficulty: "easy"
+    },
+    errorStrategies: ["retry"],
+    icon: "FileText",
+    title: "Compress Office Documents",
+    description: "Reduce Microsoft Word, Excel, and PowerPoint file sizes online while preserving content layout.",
+    relatedTools: ["word-to-pdf", "pdf-to-word"],
+  },
   "word-to-pdf": {
     id: "word-to-pdf",
     name: "Word to PDF",
