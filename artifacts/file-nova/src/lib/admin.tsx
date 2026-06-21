@@ -85,7 +85,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettingsState] = useState<Settings>(() => {
     try {
       const raw = localStorage.getItem(SETTINGS_KEY);
-      return raw ? JSON.parse(raw) : defaultSettings;
+      return raw ? { ...defaultSettings, ...JSON.parse(raw) } : defaultSettings;
     } catch (e) {
       return defaultSettings;
     }
@@ -174,7 +174,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
       })
       .then((data) => {
         if (data.success && data.settings) {
-          setSettingsState(data.settings);
+          setSettingsState((prev) => ({ ...defaultSettings, ...prev, ...data.settings }));
         }
       })
       .catch((err) => {

@@ -33,10 +33,10 @@
   --font-sans: 'Google Sans Flex', 'Google Sans', 'Inter', sans-serif;
   --font-display: 'Lexend', 'Google Sans Flex', 'Inter', sans-serif;
   --radius-xs: 4px;
-  --radius-sm: 2376px;
-  --radius-md: 9999px;
-  --radius-lg: 2376px;
-  --radius-xl: 9999px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
   --spacing-space-1: 2px;
   --spacing-space-2: 4px;
   --spacing-space-3: 6px;

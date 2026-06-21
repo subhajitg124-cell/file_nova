@@ -157,6 +157,11 @@ function getSettings() {
     globalNoticeType: "info",
     popupMessageActive: false,
     popupMessageText: "",
+    adType: "internal",
+    alternativeAdCode: "",
+    customBannerImg: "",
+    customBannerLink: "",
+    enableSeasonalThemes: false,
   };
   try {
     if (fs.existsSync(SETTINGS_FILE)) {

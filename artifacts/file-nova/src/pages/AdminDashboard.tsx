@@ -836,26 +836,42 @@ export default function AdminDashboard() {
             </div>
 
             {admin.settings.eventTheme === "none" && (
-              <div className={`p-3.5 rounded-xl text-xs flex items-start gap-2.5 border ${
+              <div className={`p-3.5 rounded-xl text-xs flex flex-col md:flex-row md:items-center justify-between gap-4 border ${
                 admin.settings.enableSeasonalThemes !== false
                   ? "bg-amber-500/10 border-amber-500/20 text-amber-300"
                   : "bg-slate-900/60 border-white/[0.06] text-slate-400"
               }`}>
-                <Info className="h-4 w-4 shrink-0 mt-0.5 text-indigo-400" />
-                <div>
-                  <span className="font-bold">
-                    {admin.settings.enableSeasonalThemes !== false
-                      ? "Automatic Seasonal Theme is Active!"
-                      : "Automatic Seasonal Themes are Disabled"
-                    }
-                  </span>
-                  <p className="mt-0.5 opacity-80 leading-relaxed">
-                    {admin.settings.enableSeasonalThemes !== false
-                      ? 'Because your theme is set to "Standard Dark (None)", the portal will automatically apply themed decorations based on the current calendar date (e.g., Durga Puja in Oct, Christmas in Dec, College Admission Season in June-Aug). Select a theme below to override it.'
-                      : 'Automatic seasonal cycling is turned off. The portal will remain in the Standard Dark theme. You can re-enable automatic themes from the engine panel in the sidebar settings.'
-                    }
-                  </p>
+                <div className="flex items-start gap-2.5">
+                  <Info className="h-4 w-4 shrink-0 mt-0.5 text-indigo-400" />
+                  <div>
+                    <span className="font-bold">
+                      {admin.settings.enableSeasonalThemes !== false
+                        ? "Automatic Seasonal Theme is Active!"
+                        : "Automatic Seasonal Themes are Disabled"
+                      }
+                    </span>
+                    <p className="mt-0.5 opacity-80 leading-relaxed">
+                      {admin.settings.enableSeasonalThemes !== false
+                        ? 'Because your theme is set to "Standard Dark (None)", the portal will automatically apply themed decorations based on the current calendar date (e.g., Durga Puja in Oct, Christmas in Dec, College Admission Season in June-Aug). Select a theme below to override it.'
+                        : 'Automatic seasonal cycling is turned off. The portal will remain in the Standard Dark theme. You can re-enable automatic themes from the engine panel in the sidebar settings.'
+                      }
+                    </p>
+                  </div>
                 </div>
+                <button
+                  onClick={() => {
+                    const nextVal = admin.settings.enableSeasonalThemes === false;
+                    admin.setSettings({ enableSeasonalThemes: nextVal });
+                    toast.success(nextVal ? "Automatic seasonal themes enabled! 🌟" : "Automatic seasonal themes disabled! 🛑");
+                  }}
+                  className={`shrink-0 px-4 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                    admin.settings.enableSeasonalThemes !== false
+                      ? "bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border-amber-500/30"
+                      : "bg-slate-800 hover:bg-slate-700 text-slate-200 border-white/10"
+                  }`}
+                >
+                  {admin.settings.enableSeasonalThemes !== false ? "Disable Auto-Theme" : "Enable Auto-Theme"}
+                </button>
               </div>
             )}
           </div>
