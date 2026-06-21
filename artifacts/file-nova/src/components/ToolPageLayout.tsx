@@ -94,6 +94,8 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
   const { tText } = useTranslation();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [isConfigured, setIsConfigured] = useState(false);
 
   // File store state
@@ -205,6 +207,21 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
      toolCategory: content?.toolCategory
    });
 
+  // Close popovers on outside click
+  useEffect(() => {
+    if (!settingsOpen && !moreMenuOpen && !mobileMenuOpen) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      const header = document.querySelector("header");
+      if (!header || header.contains(target)) return;
+      if (mobileMenuOpen) setMobileMenuOpen(false);
+      if (settingsOpen) setSettingsOpen(false);
+      if (moreMenuOpen) setMoreMenuOpen(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [mobileMenuOpen, settingsOpen, moreMenuOpen]);
+
   if (!content) return null;
 
   const step = downloadUrl ? 3 : (files.length > 0 && selectedOperation) ? 2 : 1;
@@ -218,55 +235,89 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
 
       {/* Header Nav */}
       <header className="sticky top-0 z-40 border-b border-border/40 bg-background/80 backdrop-blur-xl transition-all">
-        <div className="max-w-6xl mx-auto px-3 sm:px-4 h-16 flex items-center justify-between gap-2 sm:gap-4">
-          {/* Logo */}
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 h-16 flex items-center justify-between gap-2">
+          {/* Logo - compact, tagline only in hero */}
           <Link href="/" className="flex items-center gap-2.5 shrink-0">
             <img src="/logo.png" alt="FileNova logo" className="h-9 w-auto" />
-            <div className="hidden sm:block">
-              <span className="font-extrabold text-sm text-foreground block">FileNova</span>
-              <span className="text-[10px] text-muted-foreground block leading-none font-bold uppercase tracking-wider">CSC & STUDENT PORTAL</span>
-            </div>
+            <span className="font-extrabold text-sm text-foreground hidden sm:block">FileNova</span>
           </Link>
 
           {/* Right Action Menu */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-             {/* Popular Tools Shortcuts */}
-             <div className="hidden md:block">
-               <PopularToolsDropdown />
-             </div>
+          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
 
-             <div className="hidden md:block">
-               <LanguageSelector />
-             </div>
+            {/* Combined Settings (Language + Theme) - icon only */}
+            <div className="relative hidden md:block">
+              <button
+                onClick={() => setSettingsOpen(!settingsOpen)}
+                className="flex items-center justify-center p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all cursor-pointer"
+                aria-label="Settings"
+                title="Settings"
+              >
+                <Settings2 className="h-4 w-4" />
+              </button>
+              {settingsOpen && (
+                <div className="absolute right-0 top-full mt-2.5 bg-card border border-border rounded-xl shadow-xl p-4 space-y-4 z-50 min-w-[200px]">
+                  <div>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">{tText("Theme")}</p>
+                    <ThemeToggle />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">{tText("Language")}</p>
+                    <LanguageSelector />
+                  </div>
+                </div>
+              )}
+            </div>
 
-             <div className="hidden md:block">
-               <ReactableGreeting />
-             </div>
-             
-             <ThemeToggle />
+            {/* Secondary Desktop Nav - inline at xl+ (1280px+) */}
+            <div className="hidden xl:flex items-center gap-1">
+              <PopularToolsDropdown />
+              <Link href="/india-tools" className="flex items-center gap-1 text-[11px] text-emerald-500 hover:text-emerald-400 font-bold py-1.5 px-2.5 rounded-lg border border-emerald-500/25 bg-emerald-500/5 hover:bg-emerald-500/10 transition-all whitespace-nowrap">
+                🇮🇳 {tText("India Tools")}
+              </Link>
+              <Link href="/workflows" className="flex items-center gap-1 text-[11px] text-indigo-500 hover:text-indigo-400 font-bold py-1.5 px-2.5 rounded-lg border border-indigo-500/25 bg-indigo-500/5 hover:bg-indigo-500/10 transition-all whitespace-nowrap">
+                <Zap className="h-3.5 w-3.5" />
+                {tText("Workflows")}
+              </Link>
+              <Link href="/workspace" className="flex items-center gap-1 text-[11px] text-foreground hover:text-primary font-bold py-1.5 px-2.5 rounded-lg border border-border bg-card hover:border-primary/35 hover:bg-primary/10 transition-all whitespace-nowrap">
+                <FileText className="h-3.5 w-3.5" />
+                {tText("Workspace")}
+              </Link>
+            </div>
 
-            <Link href="/india-tools" className="hidden md:flex items-center gap-1 text-xs text-emerald-500 hover:text-emerald-400 font-bold py-1.5 px-3 rounded-lg border border-emerald-500/25 bg-emerald-500/5 hover:bg-emerald-500/10 transition-all">
-              🇮🇳 {tText("India Tools")}
-            </Link>
+            {/* "More" Dropdown - replaces secondary nav at lg-xl (1024-1280px), hidden at xl+ */}
+            <div className="hidden lg:block xl:hidden relative">
+              <button
+                onClick={() => setMoreMenuOpen(!moreMenuOpen)}
+                className="flex items-center gap-1 text-[11px] font-bold text-foreground py-1.5 px-2.5 rounded-lg border border-border bg-card hover:bg-accent/60 transition-all cursor-pointer whitespace-nowrap"
+              >
+                <Menu className="h-3.5 w-3.5" />
+                {tText("Menu")}
+              </button>
+              {moreMenuOpen && (
+                <div className="absolute right-0 top-full mt-2.5 bg-card border border-border rounded-xl shadow-xl p-2 z-50 min-w-[190px] space-y-0.5">
+                  <div className="px-2 py-1.5"><PopularToolsDropdown /></div>
+                  <Link href="/india-tools" onClick={() => setMoreMenuOpen(false)} className="flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-bold text-emerald-500 hover:bg-accent/60 transition-colors">
+                    🇮🇳 {tText("India Tools")}
+                  </Link>
+                  <Link href="/workflows" onClick={() => setMoreMenuOpen(false)} className="flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-bold text-indigo-500 hover:bg-accent/60 transition-colors">
+                    <Zap className="h-4 w-4" /> {tText("Workflows")}
+                  </Link>
+                  <Link href="/workspace" onClick={() => setMoreMenuOpen(false)} className="flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-bold text-foreground hover:bg-accent/60 transition-colors">
+                    <FileText className="h-4 w-4" /> {tText("Workspace")}
+                  </Link>
+                </div>
+              )}
+            </div>
 
-            <Link href="/workflows" className="hidden md:flex items-center gap-1 text-xs text-indigo-500 hover:text-indigo-400 font-bold py-1.5 px-3 rounded-lg border border-indigo-500/25 bg-indigo-500/5 hover:bg-indigo-500/10 transition-all">
-              <Zap className="h-3.5 w-3.5" />
-              {tText("Workflows")}
-            </Link>
-
-            <Link href="/workspace" className="hidden md:flex items-center gap-1 text-xs text-foreground hover:text-primary font-bold py-1.5 px-3 rounded-lg border border-border bg-card hover:border-indigo-500/35 hover:bg-indigo-500/10 transition-all">
-              <FileText className="h-3.5 w-3.5" />
-              {tText("Workspace")}
-            </Link>
-
-            {/* Premium billing link */}
-            <Link href="/pricing" className="hidden sm:flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300 font-bold py-1.5 px-3 rounded-lg border border-amber-500/20 bg-amber-500/5 hover:bg-amber-500/10 transition-all">
+            {/* Premium Suite CTA - highest contrast, solid gradient button */}
+            <Link href="/pricing" className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-black text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 px-3 py-2 rounded-lg transition-all shadow-sm whitespace-nowrap shrink-0 active:scale-95">
               <Crown className="h-3.5 w-3.5 fill-current" />
-              {tText("Premium Suite")}
+              {tText("Premium")}
             </Link>
 
             {/* Profile Dropdown & Plan Badge */}
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-1.5 shrink-0">
               <div className="hidden sm:block">
                 <PlanBadge />
               </div>
@@ -275,17 +326,17 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
               ) : (
                 <Link
                   href="/login"
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 px-4 py-2 text-xs font-black text-white transition-all duration-300 shadow-glow whitespace-nowrap shrink-0 border border-indigo-500/30 hover:scale-[1.02] active:scale-95"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 px-3 py-2 text-[11px] font-black text-white transition-all duration-300 shadow-sm whitespace-nowrap shrink-0 border border-indigo-500/30 hover:scale-[1.02] active:scale-95"
                 >
                   {tText("Login")}
                 </Link>
               )}
             </div>
 
-            {/* Mobile Nav Toggle */}
+            {/* Mobile Nav Toggle - hidden at lg (1024px+) */}
             <button 
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg text-slate-500 hover:text-slate-950 dark:text-slate-400 dark:hover:text-white md:hidden cursor-pointer"
+              className="p-2 hover:bg-accent/50 rounded-lg text-muted-foreground hover:text-foreground lg:hidden cursor-pointer"
               aria-label="Toggle mobile menu"
               title="Toggle mobile menu"
             >
@@ -295,16 +346,16 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
         </div>
       </header>
 
-      {/* Mobile Menu Panel */}
+      {/* Mobile Menu Panel - hidden at lg+ */}
       {mobileMenuOpen && (
-        <div className="mobile-menu-panel md:hidden border-b border-border bg-background p-4 space-y-3 animate-fadeIn relative z-30">
+        <div className="mobile-menu-panel lg:hidden border-b border-border bg-background p-4 space-y-3 animate-fadeIn relative z-30">
           <div className="flex flex-col gap-2 pt-2 border-t border-border">
-            <Link onClick={() => setMobileMenuOpen(false)} href="/pricing" className="flex items-center justify-center gap-2 text-sm text-amber-400 font-bold py-2 border border-amber-500/20 bg-amber-500/5 rounded-lg">
+            <Link onClick={() => setMobileMenuOpen(false)} href="/pricing" className="flex items-center justify-center gap-2 text-sm font-black text-white bg-gradient-to-r from-amber-500 to-orange-600 py-2.5 rounded-lg">
               <Crown className="h-4 w-4 fill-current" />
-              {tText("Premium Suite Billing")}
+              {tText("Premium Suite")}
             </Link>
             <Link onClick={() => setMobileMenuOpen(false)} href="/workspace" className="text-center text-sm bg-card border border-border text-foreground font-bold py-2 rounded-lg">
-              {tText("Open Document Workspace")}
+              <FileText className="h-4 w-4 inline-block mr-1.5" />{tText("Open Document Workspace")}
             </Link>
             <Link onClick={() => setMobileMenuOpen(false)} href="/workflows" className="flex items-center justify-center gap-2 text-sm text-indigo-500 font-bold py-2 border border-indigo-500/20 bg-indigo-500/5 rounded-lg">
               <Zap className="h-4 w-4" />
@@ -316,14 +367,11 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
             <Link onClick={() => setMobileMenuOpen(false)} href="/contact" className="text-center text-sm border border-border text-foreground font-bold py-2 rounded-lg">
               {tText("📞 Contact Support")}
             </Link>
-            <div className="flex items-center justify-between px-4 py-2 border border-border bg-card rounded-xs">
-              <span className="text-xs font-bold text-muted-foreground">{tText("Theme Mode")}</span>
-              <div className="flex items-center gap-2">
-                <ReactableGreeting />
-                <ThemeToggle />
-              </div>
+            <div className="flex items-center justify-between px-4 py-2 border border-border bg-card rounded-lg">
+              <span className="text-xs font-bold text-muted-foreground">{tText("Theme")}</span>
+              <ThemeToggle />
             </div>
-            <div className="flex items-center justify-between px-4 py-2 border border-border bg-card rounded-xs">
+            <div className="flex items-center justify-between px-4 py-2 border border-border bg-card rounded-lg">
               <span className="text-xs font-bold text-muted-foreground">{tText("Language")}</span>
               <LanguageSelector />
             </div>

@@ -15,17 +15,17 @@ export function GlobalNotice() {
   const [ytPopupVisible, setYtPopupVisible] = useState(false);
   const [isSubscribing, setIsSubscribing] = useState(false);
 
-  // Load dismissal states from sessionStorage
+  // Load dismissal states from localStorage
   useEffect(() => {
     if (settings.globalNoticeActive && settings.globalNoticeText) {
-      const dismissedBanner = sessionStorage.getItem(`dismissed-banner-${settings.globalNoticeText}`);
+      const dismissedBanner = localStorage.getItem(`dismissed-banner-${settings.globalNoticeText}`);
       setBannerVisible(!dismissedBanner);
     }
   }, [settings.globalNoticeActive, settings.globalNoticeText]);
 
   useEffect(() => {
     if (settings.popupMessageActive && settings.popupMessageText) {
-      const dismissedPopup = sessionStorage.getItem(`dismissed-popup-${settings.popupMessageText}`);
+      const dismissedPopup = localStorage.getItem(`dismissed-popup-${settings.popupMessageText}`);
       setPopupVisible(!dismissedPopup);
     }
   }, [settings.popupMessageActive, settings.popupMessageText]);
@@ -33,14 +33,14 @@ export function GlobalNotice() {
   const handleDismissBanner = () => {
     setBannerVisible(false);
     if (settings.globalNoticeText) {
-      sessionStorage.setItem(`dismissed-banner-${settings.globalNoticeText}`, "true");
+      localStorage.setItem(`dismissed-banner-${settings.globalNoticeText}`, "true");
     }
   };
 
   const handleDismissPopup = () => {
     setPopupVisible(false);
     if (settings.popupMessageText) {
-      sessionStorage.setItem(`dismissed-popup-${settings.popupMessageText}`, "true");
+      localStorage.setItem(`dismissed-popup-${settings.popupMessageText}`, "true");
     }
   };
 
