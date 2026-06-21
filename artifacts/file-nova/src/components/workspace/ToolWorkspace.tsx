@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { 
   ArrowLeft, RefreshCw, Sparkles, AlertCircle, Search, Save, HelpCircle, 
   Undo2, Redo2, ZoomIn, ZoomOut, Activity, Info, Calendar, 
-  ChevronRight, Download, Trash2, Play, CheckCircle2, Shield, Eye, Settings2, Clock, Upload, Camera, Clipboard, FileQuestion, FolderGit, AlertTriangle, Star, CheckCircle, FileText, CloudOff, CloudLightning
+  ChevronRight, Download, Trash2, Play, CheckCircle2, Shield, Eye, Settings2, Clock, Upload, Camera, Clipboard, FileQuestion, FolderGit, AlertTriangle, Star, CheckCircle, FileText, CloudOff, CloudLightning, Settings, Sliders
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FileDropZone } from "./FileDropZone";
@@ -25,24 +25,54 @@ import { fileDatabase, DBFileRecord } from "@/lib/fileDatabase";
 import { analytics } from "@/lib/analytics";
 import { getBrandedFileName, getExtensionForMime, getOutputExtensionForSlug } from "@/hooks/useToolProcessor";
 
+export interface ToolWorkspaceStat {
+  label: string;
+  value: string;
+  tone?: "default" | "success" | "info";
+}
+
+export interface ToolControl {
+  id: string;
+  label: string;
+  type: "slider" | "toggle" | "dropdown" | "input" | "preset-grid" | "radio-cards" | "custom-target-size";
+  icon?: React.ReactNode;
+  value: any;
+  onChange: (val: any) => void;
+  min?: number;
+  max?: number;
+  step?: number;
+  options?: { label: string; value: any; desc?: string; quality?: string }[];
+  placeholder?: string;
+  advanced?: boolean;
+  unit?: string;
+  description?: string;
+  inputType?: string;
+}
+
 export interface ToolWorkspaceProps {
   toolName: string;
   toolDescription: string;
   toolIcon: React.ReactNode;
   accentColor: string;
-  configPanel: React.ReactNode;
+  configPanel?: React.ReactNode;
   previewPanel: React.ReactNode;
   onProcess: () => Promise<void>;
   isProcessing: boolean;
   progress?: number;
   isReady: boolean;
-  resultFile?: { name: string; url: string; size: string; savings?: string } | null;
+  resultFile?: { name: string; url: string; size: string; savings?: string; warning?: string } | null;
   onReset: () => void;
   maxFiles?: number;
   acceptedTypes?: string[];
   onFilesSelected: (files: File[]) => void;
   files: FileRecord[];
   error?: string | null;
+
+  // Bento config-driven options
+  controlsConfig?: ToolControl[];
+  statusPanel?: React.ReactNode;
+  stats?: ToolWorkspaceStat[];
+  processingStatus?: string;
 }
 
 export const TOOL_THEMES: Record<string, { accent: string; bg: string; border: string; text: string; gradient: string; glow: string }> = {
@@ -87,12 +117,21 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
   onFilesSelected,
   files,
   error,
+  controlsConfig,
+  statusPanel,
+  stats,
+  processingStatus,
 }) => {
   const [location, setLocation] = useLocation();
   const slug = location.replace(/^\//, "");
   const { premiumTier, premiumEnabled } = useSubscription();
   const { customFileName, setCustomFileName } = useFileStore();
   const settingsRef = useRef<HTMLDivElement>(null);
+
+  // Bento Collapsible Sidebar & Accordion states
+  const [sidebarOpen, setSidebarOpen] = useState(false); // default collapsed on PC to maximize bento space
+  const [mobileSettingsOpen, setMobileSettingsOpen] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   // Core UI States
   const [zoom, setZoom] = useState<number>(100);
@@ -684,6 +723,371 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
     );
   };
 
+  const renderControl = (ctrl: any) => {
+    switch (ctrl.type) {
+      case "preset-grid":
+        return (
+          <div key={ctrl.id} className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1">
+              {ctrl.icon}
+              {ctrl.label}
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {ctrl.options?.map((opt: any) => (
+                <button
+                  key={opt.value}
+                  onClick={() => ctrl.onChange(opt.value)}
+                  className={`p-3 rounded-xl border text-left flex flex-col justify-between h-22 hover:scale-[1.02] active:scale-98 transition-all cursor-pointer ${
+                    ctrl.value === opt.value
+                      ? "border-indigo-500 bg-indigo-500/10 shadow-lg text-white"
+                      : "border-white/[0.06] bg-slate-950/45 hover:bg-slate-900/60 text-slate-300"
+                  }`}
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <span className="text-[10px] font-black uppercase tracking-wider truncate">{opt.label}</span>
+                    {ctrl.value === opt.value && <CheckCircle2 className="h-3 w-3 text-indigo-400" />}
+                  </div>
+                  <div>
+                    <p className="text-[9px] text-slate-400 font-medium leading-none truncate">{opt.desc}</p>
+                    {opt.quality && <p className="text-[8px] text-slate-500 font-mono mt-1">{opt.quality}</p>}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      case "toggle":
+        return (
+          <label key={ctrl.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-950/45 border border-white/[0.04] cursor-pointer hover:bg-slate-900/40 transition">
+            <div className="flex items-center gap-2 text-xs font-medium text-slate-300">
+              {ctrl.icon}
+              <span>{ctrl.label}</span>
+            </div>
+            <input
+              type="checkbox"
+              checked={ctrl.value}
+              onChange={(e) => ctrl.onChange(e.target.checked)}
+              className="h-4 w-4 rounded border-white/10 text-indigo-650 focus:ring-0 cursor-pointer"
+            />
+          </label>
+        );
+      case "dropdown":
+        return (
+          <div key={ctrl.id} className="space-y-1.5">
+            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1">
+              {ctrl.icon}
+              {ctrl.label}
+            </label>
+            <select
+              value={ctrl.value}
+              onChange={(e) => ctrl.onChange(e.target.value)}
+              title={ctrl.label}
+              className="w-full bg-slate-950/60 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 font-bold"
+            >
+              {ctrl.options?.map((opt: any) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+        );
+      case "slider":
+        return (
+          <div key={ctrl.id} className="space-y-1.5">
+            <div className="flex justify-between text-[10px] font-black uppercase tracking-wider text-slate-400">
+              <span className="flex items-center gap-1">{ctrl.icon}{ctrl.label}</span>
+              <span className="font-mono text-indigo-400">{ctrl.value}{ctrl.unit || ""}</span>
+            </div>
+            <input
+              type="range"
+              min={ctrl.min ?? 0}
+              max={ctrl.max ?? 100}
+              step={ctrl.step ?? 1}
+              value={ctrl.value}
+              onChange={(e) => ctrl.onChange(Number(e.target.value))}
+              title={ctrl.label}
+              placeholder={ctrl.placeholder || ctrl.label}
+              className="w-full h-1.5 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+            />
+          </div>
+        );
+      case "input":
+        return (
+          <div key={ctrl.id} className="space-y-1.5">
+            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1">
+              {ctrl.icon}
+              {ctrl.label}
+            </label>
+            <div className="flex gap-2">
+              <input
+                type={ctrl.inputType || "text"}
+                value={ctrl.value}
+                onChange={(e) => ctrl.onChange(e.target.value)}
+                placeholder={ctrl.placeholder}
+                title={ctrl.label}
+                className="flex-1 bg-slate-950/60 border border-white/10 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono"
+              />
+              {ctrl.unit && (
+                <span className="bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-[10px] font-bold text-slate-400 flex items-center justify-center">
+                  {ctrl.unit}
+                </span>
+              )}
+            </div>
+            {ctrl.description && <p className="text-[9px] text-slate-500 leading-normal">{ctrl.description}</p>}
+          </div>
+        );
+      case "radio-cards":
+        return (
+          <div key={ctrl.id} className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1" id={`label-${ctrl.id}`}>
+              {ctrl.icon}
+              {ctrl.label}
+            </label>
+            <div className="flex flex-col gap-2" role="radiogroup" aria-labelledby={`label-${ctrl.id}`}>
+              {ctrl.options?.map((opt: any) => {
+                const isSelected = ctrl.value === opt.value;
+                return (
+                  <label
+                    key={opt.value}
+                    className={`w-full p-3 rounded-xl border text-left flex items-center gap-3 transition-all duration-200 cursor-pointer ${
+                      isSelected
+                        ? "border-blue-500/50 bg-blue-500/10 text-white shadow-[0_0_15px_rgba(59,130,246,0.1)]"
+                        : "border-white/[0.06] bg-slate-955/45 hover:bg-slate-900/60 text-slate-300"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name={ctrl.id}
+                      checked={isSelected}
+                      onChange={() => ctrl.onChange(opt.value)}
+                      className="sr-only"
+                    />
+                    <div className={`h-4.5 w-4.5 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
+                      isSelected ? "border-blue-500 bg-blue-500" : "border-white/20"
+                    }`}>
+                      {isSelected && <div className="h-2 w-2 rounded-full bg-white" />}
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-xs font-bold leading-tight">{opt.label}</span>
+                      {opt.desc && <span className="text-[10px] text-slate-500 leading-normal mt-0.5">{opt.desc}</span>}
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+        );
+      case "custom-target-size": {
+        const { targetSize, targetSizeUnit, autoAdjust = true } = ctrl.value || { targetSize: "1500", targetSizeUnit: "MB", autoAdjust: true };
+        const kbVal = parseInt(targetSize) || 200;
+        const maxMb = ctrl.max || 4.8;
+        const minMb = ctrl.min || 0.2;
+
+        const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+          const val = parseFloat(e.target.value);
+          let newKb = 200;
+          if (targetSizeUnit === "MB") {
+            newKb = Math.round(val * 1024);
+          } else {
+            newKb = Math.round(val);
+          }
+          ctrl.onChange({ targetSize: String(newKb), targetSizeUnit, autoAdjust });
+        };
+
+        const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+          const rawInput = e.target.value;
+          const val = parseFloat(rawInput) || 0;
+          let newKb = 200;
+          if (targetSizeUnit === "MB") {
+            newKb = Math.round(val * 1024);
+          } else {
+            newKb = Math.round(val);
+          }
+          
+          const maxKb = Math.round(maxMb * 1024);
+          const minKb = Math.round(minMb * 1024);
+          const clampedKb = Math.max(minKb, Math.min(maxKb, newKb));
+          
+          ctrl.onChange({ targetSize: String(clampedKb), targetSizeUnit, autoAdjust });
+        };
+
+        const handleUnitChange = (newUnit: "MB" | "KB") => {
+          ctrl.onChange({ targetSize, targetSizeUnit: newUnit, autoAdjust });
+        };
+
+        const handleCheckboxChange = (checked: boolean) => {
+          ctrl.onChange({ targetSize, targetSizeUnit, autoAdjust: checked });
+        };
+
+        const sMin = targetSizeUnit === "MB" ? minMb : Math.round(minMb * 1024);
+        const sMax = targetSizeUnit === "MB" ? maxMb : Math.round(maxMb * 1024);
+        const sStep = targetSizeUnit === "MB" ? 0.1 : 10;
+        const sVal = targetSizeUnit === "MB" ? parseFloat((kbVal / 1024).toFixed(2)) : kbVal;
+
+        const formattedDisplayStr = targetSizeUnit === "MB" 
+          ? `${(kbVal / 1024).toFixed(1)} MB` 
+          : `${kbVal} KB`;
+
+        return (
+          <div key={ctrl.id} className="p-4 rounded-xl bg-slate-950/60 border border-blue-500/20 space-y-4 shadow-[0_0_15px_rgba(59,130,246,0.05)] transition-all duration-300 hover:scale-[1.005] hover:shadow-lg">
+            <div className="flex justify-between items-center text-xs font-black uppercase tracking-wider text-slate-300">
+              <span>{ctrl.label}</span>
+              <span className="font-mono text-blue-400 text-[13px]">{formattedDisplayStr}</span>
+            </div>
+
+            <div className="space-y-1">
+              <input
+                type="range"
+                min={sMin}
+                max={sMax}
+                step={sStep}
+                value={sVal}
+                onChange={handleSliderChange}
+                className="w-full h-1.5 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                title="Target size slider"
+              />
+              <div className="flex justify-between text-[9px] font-mono text-slate-500">
+                <span>{targetSizeUnit === "MB" ? `${minMb} MB` : `${Math.round(minMb * 1024)} KB`}</span>
+                <span>{targetSizeUnit === "MB" ? `${maxMb} MB` : `${Math.round(maxMb * 1024)} KB`}</span>
+              </div>
+            </div>
+
+            <div className="flex gap-2 items-center">
+              <div className="relative flex-1">
+                <input
+                  type="number"
+                  step={sStep}
+                  value={targetSizeUnit === "MB" ? parseFloat((kbVal / 1024).toFixed(2)) : kbVal}
+                  onChange={handleInputChange}
+                  className="w-full bg-slate-950/80 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 font-mono"
+                  placeholder="e.g. 1.5"
+                  title="Target size input"
+                />
+              </div>
+              
+              <div className="relative">
+                <select
+                  value={targetSizeUnit}
+                  onChange={(e) => handleUnitChange(e.target.value as any)}
+                  title="Target size unit selection"
+                  className="bg-slate-950/80 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 font-bold appearance-none pr-8 cursor-pointer"
+                >
+                  <option value="MB">MB</option>
+                  <option value="KB">KB</option>
+                </select>
+                <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                  <ChevronRight className="h-3 w-3 rotate-90" />
+                </div>
+              </div>
+            </div>
+
+            <label className="flex items-center gap-2 cursor-pointer text-[10px] font-semibold text-slate-400 select-none hover:text-slate-300 transition">
+              <input
+                type="checkbox"
+                checked={autoAdjust}
+                onChange={(e) => handleCheckboxChange(e.target.checked)}
+                className="h-3.5 w-3.5 rounded border-white/10 text-blue-600 focus:ring-0 cursor-pointer"
+              />
+              <span>Quality auto-adjusts to hit this size</span>
+            </label>
+          </div>
+        );
+      }
+      default:
+        return null;
+    }
+  };
+
+  const renderSettingsSidebarContent = () => {
+    if (controlsConfig && controlsConfig.length > 0) {
+      const coreControls = controlsConfig.filter(c => !c.advanced);
+      const advancedControls = controlsConfig.filter(c => c.advanced);
+
+      return (
+        <div className="space-y-5">
+          <div>
+            <h3 className="text-xs font-black uppercase tracking-wider text-slate-300 mb-1">Tool Settings</h3>
+            <p className="text-[10px] text-slate-500 font-medium">Configure parameters for {toolName}.</p>
+          </div>
+
+          {/* Core Controls */}
+          <div className="space-y-4">
+            {coreControls.map(renderControl)}
+          </div>
+
+          {/* Advanced Controls Accordion */}
+          {advancedControls.length > 0 && (
+            <div className="border-t border-white/5 pt-4 space-y-3">
+              <button
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="flex items-center justify-between w-full text-[10px] font-black uppercase tracking-wider text-slate-400 hover:text-white transition cursor-pointer"
+              >
+                <span>Advanced Parameters</span>
+                <span className={`transition-transform duration-200 ${showAdvanced ? "rotate-90" : ""}`}>
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </span>
+              </button>
+
+              <AnimatePresence>
+                {showAdvanced && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden space-y-4 pt-1"
+                  >
+                    {advancedControls.map(renderControl)}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    return configPanel;
+  };
+
+  const renderStatStrip = () => {
+    if (files.length === 0) return null;
+
+    const renderCard = (label: string, value: string, tone?: "default" | "success" | "info", idx?: number) => {
+      let toneClasses = "text-white border-white/10 dark:border-white/10 bg-slate-900/10";
+      if (tone === "success") {
+        toneClasses = "text-emerald-400 border-emerald-500/20 dark:border-emerald-500/20 bg-emerald-500/5 shadow-[0_0_15px_rgba(16,185,129,0.05)]";
+      } else if (tone === "info") {
+        toneClasses = "text-blue-400 border-blue-500/20 dark:border-blue-500/20 bg-blue-500/5 shadow-[0_0_15px_rgba(59,130,246,0.05)]";
+      }
+
+      return (
+        <div 
+          key={idx !== undefined ? idx : label} 
+          className={`glass border rounded-2xl p-4 shadow-soft flex flex-col justify-between hover:scale-[1.01] transition-all duration-200 ${toneClasses}`}
+        >
+          <span className="text-[10px] font-black uppercase text-slate-500 tracking-wider">{label}</span>
+          <span className="text-sm font-black mt-1.5 font-mono truncate">{value}</span>
+        </div>
+      );
+    };
+
+    if (stats && stats.length > 0) {
+      return (
+        <div className="grid grid-cols-3 gap-4 shrink-0">
+          {stats.map((s, idx) => renderCard(s.label, s.value, s.tone, idx))}
+        </div>
+      );
+    }
+
+    const totalSizeBytes = files.reduce((acc, f) => acc + f.size, 0);
+    return (
+      <div className="grid grid-cols-3 gap-4 shrink-0">
+        {renderCard("Original Size", formatBytes(totalSizeBytes), "default")}
+        {renderCard("Queue Size", `${files.length} ${files.length === 1 ? 'file' : 'files'}`, "info")}
+        {renderCard("Status", resultFile ? "Done" : "Ready", resultFile ? "success" : "default")}
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-[#090d16] text-[#f8fafc] flex flex-col font-sans select-none overflow-x-hidden relative">
       <style>{`
@@ -726,7 +1130,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
               placeholder="Search or Ctrl + K..."
-              className="w-full bg-slate-950/80 border border-white/15 rounded-xl pl-8 pr-3 py-1 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+              className="w-full bg-slate-955/80 border border-white/15 rounded-xl pl-8 pr-3 py-1 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
             />
           </div>
 
@@ -752,12 +1156,22 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
 
         {/* Header Controls */}
         <div className="flex items-center gap-2.5">
+          <button
+            onClick={() => setSidebarOpen(prev => !prev)}
+            title="Toggle workspace project library sidebar"
+            aria-label="Toggle Project Library"
+            className="px-2 py-1 md:px-2.5 md:py-1.5 rounded-xl border border-white/10 bg-slate-955/40 text-[10px] font-black uppercase tracking-wider text-slate-355 hover:text-white flex items-center gap-1 transition cursor-pointer"
+          >
+            <FolderGit className="h-3.5 w-3.5" />
+            <span className="hidden md:inline">Project Library</span>
+          </button>
+
           {recentFiles.length > 0 && (
             <div className="relative group">
               <button 
                 title="View recent processed files"
                 aria-label="View recent processed files"
-                className="px-2 py-1 md:px-2.5 md:py-1.5 rounded-xl border border-white/10 bg-slate-950/40 text-[10px] font-black uppercase tracking-wider text-slate-300 hover:text-white flex items-center gap-1 transition cursor-pointer"
+                className="px-2 py-1 md:px-2.5 md:py-1.5 rounded-xl border border-white/10 bg-slate-955/40 text-[10px] font-black uppercase tracking-wider text-slate-300 hover:text-white flex items-center gap-1 transition cursor-pointer"
               >
                 <Clock className="h-3.5 w-3.5" />
                 <span className="hidden md:inline">Recent</span>
@@ -784,7 +1198,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
           <button
             onClick={handleSaveSession}
             disabled={!hasFiles}
-            className="px-2 py-1 md:px-2.5 md:py-1.5 rounded-xl border border-white/10 bg-slate-950/40 text-[10px] font-black uppercase tracking-wider text-slate-355 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 transition cursor-pointer"
+            className="px-2 py-1 md:px-2.5 md:py-1.5 rounded-xl border border-white/10 bg-slate-955/40 text-[10px] font-black uppercase tracking-wider text-slate-355 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 transition cursor-pointer"
             title="Save workspace file queue"
             aria-label="Save workspace file queue"
           >
@@ -795,7 +1209,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
           {/* Polishing: Panic Storage shredder button */}
           <button
             onClick={handlePanicShredder}
-            className="px-2 py-1 md:px-2.5 md:py-1.5 rounded-xl border border-rose-500/20 bg-rose-550/10 hover:bg-rose-600 text-[10px] font-black uppercase tracking-wider text-rose-400 hover:text-white transition cursor-pointer flex items-center justify-center animate-pulse-subtle"
+            className="px-2 py-1 md:px-2.5 md:py-1.5 rounded-xl border border-rose-500/20 bg-rose-550/10 hover:bg-rose-650 text-[10px] font-black uppercase tracking-wider text-rose-400 hover:text-white transition cursor-pointer flex items-center justify-center animate-pulse-subtle"
             title="Permanently delete all workspace database cache files"
             aria-label="Panic Shredder Purge"
           >
@@ -807,7 +1221,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
             onClick={() => setHelpOpen(prev => !prev)}
             title="Toggle help documentation"
             aria-label="Toggle help documentation"
-            className="p-1.5 rounded-xl border border-white/10 bg-slate-950/40 text-slate-400 hover:text-white transition cursor-pointer"
+            className="p-1.5 rounded-xl border border-white/10 bg-slate-955/40 text-slate-400 hover:text-white transition cursor-pointer"
           >
             <HelpCircle className="h-4 w-4" />
           </button>
@@ -842,12 +1256,12 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
       {/* WORKSPACE PANELS CONTAINER */}
       {!hasFiles ? (
         /* UNIVERSAL UPLOAD HUB EMPTY STATE */
-        <div className="flex-1 flex flex-col items-center justify-center p-6 max-w-xl mx-auto w-full">
+        <div className="flex-1 flex flex-col items-center justify-center p-6 max-w-xl mx-auto w-full animate-fade-up">
           <div className="w-full bg-slate-900/40 border border-white/[0.08] rounded-3xl p-6 sm:p-10 shadow-2xl backdrop-blur-2xl text-center space-y-4">
             <div className="flex justify-center gap-4 text-slate-400 text-xs font-bold mb-2">
               <button title="Upload document" className="flex items-center gap-1 p-2 rounded-xl bg-slate-950/60 border border-white/5 hover:bg-slate-800 transition"><Upload className="h-4 w-4 text-indigo-400" /> Upload Any File</button>
               <button title="Take photo from camera" className="flex items-center gap-1 p-2 rounded-xl bg-slate-950/60 border border-white/5 hover:bg-slate-800 transition"><Camera className="h-4 w-4 text-emerald-400" /> Camera</button>
-              <button title="Paste image from clipboard" className="flex items-center gap-1 p-2 rounded-xl bg-slate-950/60 border border-white/5 hover:bg-slate-800 transition"><Clipboard className="h-4 w-4 text-sky-400" /> Paste Image</button>
+              <button title="Paste image from clipboard" className="flex items-center gap-1 p-2 rounded-xl bg-slate-955/60 border border-white/5 hover:bg-slate-800 transition"><Clipboard className="h-4 w-4 text-sky-400" /> Paste Image</button>
             </div>
 
             <h2 className="text-sm font-black uppercase tracking-wider text-slate-350">
@@ -863,7 +1277,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
             />
 
             {detectedType && (
-              <div className="p-4 bg-slate-950/80 border border-white/5 rounded-2xl space-y-2 text-left animate-fade-up">
+              <div className="p-4 bg-slate-955/80 border border-white/5 rounded-2xl space-y-2 text-left animate-fade-up">
                 <div className="text-[10px] font-black uppercase text-indigo-400 flex items-center gap-1">
                   <FileQuestion className="h-4 w-4" /> Detected {detectedType.toUpperCase()} Format
                 </div>
@@ -878,7 +1292,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                         onClick={() => {
                           setLocation(`/${toolId}`);
                         }}
-                        className="px-2.5 py-1.5 rounded-xl bg-indigo-600/10 hover:bg-indigo-600 text-white text-[10px] font-black border border-indigo-500/20 transition cursor-pointer"
+                        className="px-2.5 py-1.5 rounded-xl bg-indigo-650/10 hover:bg-indigo-650 text-white text-[10px] font-black border border-indigo-500/20 transition cursor-pointer"
                       >
                         {toolObj.name}
                       </button>
@@ -890,658 +1304,606 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
           </div>
         </div>
       ) : (
-        /* 5-PANEL WORKSPACE */
-        <div className="flex-1 flex flex-col md:grid md:grid-cols-12 overflow-hidden h-[calc(100vh-3.5rem)]">
+        /* BENTO GRID WORKSPACE WITH COLLAPSIBLE SIDEBAR */
+        <div className="flex-1 flex overflow-hidden h-[calc(100vh-3.5rem)]">
           
-          {/* LEFT SIDEBAR (Col span 3) */}
-          <aside className="hidden md:flex md:col-span-3 border-r border-white/[0.06] bg-slate-900/20 p-4 flex-col gap-5 overflow-y-auto">
-            
-            {/* User Projects Section */}
-            <div className="space-y-3">
-              <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1">
-                <FolderGit className="h-3.5 w-3.5 text-indigo-400" /> Active Project Sandbox
-              </h3>
-              
-              <div className="flex gap-1.5">
-                <select
-                  value={currentProject}
-                  onChange={(e) => handleProjectChange(e.target.value)}
-                  title="Select active user project container"
-                  className="flex-1 bg-slate-950/60 border border-white/10 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500 font-bold"
-                >
-                  {projectsList.map(proj => (
-                    <option key={proj} value={proj}>{proj}</option>
-                  ))}
-                </select>
-                <button
-                  onClick={() => setShowAddProject(prev => !prev)}
-                  className="px-2.5 bg-indigo-650 hover:bg-indigo-550 rounded-xl text-white font-black text-xs cursor-pointer"
-                  title="Create new project folder"
-                >
-                  +
-                </button>
-              </div>
-
-              {showAddProject && (
-                <form onSubmit={handleAddProject} className="flex gap-1.5 animate-fade-up">
-                  <input
-                    type="text"
-                    required
-                    value={newProjectName}
-                    onChange={(e) => setNewProjectName(e.target.value)}
-                    placeholder="New project name..."
-                    className="flex-1 bg-slate-950 border border-white/10 rounded-xl p-1.5 text-[10px] text-white focus:outline-none focus:border-indigo-500"
-                  />
-                  <button type="submit" className="px-2.5 bg-emerald-600 text-white rounded-xl text-[9px] font-black uppercase cursor-pointer">Add</button>
-                </form>
-              )}
-            </div>
-
-            {/* Global File Manager Tabs (Current Queue / Recent / Downloads / Favorites) */}
-            <div className="space-y-3 flex-1 flex flex-col min-h-0">
-              <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center justify-between">
-                <span>Global File Manager</span>
-                <span className="text-[8px] font-mono text-slate-600 bg-slate-950 px-1 py-0.5 rounded uppercase">{activeTab} view</span>
-              </h3>
-
-              {/* Tab selector */}
-              <div className="grid grid-cols-4 gap-1 p-1 bg-slate-950/60 rounded-xl border border-white/5">
-                {(["current", "recent", "downloads", "favorites"] as const).map(tab => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`text-[9px] font-black uppercase py-1 rounded-lg transition text-center cursor-pointer ${
-                      activeTab === tab 
-                        ? "bg-indigo-600 text-white shadow" 
-                        : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
-                    }`}
-                  >
-                    {tab === "current" ? "Queue" : tab}
-                  </button>
-                ))}
-              </div>
-
-              {/* Tab Content List */}
-              <div className="flex-1 overflow-y-auto bg-slate-950/45 border border-white/[0.04] rounded-2xl p-2 space-y-1.5 min-h-[150px] max-h-[250px]">
-                {activeTab === "current" ? (
-                  files.length === 0 ? (
-                    <span className="text-[9px] text-slate-600 block text-center py-6">No files currently in active processing queue.</span>
-                  ) : (
-                    files.map((f, idx) => (
-                      <div key={f.id} className="flex flex-col gap-1 text-[11px] bg-slate-900/50 p-2.5 rounded-xl border border-white/[0.02]">
-                        <span className="truncate font-bold text-slate-200">{idx + 1}. {f.name}</span>
-                        <span className="text-[9px] font-mono text-slate-500">{formatBytes(f.size)} &bull; {f.type.split("/")[1]?.toUpperCase() || "UNKNOWN"}</span>
-                      </div>
-                    ))
-                  )
-                ) : (
-                  libraryFiles.length === 0 ? (
-                    <span className="text-[9px] text-slate-600 block text-center py-6">No files stored in project sandbox library.</span>
-                  ) : (
-                    libraryFiles.map((lf) => (
-                      <div key={lf.id} className="flex items-center justify-between text-[11px] bg-slate-900/40 p-2 rounded-xl border border-white/[0.02] hover:bg-slate-900/80 transition group">
-                        <div className="min-w-0 flex-1 pr-2">
-                          <span className="font-bold text-slate-300 block truncate" title={lf.name}>{lf.name}</span>
-                          <span className="text-[8.5px] font-mono text-slate-500 block">{formatBytes(lf.size)}</span>
-                        </div>
-                        <div className="flex items-center gap-1 shrink-0 opacity-40 group-hover:opacity-100 transition-opacity">
-                          <button
-                            onClick={() => handleImportLibraryFile(lf)}
-                            title="Load into workspace raw files queue"
-                            className="p-1 rounded bg-slate-950 hover:bg-indigo-650 hover:text-white text-indigo-400 cursor-pointer"
-                          >
-                            <Play className="h-3 w-3 fill-current" />
-                          </button>
-                          <button
-                            onClick={() => handleToggleFavoriteFile(lf)}
-                            title="Add/remove favorite"
-                            className={`p-1 rounded bg-slate-950 hover:bg-amber-600 hover:text-white cursor-pointer ${
-                              lf.category === "Favorites" ? "text-amber-400" : "text-slate-500"
-                            }`}
-                          >
-                            <Star className="h-3 w-3 fill-current" />
-                          </button>
-                          <button
-                            onClick={() => handleDownloadLibraryFile(lf)}
-                            title="Download file blob"
-                            className="p-1 rounded bg-slate-950 hover:bg-slate-800 text-slate-400 cursor-pointer"
-                          >
-                            <Download className="h-3 w-3" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteLibraryFile(lf.id)}
-                            title="Delete file permanently"
-                            className="p-1 rounded bg-slate-950 hover:bg-rose-950 hover:text-rose-400 text-rose-500 cursor-pointer"
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </button>
-                        </div>
-                      </div>
-                    ))
-                  )
-                )}
-              </div>
-            </div>
-
-            {/* Offline Diagnostics Alert Caching Container */}
-            <div className="space-y-3">
-              <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-500">Offline Caching & Sync</h3>
-              <div className="p-3 bg-slate-950/80 border border-white/5 rounded-2xl text-[10px] space-y-2 leading-relaxed">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-400">IndexedDB status:</span>
-                  <span className="text-emerald-400 font-black uppercase">Active</span>
-                </div>
-                
-                {/* Phase 4: Database Storage Size Indicators and Warnings */}
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-400">Total Cache Size:</span>
-                  <span className={`font-mono ${dbSize > 100 * 1024 * 1024 ? "text-rose-400 font-bold" : "text-indigo-300"}`}>
-                    {formatBytes(dbSize)}
-                  </span>
-                </div>
-
-                {dbSize > 100 * 1024 * 1024 && (
-                  <div className="p-2 rounded-xl bg-rose-950/50 border border-rose-500/20 text-rose-405 flex items-start gap-1">
-                    <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5 text-rose-400 animate-pulse" />
-                    <span>Cache exceeds 100MB. Consider clearing old projects.</span>
-                  </div>
-                )}
-                
-                {/* Offline Warnings Block */}
-                {!isOnline ? (
-                  <div className="p-2 rounded-xl bg-red-950/50 border border-red-500/20 text-red-400 flex items-start gap-1">
-                    <CloudOff className="h-3.5 w-3.5 shrink-0 mt-0.5 text-red-400" />
-                    <span>Internet offline. Cloud-based conversions will fail until reconnected.</span>
-                  </div>
-                ) : (
-                  <div className="p-2 rounded-xl bg-emerald-950/50 border border-emerald-500/20 text-emerald-400 flex items-start gap-1">
-                    <CloudLightning className="h-3.5 w-3.5 shrink-0 mt-0.5 text-emerald-400" />
-                    <span>Synchronized with cloud server gateway. Offline fallbacks active.</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Related Tools */}
-            <div className="space-y-3 mt-auto">
-              <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-500">Related Tools</h3>
-              <div className="grid grid-cols-1 gap-2">
-                {currentPlugin.relatedTools.map(tSlug => {
-                  const item = TOOL_REGISTRY[tSlug];
-                  if (!item) return null;
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => setLocation(`/${item.id}`)}
-                      className="w-full p-2.5 rounded-xl border border-white/[0.04] bg-slate-950/60 hover:bg-slate-900 hover:border-indigo-500/20 text-left transition flex items-center gap-2 cursor-pointer"
+          {/* LEFT SIDEBAR - Collapsible (spans width on desktop, slides in) */}
+          <AnimatePresence>
+            {sidebarOpen && (
+              <motion.aside
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: "22rem", opacity: 1 }}
+                exit={{ width: 0, opacity: 0 }}
+                className="hidden lg:flex border-r border-white/[0.06] bg-slate-955/20 p-4 flex-col gap-5 overflow-y-auto h-full shrink-0"
+              >
+                {/* User Projects Section */}
+                <div className="space-y-3">
+                  <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1">
+                    <FolderGit className="h-3.5 w-3.5 text-indigo-400" /> Active Project Sandbox
+                  </h3>
+                  
+                  <div className="flex gap-1.5">
+                    <select
+                      value={currentProject}
+                      onChange={(e) => handleProjectChange(e.target.value)}
+                      title="Select active user project container"
+                      className="flex-1 bg-slate-950/60 border border-white/10 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500 font-bold"
                     >
-                      <div className="h-6 w-6 rounded bg-slate-900 flex items-center justify-center text-[10px]">🛠️</div>
-                      <div>
-                        <span className="text-[10px] font-black block text-slate-355">{item.name}</span>
-                      </div>
+                      {projectsList.map(proj => (
+                        <option key={proj} value={proj}>{proj}</option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={() => setShowAddProject(prev => !prev)}
+                      className="px-2.5 bg-indigo-650 hover:bg-indigo-550 rounded-xl text-white font-black text-xs cursor-pointer"
+                      title="Create new project folder"
+                    >
+                      +
                     </button>
-                  );
-                })}
-              </div>
-            </div>
-          </aside>
+                  </div>
 
-          {/* CENTER PANEL (Col span 6) */}
-          <main
-            onDragOver={handleCanvasDragOver}
-            onDragLeave={handleCanvasDragLeave}
-            onDrop={handleCanvasDrop}
-            className={`flex-1 md:col-span-6 flex flex-col overflow-y-auto border-r border-white/[0.06] p-4 gap-4 relative transition-colors ${
-              isDraggingCanvas ? "bg-indigo-650/15 border-dashed border-2 border-indigo-500 m-2 rounded-3xl" : ""
-            }`}
-          >
-            {/* Toolbar Canvas Header */}
-            <div className="flex items-center justify-between border-b border-white/[0.06] pb-3 text-xs text-slate-400">
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => {
-                    toast.info("Undone");
-                    trackEvent({ tool: slug, action: "undo_click" });
-                  }}
-                  className="p-1 rounded hover:bg-white/5 transition"
-                  title="Undo (Ctrl + Z)"
-                  aria-label="Undo"
-                >
-                  <Undo2 className="h-3.5 w-3.5" />
-                </button>
-                <button
-                  onClick={() => {
-                    toast.info("Redone");
-                    trackEvent({ tool: slug, action: "redo_click" });
-                  }}
-                  className="p-1 rounded hover:bg-white/5 transition"
-                  title="Redo (Ctrl + Shift + Z)"
-                  aria-label="Redo"
-                >
-                  <Redo2 className="h-3.5 w-3.5" />
-                </button>
-                <span className="text-slate-600">|</span>
-                <button
-                  onClick={() => setZoom(z => Math.max(50, z - 25))}
-                  className="p-1 rounded hover:bg-white/5 transition"
-                  title="Zoom Out"
-                  aria-label="Zoom Out"
-                >
-                  <ZoomOut className="h-3.5 w-3.5" />
-                </button>
-                <span className="font-mono text-[9.5px] font-bold">{zoom}%</span>
-                <button
-                  onClick={() => setZoom(z => Math.min(200, z + 25))}
-                  className="p-1 rounded hover:bg-white/5 transition"
-                  title="Zoom In"
-                  aria-label="Zoom In"
-                >
-                  <ZoomIn className="h-3.5 w-3.5" />
-                </button>
-              </div>
-
-              {/* Offline vs cloud diagnostic compatibility badges */}
-              <div className="flex items-center gap-2">
-                {currentPlugin.capabilities.offlineReady ? (
-                  <span className="text-[9.5px] font-black uppercase text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                    <span className="hidden md:inline">Offline Enabled (Secure Local Processing)</span>
-                    <span className="md:hidden">Offline Secure</span>
-                  </span>
-                ) : (
-                  <span className="text-[9.5px] font-black uppercase text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20">
-                    <span className="hidden md:inline">Cloud API Required</span>
-                    <span className="md:hidden">Cloud API</span>
-                  </span>
-                )}
-              </div>
-
-              {/* Mobile settings scroll shortcut */}
-              {hasFiles && (
-                <button
-                  onClick={() => settingsRef.current?.scrollIntoView({ behavior: 'smooth' })}
-                  className="md:hidden px-2 py-1 bg-slate-900 border border-white/10 rounded-lg text-[10px] font-black uppercase text-slate-300 hover:text-white flex items-center gap-1.5 transition cursor-pointer"
-                >
-                  <Settings2 className="h-3.5 w-3.5 text-indigo-400 animate-spin-slow" />
-                  <span>Settings</span>
-                </button>
-              )}
-            </div>
-
-            {/* Phase 2: Workflow Pipeline Stepper */}
-            {featureFlags.workflowEngine && (
-              <div className="w-full bg-slate-950/60 border border-white/[0.04] p-3 rounded-2xl backdrop-blur flex items-center justify-between text-[10.5px]">
-                <span className="text-[9px] font-black uppercase text-slate-500 select-none shrink-0 pr-2 border-r border-white/5">Workflow Queue</span>
-                <div className="flex-1 flex items-center justify-around px-2 min-w-0">
-                  {getPipelineSteps().map((step, idx) => (
-                    <React.Fragment key={step.id}>
-                      {idx > 0 && (
-                        <div className={`flex-1 h-0.5 mx-2 max-w-[40px] border-t-2 border-dashed ${
-                          step.status === "pending" ? "border-white/5" : "border-indigo-500/40"
-                        }`} />
-                      )}
-                      <div className="flex items-center gap-1.5 min-w-0">
-                        <div className={`h-5 w-5 rounded-full flex items-center justify-center font-bold text-[9px] shrink-0 border ${
-                          step.status === "done" ? "bg-emerald-600/20 text-emerald-400 border-emerald-500" :
-                          step.status === "active" ? "bg-indigo-650 text-white border-indigo-500 animate-pulse" :
-                          "bg-slate-900 text-slate-600 border-white/5"
-                        }`}>
-                          {step.status === "done" ? "✓" : idx + 1}
-                        </div>
-                        <span className={`truncate font-bold select-none ${
-                          step.status === "active" ? "text-indigo-400 inline" : 
-                          step.status === "done" ? "text-slate-300 hidden md:inline" : "text-slate-600 hidden md:inline"
-                        }`}>
-                          {step.label}
-                        </span>
-                      </div>
-                    </React.Fragment>
-                  ))}
+                  {showAddProject && (
+                    <form onSubmit={handleAddProject} className="flex gap-1.5 animate-fade-up">
+                      <input
+                        type="text"
+                        required
+                        value={newProjectName}
+                        onChange={(e) => setNewProjectName(e.target.value)}
+                        placeholder="New project name..."
+                        className="flex-1 bg-slate-950 border border-white/10 rounded-xl p-1.5 text-[10px] text-white focus:outline-none focus:border-indigo-500"
+                      />
+                      <button type="submit" className="px-2.5 bg-emerald-600 text-white rounded-xl text-[9px] font-black uppercase cursor-pointer">Add</button>
+                    </form>
+                  )}
                 </div>
-              </div>
-            )}
 
-            {/* DECOUPLED COMPONENT REGISTRY RENDER WITH BRIGHTNESS/CONTRAST FILTERS */}
-            <div 
-              className={`flex-1 flex flex-col items-center justify-center p-1 relative overflow-hidden bg-slate-950/30 rounded-3xl border border-white/[0.05] transition-all duration-200 ${filterClassName} flex`}
-            >
-              <WorkspaceComponent
-                files={files}
-                configPanel={configPanel}
-                onReset={onReset}
-                onProcess={onProcess}
-                isReady={isReady}
-                isProcessing={isProcessing}
-                previewPanel={
-                  resultFile ? (
-                    <div className="w-full space-y-4">
-                      {/* One-click Continue Workflow Banner */}
-                      {featureFlags.workflowEngine && (
-                        <div className="p-4 bg-slate-900 border border-indigo-500/25 rounded-2xl flex items-center justify-between text-xs animate-fade-up">
-                          <div className="flex items-center gap-2">
-                            <Sparkles className="h-4.5 w-4.5 text-indigo-400 animate-pulse" />
-                            <div>
-                              <span className="font-black text-white block">Workflow Engine Suggested Step</span>
-                              <span className="text-[10px] text-slate-400">Next suggested tool: {TOOL_REGISTRY[getRecommendedTools()[0]]?.name || "Compress PDF"}</span>
+                {/* Global File Manager Tabs */}
+                <div className="space-y-3 flex-1 flex flex-col min-h-0">
+                  <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center justify-between">
+                    <span>Global File Manager</span>
+                    <span className="text-[8px] font-mono text-slate-550 bg-slate-955 px-1 py-0.5 rounded uppercase">{activeTab} view</span>
+                  </h3>
+
+                  <div className="grid grid-cols-4 gap-1 p-1 bg-slate-950/60 rounded-xl border border-white/5">
+                    {(["current", "recent", "downloads", "favorites"] as const).map(tab => (
+                      <button
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        className={`text-[9px] font-black uppercase py-1 rounded-lg transition text-center cursor-pointer ${
+                          activeTab === tab 
+                            ? "bg-indigo-650 text-white shadow" 
+                            : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                        }`}
+                      >
+                        {tab === "current" ? "Queue" : tab}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="flex-1 overflow-y-auto bg-slate-955/45 border border-white/[0.04] rounded-2xl p-2 space-y-1.5 min-h-[150px]">
+                    {activeTab === "current" ? (
+                      files.length === 0 ? (
+                        <span className="text-[9px] text-slate-600 block text-center py-6">No files currently in active processing queue.</span>
+                      ) : (
+                        files.map((f, idx) => (
+                          <div key={f.id} className="flex flex-col gap-1 text-[11px] bg-slate-900/50 p-2.5 rounded-xl border border-white/[0.02]">
+                            <span className="truncate font-bold text-slate-200">{idx + 1}. {f.name}</span>
+                            <span className="text-[9px] font-mono text-slate-550">{formatBytes(f.size)} &bull; {f.type.split("/")[1]?.toUpperCase() || "UNKNOWN"}</span>
+                          </div>
+                        ))
+                      )
+                    ) : (
+                      libraryFiles.length === 0 ? (
+                        <span className="text-[9px] text-slate-600 block text-center py-6">No files stored in project sandbox library.</span>
+                      ) : (
+                        libraryFiles.map((lf) => (
+                          <div key={lf.id} className="flex items-center justify-between text-[11px] bg-slate-900/40 p-2 rounded-xl border border-white/[0.02] hover:bg-slate-900/80 transition group">
+                            <div className="min-w-0 flex-1 pr-2">
+                              <span className="font-bold text-slate-300 block truncate" title={lf.name}>{lf.name}</span>
+                              <span className="text-[8.5px] font-mono text-slate-550 block">{formatBytes(lf.size)}</span>
+                            </div>
+                            <div className="flex items-center gap-1 shrink-0 opacity-40 group-hover:opacity-100 transition-opacity">
+                              <button
+                                onClick={() => handleImportLibraryFile(lf)}
+                                title="Load into workspace raw files queue"
+                                className="p-1 rounded bg-slate-950 hover:bg-indigo-650 hover:text-white text-indigo-400 cursor-pointer"
+                              >
+                                <Play className="h-3 w-3 fill-current" />
+                              </button>
+                              <button
+                                onClick={() => handleToggleFavoriteFile(lf)}
+                                title="Add/remove favorite"
+                                className={`p-1 rounded bg-slate-950 hover:bg-amber-600 hover:text-white cursor-pointer ${
+                                  lf.category === "Favorites" ? "text-amber-400" : "text-slate-555"
+                                }`}
+                              >
+                                <Star className="h-3 w-3 fill-current" />
+                              </button>
+                              <button
+                                onClick={() => handleDownloadLibraryFile(lf)}
+                                title="Download file blob"
+                                className="p-1 rounded bg-slate-950 hover:bg-slate-800 text-slate-400 cursor-pointer"
+                              >
+                                <Download className="h-3 w-3" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteLibraryFile(lf.id)}
+                                title="Delete file permanently"
+                                className="p-1 rounded bg-slate-950 hover:bg-rose-955 hover:text-rose-400 text-rose-500 cursor-pointer"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </button>
                             </div>
                           </div>
-                          <button
-                            onClick={() => handleContinueWorkflow(getRecommendedTools()[0] || "compress-pdf")}
-                            className="px-3.5 py-1.5 bg-indigo-650 hover:bg-indigo-600 rounded-xl text-white font-black text-[10.5px] uppercase tracking-wide transition flex items-center gap-1.5 cursor-pointer shadow-md"
-                          >
-                            Continue Pipeline <ChevronRight className="h-3 w-3" />
-                          </button>
-                        </div>
-                      )}
-
-                      <ExportCenter
-                        fileName={resultFile.name}
-                        fileSize={resultFile.size}
-                        downloadUrl={resultFile.url}
-                        onSaveSession={handleSaveSession}
-                      />
-                    </div>
-                  ) : currentPlugin.capabilities.beforeAfter && featureFlags.beforeAfterSlider ? (
-                    <BeforeAfterSlider
-                      beforeTitle="Raw Input Document"
-                      afterTitle={`${toolName} Compiled Output`}
-                      beforeContent={previewPanel}
-                      afterContent={
-                        <div className="flex flex-col items-center justify-center p-4 text-center">
-                          <Sparkles className="h-8 w-8 text-indigo-400 animate-pulse mb-2" />
-                          <span className="font-bold text-[11px]">Ready for export processing</span>
-                        </div>
-                      }
-                    />
-                  ) : (
-                    previewPanel
-                  )
-                }
-              />
-            </div>
-
-            {/* MOBILE ONLY ADJUSTMENT SETTINGS & EDITING OPTIONS SECTION */}
-            {hasFiles && (
-              <div ref={settingsRef} className="md:hidden space-y-5 border-t border-white/[0.08] pt-5 mt-2 text-left w-full animate-fade-up">
-                <div className="flex items-center justify-between pb-1">
-                  <div className="flex items-center gap-2">
-                    <Settings2 className="h-4.5 w-4.5 text-indigo-400" />
-                    <h3 className="text-xs font-black uppercase tracking-wider text-white">Adjustment Settings</h3>
-                  </div>
-                  <button
-                    onClick={() => {
-                      const mainEl = settingsRef.current?.closest('main');
-                      if (mainEl) {
-                        mainEl.scrollTo({ top: 0, behavior: 'smooth' });
-                      }
-                    }}
-                    className="text-[9px] px-2.5 py-1 bg-slate-950 border border-white/10 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1 cursor-pointer"
-                  >
-                    ↑ Back to Preview
-                  </button>
-                </div>
-
-                {/* Output Filename Configuration Card */}
-                <div className="space-y-2">
-                  <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-500">Output Settings</h4>
-                  <div className="p-4 rounded-2xl bg-slate-950/60 border border-white/[0.05] space-y-3">
-                    <div className="space-y-1.5">
-                      <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-slate-400">
-                        <span>Output Filename</span>
-                        {!premiumEnabled && (
-                          <span className="text-[8px] bg-amber-500/10 text-amber-500 border border-amber-500/25 px-1.5 py-0.5 rounded-md flex items-center gap-0.5 font-bold">
-                            🔒 Premium Lock
-                          </span>
-                        )}
-                      </div>
-                      <input
-                        type="text"
-                        disabled={!premiumEnabled}
-                        value={premiumEnabled ? customFileName : getBrandedFileName(slug, getOutputExtensionForSlug(slug, files))}
-                        onChange={(e) => setCustomFileName(e.target.value)}
-                        title="Output Filename"
-                        placeholder="Custom output filename"
-                        className={`w-full bg-slate-950/60 border rounded-xl px-3 py-2 text-xs text-white focus:outline-none font-mono ${
-                          premiumEnabled 
-                            ? "border-white/10 focus:border-indigo-500" 
-                            : "border-white/5 text-slate-555 cursor-not-allowed select-none bg-slate-950/30 font-medium"
-                        }`}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Custom Tool-Specific Config Panel */}
-                <div className="space-y-2">
-                  <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-500">Adjustment Parameters</h4>
-                  <div className={`p-4 rounded-2xl bg-slate-950/60 border border-white/[0.05] space-y-4 ${isProcessing ? "opacity-45 pointer-events-none" : ""}`}>
-                    {configPanel}
-                    
-                    {/* Mobile Inline Action Button */}
-                    <div className="border-t border-white/5 pt-3">
-                      {renderPrimaryActionButton(false)}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Image Local Enhancements Slider panel */}
-                {(currentPlugin.category === "image" || currentPlugin.category === "ocr") && (
-                  <div className="space-y-3 p-4 bg-slate-950/60 border border-white/[0.05] rounded-2xl">
-                    <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-indigo-400">
-                      <span>Local Enhancements</span>
-                      <button onClick={() => { setBrightness(100); setContrast(100); }} className="text-[9px] text-slate-500 hover:text-indigo-400 transition cursor-pointer">Reset All</button>
-                    </div>
-                    <div className="space-y-3 text-[10px] font-bold">
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-slate-400">
-                          <span>Brightness: {brightness}%</span>
-                        </div>
-                        <input
-                          type="range"
-                          min="50"
-                          max="200"
-                          value={brightness}
-                          onChange={(e) => setBrightness(Number(e.target.value))}
-                          title="Adjust Brightness"
-                          placeholder="Brightness percentage"
-                          className="w-full h-1.5 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-indigo-500"
-                        />
-                      </div>
-                      
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-slate-400">
-                          <span>Contrast: {contrast}%</span>
-                        </div>
-                        <input
-                          type="range"
-                          min="50"
-                          max="200"
-                          value={contrast}
-                          onChange={(e) => setContrast(Number(e.target.value))}
-                          title="Adjust Contrast"
-                          placeholder="Contrast percentage"
-                          className="w-full h-1.5 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-indigo-500"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Recommended Next Steps */}
-                <div className="space-y-2">
-                  <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-500">Recommended Next Steps</h4>
-                  <div className="bg-slate-950/60 border border-white/[0.05] rounded-2xl p-3 space-y-2">
-                    {getRecommendedTools().map(toolId => {
-                      const targetTool = TOOL_REGISTRY[toolId];
-                      if (!targetTool) return null;
-                      return (
-                        <button
-                          key={toolId}
-                          onClick={() => setLocation(`/${toolId}`)}
-                          className="w-full p-2.5 rounded-xl border border-white/[0.04] bg-slate-950/60 hover:bg-slate-900 hover:border-indigo-500/20 text-left transition flex items-center justify-between cursor-pointer"
-                        >
-                          <span className="text-[10px] font-black text-slate-355">{targetTool.name}</span>
-                          <ChevronRight className="h-3.5 w-3.5 text-slate-500" />
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Privacy & Audits */}
-                <div className="space-y-2 pt-1">
-                  <button
-                    onClick={() => setPrivacyModalOpen(true)}
-                    className="w-full p-3 border border-white/[0.06] rounded-2xl bg-slate-950/80 hover:bg-slate-900 transition flex items-center justify-between cursor-pointer"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Shield className="h-4 w-4 text-emerald-400" />
-                      <span className="text-[10px] font-black uppercase tracking-wider text-slate-200">Privacy & Audits</span>
-                    </div>
-                    <div className="h-2 w-2 rounded-full bg-emerald-400" />
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <div className="text-center text-[10px] text-slate-500 font-bold border border-dashed border-white/5 p-3 rounded-2xl bg-slate-900/20 animate-pulse">
-              Drag additional files here to append to document queue. Maximum files: {maxFiles}
-            </div>
-          </main>
-          <aside className="hidden md:flex md:col-span-3 border-l border-white/[0.06] bg-slate-900/20 p-4 flex-col gap-5 overflow-y-auto">
-            {/* Output Filename Configuration Card */}
-            {hasFiles && (
-              <div className="space-y-3 animate-fade-in">
-                <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-500">Output Settings</h3>
-                <div className="p-4 rounded-2xl bg-slate-950/60 border border-white/[0.05] space-y-3">
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-slate-400">
-                      <span>Output Filename</span>
-                      {!premiumEnabled && (
-                        <span className="text-[8px] bg-amber-500/10 text-amber-500 border border-amber-500/25 px-1.5 py-0.5 rounded-md flex items-center gap-0.5 font-bold">
-                          🔒 Premium Lock
-                        </span>
-                      )}
-                    </div>
-                    <div className="relative flex items-center">
-                      <input
-                        type="text"
-                        disabled={!premiumEnabled}
-                        value={premiumEnabled ? customFileName : getBrandedFileName(slug, getOutputExtensionForSlug(slug, files))}
-                        onChange={(e) => setCustomFileName(e.target.value)}
-                        placeholder={
-                          files[0]?.name 
-                            ? `${files[0].name.replace(/\.[^/.]+$/, "")}_processed` 
-                            : "e.g. customized-output"
-                        }
-                        className={`w-full bg-slate-950/60 border rounded-xl px-3 py-2 text-xs text-white focus:outline-none font-mono ${
-                          premiumEnabled 
-                            ? "border-white/10 focus:border-indigo-500" 
-                            : "border-white/5 text-slate-555 cursor-not-allowed select-none bg-slate-950/30 font-medium"
-                        }`}
-                      />
-                    </div>
-                    {!premiumEnabled && (
-                      <p className="text-[9.5px] text-slate-500 leading-normal">
-                        Free users output is branding-locked to <span className="font-mono text-slate-400 font-bold">{getBrandedFileName(slug, getOutputExtensionForSlug(slug, files))}</span>. Upgrade to Pro to customize output names.
-                      </p>
+                        ))
+                      )
                     )}
                   </div>
                 </div>
-              </div>
-            )}
 
-            {/* Custom Tool-Specific Config Panel */}
-            <div className="space-y-3">
-              <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-500">Adjustment Parameters</h3>
-              <div className={`p-4 rounded-2xl bg-slate-950/60 border border-white/[0.05] space-y-4 ${isProcessing ? "opacity-45 pointer-events-none" : ""}`}>
-                {configPanel}
-                
-                {/* Desktop Inline Action Button */}
-                <div className="border-t border-white/5 pt-3">
-                  {renderPrimaryActionButton(false)}
-                </div>
-              </div>
-            </div>
-
-            {/* Polishing: Image Local Enhancements Slider panel */}
-            {(currentPlugin.category === "image" || currentPlugin.category === "ocr") && (
-              <div className="space-y-3 p-4 bg-slate-950/60 border border-white/[0.05] rounded-2xl animate-fade-up">
-                <span className="text-[10px] font-black uppercase tracking-wider text-indigo-400 block mb-1">
-                  Local Enhancements
-                </span>
-                <div className="space-y-3 text-[10px] font-bold">
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-slate-400">
-                      <span>Brightness: {brightness}%</span>
-                      <button onClick={() => setBrightness(100)} className="text-[9px] text-slate-500 hover:text-indigo-400 transition cursor-pointer">Reset</button>
+                {/* Offline Diagnostics Sync Container */}
+                <div className="space-y-3">
+                  <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-500">Offline Caching & Sync</h3>
+                  <div className="p-3 bg-slate-955/85 border border-white/5 rounded-2xl text-[10px] space-y-2 leading-relaxed">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-slate-400">IndexedDB status:</span>
+                      <span className="text-emerald-400 font-black uppercase">Active</span>
                     </div>
-                    <input
-                      type="range"
-                      min="50"
-                      max="200"
-                      value={brightness}
-                      onChange={(e) => setBrightness(Number(e.target.value))}
-                      className="w-full h-1 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-indigo-500"
-                      title="Adjust Brightness"
-                      placeholder="Brightness percentage"
+                    
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-slate-400">Total Cache Size:</span>
+                      <span className={`font-mono ${dbSize > 100 * 1024 * 1024 ? "text-rose-400 font-bold" : "text-indigo-300"}`}>
+                        {formatBytes(dbSize)}
+                      </span>
+                    </div>
+
+                    {dbSize > 100 * 1024 * 1024 && (
+                      <div className="p-2 rounded-xl bg-rose-955/50 border border-rose-500/20 text-rose-405 flex items-start gap-1">
+                        <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5 text-rose-400 animate-pulse" />
+                        <span>Cache exceeds 100MB. Consider clearing old projects.</span>
+                      </div>
+                    )}
+                    
+                    {!isOnline ? (
+                      <div className="p-2 rounded-xl bg-red-955/50 border border-red-500/20 text-red-400 flex items-start gap-1">
+                        <CloudOff className="h-3.5 w-3.5 shrink-0 mt-0.5 text-red-400" />
+                        <span>Internet offline. Cloud-based conversions will fail until reconnected.</span>
+                      </div>
+                    ) : (
+                      <div className="p-2 rounded-xl bg-emerald-955/50 border border-emerald-500/20 text-emerald-400 flex items-start gap-1">
+                        <CloudLightning className="h-3.5 w-3.5 shrink-0 mt-0.5 text-emerald-400" />
+                        <span>Synchronized with cloud server gateway. Offline fallbacks active.</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </motion.aside>
+            )}
+          </AnimatePresence>
+
+          {/* MAIN BENTO GRID WORKSPACE */}
+          <div className="flex-1 overflow-y-auto lg:overflow-hidden p-4 lg:p-6 bg-[#090d16]/30">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full min-h-0">
+              
+              {/* LEFT COLUMN: Bento Primary Cell & Stats Strip (Col 1 to 8) */}
+              <div className="col-span-1 lg:col-span-8 flex flex-col gap-6 order-1 lg:order-none min-h-0 h-auto lg:h-full">
+                {/* Bento Primary Cell: Preview & Upload */}
+                <div 
+                  className={`flex-1 flex flex-col min-h-[45vh] lg:min-h-0 bg-slate-900/10 glass border rounded-2xl p-4 shadow-soft transition-all duration-300 hover:scale-[1.002] hover:shadow-premium relative overflow-hidden ${
+                    isDraggingCanvas || files.length > 0
+                      ? "border-blue-500/50 ring-2 ring-blue-500/10"
+                      : "border-white/10"
+                  }`}
+                  onDragOver={handleCanvasDragOver}
+                  onDragLeave={handleCanvasDragLeave}
+                  onDrop={handleCanvasDrop}
+                >
+                  {/* Toolbar Canvas Header */}
+                  <div className="flex items-center justify-between border-b border-white/[0.06] pb-3 text-xs text-slate-400 shrink-0">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          toast.info("Undone");
+                          trackEvent({ tool: slug, action: "undo_click" });
+                        }}
+                        className="p-1 rounded hover:bg-white/5 transition cursor-pointer"
+                        title="Undo (Ctrl + Z)"
+                        aria-label="Undo"
+                      >
+                        <Undo2 className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          toast.info("Redone");
+                          trackEvent({ tool: slug, action: "redo_click" });
+                        }}
+                        className="p-1 rounded hover:bg-white/5 transition cursor-pointer"
+                        title="Redo (Ctrl + Shift + Z)"
+                        aria-label="Redo"
+                      >
+                        <Redo2 className="h-3.5 w-3.5" />
+                      </button>
+                      <span className="text-slate-600">|</span>
+                      <button
+                        onClick={() => setZoom(z => Math.max(50, z - 25))}
+                        className="p-1 rounded hover:bg-white/5 transition cursor-pointer"
+                        title="Zoom Out"
+                        aria-label="Zoom Out"
+                      >
+                        <ZoomOut className="h-3.5 w-3.5" />
+                      </button>
+                      <span className="font-mono text-[9.5px] font-bold">{zoom}%</span>
+                      <button
+                        onClick={() => setZoom(z => Math.min(200, z + 25))}
+                        className="p-1 rounded hover:bg-white/5 transition cursor-pointer"
+                        title="Zoom In"
+                        aria-label="Zoom In"
+                      >
+                        <ZoomIn className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {currentPlugin.capabilities.offlineReady ? (
+                        <span className="text-[9.5px] font-black uppercase text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                          <span className="hidden md:inline">Offline Enabled (Secure Local Processing)</span>
+                          <span className="md:hidden">Offline Secure</span>
+                        </span>
+                      ) : (
+                        <span className="text-[9.5px] font-black uppercase text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20">
+                          <span className="hidden md:inline">Cloud API Required</span>
+                          <span className="md:hidden">Cloud API</span>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Phase 2: Workflow Pipeline Stepper */}
+                  {featureFlags.workflowEngine && (
+                    <div className="w-full bg-slate-950/60 border border-white/[0.04] p-2.5 rounded-xl backdrop-blur flex items-center justify-between text-[10.5px] mt-2.5 shrink-0">
+                      <span className="text-[9px] font-black uppercase text-slate-500 select-none shrink-0 pr-2 border-r border-white/5">Workflow Queue</span>
+                      <div className="flex-1 flex items-center justify-around px-2 min-w-0">
+                        {getPipelineSteps().map((step, idx) => (
+                          <React.Fragment key={step.id}>
+                            {idx > 0 && (
+                              <div className={`flex-1 h-0.5 mx-2 max-w-[40px] border-t-2 border-dashed ${
+                                step.status === "pending" ? "border-white/5" : "border-indigo-500/40"
+                              }`} />
+                            )}
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <div className={`h-5 w-5 rounded-full flex items-center justify-center font-bold text-[9px] shrink-0 border ${
+                                step.status === "done" ? "bg-emerald-600/20 text-emerald-400 border-emerald-500" :
+                                step.status === "active" ? "bg-indigo-650 text-white border-indigo-500 animate-pulse" :
+                                "bg-slate-900 text-slate-600 border-white/5"
+                              }`}>
+                                {step.status === "done" ? "✓" : idx + 1}
+                              </div>
+                              <span className={`truncate font-bold select-none ${
+                                step.status === "active" ? "text-indigo-400 inline" : 
+                                step.status === "done" ? "text-slate-300 hidden md:inline" : "text-slate-600 hidden md:inline"
+                              }`}>
+                                {step.label}
+                              </span>
+                            </div>
+                          </React.Fragment>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Decoupled Component Render Frame */}
+                  <div 
+                    className={`flex-1 flex flex-col items-center justify-center p-2 relative overflow-hidden bg-slate-955/30 rounded-xl border border-white/[0.04] mt-2.5 transition-all duration-200 ${filterClassName} flex min-h-0`}
+                  >
+                    <WorkspaceComponent
+                      files={files}
+                      configPanel={configPanel}
+                      onReset={onReset}
+                      onProcess={onProcess}
+                      isReady={isReady}
+                      isProcessing={isProcessing}
+                      previewPanel={
+                        resultFile ? (
+                          <div className="w-full space-y-4">
+                            {/* Unachievable target warning banner */}
+                            {resultFile.warning && (
+                              <div className="p-3.5 bg-amber-550/10 border border-amber-500/20 rounded-2xl flex items-start gap-2.5 text-xs text-amber-300 animate-fade-up">
+                                <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
+                                <div className="space-y-0.5">
+                                  <span className="font-extrabold text-white block">Compression Notice</span>
+                                  <span>{resultFile.warning}</span>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* One-click Continue Workflow Banner */}
+                            {featureFlags.workflowEngine && (
+                              <div className="p-4 bg-slate-900 border border-indigo-500/25 rounded-2xl flex items-center justify-between text-xs animate-fade-up">
+                                <div className="flex items-center gap-2">
+                                  <Sparkles className="h-4.5 w-4.5 text-indigo-400 animate-pulse animate-pulse-subtle" />
+                                  <div>
+                                    <span className="font-black text-white block">Workflow Suggested Step</span>
+                                    <span className="text-[10px] text-slate-400">Next suggested tool: {TOOL_REGISTRY[getRecommendedTools()[0]]?.name || "Compress PDF"}</span>
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={() => handleContinueWorkflow(getRecommendedTools()[0] || "compress-pdf")}
+                                  className="px-3.5 py-1.5 bg-indigo-655 hover:bg-indigo-600 rounded-xl text-white font-black text-[10.5px] uppercase tracking-wide transition flex items-center gap-1.5 cursor-pointer shadow-md"
+                                >
+                                  Continue Pipeline <ChevronRight className="h-3 w-3" />
+                                </button>
+                              </div>
+                            )}
+
+                            <ExportCenter
+                              fileName={resultFile.name}
+                              fileSize={resultFile.size}
+                              downloadUrl={resultFile.url}
+                              onSaveSession={handleSaveSession}
+                            />
+                          </div>
+                        ) : currentPlugin.capabilities.beforeAfter && featureFlags.beforeAfterSlider ? (
+                          <BeforeAfterSlider
+                            beforeTitle="Raw Input Document"
+                            afterTitle={`${toolName} Compiled Output`}
+                            beforeContent={previewPanel}
+                            afterContent={
+                              <div className="flex flex-col items-center justify-center p-4 text-center">
+                                <Sparkles className="h-8 w-8 text-indigo-400 animate-pulse mb-2" />
+                                <span className="font-bold text-[11px]">Ready for export processing</span>
+                              </div>
+                            }
+                          />
+                        ) : (
+                          previewPanel
+                        )
+                      }
                     />
+                  </div>
+
+                  <div className="text-center text-[9px] text-slate-500 font-bold border border-dashed border-white/5 p-2 rounded-xl bg-slate-900/20 animate-pulse mt-2.5 shrink-0">
+                    Drag additional files here to append to document queue. Maximum files: {maxFiles}
+                  </div>
+                </div>
+
+                {/* Stat Strip Cell */}
+                {renderStatStrip()}
+              </div>
+
+              {/* RIGHT COLUMN: Bento Settings Sidebar & Status Info (Col 9 to 12) */}
+              <div className="col-span-1 lg:col-span-4 flex flex-col gap-6 order-3 lg:order-none min-h-0 h-auto lg:h-full">
+                {/* Bento Settings Sidebar Cell */}
+                <div className="glass border border-white/10 rounded-2xl p-5 shadow-soft flex flex-col gap-4 overflow-y-auto max-h-[60vh] lg:max-h-none lg:flex-1">
+                  
+                  {/* Desktop Sidebar Layout */}
+                  <div className="hidden lg:flex flex-col gap-4">
+                    {/* Output Filename configuration card */}
+                    {hasFiles && (
+                      <div className="p-4 rounded-xl bg-slate-950/60 border border-white/[0.05] space-y-3">
+                        <div className="space-y-1.5">
+                          <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-wider text-slate-400">
+                            <span>Output Filename</span>
+                            {!premiumEnabled && (
+                              <span className="text-[8px] bg-amber-500/10 text-amber-500 border border-amber-500/25 px-1.5 py-0.5 rounded-md flex items-center gap-0.5 font-bold">
+                                🔒 Premium Lock
+                              </span>
+                            )}
+                          </div>
+                          <input
+                            type="text"
+                            disabled={!premiumEnabled}
+                            value={premiumEnabled ? customFileName : getBrandedFileName(slug, getOutputExtensionForSlug(slug, files))}
+                            onChange={(e) => setCustomFileName(e.target.value)}
+                            title="Output Filename"
+                            placeholder="Custom output filename"
+                            className={`w-full bg-slate-950/60 border rounded-xl px-3 py-2 text-xs text-white focus:outline-none font-mono ${
+                              premiumEnabled 
+                                ? "border-white/10 focus:border-indigo-500" 
+                                : "border-white/5 text-slate-555 cursor-not-allowed select-none bg-slate-955/30 font-medium"
+                            }`}
+                          />
+                        </div>
+                        {!premiumEnabled && (
+                          <p className="text-[9px] text-slate-500 leading-normal">
+                            Upgrade to Pro to customize output names.
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    {renderSettingsSidebarContent()}
+
+                    {/* Desktop Local Image Enhancements */}
+                    {(currentPlugin.category === "image" || currentPlugin.category === "ocr") && (
+                      <div className="p-4 bg-slate-955/60 border border-white/[0.05] rounded-xl space-y-3">
+                        <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-indigo-400">
+                          <span>Local Enhancements</span>
+                          <button onClick={() => { setBrightness(100); setContrast(100); }} className="text-[9px] text-slate-550 hover:text-indigo-400 transition cursor-pointer">Reset</button>
+                        </div>
+                        <div className="space-y-3 text-[10px] font-bold">
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-slate-400">
+                              <span>Brightness: {brightness}%</span>
+                            </div>
+                            <input
+                              type="range"
+                              min="50"
+                              max="200"
+                              value={brightness}
+                              onChange={(e) => setBrightness(Number(e.target.value))}
+                              title="Adjust Brightness"
+                              placeholder="Brightness percentage"
+                              className="w-full h-1.5 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                            />
+                          </div>
+                          
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-slate-400">
+                              <span>Contrast: {contrast}%</span>
+                            </div>
+                            <input
+                              type="range"
+                              min="50"
+                              max="200"
+                              value={contrast}
+                              onChange={(e) => setContrast(Number(e.target.value))}
+                              title="Adjust Contrast"
+                              placeholder="Contrast percentage"
+                              className="w-full h-1.5 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Privacy Banner link */}
+                    <button
+                      onClick={() => setPrivacyModalOpen(true)}
+                      className="w-full p-3 border border-white/[0.06] rounded-xl bg-slate-950/80 hover:bg-slate-900 transition flex items-center justify-between cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Shield className="h-4 w-4 text-emerald-400" />
+                        <span className="text-[9px] font-black uppercase tracking-wider text-slate-200">Privacy & Audits</span>
+                      </div>
+                      <div className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                    </button>
+                  </div>
+
+                  {/* Mobile Accordion Settings Wrapper */}
+                  <div className="lg:hidden">
+                    <button
+                      onClick={() => setMobileSettingsOpen(!mobileSettingsOpen)}
+                      className="w-full p-3 rounded-xl bg-slate-955/40 border border-white/5 flex items-center justify-between text-[11px] font-black uppercase tracking-wider text-slate-200 cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Sliders className="h-4 w-4 text-indigo-400" />
+                        <span>Adjustment Parameters & Settings</span>
+                      </div>
+                      <span className={`transition-transform duration-300 ${mobileSettingsOpen ? "rotate-90" : ""}`}>
+                        <ChevronRight className="h-4 w-4 text-slate-500" />
+                      </span>
+                    </button>
+                    
+                    <AnimatePresence>
+                      {mobileSettingsOpen && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="overflow-hidden mt-3 space-y-4 text-left"
+                        >
+                          {/* Output Filename configuration card */}
+                          {hasFiles && (
+                            <div className="p-4 rounded-xl bg-slate-955/60 border border-white/[0.05] space-y-3">
+                              <div className="space-y-1.5">
+                                <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-wider text-slate-400">
+                                  <span>Output Filename</span>
+                                </div>
+                                <input
+                                  type="text"
+                                  disabled={!premiumEnabled}
+                                  value={premiumEnabled ? customFileName : getBrandedFileName(slug, getOutputExtensionForSlug(slug, files))}
+                                  onChange={(e) => setCustomFileName(e.target.value)}
+                                  title="Output Filename"
+                                  placeholder="Custom output filename"
+                                  className={`w-full bg-slate-950/60 border rounded-xl px-3 py-2 text-xs text-white focus:outline-none font-mono ${
+                                    premiumEnabled 
+                                      ? "border-white/10 focus:border-indigo-500" 
+                                      : "border-white/5 text-slate-555 cursor-not-allowed select-none bg-slate-950/30 font-medium"
+                                  }`}
+                                />
+                              </div>
+                            </div>
+                          )}
+
+                          {renderSettingsSidebarContent()}
+
+                          {/* Local enhancements sliders */}
+                          {(currentPlugin.category === "image" || currentPlugin.category === "ocr") && (
+                            <div className="p-4 bg-slate-955/60 border border-white/[0.05] rounded-xl space-y-3">
+                              <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-indigo-400">
+                                <span>Local Enhancements</span>
+                              </div>
+                              <div className="space-y-3 text-[10px] font-bold">
+                                <div className="space-y-1">
+                                  <div className="flex justify-between text-slate-400">
+                                    <span>Brightness: {brightness}%</span>
+                                  </div>
+                                  <input
+                                    type="range"
+                                    min="50"
+                                    max="200"
+                                    value={brightness}
+                                    onChange={(e) => setBrightness(Number(e.target.value))}
+                                    title="Adjust Brightness"
+                                    placeholder="Brightness percentage"
+                                    className="w-full h-1.5 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                                  />
+                                </div>
+                                
+                                <div className="space-y-1">
+                                  <div className="flex justify-between text-slate-400">
+                                    <span>Contrast: {contrast}%</span>
+                                  </div>
+                                  <input
+                                    type="range"
+                                    min="50"
+                                    max="200"
+                                    value={contrast}
+                                    onChange={(e) => setContrast(Number(e.target.value))}
+                                    title="Adjust Contrast"
+                                    placeholder="Contrast percentage"
+                                    className="w-full h-1.5 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </div>
+                {/* Small Status/Info Cell */}
+                <div className="glass border border-white/10 rounded-2xl p-4 shadow-soft hover:scale-[1.01] transition-all duration-200 flex flex-col justify-between gap-2.5">
+                  <div className="text-[10px] font-black uppercase tracking-wider text-slate-550 flex items-center justify-between w-full border-b border-white/5 pb-1">
+                    <span>Status Info</span>
+                    <span className={`h-2 w-2 rounded-full ${isProcessing ? 'bg-blue-400 animate-pulse' : 'bg-emerald-400'}`} />
                   </div>
                   
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-slate-400">
-                      <span>Contrast: {contrast}%</span>
-                      <button onClick={() => setContrast(100)} className="text-[9px] text-slate-500 hover:text-indigo-400 transition cursor-pointer">Reset</button>
-                    </div>
-                    <input
-                      type="range"
-                      min="50"
-                      max="200"
-                      value={contrast}
-                      onChange={(e) => setContrast(Number(e.target.value))}
-                      className="w-full h-1 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-indigo-500"
-                      title="Adjust Contrast"
-                      placeholder="Contrast percentage"
-                    />
+                  <div className="flex flex-col gap-2 text-xs w-full">
+                    {statusPanel ? (
+                      statusPanel
+                    ) : (
+                      <>
+                        <div className="flex items-center justify-between p-2 rounded-xl bg-slate-955/40 border border-white/[0.02]">
+                          <span className="text-slate-400 font-bold">Process State</span>
+                          <span className="font-mono font-extrabold text-white">
+                            {isProcessing ? (processingStatus || "Processing...") : (resultFile ? "Complete" : "Ready")}
+                          </span>
+                          <span className={`h-2 w-2 rounded-full ${isProcessing ? 'bg-indigo-400 animate-pulse' : 'bg-emerald-400'}`} />
+                        </div>
+                        
+                        <div className="grid grid-cols-2 md:grid-cols-1 gap-2 text-xs w-full">
+                          <div className="flex items-center justify-between p-2 rounded-xl bg-slate-955/40 border border-white/[0.02]">
+                            <span className="text-slate-455 font-bold">Queue Size</span>
+                            <span className="font-mono font-extrabold text-white">{files.length} {files.length === 1 ? 'file' : 'files'}</span>
+                          </div>
+                          <div className="flex items-center justify-between p-2 rounded-xl bg-slate-955/40 border border-white/[0.02]">
+                            <span className="text-slate-455 font-bold">Total Weight</span>
+                            <span className="font-mono font-extrabold text-white">
+                              {formatBytes(files.reduce((acc, f) => acc + f.size, 0))}
+                            </span>
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
-              </div>
-            )}
 
-            {/* Smart Context Panel */}
-            <div className="space-y-3">
-              <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-500">Recommended Next Steps</h3>
-              <div className="bg-slate-950/60 border border-white/[0.05] rounded-2xl p-3 space-y-2">
-                {getRecommendedTools().map(toolId => {
-                  const targetTool = TOOL_REGISTRY[toolId];
-                  if (!targetTool) return null;
-                  return (
-                    <button
-                      key={toolId}
-                      onClick={() => setLocation(`/${toolId}`)}
-                      className="w-full p-2.5 rounded-xl border border-white/[0.04] bg-slate-950/60 hover:bg-slate-900 hover:border-indigo-500/20 text-left transition flex items-center justify-between cursor-pointer"
-                    >
-                      <span className="text-[10px] font-black text-slate-355">{targetTool.name}</span>
-                      <ChevronRight className="h-3.5 w-3.5 text-slate-500" />
-                    </button>
-                  );
-                })}
               </div>
             </div>
-
-            {/* Privacy tab shortcut */}
-            <div className="space-y-3 mt-auto">
-              <button
-                onClick={() => setPrivacyModalOpen(true)}
-                className="w-full p-3 border border-white/[0.06] rounded-2xl bg-slate-950/80 hover:bg-slate-900 transition flex items-center justify-between cursor-pointer"
-              >
-                <div className="flex items-center gap-2">
-                  <Shield className="h-4 w-4 text-emerald-400" />
-                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-200">Privacy & Audits</span>
-                </div>
-                <div className="h-2 w-2 rounded-full bg-emerald-400" />
-              </button>
-            </div>
-          </aside>
+          </div>
         </div>
       )}
 

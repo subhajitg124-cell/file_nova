@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { ToolWorkspace } from "@/components/workspace/ToolWorkspace";
+import { ToolWorkspace, ToolControl, ToolWorkspaceStat } from "@/components/workspace/ToolWorkspace";
 import { PreviewPanel } from "@/components/workspace/PreviewPanel";
 import { useToolProcessor } from "@/hooks/useToolProcessor";
-import { Zap, Sliders, Settings, CheckCircle2 } from "lucide-react";
+import { Zap } from "lucide-react";
 
 export const CompressPDFWorkspace: React.FC = () => {
   const {
@@ -15,11 +15,17 @@ export const CompressPDFWorkspace: React.FC = () => {
     handleFilesSelected,
     handleReset,
     runProcessing,
+    processingStatus,
   } = useToolProcessor("compress-pdf", "compress");
 
   // Local state configurations
-  const [level, setLevel] = useState<"screen" | "ebook" | "print">("ebook");
-  const [targetSize, setTargetSize] = useState<string>("");
+  const [level, setLevel] = useState<"screen" | "ebook" | "print" | "custom">("ebook");
+  const [customTargetConfig, setCustomTargetConfig] = useState({
+    targetSize: "200",
+    targetSizeUnit: "KB" as "MB" | "KB",
+    autoAdjust: true
+  });
+  const [targetSizeInitialized, setTargetSizeInitialized] = useState(false);
   const [compressImages, setCompressImages] = useState(true);
   const [removeMetadata, setRemoveMetadata] = useState(true);
 
@@ -32,10 +38,40 @@ export const CompressPDFWorkspace: React.FC = () => {
     }
   }, [files, isReady]);
 
+  // Symmetrical target size initialization: default to 40% of original size
+  useEffect(() => {
+    if (files.length > 0 && !targetSizeInitialized) {
+      const originalSize = files.reduce((acc, f) => acc + f.size, 0);
+      const defaultTargetBytes = originalSize * 0.4;
+      const defaultTargetKb = Math.round(defaultTargetBytes / 1024);
+      setCustomTargetConfig(prev => ({
+        ...prev,
+        targetSize: String(defaultTargetKb),
+        targetSizeUnit: "KB"
+      }));
+      setTargetSizeInitialized(true);
+    }
+  }, [files, targetSizeInitialized]);
+
+  useEffect(() => {
+    if (files.length === 0) {
+      setTargetSizeInitialized(false);
+    }
+  }, [files]);
+
   const handleProcess = async () => {
+    let targetSizeKb: number | undefined = undefined;
+    if (level === "custom") {
+      const rawSize = parseFloat(customTargetConfig.targetSize) || 0;
+      if (customTargetConfig.targetSizeUnit === "MB") {
+        targetSizeKb = Math.round(rawSize * 1024);
+      } else {
+        targetSizeKb = Math.round(rawSize);
+      }
+    }
     const options = {
       level,
-      targetSizeKb: targetSize ? parseInt(targetSize) : undefined,
+      targetSizeKb,
       compressImages,
       removeMetadata,
       dpi: level === "screen" ? 72 : level === "ebook" ? 150 : 300,
@@ -43,122 +79,105 @@ export const CompressPDFWorkspace: React.FC = () => {
     await runProcessing(options);
   };
 
-  const getEstimatedSize = () => {
-    if (files.length === 0) return "";
-    if (targetSize) {
-      return `under ${targetSize} KB`;
-    }
-    const totalSize = files.reduce((acc, f) => acc + f.size, 0);
-    const multiplier = level === "screen" ? 0.35 : level === "ebook" ? 0.6 : 0.85;
-    const est = totalSize * multiplier;
-    if (est > 1024 * 1024) return (est / (1024 * 1024)).toFixed(1) + " MB";
-    return Math.round(est / 1024) + " KB";
+  const handleResetAll = () => {
+    handleReset();
+    setTargetSizeInitialized(false);
   };
 
-  const configPanel = (
-    <div className="space-y-6">
-      {/* 3-Stop preset selector */}
-      <div className="space-y-2.5">
-        <label className="text-xs font-black uppercase tracking-wider text-slate-400">Compression Preset</label>
-        <div className="grid grid-cols-3 gap-3">
-          {[
-            { id: "screen", label: "Screen", desc: "Max Compression", quality: "72 DPI" },
-            { id: "ebook", label: "Ebook", desc: "Balanced Size", quality: "150 DPI" },
-            { id: "print", label: "Print", desc: "High Quality", quality: "300 DPI" },
-          ].map((preset) => (
-            <button
-              key={preset.id}
-              onClick={() => setLevel(preset.id as any)}
-              className={`p-4 rounded-2xl border text-left flex flex-col justify-between h-24 hover:scale-[1.02] active:scale-98 transition-all cursor-pointer ${
-                level === preset.id
-                  ? "border-emerald-500 bg-emerald-500/10 shadow-lg shadow-emerald-500/5 text-white"
-                  : "border-white/[0.06] bg-slate-900/60 hover:bg-slate-900 text-slate-300"
-              }`}
-            >
-              <div className="flex items-center justify-between w-full">
-                <span className="text-xs font-black uppercase tracking-wider">{preset.label}</span>
-                {level === preset.id && <CheckCircle2 className="h-4 w-4 text-emerald-400" />}
-              </div>
-              <div>
-                <p className="text-[10px] text-slate-400 font-medium leading-none">{preset.desc}</p>
-                <p className="text-[9px] text-slate-500 font-mono mt-1">{preset.quality}</p>
-              </div>
-            </button>
-          ))}
-        </div>
-      </div>
+  const formatBytes = (bytes: number) => {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
+  };
 
-      {/* Target Size (optional) */}
-      <div className="space-y-2">
-        <label className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-1">
-          <Sliders className="h-3.5 w-3.5 text-emerald-400" />
-          Target File Size Limit (Optional)
-        </label>
-        <div className="flex gap-2">
-          <input
-            type="number"
-            value={targetSize}
-            onChange={(e) => setTargetSize(e.target.value)}
-            placeholder="e.g. 200"
-            className="flex-1 bg-slate-950/60 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500 font-mono"
-          />
-          <span className="bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-400 flex items-center justify-center">
-            KB
-          </span>
-        </div>
-        <p className="text-[10px] text-slate-500 leading-normal">
-          Useful for web portals like IRCTC (100KB), CSC / Scholarships (200KB), NEET/JEE.
-        </p>
-      </div>
+  // Build dynamic controlsConfig for bento sidebar auto-rendering
+  const controlsConfig: ToolControl[] = [
+    {
+      id: "preset",
+      label: "Compression Preset",
+      type: "radio-cards",
+      value: level,
+      onChange: (val) => setLevel(val),
+      options: [
+        { value: "print", label: "Print", desc: "High Quality (300 DPI)", quality: "300 DPI" },
+        { value: "ebook", label: "Ebook", desc: "Balanced Size (150 DPI)", quality: "150 DPI" },
+        { value: "screen", label: "Screen", desc: "Max Compression (72 DPI)", quality: "72 DPI" },
+        { value: "custom", label: "Custom Target Size", desc: "Specify custom size limit", quality: "Manual" }
+      ]
+    },
+    ...(level === "custom" ? [{
+      id: "custom-target",
+      label: "Target File Size Limit",
+      type: "custom-target-size" as const,
+      value: customTargetConfig,
+      onChange: (val: any) => setCustomTargetConfig(val),
+      min: Math.min(0.2, parseFloat((files.reduce((acc, f) => acc + f.size, 0) * 0.1 / (1024 * 1024)).toFixed(2))),
+      max: parseFloat((files.reduce((acc, f) => acc + f.size, 0) / (1024 * 1024)).toFixed(2)),
+      step: 0.1
+    }] : []),
+    {
+      id: "compressImages",
+      label: "Downsample and compress images inside PDF",
+      type: "toggle",
+      value: compressImages,
+      onChange: (val) => setCompressImages(val),
+      advanced: true
+    },
+    {
+      id: "removeMetadata",
+      label: "Strip XML metadata & annotations",
+      type: "toggle",
+      value: removeMetadata,
+      onChange: (val) => setRemoveMetadata(val),
+      advanced: true
+    }
+  ];
 
-      {/* Toggles */}
-      <div className="space-y-3 pt-3 border-t border-white/[0.05]">
-        <label className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-1 mb-2">
-          <Settings className="h-3.5 w-3.5 text-emerald-400" />
-          Advanced Options
-        </label>
-        
-        <label className="flex items-center gap-3 cursor-pointer text-xs font-medium text-slate-300">
-          <input
-            type="checkbox"
-            checked={compressImages}
-            onChange={(e) => setCompressImages(e.target.checked)}
-            className="h-4 w-4 rounded border-white/10 text-emerald-600 focus:ring-0 cursor-pointer"
-          />
-          <span>Downsample and compress images inside PDF</span>
-        </label>
+  // Dynamic stats calculation (including real-time update before process)
+  const getStats = (): ToolWorkspaceStat[] => {
+    if (files.length === 0) return [];
+    const originalSize = files.reduce((acc, f) => acc + f.size, 0);
+    const originalStr = formatBytes(originalSize);
 
-        <label className="flex items-center gap-3 cursor-pointer text-xs font-medium text-slate-300">
-          <input
-            type="checkbox"
-            checked={removeMetadata}
-            onChange={(e) => setRemoveMetadata(e.target.checked)}
-            className="h-4 w-4 rounded border-white/10 text-emerald-600 focus:ring-0 cursor-pointer"
-          />
-          <span>Strip XML metadata & annotations</span>
-        </label>
-      </div>
+    let resultStr = "-";
+    let savingsStr = "-";
+    let savingsTone: "default" | "success" | "info" = "default";
 
-      {/* Side by side size prediction */}
-      {files.length > 0 && (
-        <div className="bg-slate-950/60 border border-white/[0.05] rounded-2xl p-4 flex items-center justify-between text-xs font-medium">
-          <div className="space-y-1">
-            <span className="text-slate-500 uppercase text-[9px] font-black tracking-wider block">Estimated Output</span>
-            <span className="text-emerald-400 font-black text-sm">{getEstimatedSize()}</span>
-          </div>
-          <div className="text-right space-y-1">
-            <span className="text-slate-500 uppercase text-[9px] font-black tracking-wider block">Savings</span>
-            <span className="text-slate-200 font-bold">
-              {targetSize 
-                ? `Custom compression`
-                : `~${level === "screen" ? "65%" : level === "ebook" ? "40%" : "15%"} smaller`
-              }
-            </span>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+    if (result) {
+      resultStr = result.size;
+      if (result.savings) {
+        savingsStr = result.savings;
+        savingsTone = "success";
+      }
+    } else {
+      let estBytes = originalSize;
+      if (level === "custom") {
+        const rawSize = parseFloat(customTargetConfig.targetSize) || 0;
+        let kb = rawSize;
+        if (customTargetConfig.targetSizeUnit === "MB") {
+          kb = rawSize * 1024;
+        }
+        estBytes = kb * 1024;
+      } else {
+        const multiplier = level === "screen" ? 0.35 : level === "ebook" ? 0.6 : 0.85;
+        estBytes = originalSize * multiplier;
+      }
+
+      resultStr = formatBytes(estBytes);
+      const reduction = Math.max(0, originalSize - estBytes);
+      const savingsPct = Math.round((reduction / originalSize) * 100);
+      savingsStr = `${savingsPct}% saved`;
+      savingsTone = "info";
+    }
+
+    return [
+      { label: "Original Size", value: originalStr },
+      { label: "Est. Output Size", value: resultStr },
+      { label: "Est. Saved %", value: savingsStr, tone: savingsTone }
+    ];
+  };
 
   const previewPanel = (
     <PreviewPanel files={rawFiles} slug="compress-pdf" options={{ level }} />
@@ -170,20 +189,23 @@ export const CompressPDFWorkspace: React.FC = () => {
       toolDescription="Reduce the file size of your PDF documents while keeping optimal text and image quality."
       toolIcon={<Zap className="h-5 w-5" />}
       accentColor="emerald"
-      configPanel={configPanel}
+      controlsConfig={controlsConfig}
       previewPanel={previewPanel}
       onProcess={handleProcess}
       isProcessing={isProcessing}
       progress={progress}
       isReady={isReady}
       resultFile={result}
-      onReset={handleReset}
+      onReset={handleResetAll}
       maxFiles={1}
       acceptedTypes={[".pdf"]}
       onFilesSelected={handleFilesSelected}
       files={files}
       error={error}
+      stats={getStats()}
+      processingStatus={processingStatus}
     />
   );
 };
+
 export default CompressPDFWorkspace;

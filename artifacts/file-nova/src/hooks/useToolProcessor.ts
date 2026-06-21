@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useFileStore, FileRecord } from "@/store/useFileStore";
 import { useSubscription } from "@/hooks/useSubscription";
 import { apiClient, apiMock } from "@/lib/api";
@@ -9,6 +9,7 @@ export interface ProcessedResult {
   url: string;
   size: string;
   savings?: string;
+  warning?: string;
 }
 
 export function useToolProcessor(slug: string, operation: string) {
@@ -29,6 +30,17 @@ export function useToolProcessor(slug: string, operation: string) {
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<ProcessedResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [processingStatus, setProcessingStatus] = useState<string>("");
+  const activeWorkerRef = useRef<Worker | null>(null);
+  const isCancelledRef = useRef<boolean>(false);
+
+  useEffect(() => {
+    return () => {
+      if (activeWorkerRef.current) {
+        activeWorkerRef.current.terminate();
+      }
+    };
+  }, []);
 
   // Sync with store values
   useEffect(() => {
@@ -64,10 +76,16 @@ export function useToolProcessor(slug: string, operation: string) {
   };
 
   const handleReset = () => {
+    isCancelledRef.current = true;
+    if (activeWorkerRef.current) {
+      activeWorkerRef.current.terminate();
+      activeWorkerRef.current = null;
+    }
     clearStore();
     setResult(null);
     setError(null);
     setProgress(0);
+    setProcessingStatus("");
   };
 
   const formatSize = (bytes: number) => {
@@ -142,22 +160,124 @@ export function useToolProcessor(slug: string, operation: string) {
             const targetSizeKb = configOptions.targetSizeKb;
             if (targetSizeKb) {
               const targetBytes = targetSizeKb * 1024;
-              let quality = 90;
-              let lastBlob: Blob | null = null;
-              
-              // Iterate quality downwards to meet target size, max 5 iterations
-              for (let iter = 0; iter < 5; iter++) {
-                const blob = await runClientSidePdfCompress(rawFiles[0], quality);
-                lastBlob = blob;
-                if (blob.size <= targetBytes || quality <= 30) {
+              let low = 10;
+              let high = 95;
+              let quality = 75; // Initial guess
+              let bestBlob: Blob | null = null;
+              let previousSize = 0;
+              let testedQuality10 = false;
+
+              // Helper function to check if a new candidate is better than the current best
+              const isBetter = (newBlob: Blob, currentBest: Blob | null): boolean => {
+                if (!currentBest) return true;
+                const newSize = newBlob.size;
+                const bestSize = currentBest.size;
+                const newFits = newSize <= targetBytes;
+                const bestFits = bestSize <= targetBytes;
+
+                if (newFits && !bestFits) return true; // Fits is always better than doesn't fit
+                if (!newFits && bestFits) return false;
+                if (newFits && bestFits) {
+                  return newSize > bestSize; // Both fit, prefer higher quality (larger size)
+                }
+                return newSize < bestSize; // Neither fits, prefer closer to target (smaller size)
+              };
+
+              // Reset cancellation flag for this run
+              isCancelledRef.current = false;
+
+              for (let iter = 1; iter <= 5; iter++) {
+                if (isCancelledRef.current) break;
+
+                setProcessingStatus(`Compressing... pass ${iter} of 5 (Quality: ${quality})`);
+                setProgress(Math.round((iter / 5) * 80) + 10);
+
+                // Run client side compression, and capture the active worker
+                const blob = await runClientSidePdfCompress(
+                  rawFiles[0],
+                  quality,
+                  (w) => { activeWorkerRef.current = w; }
+                );
+                activeWorkerRef.current = null;
+
+                if (isCancelledRef.current) break;
+
+                const size = blob.size;
+                if (quality === 10) testedQuality10 = true;
+
+                // Track best candidate
+                if (isBetter(blob, bestBlob)) {
+                  bestBlob = blob;
+                }
+
+                // Vector/Text PDF short-circuit: if output size is exactly the same as previous pass,
+                // quality has no effect, meaning there are no compressible raster images.
+                if (iter >= 2 && size === previousSize) {
+                  setProcessingStatus("Short-circuiting: pure text/vector PDF with no compressible images.");
                   break;
                 }
-                quality -= 15;
+                previousSize = size;
+
+                // Stop if we hit target size within -10% tolerance (i.e. size <= target and size >= target * 0.9)
+                if (size <= targetBytes && size >= targetBytes * 0.90) {
+                  break;
+                }
+
+                // Binary search logic
+                if (size > targetBytes) {
+                  // Too big -> reduce quality
+                  high = quality - 1;
+                  quality = Math.max(low, Math.round((low + high) / 2));
+                } else {
+                  // Under budget -> increase quality to improve fidelity
+                  low = quality + 1;
+                  quality = Math.min(high, Math.round((low + high) / 2));
+                }
+
+                if (low > high) {
+                  break;
+                }
               }
-              resultBlob = lastBlob;
+
+              // Min quality floor fallback: if the target size was unachieved, and we haven't tested quality=10,
+              // run a final pass at quality=10 to find the absolute floor.
+              if (!isCancelledRef.current && (!bestBlob || bestBlob.size > targetBytes) && !testedQuality10) {
+                setProcessingStatus("Probing quality floor (Quality: 10)...");
+                const blob = await runClientSidePdfCompress(
+                  rawFiles[0],
+                  10,
+                  (w) => { activeWorkerRef.current = w; }
+                );
+                activeWorkerRef.current = null;
+                if (!isCancelledRef.current && isBetter(blob, bestBlob)) {
+                  bestBlob = blob;
+                }
+              }
+
+              if (isCancelledRef.current) {
+                setIsProcessing(false);
+                setProgress(0);
+                setProcessingStatus("");
+                return;
+              }
+
+              resultBlob = bestBlob;
+
+              // Unachievable warning message
+              if (resultBlob && resultBlob.size > targetBytes * 1.1) {
+                const actualMb = (resultBlob.size / (1024 * 1024)).toFixed(2);
+                const targetMb = (targetBytes / (1024 * 1024)).toFixed(2);
+                configOptions.warningMessage = `Closest achievable size: ${actualMb} MB (couldn't reach ${targetMb} MB without unacceptable quality loss).`;
+              }
             } else {
               const quality = configOptions.level === "screen" ? 40 : configOptions.level === "ebook" ? 70 : 90;
-              resultBlob = await runClientSidePdfCompress(rawFiles[0], quality);
+              isCancelledRef.current = false;
+              resultBlob = await runClientSidePdfCompress(
+                rawFiles[0], 
+                quality,
+                (w) => { activeWorkerRef.current = w; }
+              );
+              activeWorkerRef.current = null;
             }
           } else if (slug === "split-pdf") {
             const { runClientSidePdfSplit } = await import("@/lib/processing/pdf/client-pdf");
@@ -296,7 +416,7 @@ export function useToolProcessor(slug: string, operation: string) {
           const savingsPct = Math.round((reduction / originalSize) * 100);
           const savings = savingsPct > 0 ? `${savingsPct}% smaller` : undefined;
 
-          setResult({ name, url, size: sizeStr, savings });
+          setResult({ name, url, size: sizeStr, savings, warning: configOptions.warningMessage });
           incrementFeatureUse();
           toast.success("Processing complete!");
         } else {
@@ -396,6 +516,7 @@ export function useToolProcessor(slug: string, operation: string) {
     handleFilesSelected,
     handleReset,
     runProcessing,
+    processingStatus,
   };
 }
 

@@ -15,10 +15,20 @@ export async function runClientSidePdfMerge(files: File[], pageRanges?: string[]
   return new Blob([result], { type: 'application/pdf' });
 }
 
-export async function runClientSidePdfCompress(file: File, quality: number): Promise<Blob> {
-  const worker = createWorker(); const api = wrap<any>(worker);
-  const result = await api.compressPdf({ name: file.name, buffer: await file.arrayBuffer() }, quality); worker.terminate();
-  return new Blob([result], { type: 'application/pdf' });
+export async function runClientSidePdfCompress(
+  file: File, 
+  quality: number, 
+  onWorkerCreated?: (w: Worker) => void
+): Promise<Blob> {
+  const worker = createWorker();
+  if (onWorkerCreated) onWorkerCreated(worker);
+  const api = wrap<any>(worker);
+  try {
+    const result = await api.compressPdf({ name: file.name, buffer: await file.arrayBuffer() }, quality);
+    return new Blob([result], { type: 'application/pdf' });
+  } finally {
+    worker.terminate();
+  }
 }
 
 export async function runClientSidePdfSplit(

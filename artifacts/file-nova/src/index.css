@@ -92,6 +92,10 @@
   --destructive-foreground: #ffffff;
   --radius: 16px;
   --banner-height: 0px;
+  --workspace-gap: 24px;
+  --card-radius: 24px;
+  --card-border: rgba(15, 23, 42, 0.08);
+  --card-active-shadow: 0 8px 30px rgba(99, 102, 241, 0.15);
 }
 
 /* ── Dark Theme ──────────────────────────────────────────────────────────── */
@@ -119,6 +123,8 @@
   --ring:              var(--brand-primary);
   --destructive:       #ea4335;
   --destructive-foreground: #ffffff;
+  --card-border: rgba(255, 255, 255, 0.1);
+  --card-active-shadow: 0 8px 30px rgba(99, 102, 241, 0.15);
 }
 
 /* ── Base ────────────────────────────────────────────────────────────────── */
