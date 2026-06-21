@@ -15,7 +15,7 @@ router.post("/track", async (req, res): Promise<void> => {
       res.status(404).json({ success: false, error: "Referral code not found" });
       return;
     }
-    res.json({ success: true });
+    res.json({ success: true, referralId: referral.id });
   } catch (err: any) {
     if (err instanceof z.ZodError) {
       res.status(400).json({ success: false, error: err.errors[0].message });
@@ -27,8 +27,12 @@ router.post("/track", async (req, res): Promise<void> => {
 
 router.post("/complete", authMiddleware, requireAuth, async (req: AuthRequest, res): Promise<void> => {
   try {
-    const { referralCode } = z.object({ referralCode: z.string().min(1).max(8) }).parse(req.body);
-    const referral = await completeReferral(referralCode, req.user!.id, req.user!.email);
+    const bodySchema = z.object({
+      referralCode: z.string().min(1).max(8),
+      referralTrackingId: z.string().uuid().optional().nullable(),
+    });
+    const parsed = bodySchema.parse(req.body);
+    const referral = await completeReferral(parsed.referralCode, req.user!.id, req.user!.email, parsed.referralTrackingId ?? undefined);
     res.json({ success: true, referral });
   } catch (err: any) {
     if (err instanceof z.ZodError) {

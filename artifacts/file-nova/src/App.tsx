@@ -570,9 +570,16 @@ function App({ ssrPath }: { ssrPath?: string } = {}) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ referralCode: refCode }),
-    }).catch(() => {
-      // Referral click tracking should never block app usage.
-    });
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.referralId) {
+          localStorage.setItem("filenova_referral_tracking_id", data.referralId);
+        }
+      })
+      .catch(() => {
+        // Referral click tracking should never block app usage.
+      });
   }, []);
 
   if (!initialized && !ssrPath) {

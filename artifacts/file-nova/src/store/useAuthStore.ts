@@ -335,6 +335,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         const processedUser = processUser(user);
         setLocalSession(processedUser!);
         localStorage.removeItem('filenova_referral_code');
+        localStorage.removeItem('filenova_referral_tracking_id');
         set({ user: processedUser, subscription: processSubscription(freeSubscription, processedUser) });
         return true;
       }
@@ -349,6 +350,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           password,
           name,
           referralCode: localStorage.getItem('filenova_referral_code'),
+          referralTrackingId: localStorage.getItem('filenova_referral_tracking_id'),
         }),
       });
       const data = await safeJsonParse(res);
@@ -364,6 +366,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         localStorage.setItem(SESSION_TOKEN_KEY, data.token);
       }
       localStorage.removeItem('filenova_referral_code');
+      localStorage.removeItem('filenova_referral_tracking_id');
       return true;
     } catch (err: any) {
       set({ error: err.message || 'Failed to sign up' });
@@ -385,6 +388,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         const processedUser = processUser(user);
         setLocalSession(processedUser!);
         localStorage.removeItem('filenova_referral_code');
+        localStorage.removeItem('filenova_referral_tracking_id');
         set({ user: processedUser, subscription: processSubscription(freeSubscription, processedUser) });
         return true;
       }
@@ -396,6 +400,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         body: JSON.stringify({
           credential,
           referralCode: localStorage.getItem('filenova_referral_code'),
+          referralTrackingId: localStorage.getItem('filenova_referral_tracking_id'),
         }),
       });
       const data = await safeJsonParse(res);
@@ -410,6 +415,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         localStorage.setItem(SESSION_TOKEN_KEY, data.token);
       }
       localStorage.removeItem('filenova_referral_code');
+      localStorage.removeItem('filenova_referral_tracking_id');
       return true;
     } catch (err: any) {
       set({ error: err.message || 'Google authentication failed' });

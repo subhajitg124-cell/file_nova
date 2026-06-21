@@ -85,6 +85,7 @@ router.post("/signup", async (req, res): Promise<void> => {
       password: z.string().min(6, "Password must be at least 6 characters"),
       name: z.string().min(1, "Name is required").optional().nullable(),
       referralCode: z.string().max(8).optional().nullable(),
+      referralTrackingId: z.string().uuid().optional().nullable(),
     });
 
     const parsed = bodySchema.parse(req.body);
@@ -131,7 +132,7 @@ router.post("/signup", async (req, res): Promise<void> => {
       })
       .returning();
 
-    await completeReferral(parsed.referralCode, newUser.id, newUser.email);
+    await completeReferral(parsed.referralCode, newUser.id, newUser.email, parsed.referralTrackingId ?? undefined);
     const token = await createSession(newUser.id, res);
 
     sendJson(res, {
@@ -224,6 +225,7 @@ router.post("/google", async (req, res): Promise<void> => {
     const bodySchema = z.object({
       credential: z.string().min(1, "Google credential is required"),
       referralCode: z.string().max(8).optional().nullable(),
+      referralTrackingId: z.string().uuid().optional().nullable(),
     });
 
     const parsed = bodySchema.parse(req.body);
@@ -283,7 +285,7 @@ router.post("/google", async (req, res): Promise<void> => {
         })
         .returning();
       user = newUser;
-      await completeReferral(parsed.referralCode, user.id, user.email);
+      await completeReferral(parsed.referralCode, user.id, user.email, parsed.referralTrackingId ?? undefined);
     }
 
     const token = await createSession(user.id, res);

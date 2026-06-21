@@ -95,12 +95,64 @@ export async function trackReferralClick(referralCode: string) {
   return referral;
 }
 
-export async function completeReferral(referralCode: string | null | undefined, referredUserId: string, referredEmail: string) {
+export async function completeReferral(referralCode: string | null | undefined, referredUserId: string, referredEmail: string, trackingId?: string) {
   if (!referralCode) return null;
 
   const [referrer] = await db.select().from(usersTable).where(eq(usersTable.referralCode, referralCode)).limit(1);
   if (!referrer || referrer.id === referredUserId) return null;
 
+  // If we have a tracking ID from /track, find and update that exact pending record
+  if (trackingId) {
+    const [tracked] = await db
+      .select()
+      .from(referralsTable)
+      .where(and(eq(referralsTable.id, trackingId), eq(referralsTable.referrerUserId, referrer.id)))
+      .limit(1);
+
+    if (tracked && tracked.status === "pending" && !tracked.rewardGiven) {
+      const [updated] = await db
+        .update(referralsTable)
+        .set({
+          referredEmail,
+          status: "completed",
+          rewardGiven: true,
+        })
+        .where(eq(referralsTable.id, tracked.id))
+        .returning();
+
+      await grantReferralReward(referrer.id, 3);
+      await grantReferralReward(referredUserId, 3);
+      return updated;
+    }
+  }
+
+  // Fallback: find any pending referral from this referrer without an email
+  const [pendingReferral] = await db
+    .select()
+    .from(referralsTable)
+    .where(and(
+      eq(referralsTable.referrerUserId, referrer.id),
+      eq(referralsTable.status, "pending"),
+    ))
+    .limit(1);
+
+  if (pendingReferral && !pendingReferral.rewardGiven) {
+    const [updated] = await db
+      .update(referralsTable)
+      .set({
+        referredEmail,
+        status: "completed",
+        rewardGiven: true,
+      })
+      .where(eq(referralsTable.id, pendingReferral.id))
+      .returning();
+
+    await grantReferralReward(referrer.id, 3);
+    await grantReferralReward(referredUserId, 3);
+    return updated;
+  }
+
+  // Last resort: check for existing completed referral (idempotency)
   const [existingCompleted] = await db
     .select()
     .from(referralsTable)
@@ -109,17 +161,13 @@ export async function completeReferral(referralCode: string | null | undefined, 
 
   if (existingCompleted?.rewardGiven) return existingCompleted;
 
-  const [referral] = existingCompleted
-    ? await db.update(referralsTable).set({
-        status: "completed",
-        rewardGiven: true,
-      }).where(eq(referralsTable.id, existingCompleted.id)).returning()
-    : await db.insert(referralsTable).values({
-        referrerUserId: referrer.id,
-        referredEmail,
-        status: "completed",
-        rewardGiven: true,
-      }).returning();
+  // No pending record found — create a new completed one
+  const [referral] = await db.insert(referralsTable).values({
+    referrerUserId: referrer.id,
+    referredEmail,
+    status: "completed",
+    rewardGiven: true,
+  }).returning();
 
   await grantReferralReward(referrer.id, 3);
   await grantReferralReward(referredUserId, 3);
