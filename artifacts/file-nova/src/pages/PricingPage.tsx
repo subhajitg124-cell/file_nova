@@ -5,6 +5,7 @@
 
 import React from "react";
 import { Link } from "wouter";
+import { motion } from "framer-motion";
 import { ChevronLeft, Sparkles, CheckCircle2, ShieldCheck, Zap, Loader, Copy, QrCode, Upload, Check, X } from "lucide-react";
 import { useSubscription, type PremiumTier, isTestingPeriodActive } from "@/hooks/useSubscription";
 import { TestingNotice } from "@/components/TestingNotice";
@@ -628,7 +629,12 @@ export default function PricingPage() {
 
       <main className="flex-1 mx-auto max-w-7xl px-4 py-12 space-y-12">
         {/* Title area */}
-        <div className="text-center max-w-2xl mx-auto space-y-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center max-w-2xl mx-auto space-y-4"
+        >
           <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-black text-primary">
             <Zap className="h-3 w-3" />
             Upgrade Workspace
@@ -653,11 +659,19 @@ export default function PricingPage() {
             Acquire unlimited bandwidth, premium tools, and voice assistance today.
             Start editing securely with no installation. Cancel anytime with a single click.
           </p>
-        </div>
+        </motion.div>
 
-        {/* Coupon Input — Bento Card */}
-        <div className="max-w-4xl mx-auto grid gap-4 sm:grid-cols-2">
-          <div className="bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-md rounded-2xl border border-border/60 p-5 shadow-sm flex flex-col gap-3">
+        {/* Coupon + Trust — Animated Bento Strip */}
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1 } } }}
+          className="max-w-4xl mx-auto grid gap-4 sm:grid-cols-2"
+        >
+          <motion.div
+            variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.45 } } }}
+            className="bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-md rounded-2xl border border-border/60 p-5 shadow-sm flex flex-col gap-3 hover:border-primary/25 transition-colors"
+          >
             <div className="flex items-center gap-2">
               <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center">
                 <Zap className="h-4 w-4 text-primary" />
@@ -684,9 +698,12 @@ export default function PricingPage() {
             </div>
             {couponError && <p className="text-xs font-bold text-red-500">{couponError}</p>}
             {couponSuccess && <p className="text-xs font-bold text-emerald-500">{couponSuccess}</p>}
-          </div>
+          </motion.div>
 
-          <div className="bg-gradient-to-br from-emerald-500/5 to-teal-500/5 backdrop-blur-md rounded-2xl border border-emerald-500/15 p-5 flex flex-col justify-center gap-3">
+          <motion.div
+            variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.45 } } }}
+            className="bg-gradient-to-br from-emerald-500/5 to-teal-500/5 backdrop-blur-md rounded-2xl border border-emerald-500/15 p-5 flex flex-col justify-center gap-3 hover:border-emerald-500/30 transition-colors"
+          >
             <div className="flex items-center gap-2">
               <div className="h-8 w-8 rounded-xl bg-emerald-500/10 flex items-center justify-center">
                 <ShieldCheck className="h-4 w-4 text-emerald-500" />
@@ -700,12 +717,20 @@ export default function PricingPage() {
               <span className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-emerald-500" /> Instant activation</span>
               <span className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-emerald-500" /> Cancel anytime</span>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
-        {/* Sachet Passes — Bento Cards */}
-        <div className="max-w-4xl mx-auto space-y-6 pt-4">
-          <div className="space-y-1.5 text-center">
+        {/* Sachet Passes — Animated Bento Cards */}
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.12 } } }}
+          className="max-w-4xl mx-auto space-y-6 pt-4"
+        >
+          <motion.div
+            variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } }}
+            className="space-y-1.5 text-center"
+          >
             <span className="inline-flex items-center gap-1.5 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-wider px-3.5 py-1 rounded-full border border-indigo-500/20">
               ⚡ Sachet Pass (Single Use Cycles)
             </span>
@@ -713,12 +738,17 @@ export default function PricingPage() {
             <p className="text-xs text-muted-foreground max-w-lg mx-auto">
               Get full access to all premium tools without a monthly recurring commitment.
             </p>
-          </div>
+          </motion.div>
           
           <div className="grid gap-4 sm:grid-cols-2 max-w-3xl mx-auto">
             {/* 24 Hour pass */}
-            <div className="rounded-2xl border border-indigo-500/20 bg-gradient-to-br from-indigo-950/20 via-card to-slate-900/40 p-6 flex flex-col justify-between hover:border-indigo-500/40 transition-all shadow-sm hover:shadow-md relative group text-left">
-              <div className="space-y-1.5">
+            <motion.div
+              variants={{ hidden: { opacity: 0, y: 20, scale: 0.97 }, visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5 } } }}
+              whileHover={{ y: -4, boxShadow: "0 8px 30px rgba(99,102,241,0.12)" }}
+              className="rounded-2xl border border-indigo-500/20 bg-gradient-to-br from-indigo-950/20 via-card to-slate-900/40 p-6 flex flex-col justify-between transition-colors hover:border-indigo-500/40 relative group text-left"
+            >
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+              <div className="relative space-y-1.5">
                 <div className="flex items-center gap-2">
                   <h3 className="text-base font-black text-foreground">24-Hour Pass</h3>
                   <span className="text-[9px] bg-indigo-500/15 text-indigo-400 font-bold px-2 py-0.5 rounded-full border border-indigo-500/20">Best Value</span>
@@ -726,12 +756,12 @@ export default function PricingPage() {
                 <p className="text-xs text-muted-foreground leading-normal">Complete access to pro tools, form autofills, and PDF builders for 24 hours.</p>
               </div>
               
-              <div className="flex items-baseline gap-1 pt-4 pb-4 border-t border-border/40 mt-4">
+              <div className="relative flex items-baseline gap-1 pt-4 pb-4 border-t border-border/40 mt-4">
                 <span className="text-2xl font-black text-foreground">₹9</span>
                 <span className="text-xs text-muted-foreground">/24 Hours</span>
               </div>
               
-              <div className="grid grid-cols-1 gap-2 xl:grid-cols-2">
+              <div className="relative grid grid-cols-1 gap-2 xl:grid-cols-2">
                 <button
                   onClick={() => handleSelectPlan("pass_24h")}
                   className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-black text-xs hover:opacity-90 shadow-glow cursor-pointer transition flex items-center justify-center"
@@ -740,11 +770,16 @@ export default function PricingPage() {
                 </button>
                 <UpiPaymentBox plan="pass_24h" amount={9} userEmail={user?.email} />
               </div>
-            </div>
+            </motion.div>
 
             {/* 7 day pass */}
-            <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-purple-950/20 via-card to-slate-900/40 p-6 flex flex-col justify-between hover:border-purple-500/40 transition-all shadow-sm hover:shadow-md relative group text-left">
-              <div className="space-y-1.5">
+            <motion.div
+              variants={{ hidden: { opacity: 0, y: 20, scale: 0.97 }, visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5 } } }}
+              whileHover={{ y: -4, boxShadow: "0 8px 30px rgba(168,85,247,0.12)" }}
+              className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-purple-950/20 via-card to-slate-900/40 p-6 flex flex-col justify-between transition-colors hover:border-purple-500/40 relative group text-left"
+            >
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+              <div className="relative space-y-1.5">
                 <div className="flex items-center gap-2">
                   <h3 className="text-base font-black text-foreground">Weekly Pass</h3>
                   <span className="text-[9px] bg-purple-500/15 text-purple-400 font-bold px-2 py-0.5 rounded-full border border-purple-500/20">Form Cycle</span>
@@ -752,12 +787,12 @@ export default function PricingPage() {
                 <p className="text-xs text-muted-foreground leading-normal">Perfect for processing admission sets and local scholarship forms over a week.</p>
               </div>
               
-              <div className="flex items-baseline gap-1 pt-4 pb-4 border-t border-border/40 mt-4">
+              <div className="relative flex items-baseline gap-1 pt-4 pb-4 border-t border-border/40 mt-4">
                 <span className="text-2xl font-black text-foreground">₹29</span>
                 <span className="text-xs text-muted-foreground">/7 Days</span>
               </div>
               
-              <div className="grid grid-cols-1 gap-2 xl:grid-cols-2">
+              <div className="relative grid grid-cols-1 gap-2 xl:grid-cols-2">
                 <button
                   onClick={() => handleSelectPlan("pass_7d")}
                   className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-black text-xs shadow-lg shadow-purple-500/10 transition cursor-pointer flex items-center justify-center"
@@ -766,52 +801,76 @@ export default function PricingPage() {
                 </button>
                 <UpiPaymentBox plan="pass_7d" amount={29} userEmail={user?.email} />
               </div>
-            </div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Plan Cards — Bento Grid */}
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 auto-rows-[minmax(0,1fr)] pt-4 max-w-6xl mx-auto">
-          {plans.map((p, i) => (
-            <div
-              key={p.id}
-              className={
-                p.isPopular
-                  ? "sm:col-span-2 sm:row-span-2"
-                  : i === 3
-                    ? "sm:col-start-2 lg:col-start-4"
-                    : ""
-              }
-            >
-              <PlanCard
-                id={p.id}
-                title={p.title}
-                price={getPlanPrice(p.id, p.originalPrice)}
-                period={p.period}
-                limit={p.limit}
-                description={p.description}
-                features={p.features}
-                accent={p.accent}
-                isPopular={p.isPopular}
-                ctaText={getPlanCta(p.id, p.ctaText)}
-                onSelect={() => handleSelectPlan(p.id)}
-                currentTier={premiumTier}
-                loading={loading}
-                amount={getPayableAmount(p.id, p.originalPrice)}
-                userEmail={user?.email}
-              />
-            </div>
-          ))}
-        </div>
+        {/* Plan Cards — Animated Bento Grid */}
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08, delayChildren: 0.2 } } }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 pt-4 max-w-6xl mx-auto"
+        >
+          {plans.map((p, i) => {
+            const isPro = p.isPopular;
+            const isElite = i === 3;
+            return (
+              <motion.div
+                key={p.id}
+                variants={{
+                  hidden: { opacity: 0, y: 24, scale: 0.96 },
+                  visible: {
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+                  },
+                }}
+                whileHover={isPro ? { scale: 1.02 } : { y: -6, transition: { duration: 0.25 } }}
+                className={
+                  isPro
+                    ? "lg:col-span-2 lg:row-span-2"
+                    : isElite
+                      ? "lg:col-start-4 lg:row-start-1 lg:row-span-2"
+                      : ""
+                }
+              >
+                <PlanCard
+                  id={p.id}
+                  title={p.title}
+                  price={getPlanPrice(p.id, p.originalPrice)}
+                  period={p.period}
+                  limit={p.limit}
+                  description={p.description}
+                  features={p.features}
+                  accent={p.accent}
+                  isPopular={p.isPopular}
+                  ctaText={getPlanCta(p.id, p.ctaText)}
+                  onSelect={() => handleSelectPlan(p.id)}
+                  currentTier={premiumTier}
+                  loading={loading}
+                  amount={getPayableAmount(p.id, p.originalPrice)}
+                  userEmail={user?.email}
+                />
+              </motion.div>
+            );
+          })}
+        </motion.div>
 
         {/* Cancellation policy footer */}
-        <div className="max-w-2xl mx-auto text-center text-xs text-muted-foreground border-t border-border pt-8 mt-6">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6, duration: 0.5 }}
+          className="max-w-2xl mx-auto text-center text-xs text-muted-foreground border-t border-border pt-8 mt-6"
+        >
           <p>Payments are managed securely by Razorpay. Price contains all GST fees.</p>
           <p className="mt-1.5">
             Want to stop subscription? Downgrade to the Free plan above anytime.
             Your premium benefits remain active until the end of the current billing month.
           </p>
-        </div>
+        </motion.div>
       </main>
       <OTPVerificationModal
         isOpen={otpOpen}
