@@ -92,6 +92,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
   const slug = location.replace(/^\//, "");
   const { premiumTier, premiumEnabled } = useSubscription();
   const { customFileName, setCustomFileName } = useFileStore();
+  const settingsRef = useRef<HTMLDivElement>(null);
 
   // Core UI States
   const [zoom, setZoom] = useState<number>(100);
@@ -132,6 +133,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
 
   // Mobile drawer controls panel toggle
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [activeWorkspaceTab, setActiveWorkspaceTab] = useState<"preview" | "settings">("preview");
 
   const theme = TOOL_THEMES[accentColor] || TOOL_THEMES.violet;
   const hasFiles = files.length > 0 || slug === "scholarship-zip" || slug === "ai-ppt-maker";
@@ -630,6 +632,58 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
     ? "fn-dynamic-filter"
     : "";
 
+  const renderPrimaryActionButton = (isFooter = false) => {
+    const paddingClass = isFooter ? "py-2.5 px-3" : "py-3 px-4";
+    const textClass = isFooter ? "text-[10px]" : "text-[11px]";
+    
+    if (isProcessing) {
+      return (
+        <div className="space-y-1.5 w-full">
+          <Progress value={progress} className="h-1.5 bg-slate-800 animate-pulse" />
+          <div className="flex justify-between text-[9px] font-mono text-slate-400">
+            <span className="animate-pulse">Processing...</span>
+            <span>{progress}%</span>
+          </div>
+        </div>
+      );
+    }
+
+    if (resultFile) {
+      return (
+        <button
+          onClick={onReset}
+          className={`w-full ${paddingClass} ${textClass} bg-slate-800 hover:bg-slate-750 border border-white/10 text-white rounded-xl font-black uppercase transition cursor-pointer flex items-center justify-center gap-1.5`}
+        >
+          <RefreshCw className="h-3.5 w-3.5" />
+          Clear Results
+        </button>
+      );
+    }
+
+    return (
+      <div className="flex gap-2 w-full font-sans">
+        <button
+          onClick={onReset}
+          className={`flex-1 ${paddingClass} ${textClass} border border-white/10 rounded-xl font-black uppercase text-slate-400 hover:text-white transition cursor-pointer`}
+        >
+          Clear
+        </button>
+        <button
+          onClick={onProcess}
+          disabled={!isReady || (!isOnline && !currentPlugin.capabilities.offlineReady)}
+          className={`flex-[2] ${paddingClass} ${textClass} rounded-xl font-black uppercase tracking-wider text-white shadow-lg transition flex items-center justify-center gap-1.5 cursor-pointer ${
+            isReady && (isOnline || currentPlugin.capabilities.offlineReady)
+              ? `bg-gradient-to-r ${theme.gradient} hover:scale-[1.01] active:scale-99`
+              : "opacity-45 bg-slate-850 text-slate-500 cursor-not-allowed border border-white/5"
+          }`}
+        >
+          <Play className="h-3.5 w-3.5 fill-current" />
+          <span>{isFooter ? "Process Queue" : `Process ${toolName}`}</span>
+        </button>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-[#090d16] text-[#f8fafc] flex flex-col font-sans select-none overflow-x-hidden relative">
       <style>{`
@@ -703,10 +757,10 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
               <button 
                 title="View recent processed files"
                 aria-label="View recent processed files"
-                className="px-2.5 py-1.5 rounded-xl border border-white/10 bg-slate-950/40 text-[10px] font-black uppercase tracking-wider text-slate-300 hover:text-white flex items-center gap-1 transition cursor-pointer"
+                className="px-2 py-1 md:px-2.5 md:py-1.5 rounded-xl border border-white/10 bg-slate-950/40 text-[10px] font-black uppercase tracking-wider text-slate-300 hover:text-white flex items-center gap-1 transition cursor-pointer"
               >
                 <Clock className="h-3.5 w-3.5" />
-                Recent
+                <span className="hidden md:inline">Recent</span>
               </button>
               <div className="absolute right-0 top-8 w-56 bg-slate-900 border border-white/10 rounded-2xl shadow-2xl p-2 hidden group-hover:block z-50">
                 <span className="text-[9px] font-black uppercase text-slate-500 px-2 py-1 block">Recently Processed</span>
@@ -730,22 +784,23 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
           <button
             onClick={handleSaveSession}
             disabled={!hasFiles}
-            className="px-2.5 py-1.5 rounded-xl border border-white/10 bg-slate-950/40 text-[10px] font-black uppercase tracking-wider text-slate-355 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 transition cursor-pointer"
+            className="px-2 py-1 md:px-2.5 md:py-1.5 rounded-xl border border-white/10 bg-slate-950/40 text-[10px] font-black uppercase tracking-wider text-slate-355 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 transition cursor-pointer"
             title="Save workspace file queue"
             aria-label="Save workspace file queue"
           >
             <Save className="h-3.5 w-3.5" />
-            Save Session
+            <span className="hidden md:inline">Save Session</span>
           </button>
 
           {/* Polishing: Panic Storage shredder button */}
           <button
             onClick={handlePanicShredder}
-            className="px-2.5 py-1.5 rounded-xl border border-rose-500/20 bg-rose-550/10 hover:bg-rose-600 text-[10px] font-black uppercase tracking-wider text-rose-400 hover:text-white transition cursor-pointer"
+            className="px-2 py-1 md:px-2.5 md:py-1.5 rounded-xl border border-rose-500/20 bg-rose-550/10 hover:bg-rose-600 text-[10px] font-black uppercase tracking-wider text-rose-400 hover:text-white transition cursor-pointer flex items-center justify-center animate-pulse-subtle"
             title="Permanently delete all workspace database cache files"
             aria-label="Panic Shredder Purge"
           >
-            Shred Cache
+            <span className="hidden md:inline">Shred Cache</span>
+            <span className="md:hidden flex items-center justify-center"><Trash2 className="h-3.5 w-3.5" /></span>
           </button>
 
           <button
@@ -1089,23 +1144,27 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
               <div className="flex items-center gap-2">
                 {currentPlugin.capabilities.offlineReady ? (
                   <span className="text-[9.5px] font-black uppercase text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                    Offline Enabled (Secure Local Processing)
+                    <span className="hidden md:inline">Offline Enabled (Secure Local Processing)</span>
+                    <span className="md:hidden">Offline Secure</span>
                   </span>
                 ) : (
                   <span className="text-[9.5px] font-black uppercase text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20">
-                    Cloud API Required
+                    <span className="hidden md:inline">Cloud API Required</span>
+                    <span className="md:hidden">Cloud API</span>
                   </span>
                 )}
               </div>
 
-              {/* Mobile settings toggle */}
-              <button
-                onClick={() => setMobileDrawerOpen(true)}
-                className="md:hidden px-2 py-1 bg-slate-900 border border-white/10 rounded-lg text-[10px] font-black uppercase text-slate-355 flex items-center gap-1 cursor-pointer"
-              >
-                <Settings2 className="h-3 w-3 text-indigo-400" />
-                Parameters
-              </button>
+              {/* Mobile settings scroll shortcut */}
+              {hasFiles && (
+                <button
+                  onClick={() => settingsRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                  className="md:hidden px-2 py-1 bg-slate-900 border border-white/10 rounded-lg text-[10px] font-black uppercase text-slate-300 hover:text-white flex items-center gap-1.5 transition cursor-pointer"
+                >
+                  <Settings2 className="h-3.5 w-3.5 text-indigo-400 animate-spin-slow" />
+                  <span>Settings</span>
+                </button>
+              )}
             </div>
 
             {/* Phase 2: Workflow Pipeline Stepper */}
@@ -1129,8 +1188,8 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                           {step.status === "done" ? "✓" : idx + 1}
                         </div>
                         <span className={`truncate font-bold select-none ${
-                          step.status === "active" ? "text-indigo-400" : 
-                          step.status === "done" ? "text-slate-300" : "text-slate-600"
+                          step.status === "active" ? "text-indigo-400 inline" : 
+                          step.status === "done" ? "text-slate-300 hidden md:inline" : "text-slate-600 hidden md:inline"
                         }`}>
                           {step.label}
                         </span>
@@ -1143,7 +1202,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
 
             {/* DECOUPLED COMPONENT REGISTRY RENDER WITH BRIGHTNESS/CONTRAST FILTERS */}
             <div 
-              className={`flex-1 flex items-center justify-center p-1 relative overflow-hidden bg-slate-950/30 rounded-3xl border border-white/[0.05] transition-all duration-200 ${filterClassName}`}
+              className={`flex-1 flex flex-col items-center justify-center p-1 relative overflow-hidden bg-slate-950/30 rounded-3xl border border-white/[0.05] transition-all duration-200 ${filterClassName} flex`}
             >
               <WorkspaceComponent
                 files={files}
@@ -1199,7 +1258,151 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                 }
               />
             </div>
-            
+
+            {/* MOBILE ONLY ADJUSTMENT SETTINGS & EDITING OPTIONS SECTION */}
+            {hasFiles && (
+              <div ref={settingsRef} className="md:hidden space-y-5 border-t border-white/[0.08] pt-5 mt-2 text-left w-full animate-fade-up">
+                <div className="flex items-center justify-between pb-1">
+                  <div className="flex items-center gap-2">
+                    <Settings2 className="h-4.5 w-4.5 text-indigo-400" />
+                    <h3 className="text-xs font-black uppercase tracking-wider text-white">Adjustment Settings</h3>
+                  </div>
+                  <button
+                    onClick={() => {
+                      const mainEl = settingsRef.current?.closest('main');
+                      if (mainEl) {
+                        mainEl.scrollTo({ top: 0, behavior: 'smooth' });
+                      }
+                    }}
+                    className="text-[9px] px-2.5 py-1 bg-slate-950 border border-white/10 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1 cursor-pointer"
+                  >
+                    ↑ Back to Preview
+                  </button>
+                </div>
+
+                {/* Output Filename Configuration Card */}
+                <div className="space-y-2">
+                  <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-500">Output Settings</h4>
+                  <div className="p-4 rounded-2xl bg-slate-950/60 border border-white/[0.05] space-y-3">
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-slate-400">
+                        <span>Output Filename</span>
+                        {!premiumEnabled && (
+                          <span className="text-[8px] bg-amber-500/10 text-amber-500 border border-amber-500/25 px-1.5 py-0.5 rounded-md flex items-center gap-0.5 font-bold">
+                            🔒 Premium Lock
+                          </span>
+                        )}
+                      </div>
+                      <input
+                        type="text"
+                        disabled={!premiumEnabled}
+                        value={premiumEnabled ? customFileName : getBrandedFileName(slug, getOutputExtensionForSlug(slug, files))}
+                        onChange={(e) => setCustomFileName(e.target.value)}
+                        title="Output Filename"
+                        placeholder="Custom output filename"
+                        className={`w-full bg-slate-950/60 border rounded-xl px-3 py-2 text-xs text-white focus:outline-none font-mono ${
+                          premiumEnabled 
+                            ? "border-white/10 focus:border-indigo-500" 
+                            : "border-white/5 text-slate-555 cursor-not-allowed select-none bg-slate-950/30 font-medium"
+                        }`}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Custom Tool-Specific Config Panel */}
+                <div className="space-y-2">
+                  <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-500">Adjustment Parameters</h4>
+                  <div className={`p-4 rounded-2xl bg-slate-950/60 border border-white/[0.05] space-y-4 ${isProcessing ? "opacity-45 pointer-events-none" : ""}`}>
+                    {configPanel}
+                    
+                    {/* Mobile Inline Action Button */}
+                    <div className="border-t border-white/5 pt-3">
+                      {renderPrimaryActionButton(false)}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Image Local Enhancements Slider panel */}
+                {(currentPlugin.category === "image" || currentPlugin.category === "ocr") && (
+                  <div className="space-y-3 p-4 bg-slate-950/60 border border-white/[0.05] rounded-2xl">
+                    <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-indigo-400">
+                      <span>Local Enhancements</span>
+                      <button onClick={() => { setBrightness(100); setContrast(100); }} className="text-[9px] text-slate-500 hover:text-indigo-400 transition cursor-pointer">Reset All</button>
+                    </div>
+                    <div className="space-y-3 text-[10px] font-bold">
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-slate-400">
+                          <span>Brightness: {brightness}%</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="50"
+                          max="200"
+                          value={brightness}
+                          onChange={(e) => setBrightness(Number(e.target.value))}
+                          title="Adjust Brightness"
+                          placeholder="Brightness percentage"
+                          className="w-full h-1.5 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                        />
+                      </div>
+                      
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-slate-400">
+                          <span>Contrast: {contrast}%</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="50"
+                          max="200"
+                          value={contrast}
+                          onChange={(e) => setContrast(Number(e.target.value))}
+                          title="Adjust Contrast"
+                          placeholder="Contrast percentage"
+                          className="w-full h-1.5 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Recommended Next Steps */}
+                <div className="space-y-2">
+                  <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-500">Recommended Next Steps</h4>
+                  <div className="bg-slate-950/60 border border-white/[0.05] rounded-2xl p-3 space-y-2">
+                    {getRecommendedTools().map(toolId => {
+                      const targetTool = TOOL_REGISTRY[toolId];
+                      if (!targetTool) return null;
+                      return (
+                        <button
+                          key={toolId}
+                          onClick={() => setLocation(`/${toolId}`)}
+                          className="w-full p-2.5 rounded-xl border border-white/[0.04] bg-slate-950/60 hover:bg-slate-900 hover:border-indigo-500/20 text-left transition flex items-center justify-between cursor-pointer"
+                        >
+                          <span className="text-[10px] font-black text-slate-355">{targetTool.name}</span>
+                          <ChevronRight className="h-3.5 w-3.5 text-slate-500" />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Privacy & Audits */}
+                <div className="space-y-2 pt-1">
+                  <button
+                    onClick={() => setPrivacyModalOpen(true)}
+                    className="w-full p-3 border border-white/[0.06] rounded-2xl bg-slate-950/80 hover:bg-slate-900 transition flex items-center justify-between cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Shield className="h-4 w-4 text-emerald-400" />
+                      <span className="text-[10px] font-black uppercase tracking-wider text-slate-200">Privacy & Audits</span>
+                    </div>
+                    <div className="h-2 w-2 rounded-full bg-emerald-400" />
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div className="text-center text-[10px] text-slate-500 font-bold border border-dashed border-white/5 p-3 rounded-2xl bg-slate-900/20 animate-pulse">
               Drag additional files here to append to document queue. Maximum files: {maxFiles}
             </div>
@@ -1250,8 +1453,13 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
             {/* Custom Tool-Specific Config Panel */}
             <div className="space-y-3">
               <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-500">Adjustment Parameters</h3>
-              <div className={`p-4 rounded-2xl bg-slate-950/60 border border-white/[0.05] ${isProcessing ? "opacity-45 pointer-events-none" : ""}`}>
+              <div className={`p-4 rounded-2xl bg-slate-950/60 border border-white/[0.05] space-y-4 ${isProcessing ? "opacity-45 pointer-events-none" : ""}`}>
                 {configPanel}
+                
+                {/* Desktop Inline Action Button */}
+                <div className="border-t border-white/5 pt-3">
+                  {renderPrimaryActionButton(false)}
+                </div>
               </div>
             </div>
 
@@ -1397,12 +1605,12 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
         )}
       </AnimatePresence>
 
-      {/* BOTTOM PANEL - Processing status and timeline logs */}
+        {/* BOTTOM PANEL - Processing status and timeline logs */}
       {hasFiles && (
-        <footer className="h-28 bg-[#090d16] border-t border-white/[0.08] grid grid-cols-12 z-30 sticky bottom-0">
+        <footer className="h-auto md:h-28 bg-[#090d16] border-t border-white/[0.08] flex flex-col md:grid md:grid-cols-12 z-30 sticky bottom-0">
           
           {/* Timeline processing logs */}
-          <div className="col-span-8 border-r border-white/[0.06] p-3 flex flex-col overflow-y-auto">
+          <div className="hidden md:flex md:col-span-8 border-r border-white/[0.06] p-3 flex-col overflow-y-auto">
             <span className="text-[9px] font-black uppercase tracking-wider text-slate-500 mb-1">Timeline Ticker Logs</span>
             <div className="space-y-0.5 font-mono text-[9px] text-slate-400">
               {timelineLogs.map((log, i) => (
@@ -1415,7 +1623,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
           </div>
 
           {/* Stats, Health Monitoring and Action Bar */}
-          <div className="col-span-4 p-3 flex flex-col justify-between">
+          <div className="col-span-12 md:col-span-4 p-3 flex flex-col justify-between gap-2.5">
             <div className="flex flex-col gap-0.5">
               <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-wider text-slate-500">
                 <span>Operational Health</span>
@@ -1428,43 +1636,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
               </div>
             </div>
 
-            {isProcessing ? (
-              <div className="space-y-1">
-                <Progress value={progress} className="h-1.5 bg-slate-800" />
-                <div className="flex justify-between text-[8px] font-mono text-slate-400">
-                  <span>Executing operation...</span>
-                  <span>{progress}%</span>
-                </div>
-              </div>
-            ) : !resultFile ? (
-              <div className="flex gap-2">
-                <button
-                  onClick={onReset}
-                  className="flex-1 py-2 border border-white/10 rounded-xl text-[10px] font-black uppercase text-slate-400 hover:text-white transition cursor-pointer"
-                >
-                  Clear
-                </button>
-                <button
-                  onClick={onProcess}
-                  disabled={!isReady || (!isOnline && !currentPlugin.capabilities.offlineReady)}
-                  className={`flex-[2] py-2 rounded-xl text-[10px] font-black uppercase tracking-wider text-white shadow-lg transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                    isReady && (isOnline || currentPlugin.capabilities.offlineReady)
-                      ? `bg-gradient-to-r ${theme.gradient} hover:scale-[1.02] active:scale-98`
-                      : "opacity-40 bg-slate-850 text-slate-500 cursor-not-allowed"
-                  }`}
-                >
-                  <Play className="h-3.5 w-3.5 fill-current" />
-                  Process Queue
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={onReset}
-                className="w-full py-2 bg-slate-800 border border-white/10 text-white rounded-xl text-[10px] font-black uppercase transition cursor-pointer"
-              >
-                Clear Results
-              </button>
-            )}
+            {renderPrimaryActionButton(true)}
           </div>
         </footer>
       )}

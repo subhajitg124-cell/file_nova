@@ -5,7 +5,6 @@ const REACTIONS: Record<string, { emoji: string; label: string }> = {
   "diwali-2026": { emoji: "🪔", label: "Send Diwali wishes" },
   "independence-day-2026": { emoji: "🇮🇳", label: "Jai Hind" },
   "durga-puja-2026": { emoji: "🌸", label: "Happy Durga Puja!" },
-  "scholarship-deadline-wb-2026": { emoji: "🎓", label: "All the best!" },
   "new-tool-launch-aadhaar": { emoji: "✨", label: "Awesome!" },
 };
 
