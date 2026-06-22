@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
-import { 
-  ArrowLeft, RefreshCw, Sparkles, AlertCircle, Search, Save, HelpCircle, 
-  Undo2, Redo2, ZoomIn, ZoomOut, Activity, Info, Calendar, 
+import {
+  ArrowLeft, RefreshCw, Sparkles, AlertCircle, Search, Save, HelpCircle,
+  Undo2, Redo2, ZoomIn, ZoomOut, Activity, Info, Calendar,
   ChevronRight, Download, Trash2, Play, CheckCircle2, Shield, Eye, Settings2, Clock, Upload, Camera, Clipboard, FileQuestion, FolderGit, AlertTriangle, Star, CheckCircle, FileText, CloudOff, CloudLightning, Settings, Sliders
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -25,6 +25,10 @@ import { toast } from "sonner";
 import { fileDatabase, DBFileRecord } from "@/lib/fileDatabase";
 import { analytics } from "@/lib/analytics";
 import { getBrandedFileName, getExtensionForMime, getOutputExtensionForSlug } from "@/hooks/useToolProcessor";
+import { WorkspaceHeader } from "./WorkspaceHeader";
+import { ProjectLibrarySidebar } from "./ProjectLibrarySidebar";
+import { WorkspaceUploadHub } from "./WorkspaceUploadHub";
+import { WorkspaceFooter } from "./WorkspaceFooter";
 
 export interface ToolWorkspaceStat {
   label: string;
@@ -92,7 +96,7 @@ export const TOOL_THEMES: Record<string, { accent: string; bg: string; border: s
   cyan:   { accent: "cyan-500",   bg: "bg-cyan-500/10",   border: "border-cyan-500/20",   text: "text-cyan-400",   gradient: "from-cyan-500 to-teal-600",    glow: "shadow-cyan-500/30" },
 };
 
-const COMPLIANCE_TIPS = [
+export const COMPLIANCE_TIPS = [
   "SVMCM Tip: Income certificates must be signed by a Joint BDO or higher to avoid portal rejection.",
   "NSDL PAN Tip: Ensure candidate photographs are cropped under 20KB and signatures under 10KB.",
   "UIDAI Tip: Do not upload unmasked Aadhaar cards to public portals. Mask the first 8 digits first.",
@@ -1109,132 +1113,27 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
       )}
 
       {/* HEADER PANEL */}
-      <header className="h-14 bg-card/90 border-b border-border backdrop-blur-xl flex items-center justify-between px-4 z-40 sticky top-0">
-        <div className="flex items-center gap-3">
-          <Link href="/" className="p-1.5 rounded-lg border border-border hover:bg-muted text-muted-foreground hover:text-foreground transition">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-          <div className="flex items-center gap-2">
-            <div className={`p-1.5 rounded-lg bg-gradient-to-tr ${theme.gradient} text-white shadow-lg`}>
-              {toolIcon}
-            </div>
-            <div>
-              <h1 className="text-xs font-black uppercase tracking-wider text-foreground leading-none">
-                {toolName}
-              </h1>
-              <span className="text-[9px] text-muted-foreground leading-none">FileNova Sandbox</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Header Search & Combobox Autocomplete */}
-        <div className="hidden md:flex items-center gap-2 relative max-w-xs w-full">
-          <div className="relative w-full">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              placeholder="Search or Ctrl + K..."
-              className="w-full bg-muted/80 border border-border rounded-xl pl-8 pr-3 py-1 text-xs text-foreground placeholder-muted-foreground focus:outline-none focus:border-indigo-500"
-            />
-          </div>
-
-          {searchResults.length > 0 && (
-            <div className="absolute top-9 left-0 right-0 bg-card border border-border rounded-2xl overflow-hidden shadow-2xl p-1 z-50">
-              {searchResults.map((r: any) => (
-                <button
-                  key={r.id}
-                  onClick={() => {
-                    setLocation(`/${r.id}`);
-                    setSearchQuery("");
-                    setSearchResults([]);
-                  }}
-                  className="w-full text-left p-2 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground text-[11px] font-bold transition flex items-center justify-between cursor-pointer"
-                >
-                  <span>{r.name}</span>
-                  <ChevronRight className="h-3 w-3 text-muted-foreground" />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Header Controls */}
-        <div className="flex items-center gap-2.5">
-          <button
-            onClick={() => setSidebarOpen(prev => !prev)}
-            title="Toggle workspace project library sidebar"
-            aria-label="Toggle Project Library"
-            className="px-2 py-1 md:px-2.5 md:py-1.5 rounded-xl border border-white/10 bg-slate-950/40 text-[10px] font-black uppercase tracking-wider text-slate-300 hover:text-white flex items-center gap-1 transition cursor-pointer"
-          >
-            <FolderGit className="h-3.5 w-3.5" />
-            <span className="hidden md:inline">Project Library</span>
-          </button>
-
-          {recentFiles.length > 0 && (
-            <div className="relative group">
-              <button 
-                title="View recent processed files"
-                aria-label="View recent processed files"
-                className="px-2 py-1 md:px-2.5 md:py-1.5 rounded-xl border border-white/10 bg-slate-950/40 text-[10px] font-black uppercase tracking-wider text-slate-300 hover:text-white flex items-center gap-1 transition cursor-pointer"
-              >
-                <Clock className="h-3.5 w-3.5" />
-                <span className="hidden md:inline">Recent</span>
-              </button>
-              <div className="absolute right-0 top-8 w-56 bg-slate-900 border border-white/10 rounded-2xl shadow-2xl p-2 hidden group-hover:block z-50">
-                <span className="text-[9px] font-black uppercase text-slate-500 px-2 py-1 block">Recently Processed</span>
-                <div className="space-y-1 mt-1 max-h-40 overflow-y-auto">
-                  {recentFiles.map((f, i) => (
-                    <a
-                      key={i}
-                      href={f.url}
-                      download={f.name}
-                      className="w-full text-left p-2 rounded-xl hover:bg-white/5 text-slate-300 hover:text-white text-[10px] font-bold block truncate"
-                    >
-                      <div className="truncate">{f.name}</div>
-                      <span className="text-[8px] text-slate-500">{f.time}</span>
-                    </a>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          <button
-            onClick={handleSaveSession}
-            disabled={!hasFiles}
-            className="px-2 py-1 md:px-2.5 md:py-1.5 rounded-xl border border-white/10 bg-slate-950/40 text-[10px] font-black uppercase tracking-wider text-slate-300 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 transition cursor-pointer"
-            title="Save workspace file queue"
-            aria-label="Save workspace file queue"
-          >
-            <Save className="h-3.5 w-3.5" />
-            <span className="hidden md:inline">Save Session</span>
-          </button>
-
-          {/* Polishing: Panic Storage shredder button */}
-          <button
-            onClick={handlePanicShredder}
-            className="px-2 py-1 md:px-2.5 md:py-1.5 rounded-xl border border-rose-500/20 bg-rose-500/10 hover:bg-rose-600 text-[10px] font-black uppercase tracking-wider text-rose-400 hover:text-white transition cursor-pointer flex items-center justify-center animate-pulse-subtle"
-            title="Permanently delete all workspace database cache files"
-            aria-label="Panic Shredder Purge"
-          >
-            <span className="hidden md:inline">Shred Cache</span>
-            <span className="md:hidden flex items-center justify-center"><Trash2 className="h-3.5 w-3.5" /></span>
-          </button>
-
-          <button
-            onClick={() => setHelpOpen(prev => !prev)}
-            title="Toggle help documentation"
-            aria-label="Toggle help documentation"
-            className="p-1.5 rounded-xl border border-white/10 bg-slate-950/40 text-slate-400 hover:text-white transition cursor-pointer"
-          >
-            <HelpCircle className="h-4 w-4" />
-          </button>
-
-          <ThemeToggle />
-        </div>
-      </header>
+      <WorkspaceHeader
+        toolName={toolName}
+        toolIcon={toolIcon}
+        accentColor={accentColor}
+        hasFiles={hasFiles}
+        recentFiles={recentFiles}
+        searchQuery={searchQuery}
+        onSearchChange={handleSearchChange}
+        searchResults={searchResults}
+        onSearchSelect={(id) => {
+          setLocation(`/${id}`);
+          setSearchQuery("");
+          setSearchResults([]);
+        }}
+        sidebarOpen={sidebarOpen}
+        onToggleSidebar={() => setSidebarOpen(prev => !prev)}
+        onSaveSession={handleSaveSession}
+        onPanicShredder={handlePanicShredder}
+        helpOpen={helpOpen}
+        onToggleHelp={() => setHelpOpen(prev => !prev)}
+      />
 
       {/* HELP INSTRUCTION DRAWER */}
       <AnimatePresence>
@@ -1261,59 +1160,14 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
 
       {/* WORKSPACE PANELS CONTAINER */}
       {!hasFiles ? (
-        /* UNIVERSAL UPLOAD HUB EMPTY STATE */
-        <div className="flex-1 flex flex-col items-center justify-center p-6 max-w-xl mx-auto w-full animate-fade-up">
-          {/* Privacy badge - prominent above fold */}
-          <div className="w-full mb-4 flex items-center justify-center gap-2 p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-emerald-400">
-            <Shield className="h-4 w-4 shrink-0" />
-            <span className="text-[11px] font-bold">100% processed locally in your browser — files never leave your device</span>
-          </div>
-          <div className="w-full bg-slate-900/40 border border-white/[0.08] rounded-3xl p-6 sm:p-10 shadow-2xl backdrop-blur-2xl text-center space-y-4">
-            <div className="flex justify-center gap-4 text-slate-400 text-xs font-bold mb-2">
-              <button title="Upload document" className="flex items-center gap-1 p-2 rounded-xl bg-slate-950/60 border border-white/5 hover:bg-slate-800 transition"><Upload className="h-4 w-4 text-indigo-400" /> Upload Any File</button>
-              <button title="Take photo from camera" className="flex items-center gap-1 p-2 rounded-xl bg-slate-950/60 border border-white/5 hover:bg-slate-800 transition"><Camera className="h-4 w-4 text-emerald-400" /> Camera</button>
-              <button title="Paste image from clipboard" className="flex items-center gap-1 p-2 rounded-xl bg-slate-950/60 border border-white/5 hover:bg-slate-800 transition"><Clipboard className="h-4 w-4 text-sky-400" /> Paste Image</button>
-            </div>
-
-            <h2 className="text-sm font-black uppercase tracking-wider text-slate-350">
-              Universal Upload Hub
-            </h2>
-            <p className="text-xs text-slate-500">Drop PDF, JPG, PNG or DOC files here. FileNova will auto-detect formats & recommend tools.</p>
-            
-            <FileDropZone
-              acceptedTypes={acceptedTypes}
-              maxFiles={maxFiles}
-              onFilesSelected={handleUniversalUpload}
-              accentColor={accentColor}
-            />
-
-            {detectedType && (
-              <div className="p-4 bg-slate-950/80 border border-white/5 rounded-2xl space-y-2 text-left animate-fade-up">
-                <div className="text-[10px] font-black uppercase text-indigo-400 flex items-center gap-1">
-                  <FileQuestion className="h-4 w-4" /> Detected {detectedType.toUpperCase()} Format
-                </div>
-                <p className="text-[11px] text-slate-400">Select a recommended action pipeline to process your file:</p>
-                <div className="flex gap-2 flex-wrap pt-1">
-                  {uploadRecommendations.map(toolId => {
-                    const toolObj = TOOL_REGISTRY[toolId];
-                    if (!toolObj) return null;
-                    return (
-                      <button
-                        key={toolId}
-                        onClick={() => {
-                          setLocation(`/${toolId}`);
-                        }}
-                        className="px-2.5 py-1.5 rounded-xl bg-indigo-600/10 hover:bg-indigo-600 text-white text-[10px] font-black border border-indigo-500/20 transition cursor-pointer"
-                      >
-                        {toolObj.name}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+        <WorkspaceUploadHub
+          acceptedTypes={acceptedTypes}
+          maxFiles={maxFiles}
+          onFilesSelected={handleUniversalUpload}
+          accentColor={accentColor}
+          detectedType={detectedType}
+          uploadRecommendations={uploadRecommendations}
+        />
       ) : (
         /* BENTO GRID WORKSPACE - fits full viewport, no scroll needed */
         <div className="flex-1 flex overflow-hidden" style={{ height: 'calc(100vh - 3.5rem - 4.5rem)' }}>
@@ -1321,174 +1175,27 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
           {/* LEFT SIDEBAR - Collapsible (spans width on desktop, slides in) */}
           <AnimatePresence>
             {sidebarOpen && (
-              <motion.aside
-                initial={{ width: 0, opacity: 0 }}
-                animate={{ width: "22rem", opacity: 1 }}
-                exit={{ width: 0, opacity: 0 }}
-                className="hidden lg:flex border-r border-white/[0.06] bg-slate-950/20 p-4 flex-col gap-5 overflow-y-auto h-full shrink-0"
-              >
-                {/* User Projects Section */}
-                <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1">
-                    <FolderGit className="h-3.5 w-3.5 text-indigo-400" /> Active Project Sandbox
-                  </h3>
-                  
-                  <div className="flex gap-1.5">
-                    <select
-                      value={currentProject}
-                      onChange={(e) => handleProjectChange(e.target.value)}
-                      title="Select active user project container"
-                      className="flex-1 bg-slate-950/60 border border-white/10 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500 font-bold"
-                    >
-                      {projectsList.map(proj => (
-                        <option key={proj} value={proj}>{proj}</option>
-                      ))}
-                    </select>
-                    <button
-                      onClick={() => setShowAddProject(prev => !prev)}
-                      className="px-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-white font-black text-xs cursor-pointer"
-                      title="Create new project folder"
-                    >
-                      +
-                    </button>
-                  </div>
-
-                  {showAddProject && (
-                    <form onSubmit={handleAddProject} className="flex gap-1.5 animate-fade-up">
-                      <input
-                        type="text"
-                        required
-                        value={newProjectName}
-                        onChange={(e) => setNewProjectName(e.target.value)}
-                        placeholder="New project name..."
-                        className="flex-1 bg-slate-950 border border-white/10 rounded-xl p-1.5 text-[10px] text-white focus:outline-none focus:border-indigo-500"
-                      />
-                      <button type="submit" className="px-2.5 bg-emerald-600 text-white rounded-xl text-[9px] font-black uppercase cursor-pointer">Add</button>
-                    </form>
-                  )}
-                </div>
-
-                {/* Global File Manager Tabs */}
-                <div className="space-y-3 flex-1 flex flex-col min-h-0">
-                  <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center justify-between">
-                    <span>Global File Manager</span>
-                    <span className="text-[8px] font-mono text-slate-500 bg-slate-950 px-1 py-0.5 rounded uppercase">{activeTab} view</span>
-                  </h3>
-
-                  <div className="grid grid-cols-4 gap-1 p-1 bg-slate-950/60 rounded-xl border border-white/5">
-                    {(["current", "recent", "downloads", "favorites"] as const).map(tab => (
-                      <button
-                        key={tab}
-                        onClick={() => setActiveTab(tab)}
-                        className={`text-[9px] font-black uppercase py-1 rounded-lg transition text-center cursor-pointer ${
-                          activeTab === tab 
-                            ? "bg-indigo-600 text-white shadow" 
-                            : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
-                        }`}
-                      >
-                        {tab === "current" ? "Queue" : tab}
-                      </button>
-                    ))}
-                  </div>
-
-                  <div className="flex-1 overflow-y-auto bg-slate-950/45 border border-white/[0.04] rounded-2xl p-2 space-y-1.5 min-h-[150px]">
-                    {activeTab === "current" ? (
-                      files.length === 0 ? (
-                        <span className="text-[9px] text-slate-600 block text-center py-6">No files currently in active processing queue.</span>
-                      ) : (
-                        files.map((f, idx) => (
-                          <div key={f.id} className="flex flex-col gap-1 text-[11px] bg-slate-900/50 p-2.5 rounded-xl border border-white/[0.02]">
-                            <span className="truncate font-bold text-slate-200">{idx + 1}. {f.name}</span>
-                            <span className="text-[9px] font-mono text-slate-500">{formatBytes(f.size)} &bull; {f.type.split("/")[1]?.toUpperCase() || "UNKNOWN"}</span>
-                          </div>
-                        ))
-                      )
-                    ) : (
-                      libraryFiles.length === 0 ? (
-                        <span className="text-[9px] text-slate-600 block text-center py-6">No files stored in project sandbox library.</span>
-                      ) : (
-                        libraryFiles.map((lf) => (
-                          <div key={lf.id} className="flex items-center justify-between text-[11px] bg-slate-900/40 p-2 rounded-xl border border-white/[0.02] hover:bg-slate-900/80 transition group">
-                            <div className="min-w-0 flex-1 pr-2">
-                              <span className="font-bold text-slate-300 block truncate" title={lf.name}>{lf.name}</span>
-                              <span className="text-[8.5px] font-mono text-slate-500 block">{formatBytes(lf.size)}</span>
-                            </div>
-                            <div className="flex items-center gap-1 shrink-0 opacity-40 group-hover:opacity-100 transition-opacity">
-                              <button
-                                onClick={() => handleImportLibraryFile(lf)}
-                                title="Load into workspace raw files queue"
-                                className="p-1 rounded bg-slate-950 hover:bg-indigo-600 hover:text-white text-indigo-400 cursor-pointer"
-                              >
-                                <Play className="h-3 w-3 fill-current" />
-                              </button>
-                              <button
-                                onClick={() => handleToggleFavoriteFile(lf)}
-                                title="Add/remove favorite"
-                                className={`p-1 rounded bg-slate-950 hover:bg-amber-600 hover:text-white cursor-pointer ${
-                                  lf.category === "Favorites" ? "text-amber-400" : "text-slate-500"
-                                }`}
-                              >
-                                <Star className="h-3 w-3 fill-current" />
-                              </button>
-                              <button
-                                onClick={() => handleDownloadLibraryFile(lf)}
-                                title="Download file blob"
-                                className="p-1 rounded bg-slate-950 hover:bg-slate-800 text-slate-400 cursor-pointer"
-                              >
-                                <Download className="h-3 w-3" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteLibraryFile(lf.id)}
-                                title="Delete file permanently"
-                                className="p-1 rounded bg-slate-950 hover:bg-rose-950 hover:text-rose-400 text-rose-500 cursor-pointer"
-                              >
-                                <Trash2 className="h-3 w-3" />
-                              </button>
-                            </div>
-                          </div>
-                        ))
-                      )
-                    )}
-                  </div>
-                </div>
-
-                {/* Offline Diagnostics Sync Container */}
-                <div className="space-y-3">
-                  <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-500">Offline Caching & Sync</h3>
-                  <div className="p-3 bg-slate-950/85 border border-white/5 rounded-2xl text-[10px] space-y-2 leading-relaxed">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-slate-400">IndexedDB status:</span>
-                      <span className="text-emerald-400 font-black uppercase">Active</span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-slate-400">Total Cache Size:</span>
-                      <span className={`font-mono ${dbSize > 100 * 1024 * 1024 ? "text-rose-400 font-bold" : "text-indigo-300"}`}>
-                        {formatBytes(dbSize)}
-                      </span>
-                    </div>
-
-                    {dbSize > 100 * 1024 * 1024 && (
-                      <div className="p-2 rounded-xl bg-rose-950/50 border border-rose-500/20 text-rose-400 flex items-start gap-1">
-                        <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5 text-rose-400 animate-pulse" />
-                        <span>Cache exceeds 100MB. Consider clearing old projects.</span>
-                      </div>
-                    )}
-                    
-                    {!isOnline ? (
-                      <div className="p-2 rounded-xl bg-red-950/50 border border-red-500/20 text-red-400 flex items-start gap-1">
-                        <CloudOff className="h-3.5 w-3.5 shrink-0 mt-0.5 text-red-400" />
-                        <span>Internet offline. Cloud-based conversions will fail until reconnected.</span>
-                      </div>
-                    ) : (
-                      <div className="p-2 rounded-xl bg-emerald-955/50 border border-emerald-500/20 text-emerald-400 flex items-start gap-1">
-                        <CloudLightning className="h-3.5 w-3.5 shrink-0 mt-0.5 text-emerald-400" />
-                        <span>Synchronized with cloud server gateway. Offline fallbacks active.</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </motion.aside>
+              <ProjectLibrarySidebar
+                currentProject={currentProject}
+                projectsList={projectsList}
+                showAddProject={showAddProject}
+                newProjectName={newProjectName}
+                activeTab={activeTab}
+                files={files}
+                libraryFiles={libraryFiles}
+                dbSize={dbSize}
+                isOnline={isOnline}
+                formatBytes={formatBytes}
+                onProjectChange={handleProjectChange}
+                onToggleAddProject={() => setShowAddProject(prev => !prev)}
+                onNewProjectNameChange={setNewProjectName}
+                onAddProject={handleAddProject}
+                onActiveTabChange={setActiveTab}
+                onImportLibraryFile={handleImportLibraryFile}
+                onToggleFavoriteFile={handleToggleFavoriteFile}
+                onDownloadLibraryFile={handleDownloadLibraryFile}
+                onDeleteLibraryFile={handleDeleteLibraryFile}
+              />
             )}
           </AnimatePresence>
 
@@ -2035,38 +1742,19 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
 
         {/* BOTTOM PANEL - Processing status and timeline logs */}
       {hasFiles && (
-        <footer className="h-auto md:h-28 bg-background border-t border-border flex flex-col md:grid md:grid-cols-12 z-30 sticky bottom-0">
-          
-          {/* Timeline processing logs */}
-          <div className="hidden md:flex md:col-span-8 border-r border-white/[0.06] p-3 flex-col overflow-y-auto">
-            <span className="text-[9px] font-black uppercase tracking-wider text-slate-500 mb-1">Timeline Ticker Logs</span>
-            <div className="space-y-0.5 font-mono text-[9px] text-slate-400">
-              {timelineLogs.map((log, i) => (
-                <div key={i} className="flex gap-2">
-                  <span className="text-slate-500 shrink-0">[{log.time}]</span>
-                  <span className="truncate">{log.text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Stats, Health Monitoring and Action Bar */}
-          <div className="col-span-12 md:col-span-4 p-3 flex flex-col justify-between gap-2.5">
-            <div className="flex flex-col gap-0.5">
-              <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-wider text-slate-500">
-                <span>Operational Health</span>
-                <span className="text-emerald-400">99.8% Online</span>
-              </div>
-              
-              {/* Kiosk guidelines compliance tips ticker */}
-              <div className="text-[9.5px] font-bold text-indigo-400 animate-pulse truncate block">
-                💡 {COMPLIANCE_TIPS[tipIndex]}
-              </div>
-            </div>
-
-            {renderPrimaryActionButton(true)}
-          </div>
-        </footer>
+        <WorkspaceFooter
+          isProcessing={isProcessing}
+          progress={progress}
+          resultFile={resultFile}
+          tipIndex={tipIndex}
+          onReset={onReset}
+          onProcess={onProcess}
+          isReady={isReady}
+          isOnline={isOnline}
+          offlineReady={currentPlugin.capabilities.offlineReady}
+          theme={theme}
+          toolName={toolName}
+        />
       )}
 
       {/* PRIVACY MODAL */}

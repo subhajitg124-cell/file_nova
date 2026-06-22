@@ -536,7 +536,8 @@ export const OptionsPanel: React.FC = () => {
   const removeRedactArea = (id: string) => setRedactAreas(prev => prev.length > 1 ? prev.filter(a => a.id !== id) : prev);
 
   const doSimulate = (outputMime?: string) => {
-    apiMock.simulateProcessing(jobId!, selectedOperation, files,
+    if (!jobId || !selectedOperation) return;
+    apiMock.simulateProcessing(jobId, selectedOperation, files,
       (p) => setProgress(p),
       (url, savings) => { setDownloadUrl(url); setSavings(savings); setProcessing(false); },
       (err) => { setError(err); setProcessing(false); },
@@ -595,6 +596,7 @@ export const OptionsPanel: React.FC = () => {
   const handleStartProcess = async () => {
     if (!jobId) return;
     if (editingDisabled) { setError(t.editingDisabled); return; }
+    if (!jobId || !selectedOperation) return;
     setProcessing(true); setError(null); setProgress(0);
     try {
       if (!isMockMode) {
@@ -2035,7 +2037,7 @@ export const OptionsPanel: React.FC = () => {
   const operationLabels: Record<string, string> = {
     compress: 'Compress', enhance: 'Enhance', convert: 'Convert', resize: 'Resize', edit: 'Edit', split: 'Split PDF', merge: 'Merge PDFs',
   };
-  const panelTitle = actionLabels[actionName] || operationLabels[selectedOperation] || 'Operation';
+  const panelTitle = actionLabels[actionName] || (selectedOperation ? operationLabels[selectedOperation] : undefined) || 'Operation';
 
   const fileCount = isScanMode ? (scannedFile ? 1 : 0) : files.length;
 

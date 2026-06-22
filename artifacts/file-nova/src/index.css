@@ -584,19 +584,6 @@
   .stagger-children > *:nth-child(5) { animation-delay:280ms; }
   .stagger-children > *:nth-child(6) { animation-delay:350ms; }
 
-  /* ── Upload zone marching dashes ────────────────────────────────────────── */
-  .border-march {
-    background-image:
-      repeating-linear-gradient(90deg,  var(--primary) 0, var(--primary) 8px, transparent 8px, transparent 16px),
-      repeating-linear-gradient(90deg,  var(--primary) 0, var(--primary) 8px, transparent 8px, transparent 16px),
-      repeating-linear-gradient(0deg,   var(--primary) 0, var(--primary) 8px, transparent 8px, transparent 16px),
-      repeating-linear-gradient(0deg,   var(--primary) 0, var(--primary) 8px, transparent 8px, transparent 16px);
-    background-size: 24px 2px, 24px 2px, 2px 24px, 2px 24px;
-    background-position: 0 0, 0 100%, 0 0, 100% 0;
-    background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
-    animation: march 0.4s linear infinite;
-  }
-
   /* ── Skeleton loader ─────────────────────────────────────────────────────── */
   .skeleton {
     background: linear-gradient(
