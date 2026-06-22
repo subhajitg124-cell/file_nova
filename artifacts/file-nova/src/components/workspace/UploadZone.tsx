@@ -210,21 +210,24 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
     <div className="w-full max-w-2xl mx-auto space-y-3">
       <motion.div
         {...(getRootProps() as any)}
-        whileHover={{ scale: 1.005 }}
-        whileTap={{ scale: 0.998 }}
+        whileHover={{ scale: 1.008 }}
+        whileTap={{ scale: 0.996 }}
         className={`
-          relative group cursor-pointer rounded-2xl border-2 transition-all duration-300 overflow-hidden
-          focus-within:ring-2 focus-within:ring-primary/50 focus-within:ring-offset-2 focus-within:ring-offset-background
-          min-h-[160px] sm:min-h-[200px]
+          relative group cursor-pointer rounded-2xl border-2 transition-all duration-350 overflow-hidden
+          focus-within:ring-2 focus-within:ring-brand-primary/50 focus-within:ring-offset-2 focus-within:ring-offset-background
+          min-h-[160px] sm:min-h-[200px] shadow-premium card-shine
           ${isDragActive
-            ? 'border-primary bg-primary/5 shadow-glow border-march'
-            : 'border-dashed border-border hover:border-primary/50 bg-card hover:bg-muted/30'
+            ? 'border-brand-primary bg-brand-primary/5 shadow-glow border-march'
+            : 'border-dashed border-border/80 bg-card/45 backdrop-blur-md hover:border-brand-primary/50 hover:bg-brand-primary/[0.015]'
           }
         `}
         role="button" tabIndex={0}
         aria-label={`File upload zone. ${getHeadline()}. ${getAcceptLabel()}`}
       >
         <input {...getInputProps()} />
+
+        {/* Dynamic cursor shine glow sweep */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-brand-primary/0 via-brand-primary/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
         {/* Background glow layer on drag */}
         <AnimatePresence>
@@ -242,10 +245,10 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
         </AnimatePresence>
 
         {/* Corner decorations */}
-        <div className="absolute top-3 left-3 h-4 w-4 border-t-2 border-l-2 border-border/40 rounded-tl-lg pointer-events-none transition-colors group-hover:border-primary/30" />
-        <div className="absolute top-3 right-3 h-4 w-4 border-t-2 border-r-2 border-border/40 rounded-tr-lg pointer-events-none transition-colors group-hover:border-primary/30" />
-        <div className="absolute bottom-3 left-3 h-4 w-4 border-b-2 border-l-2 border-border/40 rounded-bl-lg pointer-events-none transition-colors group-hover:border-primary/30" />
-        <div className="absolute bottom-3 right-3 h-4 w-4 border-b-2 border-r-2 border-border/40 rounded-br-lg pointer-events-none transition-colors group-hover:border-primary/30" />
+        <div className="absolute top-3 left-3 h-4 w-4 border-t-2 border-l-2 border-border/40 rounded-tl-lg pointer-events-none transition-colors group-hover:border-brand-primary/30" />
+        <div className="absolute top-3 right-3 h-4 w-4 border-t-2 border-r-2 border-border/40 rounded-tr-lg pointer-events-none transition-colors group-hover:border-brand-primary/30" />
+        <div className="absolute bottom-3 left-3 h-4 w-4 border-b-2 border-l-2 border-border/40 rounded-bl-lg pointer-events-none transition-colors group-hover:border-brand-primary/30" />
+        <div className="absolute bottom-3 right-3 h-4 w-4 border-b-2 border-r-2 border-border/40 rounded-br-lg pointer-events-none transition-colors group-hover:border-brand-primary/30" />
 
         <div className="relative flex flex-col items-center justify-center gap-4 sm:gap-5 p-5 sm:p-10 text-center">
           {isUploading ? (

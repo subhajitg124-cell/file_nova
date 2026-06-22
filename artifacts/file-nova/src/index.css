@@ -1257,6 +1257,39 @@ header[class*="sticky"] {
   transform: scale(1.025);
 }
 
+/* ── Marching Ants Border Animation ── */
+@keyframes border-march-anim {
+  0% { background-position: 0 0, 0 100%, 0 100%, 100% 0; }
+  100% { background-position: 40px 0, -40px 100%, 0 0, 100% 40px; }
+}
+.border-march {
+  background-image: linear-gradient(90deg, var(--brand-primary) 50%, transparent 50%), 
+                    linear-gradient(90deg, var(--brand-primary) 50%, transparent 50%), 
+                    linear-gradient(0deg, var(--brand-primary) 50%, transparent 50%), 
+                    linear-gradient(0deg, var(--brand-primary) 50%, transparent 50%);
+  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+  background-size: 20px 2px, 20px 2px, 2px 20px, 2px 20px;
+  background-position: 0 0, 0 100%, 0 100%, 100% 0;
+  animation: border-march-anim 1s infinite linear;
+  border-style: none !important;
+}
+
+/* ── Testimonials Infinite Horizontal Marquee ── */
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 35s linear infinite;
+}
+.animate-marquee-hover-pause:hover {
+  animation-play-state: paused;
+}
+
+
+
 
 
 

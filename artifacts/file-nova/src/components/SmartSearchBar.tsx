@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Search, ArrowRight, Clock, X, TrendingUp } from "lucide-react";
 import { useLocation } from "wouter";
 import { useTranslation } from "@/lib/i18n";
@@ -197,14 +198,18 @@ export function SmartSearchBar({
       </div>
 
       {/* Dropdown */}
-      {open && suggestions.length > 0 && (
-        <div
-          className="absolute top-full left-0 right-0 mt-2 z-[9999]
-                     bg-[#0f0f1a]/95 backdrop-blur-2xl
-                     border border-white/10
-                     rounded-2xl shadow-2xl overflow-hidden
-                     animate-in fade-in slide-in-from-top-2 duration-150"
-        >
+      <AnimatePresence>
+        {open && suggestions.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.98 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            className="absolute top-full left-0 right-0 mt-2.5 z-[9999]
+                       bg-[#0f0f1a]/90 backdrop-blur-2xl
+                       border border-white/10
+                       rounded-2xl shadow-[0_15px_50px_rgba(0,0,0,0.5)] overflow-hidden"
+          >
           {/* Section header */}
           <div className="px-4 pt-3 pb-1.5 flex items-center gap-2 border-b border-white/5">
             {query.trim() ? (
@@ -285,8 +290,9 @@ export function SmartSearchBar({
             <kbd className="text-[9px] bg-white/10 text-slate-400 px-1 py-0.5 rounded ml-auto font-extrabold">esc</kbd>
             <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">{tText("close")}</span>
           </div>
-        </div>
+        </motion.div>
       )}
+    </AnimatePresence>
     </div>
   );
 }

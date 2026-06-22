@@ -103,25 +103,24 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-indigo-500 selection:text-white relative overflow-x-hidden">
-      {/* Background Gradients */}
-      <div className="absolute top-0 left-0 right-0 h-[500px] bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.12),_transparent_65%)] pointer-events-none z-0" />
-      <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-[radial-gradient(circle_at_bottom_right,_rgba(168,85,247,0.06),_transparent_75%)] pointer-events-none z-0" />
+    <div className="min-h-screen bg-background text-foreground bg-mesh font-sans selection:bg-indigo-500 selection:text-white relative overflow-x-hidden">
+      {/* Background radial highlight */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.08),transparent_65%)] pointer-events-none z-0" />
 
       {/* Back button */}
       <div className="max-w-4xl mx-auto px-4 pt-8 pb-4 relative z-10">
-        <Link href="/" className="inline-flex items-center gap-2 rounded-xl border border-slate-900 bg-slate-950/65 backdrop-blur-md px-4 py-2 text-xs font-bold text-slate-400 hover:text-white transition-all hover:scale-105">
+        <Link href="/" className="inline-flex items-center gap-2 rounded-xl border border-border/80 bg-card/45 backdrop-blur-md px-4 py-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-all hover:scale-105">
           <ChevronLeft className="h-4 w-4" />
           Back to Home
         </Link>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 pb-20 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start animate-fade-up">
           
           {/* Left Column: Summary Card */}
           <div className="md:col-span-4 space-y-6">
-            <div className="bg-slate-900/40 border border-slate-900 rounded-3xl p-6 backdrop-blur-xl flex flex-col items-center text-center shadow-xl">
+            <div className="bg-card/45 border border-border/80 rounded-3xl p-6 backdrop-blur-xl flex flex-col items-center text-center shadow-premium card-shine">
               <div className="h-20 w-20 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white text-3xl font-black mb-4 shadow-lg border-2 border-slate-800">
                 {(user.name || user.email).charAt(0).toUpperCase()}
               </div>
@@ -192,34 +191,46 @@ export default function ProfilePage() {
               </div>
 
               {isEditing ? (
-                <form onSubmit={handleUpdateProfile} className="space-y-4">
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Full Name</label>
-                    <div className="relative">
-                      <User className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 h-4 w-4" />
-                      <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        className="w-full bg-slate-950 border border-slate-900 focus:border-indigo-500/50 rounded-xl pl-10 pr-4 py-3 text-xs text-white focus:outline-none transition"
-                        placeholder="John Doe"
-                        required
-                      />
-                    </div>
+                <form onSubmit={handleUpdateProfile} className="space-y-5">
+                  <div className="relative mt-2 group/field">
+                    <input
+                      type="text"
+                      id="profile-name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="peer w-full bg-slate-950/45 border border-slate-900 focus:border-indigo-500/50 rounded-xl pl-10 pr-4 pt-5 pb-2 text-xs text-white focus:outline-none transition-all placeholder-transparent backdrop-blur-md"
+                      placeholder=" "
+                      required
+                    />
+                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 peer-focus:text-indigo-400 transition-all h-4 w-4 pointer-events-none" />
+                    <label 
+                      htmlFor="profile-name"
+                      className="absolute left-10 top-2 text-[9px] font-bold text-indigo-400 uppercase tracking-wider transition-all
+                        peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-xs peer-placeholder-shown:text-slate-500 peer-placeholder-shown:font-normal peer-placeholder-shown:lowercase peer-placeholder-shown:normal-case
+                        peer-focus:top-2 peer-focus:-translate-y-0 peer-focus:text-[9px] peer-focus:font-bold peer-focus:text-indigo-400 peer-focus:uppercase peer-focus:tracking-wider pointer-events-none"
+                    >
+                      Full Name
+                    </label>
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Phone Number</label>
-                    <div className="relative">
-                      <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 h-4 w-4" />
-                      <input
-                        type="tel"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="w-full bg-slate-950 border border-slate-900 focus:border-indigo-500/50 rounded-xl pl-10 pr-4 py-3 text-xs text-white focus:outline-none transition"
-                        placeholder="e.g. +91 98765 43210"
-                      />
-                    </div>
+                  <div className="relative group/field">
+                    <input
+                      type="tel"
+                      id="profile-phone"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="peer w-full bg-slate-950/45 border border-slate-900 focus:border-indigo-500/50 rounded-xl pl-10 pr-4 pt-5 pb-2 text-xs text-white focus:outline-none transition-all placeholder-transparent backdrop-blur-md"
+                      placeholder=" "
+                    />
+                    <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 peer-focus:text-indigo-400 transition-all h-4 w-4 pointer-events-none" />
+                    <label 
+                      htmlFor="profile-phone"
+                      className="absolute left-10 top-2 text-[9px] font-bold text-indigo-400 uppercase tracking-wider transition-all
+                        peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-xs peer-placeholder-shown:text-slate-500 peer-placeholder-shown:font-normal peer-placeholder-shown:lowercase peer-placeholder-shown:normal-case
+                        peer-focus:top-2 peer-focus:-translate-y-0 peer-focus:text-[9px] peer-focus:font-bold peer-focus:text-indigo-400 peer-focus:uppercase peer-focus:tracking-wider pointer-events-none"
+                    >
+                      Phone Number
+                    </label>
                   </div>
 
                   <div className="flex gap-3 pt-2">
@@ -282,50 +293,68 @@ export default function ProfilePage() {
               </div>
 
               {isChangingPassword ? (
-                <form onSubmit={handleChangePassword} className="space-y-4">
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Current Password</label>
-                    <div className="relative">
-                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 h-4 w-4" />
-                      <input
-                        type="password"
-                        value={currentPassword}
-                        onChange={(e) => setCurrentPassword(e.target.value)}
-                        className="w-full bg-slate-950 border border-slate-900 focus:border-indigo-500/50 rounded-xl pl-10 pr-4 py-3 text-xs text-white focus:outline-none transition"
-                        placeholder="••••••••"
-                        required
-                      />
-                    </div>
+                <form onSubmit={handleChangePassword} className="space-y-5">
+                  <div className="relative mt-2 group/field">
+                    <input
+                      type="password"
+                      id="current-password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      className="peer w-full bg-slate-950/45 border border-slate-900 focus:border-indigo-500/50 rounded-xl pl-10 pr-4 pt-5 pb-2 text-xs text-white focus:outline-none transition-all placeholder-transparent backdrop-blur-md"
+                      placeholder=" "
+                      required
+                    />
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 peer-focus:text-indigo-400 transition-all h-4 w-4 pointer-events-none" />
+                    <label 
+                      htmlFor="current-password"
+                      className="absolute left-10 top-2 text-[9px] font-bold text-indigo-400 uppercase tracking-wider transition-all
+                        peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-xs peer-placeholder-shown:text-slate-500 peer-placeholder-shown:font-normal peer-placeholder-shown:lowercase peer-placeholder-shown:normal-case
+                        peer-focus:top-2 peer-focus:-translate-y-0 peer-focus:text-[9px] peer-focus:font-bold peer-focus:text-indigo-400 peer-focus:uppercase peer-focus:tracking-wider pointer-events-none"
+                    >
+                      Current Password
+                    </label>
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">New Password</label>
-                    <div className="relative">
-                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 h-4 w-4" />
-                      <input
-                        type="password"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        className="w-full bg-slate-950 border border-slate-900 focus:border-indigo-500/50 rounded-xl pl-10 pr-4 py-3 text-xs text-white focus:outline-none transition"
-                        placeholder="Min 8 characters"
-                        required
-                      />
-                    </div>
+                  <div className="relative group/field">
+                    <input
+                      type="password"
+                      id="new-password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="peer w-full bg-slate-950/45 border border-slate-900 focus:border-indigo-500/50 rounded-xl pl-10 pr-4 pt-5 pb-2 text-xs text-white focus:outline-none transition-all placeholder-transparent backdrop-blur-md"
+                      placeholder=" "
+                      required
+                    />
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 peer-focus:text-indigo-400 transition-all h-4 w-4 pointer-events-none" />
+                    <label 
+                      htmlFor="new-password"
+                      className="absolute left-10 top-2 text-[9px] font-bold text-indigo-400 uppercase tracking-wider transition-all
+                        peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-xs peer-placeholder-shown:text-slate-500 peer-placeholder-shown:font-normal peer-placeholder-shown:lowercase peer-placeholder-shown:normal-case
+                        peer-focus:top-2 peer-focus:-translate-y-0 peer-focus:text-[9px] peer-focus:font-bold peer-focus:text-indigo-400 peer-focus:uppercase peer-focus:tracking-wider pointer-events-none"
+                    >
+                      New Password (Min 8 chars)
+                    </label>
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Confirm New Password</label>
-                    <div className="relative">
-                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 h-4 w-4" />
-                      <input
-                        type="password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full bg-slate-950 border border-slate-900 focus:border-indigo-500/50 rounded-xl pl-10 pr-4 py-3 text-xs text-white focus:outline-none transition"
-                        placeholder="••••••••"
-                        required
-                      />
-                    </div>
+                  <div className="relative group/field">
+                    <input
+                      type="password"
+                      id="confirm-password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="peer w-full bg-slate-950/45 border border-slate-900 focus:border-indigo-500/50 rounded-xl pl-10 pr-4 pt-5 pb-2 text-xs text-white focus:outline-none transition-all placeholder-transparent backdrop-blur-md"
+                      placeholder=" "
+                      required
+                    />
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 peer-focus:text-indigo-400 transition-all h-4 w-4 pointer-events-none" />
+                    <label 
+                      htmlFor="confirm-password"
+                      className="absolute left-10 top-2 text-[9px] font-bold text-indigo-400 uppercase tracking-wider transition-all
+                        peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-xs peer-placeholder-shown:text-slate-500 peer-placeholder-shown:font-normal peer-placeholder-shown:lowercase peer-placeholder-shown:normal-case
+                        peer-focus:top-2 peer-focus:-translate-y-0 peer-focus:text-[9px] peer-focus:font-bold peer-focus:text-indigo-400 peer-focus:uppercase peer-focus:tracking-wider pointer-events-none"
+                    >
+                      Confirm New Password
+                    </label>
                   </div>
 
                   <div className="flex gap-3 pt-2">
@@ -360,19 +389,20 @@ export default function ProfilePage() {
             </div>
 
             {/* Danger Zone */}
-            <div className="bg-slate-950 border border-red-500/20 rounded-3xl p-6 shadow-xl relative overflow-hidden">
-              <div className="absolute inset-0 bg-red-500/[0.01] pointer-events-none" />
-              <h3 className="font-extrabold text-sm text-red-400 uppercase tracking-wider flex items-center gap-2 mb-3">
+            <div className="bg-red-500/[0.02] border border-red-500/30 rounded-3xl p-6 shadow-xl relative overflow-hidden group/danger shadow-red-950/10">
+              <div className="absolute inset-0 bg-gradient-to-r from-red-500/[0.02] via-transparent to-red-500/[0.02] pointer-events-none" />
+              <div className="absolute top-0 right-0 -translate-y-12 translate-x-12 w-36 h-36 bg-red-500/[0.04] rounded-full blur-2xl group-hover/danger:bg-red-500/[0.08] transition-all duration-700 pointer-events-none" />
+              <h3 className="font-extrabold text-sm text-red-400 uppercase tracking-wider flex items-center gap-2 mb-3 relative z-10">
                 <ShieldAlert className="h-4.5 w-4.5" />
                 Danger Zone
               </h3>
-              <p className="text-xs text-slate-500 leading-relaxed mb-6">
+              <p className="text-xs text-slate-400/90 leading-relaxed mb-6 relative z-10">
                 Permanently delete your account and all associated document configurations. This action is instantaneous, irreversible, and cannot be undone.
               </p>
 
               <button
                 onClick={() => setShowDeleteModal(true)}
-                className="py-2.5 px-4 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 hover:border-red-500/30 text-red-400 hover:text-red-300 font-bold text-xs rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
+                className="py-2.5 px-4 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 hover:border-red-500/30 text-red-400 hover:text-red-300 font-bold text-xs rounded-xl transition-all cursor-pointer flex items-center gap-1.5 relative z-10"
               >
                 <Trash2 className="h-3.5 w-3.5" />
                 Delete Account
@@ -395,13 +425,24 @@ export default function ProfilePage() {
               To proceed with deletion, please type <strong className="text-white font-extrabold">delete my account</strong> below to confirm.
             </p>
 
-            <input
-              type="text"
-              value={deleteConfirmText}
-              onChange={(e) => setDeleteConfirmText(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-850 focus:border-red-500/50 rounded-xl px-4 py-3 text-xs text-white focus:outline-none transition mb-6"
-              placeholder="delete my account"
-            />
+            <div className="relative group/field mb-6">
+              <input
+                type="text"
+                id="delete-confirm"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                className="peer w-full bg-slate-950/60 border border-red-950 focus:border-red-500/50 rounded-xl px-4 pt-5 pb-2 text-xs text-white focus:outline-none transition-all placeholder-transparent backdrop-blur-md"
+                placeholder=" "
+              />
+              <label 
+                htmlFor="delete-confirm"
+                className="absolute left-4 top-2 text-[9px] font-bold text-red-400 uppercase tracking-wider transition-all
+                  peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-xs peer-placeholder-shown:text-slate-500 peer-placeholder-shown:font-normal peer-placeholder-shown:lowercase peer-placeholder-shown:normal-case
+                  peer-focus:top-2 peer-focus:-translate-y-0 peer-focus:text-[9px] peer-focus:font-bold peer-focus:text-red-400 peer-focus:uppercase peer-focus:tracking-wider pointer-events-none"
+              >
+                Type "delete my account" to confirm
+              </label>
+            </div>
 
             <div className="flex gap-3 justify-end">
               <button

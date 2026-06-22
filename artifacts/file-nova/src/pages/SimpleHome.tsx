@@ -453,21 +453,28 @@ export default function SimpleHome() {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.08),transparent_65%)] pointer-events-none z-0" />
 
       {/* Header Nav */}
-      <header className="sticky top-0 z-40 border-b border-border/40 bg-background/80 backdrop-blur-xl transition-all">
-        <div className="max-w-6xl mx-auto px-3 sm:px-4 h-16 flex items-center justify-between gap-2">
+      <motion.header
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 260, damping: 20 }}
+        className="sticky top-0 z-40 w-full bg-transparent py-3 px-3 sm:px-4 transition-all duration-300"
+      >
+        <div className="max-w-6xl mx-auto h-14 px-4 sm:px-6 flex items-center justify-between gap-2 rounded-full border border-border/60 bg-background/70 backdrop-blur-xl shadow-premium relative overflow-hidden group/nav">
+          <div className="absolute inset-0 bg-gradient-to-r from-brand-primary/0 via-brand-primary/10 to-brand-primary/0 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-500 pointer-events-none" />
+          
           {/* Logo - compact, tagline only in hero */}
-          <Link href="/" className="flex items-center gap-2.5 shrink-0">
-            <img src="/logo.png" alt="FileNova logo" className="h-9 w-auto" />
+          <Link href="/" className="flex items-center gap-2.5 shrink-0 relative z-10">
+            <img src="/logo.png" alt="FileNova logo" className="h-8 w-auto" />
             <span className="font-extrabold text-sm text-foreground hidden sm:block">FileNova</span>
           </Link>
 
           {/* Search bar - hidden below lg (1024px) */}
-          <div className="relative max-w-[240px] xl:max-w-xs w-full hidden lg:block">
+          <div className="relative max-w-[240px] xl:max-w-xs w-full hidden lg:block z-10">
             <SmartSearchBar placeholder={tText("Search 30+ document tools...")} />
           </div>
 
           {/* Right Action Menu */}
-          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 relative z-10">
 
             {/* Combined Settings (Language + Theme) - icon only */}
             <div className="relative hidden md:block">
@@ -479,18 +486,26 @@ export default function SimpleHome() {
               >
                 <Settings2 className="h-4 w-4" />
               </button>
-              {settingsOpen && (
-                <div className="absolute right-0 top-full mt-2.5 bg-card border border-border rounded-xl shadow-xl p-4 space-y-4 z-50 min-w-[200px]">
-                  <div>
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">{tText("Theme")}</p>
-                    <ThemeToggle />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">{tText("Language")}</p>
-                    <LanguageSelector />
-                  </div>
-                </div>
-              )}
+              <AnimatePresence>
+                {settingsOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.15, ease: "easeOut" }}
+                    className="absolute right-0 top-full mt-3 bg-card border border-border rounded-xl shadow-xl p-4 space-y-4 z-50 min-w-[200px]"
+                  >
+                    <div>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">{tText("Theme")}</p>
+                      <ThemeToggle />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">{tText("Language")}</p>
+                      <LanguageSelector />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Secondary Desktop Nav - inline at xl+ (1280px+) */}
@@ -518,20 +533,28 @@ export default function SimpleHome() {
                 <Menu className="h-3.5 w-3.5" />
                 {tText("Menu")}
               </button>
-              {moreMenuOpen && (
-                <div className="absolute right-0 top-full mt-2.5 bg-card border border-border rounded-xl shadow-xl p-2 z-50 min-w-[190px] space-y-0.5">
-                  <div className="px-2 py-1.5"><PopularToolsDropdown /></div>
-                  <Link href="/india-tools" onClick={() => setMoreMenuOpen(false)} className="flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-bold text-emerald-500 hover:bg-accent/60 transition-colors">
-                    🇮🇳 {tText("India Tools")}
-                  </Link>
-                  <Link href="/workflows" onClick={() => setMoreMenuOpen(false)} className="flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-bold text-indigo-500 hover:bg-accent/60 transition-colors">
-                    <Zap className="h-4 w-4" /> {tText("Workflows")}
-                  </Link>
-                  <Link href="/workspace" onClick={() => setMoreMenuOpen(false)} className="flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-bold text-foreground hover:bg-accent/60 transition-colors">
-                    <FileText className="h-4 w-4" /> {tText("Workspace")}
-                  </Link>
-                </div>
-              )}
+              <AnimatePresence>
+                {moreMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.15, ease: "easeOut" }}
+                    className="absolute right-0 top-full mt-3 bg-card border border-border rounded-xl shadow-xl p-2 z-50 min-w-[190px] space-y-0.5"
+                  >
+                    <div className="px-2 py-1.5"><PopularToolsDropdown /></div>
+                    <Link href="/india-tools" onClick={() => setMoreMenuOpen(false)} className="flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-bold text-emerald-500 hover:bg-accent/60 transition-colors">
+                      🇮🇳 {tText("India Tools")}
+                    </Link>
+                    <Link href="/workflows" onClick={() => setMoreMenuOpen(false)} className="flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-bold text-indigo-500 hover:bg-accent/60 transition-colors">
+                      <Zap className="h-4 w-4" /> {tText("Workflows")}
+                    </Link>
+                    <Link href="/workspace" onClick={() => setMoreMenuOpen(false)} className="flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-bold text-foreground hover:bg-accent/60 transition-colors">
+                      <FileText className="h-4 w-4" /> {tText("Workspace")}
+                    </Link>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Premium Suite CTA - highest contrast, solid gradient button */}
@@ -568,11 +591,18 @@ export default function SimpleHome() {
             </button>
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {/* Mobile Menu Panel - hidden at lg+ */}
-      {mobileMenuOpen && (
-        <div className="mobile-menu-panel lg:hidden border-b border-border bg-background p-4 space-y-3 animate-fadeIn relative z-30">
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.25, ease: "easeInOut" }}
+            className="mobile-menu-panel lg:hidden border border-border/60 bg-background/95 backdrop-blur-xl p-4 space-y-3 rounded-2xl shadow-premium mt-2 mx-4 overflow-hidden relative z-30"
+          >
           <div className="relative">
             <SmartSearchBar placeholder={tText("Search tools...")} />
           </div>
@@ -603,8 +633,9 @@ export default function SimpleHome() {
               <LanguageSelector />
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
+    </AnimatePresence>
 
       {premiumTier === "free" && showUpgradeBanner && (
         <div className="bg-gradient-to-r from-indigo-900 via-indigo-950 to-indigo-900 border-b border-indigo-500/20 py-2 px-4 text-center text-xs font-bold text-slate-200 flex items-center justify-center gap-2 relative z-20">
@@ -922,30 +953,219 @@ export default function SimpleHome() {
             {tText("FileNova is engineered by a B.Tech CSE student in West Bengal. Over 2,800+ files processed locally in India this month.")}
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-left">
-            <div className="p-6 bg-background border border-border rounded-xl space-y-3 shadow-sm hover:border-brand-primary/30 transition-all">
-              <div className="h-10 w-10 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 flex items-center justify-center font-bold text-lg">🇮🇳</div>
-              <h3 className="font-extrabold text-sm text-foreground">{tText("Built for Indian portals")}</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                {tText("Exact pixel and KB specs for NSP, OASIS, NSDL/UTI, SVMCM marksheets, and scholarship ZIP requirements — pre-configured, not guesswork.")}
-              </p>
-            </div>
-            
-            <div className="p-6 bg-background border border-border rounded-xl space-y-3 shadow-sm hover:border-brand-primary/30 transition-all">
-              <div className="h-10 w-10 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-lg">🔒</div>
-              <h3 className="font-extrabold text-sm text-foreground">{tText("Aadhaar never leaves your browser")}</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                {tText("Aadhaar masking, PAN resize, and photo tools run entirely on your device. Zero document files upload to any server.")}
-              </p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left max-w-5xl mx-auto">
+            {/* Bento Card 1: Aadhaar safety (2-col flagship bento block) */}
+            <motion.div 
+              whileHover={{ y: -4 }}
+              className="md:col-span-2 p-8 bg-slate-900/40 border border-border/80 rounded-3xl space-y-4 shadow-premium hover:border-brand-primary/45 transition-all backdrop-blur-xl relative overflow-hidden flex flex-col md:flex-row gap-6 items-center justify-between group"
+            >
+              <div className="space-y-3 max-w-sm">
+                <div className="h-10 w-10 rounded-xl bg-emerald-500/10 text-emerald-450 flex items-center justify-center font-bold text-lg">🔒</div>
+                <h3 className="font-extrabold text-sm text-white">{tText("Aadhaar safety: Local-first processing")}</h3>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  {tText("Aadhaar masking, PAN resizing, and photos are processed entirely within your browser sandboxed sandbox. Your document files never upload to any remote server.")}
+                </p>
+              </div>
+              
+              {/* Animated Interactive Masking Simulation Card */}
+              <div className="w-full max-w-[240px] bg-slate-950 border border-slate-800/80 rounded-2xl p-4 space-y-3 shadow-2xl relative overflow-hidden select-none shrink-0">
+                <div className="absolute top-0 right-0 p-1 px-2 rounded-bl-xl bg-emerald-500/15 border-l border-b border-emerald-500/20 text-[8px] font-black text-emerald-400 uppercase tracking-widest">
+                  Client Side
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-6 w-6 rounded bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-[10px]">🇮🇳</div>
+                  <div>
+                    <div className="h-1.5 w-16 bg-slate-800 rounded" />
+                    <div className="h-1 w-10 bg-slate-900 rounded mt-1" />
+                  </div>
+                </div>
+                <div className="space-y-1.5 pt-2">
+                  <div className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">{tText("Aadhaar Number")}</div>
+                  <div className="h-8 bg-slate-900/60 rounded-xl border border-slate-850 flex items-center justify-center px-3 font-mono text-xs text-slate-350 relative overflow-hidden">
+                    <motion.span
+                      animate={{
+                        opacity: [1, 0, 1],
+                      }}
+                      transition={{
+                        repeat: Infinity,
+                        duration: 3,
+                        times: [0, 0.5, 1],
+                      }}
+                      className="absolute"
+                    >
+                      1234 5678 9012
+                    </motion.span>
+                    <motion.span
+                      animate={{
+                        opacity: [0, 1, 0],
+                      }}
+                      transition={{
+                        repeat: Infinity,
+                        duration: 3,
+                        times: [0, 0.5, 1],
+                      }}
+                      className="absolute text-emerald-450 font-bold"
+                    >
+                      xxxx xxxx 9012
+                    </motion.span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center text-[9px] text-slate-500 pt-1 border-t border-slate-900">
+                  <span>Status:</span>
+                  <span className="text-emerald-400 font-bold flex items-center gap-1">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
+                    Secured
+                  </span>
+                </div>
+              </div>
+            </motion.div>
 
-            <div className="p-6 bg-background border border-border rounded-xl space-y-3 shadow-sm hover:border-brand-primary/30 transition-all">
-              <div className="h-10 w-10 rounded-lg bg-indigo-500/10 text-indigo-650 dark:text-indigo-400 flex items-center justify-center font-bold text-lg">⚡</div>
-              <h3 className="font-extrabold text-sm text-foreground">{tText("No account, no email, no waiting")}</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                {tText("Every tool works the moment you land on the page. Download instantly and get your form completed.")}
-              </p>
-            </div>
+            {/* Bento Card 2: Built for Indian portals (1-col bento block) */}
+            <motion.div 
+              whileHover={{ y: -4 }}
+              className="p-6 bg-slate-900/40 border border-border/80 rounded-3xl space-y-4 shadow-premium hover:border-brand-primary/45 transition-all backdrop-blur-xl flex flex-col justify-between"
+            >
+              <div className="space-y-3">
+                <div className="h-10 w-10 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center font-bold text-lg">🇮🇳</div>
+                <h3 className="font-extrabold text-sm text-white">{tText("Built for Indian portals")}</h3>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  {tText("Exact pixel dimensions and KB compression ranges for NSP, SVMCM, OASIS, NSDL/UTI — preconfigured to bypass verification errors.")}
+                </p>
+              </div>
+              <div className="pt-2 border-t border-slate-900/40 flex justify-between items-center text-[9px] text-slate-500 font-bold uppercase tracking-wider">
+                <span>OASIS • NSP • SVMCM</span>
+                <span className="text-brand-primary">100% Match</span>
+              </div>
+            </motion.div>
+
+            {/* Bento Card 3: No account, no wait (1-col bento block) */}
+            <motion.div 
+              whileHover={{ y: -4 }}
+              className="p-6 bg-slate-900/40 border border-border/80 rounded-3xl space-y-4 shadow-premium hover:border-brand-primary/45 transition-all backdrop-blur-xl flex flex-col justify-between"
+            >
+              <div className="space-y-3">
+                <div className="h-10 w-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold text-lg">⚡</div>
+                <h3 className="font-extrabold text-sm text-white">{tText("Zero delays or email blocks")}</h3>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  {tText("Every tool functions instantly upon landing. No email login gates, no captcha loops, and no downloads wait queue.")}
+                </p>
+              </div>
+              <div className="pt-2 border-t border-slate-900/40 flex justify-between items-center text-[9px] text-slate-500 font-bold uppercase tracking-wider">
+                <span>Direct Access</span>
+                <span className="text-emerald-400">100% Free</span>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-20 bg-slate-950 border-t border-border/60 overflow-hidden relative z-10">
+        <div className="max-w-4xl mx-auto px-4 text-center mb-12">
+          <h2 className="text-xl md:text-2xl font-black text-white mb-3 font-display">
+            {tText("Trusted by 10,000+ CSC Operators & Students")}
+          </h2>
+          <p className="text-slate-450 text-xs max-w-md mx-auto">
+            {tText("See how cyber cafe owners and students across India use FileNova to speed up portal applications.")}
+          </p>
+        </div>
+
+        {/* Infinite Marquee Container */}
+        <div className="relative w-full flex items-center justify-start py-4">
+          <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-slate-950 to-transparent z-20 pointer-events-none" />
+          <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-slate-950 to-transparent z-20 pointer-events-none" />
+          
+          <div className="animate-marquee animate-marquee-hover-pause flex gap-6">
+            {[
+              {
+                name: "Subrata Das",
+                role: "Cyber Cafe Owner, Kolkata",
+                quote: "Resizing PAN card photos for NSDL/UTI used to take me 5 minutes in Photoshop. Now I do it in 5 seconds on FileNova."
+              },
+              {
+                name: "Amit Sen",
+                role: "CSC Operator, Burdwan",
+                quote: "The Aadhaar masking tool is fantastic. Knowing that the Aadhaar PDF doesn't upload to any server gives my customers complete peace of mind."
+              },
+              {
+                name: "Priya Banerjee",
+                role: "Student, Jadavpur University",
+                quote: "I needed a ZIP file containing specific PDF and JPG files under 2MB for SVMCM scholarship portal. FileNova did it in one click."
+              },
+              {
+                name: "Rajesh Kumar",
+                role: "Cyber Cafe Operator, Asansol",
+                quote: "I process dozens of NSP scholarship documents daily. The bulk compression tool is exceptionally fast and keeps the text readable."
+              },
+              {
+                name: "Vikram Singh",
+                role: "Cyber Cafe Owner, Siliguri",
+                quote: "No email verification gate, no ads, no wait queues. Just pure speed. Perfect for running a busy service kiosk."
+              }
+            ].map((t, i) => (
+              <div key={`t1-${i}`} className="w-[300px] shrink-0 p-6 bg-slate-900/40 border border-border/60 rounded-2xl space-y-4 backdrop-blur-md hover:border-brand-primary/45 transition-all select-none">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-brand-primary to-indigo-650 flex items-center justify-center font-bold text-white text-xs">
+                    {t.name.charAt(0)}
+                  </div>
+                  <div>
+                    <h4 className="font-extrabold text-xs text-white">{t.name}</h4>
+                    <p className="text-[10px] text-slate-500 font-medium">{t.role}</p>
+                  </div>
+                </div>
+                <p className="text-[11px] text-slate-300 leading-relaxed italic">"{t.quote}"</p>
+                <div className="flex items-center gap-1 text-amber-500">
+                  {[...Array(5)].map((_, idx) => (
+                    <Star key={idx} className="h-3 w-3 fill-current" />
+                  ))}
+                </div>
+              </div>
+            ))}
+            {[
+              {
+                name: "Subrata Das",
+                role: "Cyber Cafe Owner, Kolkata",
+                quote: "Resizing PAN card photos for NSDL/UTI used to take me 5 minutes in Photoshop. Now I do it in 5 seconds on FileNova."
+              },
+              {
+                name: "Amit Sen",
+                role: "CSC Operator, Burdwan",
+                quote: "The Aadhaar masking tool is fantastic. Knowing that the Aadhaar PDF doesn't upload to any server gives my customers complete peace of mind."
+              },
+              {
+                name: "Priya Banerjee",
+                role: "Student, Jadavpur University",
+                quote: "I needed a ZIP file containing specific PDF and JPG files under 2MB for SVMCM scholarship portal. FileNova did it in one click."
+              },
+              {
+                name: "Rajesh Kumar",
+                role: "Cyber Cafe Operator, Asansol",
+                quote: "I process dozens of NSP scholarship documents daily. The bulk compression tool is exceptionally fast and keeps the text readable."
+              },
+              {
+                name: "Vikram Singh",
+                role: "Cyber Cafe Owner, Siliguri",
+                quote: "No email verification gate, no ads, no wait queues. Just pure speed. Perfect for running a busy service kiosk."
+              }
+            ].map((t, i) => (
+              <div key={`t2-${i}`} className="w-[300px] shrink-0 p-6 bg-slate-900/40 border border-border/60 rounded-2xl space-y-4 backdrop-blur-md hover:border-brand-primary/45 transition-all select-none">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-brand-primary to-indigo-650 flex items-center justify-center font-bold text-white text-xs">
+                    {t.name.charAt(0)}
+                  </div>
+                  <div>
+                    <h4 className="font-extrabold text-xs text-white">{t.name}</h4>
+                    <p className="text-[10px] text-slate-500 font-medium">{t.role}</p>
+                  </div>
+                </div>
+                <p className="text-[11px] text-slate-300 leading-relaxed italic">"{t.quote}"</p>
+                <div className="flex items-center gap-1 text-amber-500">
+                  {[...Array(5)].map((_, idx) => (
+                    <Star key={idx} className="h-3 w-3 fill-current" />
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>

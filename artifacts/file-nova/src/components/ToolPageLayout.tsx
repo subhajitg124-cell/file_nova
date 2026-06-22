@@ -4,7 +4,7 @@ import {
   ChevronRight, ChevronLeft, Languages, Sparkles, FileText, Image as ImageIcon,
   Crown, User, Menu, X, ArrowLeft, Upload, HelpCircle, AlertTriangle, BookOpen, PlayCircle, CheckCircle2, ArrowDown, Settings2, Download, Zap
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useFileStore } from "@/store/useFileStore";
 import { useLanguage, useTranslation } from "@/lib/i18n";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
@@ -41,6 +41,39 @@ interface ToolPageLayoutProps {
   slug: string;
   children?: ReactNode;
 }
+
+const FAQItemComponent = ({ q, a }: { q: string; a: string }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <div className="border-b border-border/60 py-3">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between text-left py-2 text-sm font-bold text-foreground hover:text-brand-primary transition-colors focus:outline-none group cursor-pointer"
+      >
+        <span className="flex items-center gap-3">
+          <span className="text-brand-primary font-black">?</span>
+          <span>{q}</span>
+        </span>
+        <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform duration-300 shrink-0 ${isOpen ? "rotate-90 text-brand-primary" : "group-hover:translate-x-0.5"}`} />
+      </button>
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <p className="text-xs text-muted-foreground leading-relaxed pl-6 pb-3 pt-1">
+              {a}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
 const ICON_MAP: Record<string, string> = {
   files: "📄",
@@ -234,16 +267,23 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
       <div className="absolute top-[800px] right-0 w-[500px] h-[500px] bg-[radial-gradient(circle_at_right,_rgba(168,85,247,0.08),_transparent_70%)] pointer-events-none z-0" />
 
       {/* Header Nav */}
-      <header className="sticky top-0 z-40 border-b border-border/40 bg-background/80 backdrop-blur-xl transition-all">
-        <div className="max-w-6xl mx-auto px-3 sm:px-4 h-16 flex items-center justify-between gap-2">
+      <motion.header
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 260, damping: 20 }}
+        className="sticky top-0 z-40 w-full bg-transparent py-3 px-3 sm:px-4 transition-all duration-300"
+      >
+        <div className="max-w-6xl mx-auto h-14 px-4 sm:px-6 flex items-center justify-between gap-2 rounded-full border border-border/60 bg-background/70 backdrop-blur-xl shadow-premium relative overflow-hidden group/nav">
+          <div className="absolute inset-0 bg-gradient-to-r from-brand-primary/0 via-brand-primary/10 to-brand-primary/0 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
           {/* Logo - compact, tagline only in hero */}
-          <Link href="/" className="flex items-center gap-2.5 shrink-0">
-            <img src="/logo.png" alt="FileNova logo" className="h-9 w-auto" />
+          <Link href="/" className="flex items-center gap-2.5 shrink-0 relative z-10">
+            <img src="/logo.png" alt="FileNova logo" className="h-8 w-auto" />
             <span className="font-extrabold text-sm text-foreground hidden sm:block">FileNova</span>
           </Link>
 
           {/* Right Action Menu */}
-          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 relative z-10">
 
             {/* Combined Settings (Language + Theme) - icon only */}
             <div className="relative hidden md:block">
@@ -255,18 +295,26 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
               >
                 <Settings2 className="h-4 w-4" />
               </button>
-              {settingsOpen && (
-                <div className="absolute right-0 top-full mt-2.5 bg-card border border-border rounded-xl shadow-xl p-4 space-y-4 z-50 min-w-[200px]">
-                  <div>
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">{tText("Theme")}</p>
-                    <ThemeToggle />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">{tText("Language")}</p>
-                    <LanguageSelector />
-                  </div>
-                </div>
-              )}
+              <AnimatePresence>
+                {settingsOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.15, ease: "easeOut" }}
+                    className="absolute right-0 top-full mt-3 bg-card border border-border rounded-xl shadow-xl p-4 space-y-4 z-50 min-w-[200px]"
+                  >
+                    <div>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">{tText("Theme")}</p>
+                      <ThemeToggle />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">{tText("Language")}</p>
+                      <LanguageSelector />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Secondary Desktop Nav - inline at xl+ (1280px+) */}
@@ -294,20 +342,28 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
                 <Menu className="h-3.5 w-3.5" />
                 {tText("Menu")}
               </button>
-              {moreMenuOpen && (
-                <div className="absolute right-0 top-full mt-2.5 bg-card border border-border rounded-xl shadow-xl p-2 z-50 min-w-[190px] space-y-0.5">
-                  <div className="px-2 py-1.5"><PopularToolsDropdown /></div>
-                  <Link href="/india-tools" onClick={() => setMoreMenuOpen(false)} className="flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-bold text-emerald-500 hover:bg-accent/60 transition-colors">
-                    🇮🇳 {tText("India Tools")}
-                  </Link>
-                  <Link href="/workflows" onClick={() => setMoreMenuOpen(false)} className="flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-bold text-indigo-500 hover:bg-accent/60 transition-colors">
-                    <Zap className="h-4 w-4" /> {tText("Workflows")}
-                  </Link>
-                  <Link href="/workspace" onClick={() => setMoreMenuOpen(false)} className="flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-bold text-foreground hover:bg-accent/60 transition-colors">
-                    <FileText className="h-4 w-4" /> {tText("Workspace")}
-                  </Link>
-                </div>
-              )}
+              <AnimatePresence>
+                {moreMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.15, ease: "easeOut" }}
+                    className="absolute right-0 top-full mt-3 bg-card border border-border rounded-xl shadow-xl p-2 z-50 min-w-[190px] space-y-0.5"
+                  >
+                    <div className="px-2 py-1.5"><PopularToolsDropdown /></div>
+                    <Link href="/india-tools" onClick={() => setMoreMenuOpen(false)} className="flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-bold text-emerald-500 hover:bg-accent/60 transition-colors">
+                      🇮🇳 {tText("India Tools")}
+                    </Link>
+                    <Link href="/workflows" onClick={() => setMoreMenuOpen(false)} className="flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-bold text-indigo-500 hover:bg-accent/60 transition-colors">
+                      <Zap className="h-4 w-4" /> {tText("Workflows")}
+                    </Link>
+                    <Link href="/workspace" onClick={() => setMoreMenuOpen(false)} className="flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-bold text-foreground hover:bg-accent/60 transition-colors">
+                      <FileText className="h-4 w-4" /> {tText("Workspace")}
+                    </Link>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Premium Suite CTA - highest contrast, solid gradient button */}
@@ -344,40 +400,48 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
             </button>
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {/* Mobile Menu Panel - hidden at lg+ */}
-      {mobileMenuOpen && (
-        <div className="mobile-menu-panel lg:hidden border-b border-border bg-background p-4 space-y-3 animate-fadeIn relative z-30">
-          <div className="flex flex-col gap-2 pt-2 border-t border-border">
-            <Link onClick={() => setMobileMenuOpen(false)} href="/pricing" className="flex items-center justify-center gap-2 text-sm font-black text-white bg-gradient-to-r from-amber-500 to-orange-600 py-2.5 rounded-lg">
-              <Crown className="h-4 w-4 fill-current" />
-              {tText("Premium Suite")}
-            </Link>
-            <Link onClick={() => setMobileMenuOpen(false)} href="/workspace" className="text-center text-sm bg-card border border-border text-foreground font-bold py-2 rounded-lg">
-              <FileText className="h-4 w-4 inline-block mr-1.5" />{tText("Open Document Workspace")}
-            </Link>
-            <Link onClick={() => setMobileMenuOpen(false)} href="/workflows" className="flex items-center justify-center gap-2 text-sm text-indigo-500 font-bold py-2 border border-indigo-500/20 bg-indigo-500/5 rounded-lg">
-              <Zap className="h-4 w-4" />
-              {tText("Workflows")}
-            </Link>
-            <Link onClick={() => setMobileMenuOpen(false)} href="/india-tools" className="flex items-center justify-center gap-2 text-sm text-emerald-500 font-bold py-2 border border-emerald-500/20 bg-emerald-500/5 rounded-lg">
-              🇮🇳 {tText("India Tools")}
-            </Link>
-            <Link onClick={() => setMobileMenuOpen(false)} href="/contact" className="text-center text-sm border border-border text-foreground font-bold py-2 rounded-lg">
-              {tText("📞 Contact Support")}
-            </Link>
-            <div className="flex items-center justify-between px-4 py-2 border border-border bg-card rounded-lg">
-              <span className="text-xs font-bold text-muted-foreground">{tText("Theme")}</span>
-              <ThemeToggle />
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.25, ease: "easeInOut" }}
+            className="mobile-menu-panel lg:hidden border border-border/60 bg-background/95 backdrop-blur-xl p-4 space-y-3 rounded-2xl shadow-premium mt-2 mx-4 overflow-hidden relative z-30"
+          >
+            <div className="flex flex-col gap-2 pt-2 border-t border-border">
+              <Link onClick={() => setMobileMenuOpen(false)} href="/pricing" className="flex items-center justify-center gap-2 text-sm font-black text-white bg-gradient-to-r from-amber-500 to-orange-600 py-2.5 rounded-lg">
+                <Crown className="h-4 w-4 fill-current" />
+                {tText("Premium Suite")}
+              </Link>
+              <Link onClick={() => setMobileMenuOpen(false)} href="/workspace" className="text-center text-sm bg-card border border-border text-foreground font-bold py-2 rounded-lg">
+                <FileText className="h-4 w-4 inline-block mr-1.5" />{tText("Open Document Workspace")}
+              </Link>
+              <Link onClick={() => setMobileMenuOpen(false)} href="/workflows" className="flex items-center justify-center gap-2 text-sm text-indigo-500 font-bold py-2 border border-indigo-500/20 bg-indigo-500/5 rounded-lg">
+                <Zap className="h-4 w-4" />
+                {tText("Workflows")}
+              </Link>
+              <Link onClick={() => setMobileMenuOpen(false)} href="/india-tools" className="flex items-center justify-center gap-2 text-sm text-emerald-500 font-bold py-2 border border-emerald-500/20 bg-emerald-500/5 rounded-lg">
+                🇮🇳 {tText("India Tools")}
+              </Link>
+              <Link onClick={() => setMobileMenuOpen(false)} href="/contact" className="text-center text-sm border border-border text-foreground font-bold py-2 rounded-lg">
+                {tText("📞 Contact Support")}
+              </Link>
+              <div className="flex items-center justify-between px-4 py-2 border border-border bg-card rounded-lg">
+                <span className="text-xs font-bold text-muted-foreground">{tText("Theme")}</span>
+                <ThemeToggle />
+              </div>
+              <div className="flex items-center justify-between px-4 py-2 border border-border bg-card rounded-lg">
+                <span className="text-xs font-bold text-muted-foreground">{tText("Language")}</span>
+                <LanguageSelector />
+              </div>
             </div>
-            <div className="flex items-center justify-between px-4 py-2 border border-border bg-card rounded-lg">
-              <span className="text-xs font-bold text-muted-foreground">{tText("Language")}</span>
-              <LanguageSelector />
-            </div>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Offline Simulator Warning */}
       {!isMockMode && !backendHealthy && (
@@ -534,19 +598,13 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
 
         {/* FAQ Section */}
         {content.faqs && content.faqs.length > 0 && (
-          <div className="border-t border-border/60 pt-12 mb-12">
-            <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white mb-8">
+          <div className="border-t border-border/60 pt-12 mb-12 max-w-3xl mx-auto animate-fade-up">
+            <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white mb-6 text-center">
               Frequently Asked Questions (FAQ)
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-1">
               {content.faqs.map((faq, i) => (
-                <div key={i} className="space-y-2">
-                  <h3 className="font-bold text-sm text-foreground flex items-start gap-2">
-                    <span className="text-indigo-500 font-black">?</span>
-                    <span>{faq.q}</span>
-                  </h3>
-                  <p className="text-xs text-muted-foreground leading-relaxed pl-4">{faq.a}</p>
-                </div>
+                <FAQItemComponent key={i} q={faq.q} a={faq.a} />
               ))}
             </div>
           </div>

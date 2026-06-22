@@ -26,6 +26,83 @@ const CUSTOM_INDIAN_TOOLS: CustomTool[] = [
   { actionName: "signature-resize", title: "Signature Resize & Crop", description: "Trim and scale signature scans for government and exam portal uploads.", category: "india", badge: "Fast", badgeColor: "blue", icon: BriefcaseBusiness }
 ];
 
+interface BentoToolCardProps {
+  tool: CustomTool;
+  getCanonicalUrl: (actionName: string) => string;
+}
+
+const BentoToolCard: React.FC<BentoToolCardProps> = ({ tool, getCanonicalUrl }) => {
+  const ToolIcon = tool.icon || HelpCircle;
+  const [coords, setCoords] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setCoords({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+  };
+
+  const isBentoWide = ["scholarship-zip", "aadhaar-masking", "compress-pdf", "merge-pdf", "resize-photo", "pan-card"].includes(tool.actionName);
+
+  return (
+    <Link
+      href={getCanonicalUrl(tool.actionName)}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`group relative bg-card hover:bg-slate-50 dark:bg-slate-900/30 dark:hover:bg-slate-900/60 border border-border dark:border-slate-900 hover:border-indigo-500/35 rounded-2xl p-6 cursor-pointer transition-all duration-300 flex flex-col justify-between hover:shadow-glow-indigo-subtle block text-left overflow-hidden min-h-[190px]
+        ${isBentoWide ? "sm:col-span-2" : "col-span-1"}
+      `}
+    >
+      {/* Dynamic cursor-spotlight shine overlay */}
+      {isHovered && (
+        <div
+          className="absolute inset-0 pointer-events-none transition-opacity duration-300 z-0"
+          style={{
+            background: `radial-gradient(140px circle at ${coords.x}px ${coords.y}px, rgba(79, 70, 229, 0.09), transparent 80%)`,
+          }}
+        />
+      )}
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/0 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+      <div className="relative z-10">
+        {/* Header: Icon + Badge */}
+        <div className="flex items-start justify-between mb-4">
+          <div className="h-10 w-10 rounded-xl bg-white dark:bg-slate-950 border border-border dark:border-slate-850 flex items-center justify-center text-indigo-650 dark:text-indigo-400 group-hover:scale-110 group-hover:rotate-[3deg] transition-all duration-300">
+            <ToolIcon className="h-5 w-5" />
+          </div>
+          {tool.badge && (
+            <span className={`text-[9px] px-2 py-0.5 rounded-lg font-bold uppercase tracking-wider border ${
+              tool.badgeColor === "indigo" ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/25" :
+              tool.badgeColor === "rose" ? "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/25" :
+              tool.badgeColor === "amber" ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/25" :
+              "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25"
+            }`}>
+              {tool.badge}
+            </span>
+          )}
+        </div>
+
+        <h3 className="font-bold text-sm text-slate-900 dark:text-white mb-1.5 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+          {tool.title}
+        </h3>
+        <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-4 line-clamp-3">
+          {tool.description}
+        </p>
+      </div>
+
+      <div className="flex items-center justify-between pt-3 border-t border-border dark:border-slate-900/60 text-[10px] text-slate-500 font-bold uppercase tracking-wider relative z-10">
+        <span className="capitalize">{tool.category === "india" ? "India-Specific" : tool.category}</span>
+        <span className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400 opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-0.5">
+          Launch <ChevronRight className="h-3 w-3" />
+        </span>
+      </div>
+    </Link>
+  );
+};
+
 export default function ToolsPage() {
   const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
@@ -188,51 +265,12 @@ export default function ToolsPage() {
 
         {/* Tools Results Grid */}
         {filteredTools.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredTools.map((tool) => {
-              const ToolIcon = tool.icon || HelpCircle;
-              return (
-                <Link
-                  key={`${tool.actionName}-${tool.title}`}
-                  href={getCanonicalUrl(tool.actionName)}
-                  className="group relative bg-card hover:bg-slate-50 dark:bg-slate-900/30 dark:hover:bg-slate-900/60 border border-border dark:border-slate-900 hover:border-indigo-500/35 rounded-2xl p-5 cursor-pointer transition-all duration-300 flex flex-col justify-between hover:shadow-glow-indigo-subtle block text-left"
-                >
-                  <div>
-                    {/* Header: Icon + Badge */}
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="h-10 w-10 rounded-xl bg-white dark:bg-slate-950 border border-border dark:border-slate-800 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
-                        <ToolIcon className="h-5 w-5" />
-                      </div>
-                      {tool.badge && (
-                        <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border ${
-                          tool.badgeColor === "indigo" ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/25" :
-                          tool.badgeColor === "rose" ? "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/25" :
-                          tool.badgeColor === "amber" ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/25" :
-                          "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25"
-                        }`}>
-                          {tool.badge}
-                        </span>
-                      )}
-                    </div>
-
-                    <h3 className="font-bold text-sm text-slate-900 dark:text-white mb-1.5 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                      {tool.title}
-                    </h3>
-                    <p className="text-xs text-slate-650 dark:text-slate-400 leading-relaxed mb-4">
-                      {tool.description}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center justify-between pt-3 border-t border-border dark:border-slate-900/60 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-                    <span>{tool.category === "india" ? "India-Specific" : tool.category}</span>
-                    <span className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                      Launch <ChevronRight className="h-3 w-3" />
-                    </span>
-                  </div>
-                </Link>
-              );
-            })}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">
+            {filteredTools.map((tool) => (
+              <BentoToolCard key={`${tool.actionName}-${tool.title}`} tool={tool} getCanonicalUrl={getCanonicalUrl} />
+            ))}
           </div>
+
         ) : (
           <div className="text-center py-20 bg-card/20 dark:bg-slate-900/20 border border-border dark:border-slate-900 border-dashed rounded-2xl">
             <HelpCircle className="h-10 w-10 text-slate-400 dark:text-slate-700 mx-auto mb-3" />

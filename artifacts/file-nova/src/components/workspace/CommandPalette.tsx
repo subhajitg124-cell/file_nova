@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Search, Sparkles, Monitor, Sun, Moon, ArrowRight, Laptop } from "lucide-react";
+import { motion } from "framer-motion";
 import { useLocation } from "wouter";
 import { TOOL_REGISTRY, ToolRegistryItem } from "@/lib/toolPlugin";
 import { useTheme } from "@/hooks/useTheme";
@@ -114,11 +115,14 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-start justify-center pt-[15vh] px-4 font-sans">
-      <div
+    <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-start justify-center pt-[15vh] px-4 font-sans animate-fade-in">
+      <motion.div
         ref={containerRef}
         onKeyDown={handleKeyDown}
-        className="w-full max-w-xl bg-slate-900 border border-white/[0.12] rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[50vh]"
+        initial={{ opacity: 0, scale: 0.97, y: -10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 350, damping: 25 }}
+        className="w-full max-w-xl bg-slate-900/80 backdrop-blur-2xl border border-white/[0.08] rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col max-h-[50vh]"
       >
         {/* Input area */}
         <div className="flex items-center gap-3 px-4 py-3.5 border-b border-white/[0.08]">
@@ -149,8 +153,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
                 <button
                   key={item.id}
                   onClick={item.action}
-                  className={`w-full text-left p-3 rounded-2xl flex items-center justify-between transition-all cursor-pointer ${
-                    active ? "bg-indigo-600 text-white" : "hover:bg-slate-850 text-slate-300"
+                  className={`w-full text-left p-3 rounded-2xl flex items-center justify-between transition-all duration-200 cursor-pointer ${
+                    active ? "bg-brand-primary text-white shadow-glow-sm scale-[1.01]" : "hover:bg-white/5 text-slate-300"
                   }`}
                 >
                   <div className="min-w-0">
@@ -179,7 +183,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
             })
           )}
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

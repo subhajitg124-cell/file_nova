@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, AlertTriangle, FileText, Lock, ShieldAlert, X } from "lucide-react";
 import { PageThumbnailGrid } from "@/tools/_shared/PageThumbnailGrid";
 
@@ -20,6 +21,43 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStart = useRef({ x: 0, y: 0 });
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (zoom <= 1) return;
+    setIsDragging(true);
+    dragStart.current = { x: e.clientX - pan.x, y: e.clientY - pan.y };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging) return;
+    setPan({
+      x: e.clientX - dragStart.current.x,
+      y: e.clientY - dragStart.current.y
+    });
+  };
+
+  const handlePointerUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleZoomIn = () => {
+    setZoom(z => Math.min(2.5, z + 0.25));
+  };
+
+  const handleZoomOut = () => {
+    setZoom(z => {
+      const nextZoom = Math.max(1, z - 0.25);
+      if (nextZoom === 1) {
+        setPan({ x: 0, y: 0 });
+      }
+      return nextZoom;
+    });
+  };
+
   const [loading, setLoading] = useState(false);
   const [pdfPages, setPdfPages] = useState<string[]>([]); // Data URLs of PDF page thumbnails
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -388,17 +426,28 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
     // STANDARD MULTI-PAGE PDF PREVIEW (Merge / Compress / Word to PDF)
     return (
       <div className="flex flex-col items-center gap-4">
-        <div className="relative border border-white/10 rounded-2xl overflow-hidden bg-white max-w-sm w-full p-2 flex justify-center shadow-xl">
+        <div 
+          className={`relative border border-white/10 rounded-2xl overflow-hidden bg-white max-w-sm w-full p-2 flex justify-center shadow-xl select-none ${zoom > 1 ? 'cursor-grab active:cursor-grabbing' : ''}`}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+        >
           {pdfPages.length > 0 ? (
-            <img src={pdfPages[currentPage - 1] || pdfPages[0]} alt="pdf page preview" className="max-h-[350px] object-contain" />
+            <motion.img 
+              animate={{ x: pan.x, y: pan.y, scale: zoom }}
+              transition={isDragging ? { type: "tween", duration: 0 } : { type: "spring", stiffness: 300, damping: 25 }}
+              src={pdfPages[currentPage - 1] || pdfPages[0]} 
+              alt="pdf page preview" 
+              className="max-h-[350px] object-contain pointer-events-none origin-center" 
+            />
           ) : (
             <div className="py-20 text-slate-400 text-center"><FileText className="h-12 w-12 mx-auto mb-2 text-slate-500" /></div>
           )}
           
-          {/* Zoom Overlay (Mock) */}
-          <div className="absolute top-2 right-2 flex bg-slate-950/80 backdrop-blur border border-white/10 rounded-lg p-0.5">
-            <button type="button" onClick={() => setZoom(z => Math.max(0.7, z - 0.1))} className="p-1 text-slate-400 hover:text-white cursor-pointer" title="Zoom out" aria-label="Zoom out"><ZoomOut className="h-3.5 w-3.5" /></button>
-            <button type="button" onClick={() => setZoom(z => Math.min(1.5, z + 0.1))} className="p-1 text-slate-400 hover:text-white cursor-pointer" title="Zoom in" aria-label="Zoom in"><ZoomIn className="h-3.5 w-3.5" /></button>
+          {/* Zoom Overlay */}
+          <div className="absolute top-2 right-2 flex bg-slate-950/80 backdrop-blur border border-white/10 rounded-lg p-0.5 z-30">
+            <button type="button" onClick={handleZoomOut} className="p-1 text-slate-400 hover:text-white cursor-pointer" title="Zoom out" aria-label="Zoom out"><ZoomOut className="h-3.5 w-3.5" /></button>
+            <button type="button" onClick={handleZoomIn} className="p-1 text-slate-400 hover:text-white cursor-pointer" title="Zoom in" aria-label="Zoom in"><ZoomIn className="h-3.5 w-3.5" /></button>
           </div>
         </div>
 
@@ -461,9 +510,28 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
     };
 
     return (
-      <div className="relative border border-white/10 rounded-2xl overflow-hidden bg-slate-900/60 p-4 max-w-md mx-auto min-h-[220px] flex items-center justify-center">
-        <img src={objectUrl} alt="uploaded preview" className="max-h-[300px] object-contain rounded-lg shadow-xl" />
-        {(slug === "pan-card-resize" || slug === "resize-photo" || slug === "resize-image") && renderResizeGuidelines()}
+      <div className="relative max-w-md mx-auto">
+        <div 
+          className={`relative border border-white/10 rounded-2xl overflow-hidden bg-slate-900/60 p-4 min-h-[220px] flex items-center justify-center select-none ${zoom > 1 ? 'cursor-grab active:cursor-grabbing' : ''}`}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+        >
+          <motion.img 
+            animate={{ x: pan.x, y: pan.y, scale: zoom }}
+            transition={isDragging ? { type: "tween", duration: 0 } : { type: "spring", stiffness: 300, damping: 25 }}
+            src={objectUrl} 
+            alt="uploaded preview" 
+            className="max-h-[300px] object-contain rounded-lg shadow-xl pointer-events-none origin-center" 
+          />
+          {(slug === "pan-card-resize" || slug === "resize-photo" || slug === "resize-image") && renderResizeGuidelines()}
+          
+          {/* Zoom Overlay */}
+          <div className="absolute top-2 right-2 flex bg-slate-950/80 backdrop-blur border border-white/10 rounded-lg p-0.5 z-30">
+            <button type="button" onClick={handleZoomOut} className="p-1 text-slate-400 hover:text-white cursor-pointer" title="Zoom out" aria-label="Zoom out"><ZoomOut className="h-3.5 w-3.5" /></button>
+            <button type="button" onClick={handleZoomIn} className="p-1 text-slate-400 hover:text-white cursor-pointer" title="Zoom in" aria-label="Zoom in"><ZoomIn className="h-3.5 w-3.5" /></button>
+          </div>
+        </div>
       </div>
     );
   }
