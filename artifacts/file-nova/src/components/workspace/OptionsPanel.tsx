@@ -42,7 +42,7 @@ import {
 // ── Shared primitives ───────────────────────────────────────────────────────
 
 const InfoBox: React.FC<{ icon: React.ReactNode; text: string; color?: string }> = ({ icon, text, color = 'bg-muted/40 border-border' }) => (
-  <div className={`p-4 rounded-xl border text-sm text-muted-foreground flex items-start gap-3 ${color}`}>
+  <div className={`p-4 rounded-xl border text-sm text-muted-foreground flex items-start gap-3 ${color} backdrop-blur-sm`}>
     <span className="shrink-0 mt-0.5">{icon}</span>
     <span className="leading-relaxed">{text}</span>
   </div>
@@ -53,20 +53,35 @@ const SliderField: React.FC<{
   unit: string; hint?: string; step?: number; onChange: (v: number) => void;
 }> = ({ id, label, value, min, max, unit, hint, step = 1, onChange }) => {
   const pct = ((value - min) / (max - min)) * 100;
+  const [focused, setFocused] = useState(false);
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <label htmlFor={id} className="text-sm font-medium text-foreground">{label}</label>
         <span className="text-sm font-bold text-primary tabular-nums">{value}{unit}</span>
       </div>
-      <div className="relative h-6 flex items-center">
-        <div className="w-full h-1.5 bg-secondary rounded-full overflow-hidden">
+      <div className={`relative h-8 flex items-center px-3 rounded-xl border transition-all duration-200 bg-card/45 backdrop-blur-sm ${
+        focused ? 'border-primary/50 ring-2 ring-primary/40 shadow-glow' : 'border-border/80 hover:border-primary/30'
+      }`}>
+        <div className="w-full h-1 bg-secondary rounded-full overflow-hidden relative">
           <div className="h-full rounded-full bg-gradient-to-r from-primary to-violet-400 transition-all duration-150" style={{ width: `${pct}%` }} />
         </div>
-        <input id={id} type="range" min={min} max={max} value={value} step={step}
+        <input
+          id={id}
+          type="range"
+          min={min}
+          max={max}
+          value={value}
+          step={step}
           onChange={(e) => onChange(Number(e.target.value))}
-          className="absolute inset-0 w-full opacity-0 cursor-pointer" />
-        <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 h-4 w-4 rounded-full bg-white border-2 border-primary shadow-md pointer-events-none transition-all duration-150" style={{ left: `${pct}%` }} />
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          className="absolute inset-0 w-full opacity-0 cursor-pointer"
+        />
+        <div
+          className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 h-4 w-4 rounded-full bg-white border-2 border-primary shadow-md pointer-events-none transition-all duration-150"
+          style={{ left: `calc(${pct}% * 0.94 + 3%)` }}
+        />
       </div>
       {hint && <p className="text-[10px] text-muted-foreground leading-relaxed">{hint}</p>}
     </div>
@@ -84,8 +99,8 @@ const PresetRow: React.FC<{
     <div className="flex gap-2 flex-wrap">
       {options.map((opt) => (
         <button key={opt.value} onClick={() => onChange(opt.value)} title={opt.hint}
-          className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-150 ${
-            value === opt.value ? 'bg-primary text-primary-foreground border-primary shadow-glow' : 'bg-card text-muted-foreground border-border hover:border-primary/50 hover:text-foreground'
+          className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-150 cursor-pointer active:scale-98 ${
+            value === opt.value ? 'bg-primary text-primary-foreground border-primary shadow-glow' : 'bg-card/50 text-muted-foreground border-border hover:border-primary/50 hover:text-foreground'
           }`}>{opt.label}</button>
       ))}
     </div>
@@ -100,7 +115,7 @@ const SelectField: React.FC<{
   <div className="space-y-2">
     <label htmlFor={id} className="text-sm font-medium text-foreground block">{label}</label>
     <select id={id} value={value} onChange={(e) => onChange(e.target.value)}
-      className="w-full p-2.5 text-sm bg-card border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all appearance-none cursor-pointer">
+      className="w-full p-2.5 text-sm bg-card/50 border border-border/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-all appearance-none cursor-pointer">
       {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
     </select>
   </div>
@@ -114,7 +129,7 @@ const NumInput: React.FC<{
     <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{label}</label>
     <input type="number" min={min} max={max} value={value || ''} placeholder={placeholder || String(min)}
       onChange={(e) => onChange(Math.max(min, parseInt(e.target.value) || min))}
-      className="w-full p-2.5 bg-card border border-border rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/40" />
+      className="w-full p-2.5 bg-card/50 border border-border/80 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-all" />
   </div>
 );
 
@@ -126,7 +141,7 @@ const TextField: React.FC<{
     <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{label}</label>
     <input type="text" placeholder={placeholder} value={value}
       onChange={(e) => onChange(e.target.value)}
-      className={`w-full p-2.5 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 ${mono ? 'font-mono' : ''}`} />
+      className={`w-full p-2.5 bg-card/50 border border-border/80 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-all ${mono ? 'font-mono' : ''}`} />
     {hint && <p className="text-[10px] text-muted-foreground">{hint}</p>}
   </div>
 );
@@ -139,10 +154,10 @@ const ColorField: React.FC<{ label: string; value: string; onChange: (v: string)
     <div className="flex items-center gap-2 flex-wrap">
       <input type="color" value={value} onChange={(e) => onChange(e.target.value)}
         aria-label={label}
-        className="h-9 w-12 rounded-lg border border-border cursor-pointer bg-card p-0.5" />
+        className="h-9 w-12 rounded-lg border border-border cursor-pointer bg-card/50 p-0.5 focus:outline-none focus:ring-2 focus:ring-primary/40" />
       {swatches.map(c => (
         <button key={c} onClick={() => onChange(c)} title={c}
-          className="h-7 w-7 rounded-lg border-2 transition-all hover:scale-110"
+          className="h-7 w-7 rounded-lg border-2 transition-all hover:scale-110 cursor-pointer"
           style={{ backgroundColor: c, borderColor: value === c ? '#6366f1' : 'rgba(255,255,255,0.1)' }} />
       ))}
       <span className="text-xs text-muted-foreground font-mono">{value}</span>

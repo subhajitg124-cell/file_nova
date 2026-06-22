@@ -271,7 +271,7 @@ const isValidationError = (err: string): boolean => {
       </div>
 
       <div className="flex-1 md:col-span-7 lg:col-span-8 flex flex-col justify-center items-center p-6 md:p-12 min-h-screen relative z-10">
-        <div className="max-w-md w-full bg-card border border-border/80 rounded-3xl shadow-premium p-8 relative animate-scale-in">
+        <div className="max-w-md w-full bg-card/45 backdrop-blur-md border border-border/80 rounded-3xl shadow-premium p-8 relative animate-scale-in">
           <div className="flex items-center gap-2 mb-6 md:hidden">
             <div className="h-8 w-8 flex items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
               <img src="/logo.png" alt="FileNova logo" className="h-5 w-auto" />
@@ -339,7 +339,7 @@ const isValidationError = (err: string): boolean => {
                     name="login-email-fn"
                     readOnly
                     onFocus={(e) => e.target.removeAttribute('readonly')}
-                    className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none transition-all focus:ring-1 focus:ring-primary"
+                    className="w-full pl-10 pr-4 py-3 bg-background/40 backdrop-blur-sm border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-all"
                   />
                 </div>
                 {emailError && <p className="text-xs font-bold text-destructive px-1">{emailError}</p>}
@@ -358,7 +358,7 @@ const isValidationError = (err: string): boolean => {
                     name="login-pass-fn"
                     readOnly
                     onFocus={(e) => e.target.removeAttribute('readonly')}
-                    className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none transition-all focus:ring-1 focus:ring-primary"
+                    className="w-full pl-10 pr-4 py-3 bg-background/40 backdrop-blur-sm border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-all"
                   />
                 </div>
                 {passwordError && <p className="text-xs font-bold text-destructive px-1">{passwordError}</p>}
@@ -396,7 +396,7 @@ const isValidationError = (err: string): boolean => {
                     name="signup-name"
                     readOnly
                     onFocus={(e) => e.target.removeAttribute('readonly')}
-                    className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none transition-all focus:ring-1 focus:ring-primary"
+                    className="w-full pl-10 pr-4 py-3 bg-background/40 backdrop-blur-sm border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-all"
                   />
                 </div>
 
@@ -414,7 +414,7 @@ const isValidationError = (err: string): boolean => {
                     name="signup-email"
                     readOnly
                     onFocus={(e) => e.target.removeAttribute('readonly')}
-                    className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none transition-all focus:ring-1 focus:ring-primary"
+                    className="w-full pl-10 pr-4 py-3 bg-background/40 backdrop-blur-sm border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-all"
                   />
                 </div>
                 {emailError && <p className="text-xs font-bold text-destructive px-1">{emailError}</p>}
@@ -430,7 +430,7 @@ const isValidationError = (err: string): boolean => {
                     name="signup-phone"
                     readOnly
                     onFocus={(e) => e.target.removeAttribute('readonly')}
-                    className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none transition-all focus:ring-1 focus:ring-primary"
+                    className="w-full pl-10 pr-4 py-3 bg-background/40 backdrop-blur-sm border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-all"
                   />
                 </div>
 
@@ -448,7 +448,7 @@ const isValidationError = (err: string): boolean => {
                     name="signup-password"
                     readOnly
                     onFocus={(e) => e.target.removeAttribute('readonly')}
-                    className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-xl text-sm focus:border-primary focus:outline-none transition-all focus:ring-1 focus:ring-primary"
+                    className="w-full pl-10 pr-4 py-3 bg-background/40 backdrop-blur-sm border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-all"
                   />
                 </div>
                 {passwordError && <p className="text-xs font-bold text-destructive px-1">{passwordError}</p>}

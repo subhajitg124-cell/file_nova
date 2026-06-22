@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useFileStore } from '@/store/useFileStore';
 import { apiClient, HAS_BACKEND } from '@/lib/api';
 import { UploadZone } from '@/components/workspace/UploadZone';
@@ -90,6 +90,82 @@ const TRUST_BADGES = [
   { icon: ShieldCheck,label: 'GDPR compliant',         desc: 'Auto-expiry on all temporary files' },
 ];
 
+interface SpotlightCardProps extends React.HTMLAttributes<HTMLDivElement> {
+  children: React.ReactNode;
+  className?: string;
+  spotlightColor?: string;
+  borderColor?: string;
+  defaultBorder?: string;
+}
+
+function SpotlightCard({
+  children,
+  className = "",
+  spotlightColor = "rgba(99, 102, 241, 0.15)",
+  borderColor = "rgba(255, 255, 255, 0.12)",
+  defaultBorder = "rgba(255, 255, 255, 0.05)",
+  ...props
+}: SpotlightCardProps) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [coords, setCoords] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    setCoords({ x, y });
+
+    const w = rect.width;
+    const h = rect.height;
+    const dx = x - w / 2;
+    const dy = y - h / 2;
+    const maxTilt = 4; // Subtle 3D skew
+    setTilt({
+      x: -(dy / (h / 2)) * maxTilt,
+      y: (dx / (w / 2)) * maxTilt,
+    });
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    setTilt({ x: 0, y: 0 });
+  };
+
+  return (
+    <div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={handleMouseLeave}
+      className={`relative overflow-hidden rounded-3xl border transition-all duration-300 bg-card/45 backdrop-blur-md perspective-1000 preserve-3d ${className}`}
+      style={{
+        borderColor: isHovered ? borderColor : defaultBorder,
+        transform: isHovered
+          ? `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale3d(1.015, 1.015, 1.015)`
+          : `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`,
+      }}
+      {...props}
+    >
+      <div
+        className="pointer-events-none absolute inset-0 transition-opacity duration-300 z-0"
+        style={{
+          opacity: isHovered ? 1 : 0,
+          background: `radial-gradient(280px circle at ${coords.x}px ${coords.y}px, ${spotlightColor}, transparent 80%)`,
+        }}
+      />
+      <div 
+        className="relative z-10 h-full w-full flex flex-col preserve-3d"
+        style={{ transform: isHovered ? "translateZ(8px)" : "translateZ(0px)" }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const [, setLocation] = useLocation();
   const {
@@ -142,23 +218,25 @@ export default function Home() {
     <div className="flex flex-col min-h-screen bg-background bg-mesh transition-colors duration-300">
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-50 glass border-b border-border/60">
-        <div className="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between">
+      <header className="sticky top-0 z-50 w-full bg-transparent py-3 px-3 sm:px-4 transition-all duration-300">
+        <div className="max-w-6xl mx-auto h-14 px-4 sm:px-6 flex items-center justify-between gap-2 rounded-full border border-border/60 bg-background/70 backdrop-blur-xl shadow-premium relative overflow-hidden group/nav">
+          <div className="absolute inset-0 bg-gradient-to-r from-brand-primary/0 via-brand-primary/10 to-brand-primary/0 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
           <button
             onClick={() => { clearStore(); setLocation('/'); }}
-            className="flex items-center gap-2.5 group focus:outline-none"
+            className="flex items-center gap-2.5 group focus:outline-none relative z-10"
             aria-label="Back to home"
           >
             <div className="h-8 w-8 rounded-xl overflow-hidden border border-border shadow-sm group-hover:scale-105 transition-transform duration-200">
-              <img src="/icon.png" alt="File Master" className="h-full w-full object-cover" />
+              <img src="/logo.png" alt="FileNova logo" className="h-full w-full object-cover" />
             </div>
-            <div className="leading-tight">
-              <span className="block text-sm font-extrabold tracking-tight text-foreground">File Master</span>
-              <span className="block text-[9px] text-muted-foreground font-medium uppercase tracking-widest">All-in-one platform</span>
+            <div className="leading-tight text-left">
+              <span className="block text-sm font-extrabold tracking-tight text-foreground">FileNova</span>
+              <span className="block text-[9px] text-muted-foreground font-medium uppercase tracking-widest">Workspace</span>
             </div>
           </button>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 relative z-10">
             <button
               onClick={() => { clearStore(); setLocation('/'); }}
               className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-foreground border border-border hover:border-primary/35 bg-card hover:bg-accent/50 py-1.5 px-2.5 rounded-lg transition-all whitespace-nowrap cursor-pointer"
@@ -182,7 +260,7 @@ export default function Home() {
             </div>
             <button
               onClick={toggleTheme}
-              className="h-8 w-8 flex items-center justify-center rounded-xl bg-card/60 hover:bg-card border border-border text-muted-foreground hover:text-foreground transition-all duration-200"
+              className="h-8 w-8 flex items-center justify-center rounded-xl bg-card/60 hover:bg-card border border-border text-muted-foreground hover:text-foreground transition-all duration-200 cursor-pointer"
               aria-label="Toggle theme"
             >
               {theme === 'dark' ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
@@ -279,65 +357,121 @@ export default function Home() {
             </div>
 
             {/* Workspace cards */}
-            <div className="space-y-4">
+            <div className="space-y-6 max-w-5xl mx-auto">
               <div className="text-center">
                 <p className="text-xs uppercase font-extrabold text-muted-foreground tracking-widest">Or select a specialized workspace</p>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 stagger-children">
-                {SUITES.map((suite) => (
-                  <motion.div
-                    key={suite.id}
-                    whileHover={{ y: -3 }}
-                    whileTap={{ scale: 0.99 }}
-                    onClick={() => setSelectedSection(suite.id)}
-                    className={`group relative cursor-pointer rounded-2xl border p-5 transition-all duration-300 overflow-hidden ${suite.cardBg} ${suite.borderClass} ${suite.glowClass}`}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setSelectedSection(suite.id); }}
-                    aria-label={`Enter ${suite.title}`}
-                  >
-                    {/* Animated gradient hover overlay */}
-                    <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br ${suite.accentFrom}/5 via-transparent ${suite.accentTo}/5`} />
-
-                    <div className="relative space-y-4">
-                      <div className="flex items-start justify-between">
-                        <div className={`p-3 rounded-2xl ${suite.iconBg} border border-white/5 group-hover:scale-110 transition-transform duration-300`}>
-                          <suite.icon className={`h-6 w-6 ${suite.iconColor}`} />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {SUITES.map((suite) => {
+                  const isLarge = suite.id === 'pdf' || suite.id === 'video';
+                  return (
+                    <SpotlightCard
+                      key={suite.id}
+                      onClick={() => setSelectedSection(suite.id)}
+                      spotlightColor={
+                        suite.id === 'pdf' ? 'rgba(239, 68, 68, 0.15)' :
+                        suite.id === 'image' ? 'rgba(59, 130, 246, 0.15)' :
+                        suite.id === 'office' ? 'rgba(16, 185, 129, 0.15)' :
+                        'rgba(139, 92, 246, 0.15)'
+                      }
+                      borderColor={
+                        suite.id === 'pdf' ? 'rgba(239, 68, 68, 0.3)' :
+                        suite.id === 'image' ? 'rgba(59, 130, 246, 0.3)' :
+                        suite.id === 'office' ? 'rgba(16, 185, 129, 0.3)' :
+                        'rgba(139, 92, 246, 0.3)'
+                      }
+                      className={`cursor-pointer p-6 flex flex-col justify-between ${
+                        isLarge ? 'md:col-span-2' : 'md:col-span-1'
+                      }`}
+                    >
+                      <div className="space-y-4 h-full flex flex-col justify-between">
+                        <div className="flex items-start justify-between">
+                          <div className={`p-3 rounded-2xl ${suite.iconBg} border border-white/5`}>
+                            <suite.icon className={`h-6 w-6 ${suite.iconColor}`} />
+                          </div>
+                          <div className="text-right">
+                            <span className={`block text-[10px] font-extrabold uppercase tracking-widest ${suite.iconColor} opacity-70`}>{suite.subtitle}</span>
+                            <span className={`block text-xl font-black ${suite.iconColor}`}>{suite.toolCount}</span>
+                            <span className="block text-[9px] text-muted-foreground font-medium -mt-0.5">tools</span>
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <span className={`text-xs font-bold ${suite.iconColor} bg-current/10 rounded-full px-2 py-0.5 opacity-15`}></span>
-                          <span className={`block text-[10px] font-extrabold uppercase tracking-widest ${suite.iconColor} opacity-70`}>{suite.subtitle}</span>
-                          <span className={`block text-lg font-black ${suite.iconColor}`}>{suite.toolCount}</span>
-                          <span className="block text-[9px] text-muted-foreground font-medium -mt-0.5">tools</span>
+
+                        <div className="flex-1 flex flex-col justify-center py-4">
+                          <h3 className="text-lg font-black text-foreground mb-1">{suite.title}</h3>
+                          <p className="text-xs text-muted-foreground leading-relaxed max-w-md">{suite.description}</p>
+                          
+                          {/* Rich Visualizations inside Bento Cards */}
+                          {suite.id === 'pdf' && (
+                            <div className="mt-4 flex items-center gap-2.5 bg-red-500/5 border border-red-500/10 rounded-xl p-3 max-w-sm self-start overflow-hidden">
+                              <div className="flex items-center gap-1.5">
+                                <span className="h-6 w-9 rounded bg-rose-500/20 border border-rose-500/35 flex items-center justify-center text-[8px] font-bold font-mono text-rose-300">DOC.pdf</span>
+                                <span className="text-xs text-muted-foreground/50">+</span>
+                                <span className="h-6 w-9 rounded bg-rose-500/20 border border-rose-500/35 flex items-center justify-center text-[8px] font-bold font-mono text-rose-300">IMG.jpg</span>
+                                <span className="text-xs text-muted-foreground/50">→</span>
+                              </div>
+                              <div className="h-6 w-12 rounded bg-gradient-to-r from-red-500 to-rose-600 flex items-center justify-center text-[8px] font-extrabold text-white shadow-sm shadow-red-500/20 animate-pulse">MERGED.pdf</div>
+                            </div>
+                          )}
+
+                          {suite.id === 'image' && (
+                            <div className="mt-4 relative h-16 w-32 border border-dashed border-blue-500/30 rounded-lg flex items-center justify-center bg-blue-500/5 overflow-hidden">
+                              <div className="absolute top-1 left-1 w-1.5 h-1.5 bg-blue-400 rounded-full" />
+                              <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-blue-400 rounded-full" />
+                              <div className="absolute bottom-1 left-1 w-1.5 h-1.5 bg-blue-400 rounded-full" />
+                              <div className="absolute bottom-1 right-1 w-1.5 h-1.5 bg-blue-400 rounded-full" />
+                              <span className="text-[9px] font-bold text-blue-400/80 bg-blue-500/10 px-2 py-0.5 rounded border border-blue-400/20">RESIZE_75%</span>
+                            </div>
+                          )}
+
+                          {suite.id === 'office' && (
+                            <div className="mt-4 flex items-center gap-2 max-w-[200px]">
+                              <span className="h-7 w-7 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-[9px] font-bold text-emerald-400">DOCX</span>
+                              <span className="text-xs text-muted-foreground">⇄</span>
+                              <span className="h-7 w-7 rounded-lg bg-red-500/20 border border-red-500/30 flex items-center justify-center text-[9px] font-bold text-red-400">PDF</span>
+                              <span className="text-xs text-muted-foreground">⇄</span>
+                              <span className="h-7 w-7 rounded-lg bg-green-500/20 border border-green-500/30 flex items-center justify-center text-[9px] font-bold text-green-400">XLSX</span>
+                            </div>
+                          )}
+
+                          {suite.id === 'video' && (
+                            <div className="mt-4 bg-violet-500/5 border border-violet-500/15 rounded-xl p-3 w-full max-w-md">
+                              <div className="flex items-center justify-between text-[9px] font-mono text-violet-300/80 mb-1.5">
+                                <span>00:00:12</span>
+                                <span className="bg-violet-500/20 px-1.5 py-0.5 rounded text-[8px] font-bold">TRIMMING SCOPE</span>
+                                <span>00:00:48</span>
+                              </div>
+                              <div className="h-3 bg-secondary rounded-full relative overflow-hidden">
+                                <div className="absolute left-[20%] right-[30%] top-0 bottom-0 bg-gradient-to-r from-violet-500 to-purple-500 rounded-full shadow-glow-purple flex items-center justify-between px-1">
+                                  <div className="w-1 h-2.5 bg-white rounded-full opacity-60" />
+                                  <div className="w-1 h-2.5 bg-white rounded-full opacity-60" />
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Tool pills */}
+                        <div className="flex flex-wrap gap-1.5 pt-2">
+                          {suite.tools.slice(0, isLarge ? 6 : 3).map((t) => (
+                            <span key={t} className={`text-[9px] font-semibold px-2 py-0.5 rounded-full ${suite.iconBg} ${suite.iconColor} border border-current/10`}>
+                              {t}
+                            </span>
+                          ))}
+                          {suite.tools.length > (isLarge ? 6 : 3) && (
+                            <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border">
+                              +{suite.tools.length - (isLarge ? 6 : 3)} more
+                            </span>
+                          )}
+                        </div>
+
+                        <div className={`flex items-center justify-between text-xs font-bold border-t border-border/50 pt-3 ${suite.iconColor}`}>
+                          <span className="opacity-60 text-muted-foreground font-semibold">Enter workspace</span>
+                          <span className="group-hover:translate-x-1.5 transition-transform duration-200">→</span>
                         </div>
                       </div>
-
-                      <div>
-                        <h3 className="text-base font-black text-foreground mb-1">{suite.title}</h3>
-                        <p className="text-xs text-muted-foreground leading-relaxed">{suite.description}</p>
-                      </div>
-
-                      {/* Tool pills */}
-                      <div className="flex flex-wrap gap-1.5 pt-1">
-                        {suite.tools.slice(0, 4).map((t) => (
-                          <span key={t} className={`text-[9px] font-semibold px-2 py-0.5 rounded-full ${suite.iconBg} ${suite.iconColor} border border-current/10`}>
-                            {t}
-                          </span>
-                        ))}
-                        {suite.tools.length > 4 && (
-                          <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border">
-                            +{suite.tools.length - 4} more
-                          </span>
-                        )}
-                      </div>
-
-                      <div className={`flex items-center justify-between text-xs font-bold border-t border-border/50 pt-3 ${suite.iconColor}`}>
-                        <span className="opacity-60 text-muted-foreground">Enter workspace</span>
-                        <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
+                    </SpotlightCard>
+                  );
+                })}
               </div>
             </div>
           </motion.div>
@@ -355,7 +489,7 @@ export default function Home() {
               <div className="space-y-1">
                 <button
                   onClick={() => setSelectedSection(null)}
-                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground font-bold uppercase tracking-wider transition-colors mb-2"
+                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground font-bold uppercase tracking-wider transition-colors mb-2 cursor-pointer"
                 >
                   <ArrowLeft className="h-3 w-3" /> Back to Dashboard
                 </button>
@@ -386,7 +520,7 @@ export default function Home() {
             {step === 1 && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
                 <div className="flex items-center justify-between border-b border-border pb-4 max-w-4xl mx-auto">
-                  <button onClick={() => clearStore()} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground font-bold uppercase tracking-wider transition-colors">
+                  <button onClick={() => clearStore()} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground font-bold uppercase tracking-wider transition-colors cursor-pointer">
                     <ArrowLeft className="h-3 w-3" /> Reset Workspace
                   </button>
                   <span className="text-xs font-bold bg-primary/10 border border-primary/20 text-primary px-3 py-1 rounded-full uppercase tracking-wider">
@@ -404,51 +538,51 @@ export default function Home() {
             )}
 
             {/* Step 2: configure + process */}
-{step === 2 && (
-               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-                 {rawFiles.length > 1 ? (
-                   <div className="max-w-4xl mx-auto space-y-6">
-                     <div className="flex items-center justify-between border-b border-border pb-4">
-                       <button
-                         onClick={() => useFileStore.setState({ selectedOperation: null })}
-                         className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground font-bold uppercase tracking-wider transition-colors"
-                       >
-                         <ArrowLeft className="h-3 w-3" /> Change Operation
-                       </button>
-                       <span className="text-xs font-bold bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 px-3 py-1 rounded-full uppercase tracking-wider">
-                         Ready to process
-                       </span>
-                     </div>
-                     <BulkProcessor />
-                     {useFileStore.getState().processingQueue && (
-                       <QueueTracker
-                         queuePosition={useFileStore.getState().processingQueue!.position}
-                         totalInQueue={useFileStore.getState().processingQueue!.total}
-                       />
-                     )}
-                   </div>
-                 ) : isProcessing ? (
-                   <ProgressTracker />
-                 ) : (
-                   <div className="space-y-8">
-                     <div className="flex items-center justify-between border-b border-border pb-4 max-w-4xl mx-auto">
-                       <button
-                         onClick={() => useFileStore.setState({ selectedOperation: null })}
-                         className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground font-bold uppercase tracking-wider transition-colors"
-                       >
-                         <ArrowLeft className="h-3 w-3" /> Change Operation
-                       </button>
-                       <span className="text-xs font-bold bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 px-3 py-1 rounded-full uppercase tracking-wider">
-                         Ready to process
-                       </span>
-                     </div>
-                     <PreviewCanvas />
-                     <OptionsPanel />
-                     <SmartRecommendations />
-                   </div>
-                 )}
-               </motion.div>
-             )}
+            {step === 2 && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+                {rawFiles.length > 1 ? (
+                  <div className="max-w-4xl mx-auto space-y-6">
+                    <div className="flex items-center justify-between border-b border-border pb-4">
+                      <button
+                        onClick={() => useFileStore.setState({ selectedOperation: null })}
+                        className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                      >
+                        <ArrowLeft className="h-3 w-3" /> Change Operation
+                      </button>
+                      <span className="text-xs font-bold bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 px-3 py-1 rounded-full uppercase tracking-wider">
+                        Ready to process
+                      </span>
+                    </div>
+                    <BulkProcessor />
+                    {useFileStore.getState().processingQueue && (
+                      <QueueTracker
+                        queuePosition={useFileStore.getState().processingQueue!.position}
+                        totalInQueue={useFileStore.getState().processingQueue!.total}
+                      />
+                    )}
+                  </div>
+                ) : isProcessing ? (
+                  <ProgressTracker />
+                ) : (
+                  <div className="space-y-8">
+                    <div className="flex items-center justify-between border-b border-border pb-4 max-w-4xl mx-auto">
+                      <button
+                        onClick={() => useFileStore.setState({ selectedOperation: null })}
+                        className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                      >
+                        <ArrowLeft className="h-3 w-3" /> Change Operation
+                      </button>
+                      <span className="text-xs font-bold bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 px-3 py-1 rounded-full uppercase tracking-wider">
+                        Ready to process
+                      </span>
+                    </div>
+                    <PreviewCanvas />
+                    <OptionsPanel />
+                    <SmartRecommendations />
+                  </div>
+                )}
+              </motion.div>
+            )}
 
             {/* Step 3: download */}
             {step === 3 && (
