@@ -1178,4 +1178,85 @@ header[class*="sticky"] {
   box-shadow: 0 8px 32px 0 rgba(16, 185, 129, 0.08), 0 1px 0 0 rgba(255, 255, 255, 0.05) inset;
 }
 
+/* ── Neon Border Sweep Animation ── */
+@keyframes neon-border-sweep {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.neon-sweep-wrapper {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  padding: 1.5px; /* Border thickness */
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.neon-sweep-bg {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 15%,
+    #6366f1 35%,
+    #8b5cf6 50%,
+    #06b6d4 65%,
+    transparent 85%
+  );
+  animation: neon-border-sweep 6s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.neon-sweep-content {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  border-radius: 23px; /* Slightly smaller than outer wrapper */
+}
+
+/* Custom shadow reflections */
+.shadow-neon-pro {
+  box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.25), 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+}
+.shadow-neon-elite {
+  box-shadow: 0 0 25px -5px rgba(139, 92, 246, 0.25), 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* ── Spatial UI & 3D Utilities ── */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.spatial-hud-glow {
+  box-shadow: 
+    0 1px 0 0 rgba(255, 255, 255, 0.08) inset,
+    0 12px 40px rgba(0, 0, 0, 0.45),
+    0 0 25px rgba(99, 102, 241, 0.12);
+}
+
+.spatial-keycap {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  color: #f1f5f9;
+}
+
+.spatial-active-ring {
+  outline: 2.5px solid #6366f1;
+  outline-offset: 3px;
+  box-shadow: 0 0 35px 2px rgba(99, 102, 241, 0.35);
+  transform: scale(1.025);
+}
+
+
+
 
