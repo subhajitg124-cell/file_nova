@@ -87,10 +87,10 @@ export function LanguageSelector({
             exit={{ opacity: 0, y: -10, scale: 0.94 }}
             transition={{ duration: 0.2, type: "spring", stiffness: 400, damping: 25 }}
             role="listbox"
-            className="absolute right-0 top-full mt-2.5 z-50 w-56 bg-[#0f0f1a]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl shadow-indigo-900/30 overflow-hidden"
+            className="absolute right-0 top-full mt-2.5 z-50 w-56 bg-card/95 backdrop-blur-2xl border border-border rounded-2xl shadow-2xl shadow-indigo-500/10 overflow-hidden"
             style={{ fontFamily: "'Inter', 'Outfit', sans-serif" }}
           >
-            <div className="px-4 pt-3 pb-2 border-b border-white/5">
+            <div className="px-4 pt-3 pb-2 border-b border-border/50">
               <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">
                 Select Language
               </span>
@@ -115,17 +115,17 @@ export function LanguageSelector({
                     className={`relative w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all cursor-pointer text-left ${
                       active
                         ? "bg-gradient-to-r from-indigo-500/20 to-violet-500/20 border border-indigo-500/30 shadow-[inset_0_0_12px_rgba(99,102,241,0.1)]"
-                        : "bg-white/[0.03] border border-transparent hover:border-white/10"
+                        : "bg-muted/30 border border-transparent hover:border-border"
                     }`}
                     role="option"
                     aria-selected={active}
                   >
                     <span className="text-base shrink-0 leading-none">{lang.flag}</span>
                     <div className="min-w-0 flex-1">
-                      <span className={`block font-extrabold truncate leading-tight ${active ? "text-indigo-300" : "text-white/90"}`}>
+                      <span className={`block font-extrabold truncate leading-tight ${active ? "text-indigo-300" : "text-foreground"}`}>
                         {lang.native}
                       </span>
-                      <span className={`block text-[9px] font-medium truncate leading-tight ${active ? "text-indigo-400/80" : "text-white/50"}`}>
+                      <span className={`block text-[9px] font-medium truncate leading-tight ${active ? "text-indigo-400/80" : "text-muted-foreground"}`}>
                         {lang.label}
                       </span>
                     </div>

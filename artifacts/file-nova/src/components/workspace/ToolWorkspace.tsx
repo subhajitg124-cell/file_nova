@@ -1095,7 +1095,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
   };
 
   return (
-    <div className="min-h-screen max-h-screen bg-[#090d16] text-[#f8fafc] flex flex-col font-sans select-none overflow-hidden relative">
+    <div className="min-h-screen max-h-screen bg-background text-foreground flex flex-col font-sans select-none overflow-hidden relative">
       <style>{`
         .fn-dynamic-filter {
           filter: brightness(${brightness}%) contrast(${contrast}%);
@@ -1109,9 +1109,9 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
       )}
 
       {/* HEADER PANEL */}
-      <header className="h-14 bg-slate-900/90 border-b border-white/[0.08] backdrop-blur-xl flex items-center justify-between px-4 z-40 sticky top-0">
+      <header className="h-14 bg-card/90 border-b border-border backdrop-blur-xl flex items-center justify-between px-4 z-40 sticky top-0">
         <div className="flex items-center gap-3">
-          <Link href="/" className="p-1.5 rounded-lg border border-white/10 hover:bg-white/5 text-slate-400 hover:text-white transition">
+          <Link href="/" className="p-1.5 rounded-lg border border-border hover:bg-muted text-muted-foreground hover:text-foreground transition">
             <ArrowLeft className="h-4 w-4" />
           </Link>
           <div className="flex items-center gap-2">
@@ -1119,10 +1119,10 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
               {toolIcon}
             </div>
             <div>
-              <h1 className="text-xs font-black uppercase tracking-wider text-white leading-none">
+              <h1 className="text-xs font-black uppercase tracking-wider text-foreground leading-none">
                 {toolName}
               </h1>
-              <span className="text-[9px] text-slate-500 leading-none">FileNova Sandbox</span>
+              <span className="text-[9px] text-muted-foreground leading-none">FileNova Sandbox</span>
             </div>
           </div>
         </div>
@@ -1130,18 +1130,18 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
         {/* Header Search & Combobox Autocomplete */}
         <div className="hidden md:flex items-center gap-2 relative max-w-xs w-full">
           <div className="relative w-full">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
               placeholder="Search or Ctrl + K..."
-              className="w-full bg-slate-955/80 border border-white/15 rounded-xl pl-8 pr-3 py-1 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+              className="w-full bg-muted/80 border border-border rounded-xl pl-8 pr-3 py-1 text-xs text-foreground placeholder-muted-foreground focus:outline-none focus:border-indigo-500"
             />
           </div>
 
           {searchResults.length > 0 && (
-            <div className="absolute top-9 left-0 right-0 bg-slate-900 border border-white/10 rounded-2xl overflow-hidden shadow-2xl p-1 z-50">
+            <div className="absolute top-9 left-0 right-0 bg-card border border-border rounded-2xl overflow-hidden shadow-2xl p-1 z-50">
               {searchResults.map((r: any) => (
                 <button
                   key={r.id}
@@ -1150,10 +1150,10 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                     setSearchQuery("");
                     setSearchResults([]);
                   }}
-                  className="w-full text-left p-2 rounded-xl hover:bg-white/5 text-slate-355 hover:text-white text-[11px] font-bold transition flex items-center justify-between cursor-pointer"
+                  className="w-full text-left p-2 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground text-[11px] font-bold transition flex items-center justify-between cursor-pointer"
                 >
                   <span>{r.name}</span>
-                  <ChevronRight className="h-3 w-3 text-slate-500" />
+                  <ChevronRight className="h-3 w-3 text-muted-foreground" />
                 </button>
               ))}
             </div>
@@ -1493,7 +1493,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
           </AnimatePresence>
 
           {/* MAIN BENTO GRID WORKSPACE */}
-          <div className="flex-1 p-3 lg:p-4 bg-[#090d16]/30 flex flex-col gap-3 h-full overflow-hidden">
+          <div className="flex-1 p-3 lg:p-4 bg-background/30 flex flex-col gap-3 h-full overflow-hidden">
             {/* Upload progress bar — absolute positioned for visibility */}
             {isUploading && (
               <div className="absolute top-0 left-0 w-full z-50 px-4 pt-2">
@@ -2035,7 +2035,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
 
         {/* BOTTOM PANEL - Processing status and timeline logs */}
       {hasFiles && (
-        <footer className="h-auto md:h-28 bg-[#090d16] border-t border-white/[0.08] flex flex-col md:grid md:grid-cols-12 z-30 sticky bottom-0">
+        <footer className="h-auto md:h-28 bg-background border-t border-border flex flex-col md:grid md:grid-cols-12 z-30 sticky bottom-0">
           
           {/* Timeline processing logs */}
           <div className="hidden md:flex md:col-span-8 border-r border-white/[0.06] p-3 flex-col overflow-y-auto">

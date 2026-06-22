@@ -160,10 +160,10 @@ export function SmartSearchBar({
       <div
         className={`
           flex items-center gap-2 px-3 py-1.5
-          bg-white/5 backdrop-blur-md
+          bg-card/40 backdrop-blur-md
           border transition-all duration-200
           rounded-xl shadow-sm
-          ${open ? "border-indigo-500/60 shadow-indigo-500/10 shadow-lg bg-white/10" : "border-white/10"}
+          ${open ? "border-indigo-500/60 shadow-indigo-500/10 shadow-lg bg-card/60" : "border-border"}
         `}
       >
         <Search
@@ -180,7 +180,7 @@ export function SmartSearchBar({
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder={defaultPlaceholder}
-          className="flex-1 bg-transparent text-xs text-slate-200
+          className="flex-1 bg-transparent text-xs text-foreground
                      placeholder:text-gray-400/70
                      outline-none min-w-0 font-medium"
           autoComplete="off"
@@ -206,12 +206,12 @@ export function SmartSearchBar({
             exit={{ opacity: 0, y: 8, scale: 0.98 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
             className="absolute top-full left-0 right-0 mt-2.5 z-[9999]
-                       bg-[#0f0f1a]/90 backdrop-blur-2xl
-                       border border-white/10
+                       bg-card/95 backdrop-blur-2xl
+                       border border-border
                        rounded-2xl shadow-[0_15px_50px_rgba(0,0,0,0.5)] overflow-hidden"
           >
           {/* Section header */}
-          <div className="px-4 pt-3 pb-1.5 flex items-center gap-2 border-b border-white/5">
+          <div className="px-4 pt-3 pb-1.5 flex items-center gap-2 border-b border-border/50">
             {query.trim() ? (
               <>
                 <Search className="w-3 h-3 text-indigo-400" />
@@ -221,15 +221,15 @@ export function SmartSearchBar({
               </>
             ) : recent.length > 0 ? (
               <>
-                <Clock className="w-3 h-3 text-gray-400" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                <Clock className="w-3 h-3 text-muted-foreground" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
                   {tText("Recent & trending")}
                 </span>
               </>
             ) : (
               <>
                 <TrendingUp className="w-3 h-3 text-orange-400" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
                   {tText("Popular in India")}
                 </span>
               </>
@@ -247,14 +247,14 @@ export function SmartSearchBar({
                   transition-colors duration-100 cursor-pointer
                   ${activeIdx === idx
                     ? "bg-indigo-500/20 text-indigo-300"
-                    : "text-slate-350 hover:bg-white/5"
+                    : "text-muted-foreground hover:bg-muted"
                   }
                 `}
               >
                 {/* Icon by type */}
                 <span className="shrink-0">
                   {sug.type === "recent" ? (
-                    <Clock className="w-3.5 h-3.5 text-slate-400" />
+                    <Clock className="w-3.5 h-3.5 text-muted-foreground" />
                   ) : sug.type === "trending" ? (
                     <TrendingUp className="w-3.5 h-3.5 text-orange-400" />
                   ) : (
@@ -264,11 +264,11 @@ export function SmartSearchBar({
 
                 {/* Label + description */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-slate-200 truncate">
+                  <p className="text-xs font-semibold text-foreground truncate">
                     <HighlightMatch text={sug.label} query={query} />
                   </p>
                   {sug.description && (
-                    <p className="text-[10px] text-slate-400 truncate mt-0.5">{sug.description}</p>
+                    <p className="text-[10px] text-muted-foreground truncate mt-0.5">{sug.description}</p>
                   )}
                 </div>
 
@@ -282,12 +282,12 @@ export function SmartSearchBar({
           </div>
 
           {/* Footer hint */}
-          <div className="border-t border-white/5 px-4 py-2 flex items-center gap-3 bg-white/[0.02]">
-            <kbd className="text-[9px] bg-white/10 text-slate-400 px-1 py-0.5 rounded font-extrabold">↑↓</kbd>
+          <div className="border-t border-border/50 px-4 py-2 flex items-center gap-3 bg-muted/10">
+            <kbd className="text-[9px] bg-secondary text-muted-foreground px-1 py-0.5 rounded font-extrabold">↑↓</kbd>
             <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">{tText("navigate")}</span>
-            <kbd className="text-[9px] bg-white/10 text-slate-400 px-1 py-0.5 rounded font-extrabold">↵</kbd>
+            <kbd className="text-[9px] bg-secondary text-muted-foreground px-1 py-0.5 rounded font-extrabold">↵</kbd>
             <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">{tText("select")}</span>
-            <kbd className="text-[9px] bg-white/10 text-slate-400 px-1 py-0.5 rounded ml-auto font-extrabold">esc</kbd>
+            <kbd className="text-[9px] bg-secondary text-muted-foreground px-1 py-0.5 rounded ml-auto font-extrabold">esc</kbd>
             <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">{tText("close")}</span>
           </div>
         </motion.div>

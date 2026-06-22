@@ -1288,6 +1288,39 @@ header[class*="sticky"] {
   animation-play-state: paused;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-delay: -1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    background-attachment: initial !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+  }
+  
+  .bg-mesh::before,
+  .dark .bg-mesh::before,
+  .event-theme-warm::before,
+  .event-theme-cool::before,
+  .event-theme-tricolor::before,
+  .event-theme-diwali::before,
+  .event-theme-holi::before,
+  .event-theme-newYear::before,
+  .event-theme-scholarship::before {
+    animation: none !important;
+  }
+
+  .animate-marquee {
+    animation: none !important;
+    flex-wrap: wrap !important;
+    width: auto !important;
+  }
+}
+
+
 
 
 

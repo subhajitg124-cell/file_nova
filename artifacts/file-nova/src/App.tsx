@@ -38,38 +38,38 @@ const WordToPdf = React.lazy(() => import("@/pages/tools/WordToPdf"));
 const AIPPTMakerWorkspace = React.lazy(() => import("@/tools/ai-ppt/AIPPTMakerWorkspace"));
 const CompressImage = React.lazy(() => import("@/pages/tools/CompressImage"));
 const CompressDoc = React.lazy(() => import("@/pages/tools/CompressDoc"));
-import PdfToolsPage from "@/pages/PdfToolsPage";
-import ImageToolsPage from "@/pages/ImageToolsPage";
-import VideoToolsPage from "@/pages/VideoToolsPage";
-import DocumentToolsPage from "@/pages/DocumentToolsPage";
-import AdminDashboard from "@/pages/AdminDashboard";
-import AdminUpiPayments from "@/pages/AdminUpiPayments";
-import AdminCouponManagement from "@/pages/AdminCouponManagement";
-import AdminLogin from "@/pages/AdminLogin";
-import AdminAnalytics from "@/pages/AdminAnalytics";
-import PremiumSuite from "@/pages/PremiumSuite";
-import PricingPage from "@/pages/PricingPage";
-import OperatorDashboard from "@/pages/OperatorDashboard";
-import SEOPhotoCompressor from "@/pages/seo/SEOPhotoCompressor";
+const PdfToolsPage = React.lazy(() => import("@/pages/PdfToolsPage"));
+const ImageToolsPage = React.lazy(() => import("@/pages/ImageToolsPage"));
+const VideoToolsPage = React.lazy(() => import("@/pages/VideoToolsPage"));
+const DocumentToolsPage = React.lazy(() => import("@/pages/DocumentToolsPage"));
+const AdminDashboard = React.lazy(() => import("@/pages/AdminDashboard"));
+const AdminUpiPayments = React.lazy(() => import("@/pages/AdminUpiPayments"));
+const AdminCouponManagement = React.lazy(() => import("@/pages/AdminCouponManagement"));
+const AdminLogin = React.lazy(() => import("@/pages/AdminLogin"));
+const AdminAnalytics = React.lazy(() => import("@/pages/AdminAnalytics"));
+const PremiumSuite = React.lazy(() => import("@/pages/PremiumSuite"));
+const PricingPage = React.lazy(() => import("@/pages/PricingPage"));
+const OperatorDashboard = React.lazy(() => import("@/pages/OperatorDashboard"));
+const SEOPhotoCompressor = React.lazy(() => import("@/pages/seo/SEOPhotoCompressor"));
 import NotFound from "@/pages/not-found";
 import { ThemeEffects } from "@/components/ThemeEffects";
 
 const BetaTestingZone = React.lazy(() => import("@/pages/BetaTestingZone"));
-import LoginPage from "@/pages/LoginPage";
-import DashboardPage from "@/pages/DashboardPage";
-import HistoryPage from "@/pages/HistoryPage";
-import BlogPage from "@/pages/BlogPage";
-import BlogPostPage from "@/pages/BlogPostPage";
-import ReferralPage from "@/pages/ReferralPage";
-import StudentOfferPage from "@/pages/StudentOfferPage";
-import ResourcesPage from "@/pages/ResourcesPage";
-import ContactPage from "@/pages/Contact";
+const LoginPage = React.lazy(() => import("@/pages/LoginPage"));
+const DashboardPage = React.lazy(() => import("@/pages/DashboardPage"));
+const HistoryPage = React.lazy(() => import("@/pages/HistoryPage"));
+const BlogPage = React.lazy(() => import("@/pages/BlogPage"));
+const BlogPostPage = React.lazy(() => import("@/pages/BlogPostPage"));
+const ReferralPage = React.lazy(() => import("@/pages/ReferralPage"));
+const StudentOfferPage = React.lazy(() => import("@/pages/StudentOfferPage"));
+const ResourcesPage = React.lazy(() => import("@/pages/ResourcesPage"));
+const ContactPage = React.lazy(() => import("@/pages/Contact"));
 const WorkflowsPage = React.lazy(() => import("@/pages/WorkflowsPage"));
 const IndiaToolsPage = React.lazy(() => import("@/pages/IndiaToolsPage"));
-import ProfilePage from "@/pages/ProfilePage";
-import PrivacyPolicy from "@/pages/PrivacyPolicy";
-import TermsOfService from "@/pages/TermsOfService";
-import CookiePolicy from "@/pages/CookiePolicy";
+const ProfilePage = React.lazy(() => import("@/pages/ProfilePage"));
+const PrivacyPolicy = React.lazy(() => import("@/pages/PrivacyPolicy"));
+const TermsOfService = React.lazy(() => import("@/pages/TermsOfService"));
+const CookiePolicy = React.lazy(() => import("@/pages/CookiePolicy"));
 import { LanguageProvider } from "@/lib/i18n";
 import { AdminProvider, useAdmin } from "@/lib/admin";
 import { FileExpiryBar } from "@/components/FileExpiryBar";
@@ -334,28 +334,72 @@ function Router() {
         <Route path="/beta-test">
           <React.Suspense fallback={<LoadingScreen />}><BetaTestingZone /></React.Suspense>
         </Route>
-        <Route path="/premium" component={PremiumSuite} />
-        <Route path="/pricing" component={PricingPage} />
-        <Route path="/operator-dashboard" component={OperatorDashboard} />
-        <Route path="/tools/compress-pan-card" component={SEOPhotoCompressor} />
-        <Route path="/nova-control" component={AdminDashboard} />
-        <Route path="/admin/analytics" component={AdminAnalytics} />
-        <Route path="/admin/upi-payments" component={AdminUpiPayments} />
-        <Route path="/admin/coupons" component={AdminCouponManagement} />
-        <Route path="/nova-login" component={AdminLogin} />
-        <Route path="/login" component={LoginPage} />
-        <Route path="/dashboard" component={DashboardPage} />
-        <Route path="/history" component={HistoryPage} />
-        <Route path="/blog" component={BlogPage} />
-        <Route path="/blog/:slug" component={BlogPostPage} />
-        <Route path="/referral" component={ReferralPage} />
-        <Route path="/student-offer" component={StudentOfferPage} />
-        <Route path="/resources" component={ResourcesPage} />
-        <Route path="/contact" component={ContactPage} />
-        <Route path="/profile" component={ProfilePage} />
-        <Route path="/privacy" component={PrivacyPolicy} />
-        <Route path="/terms" component={TermsOfService} />
-        <Route path="/cookie-policy" component={CookiePolicy} />
+        <Route path="/premium">
+          <React.Suspense fallback={<LoadingScreen />}><PremiumSuite /></React.Suspense>
+        </Route>
+        <Route path="/pricing">
+          <React.Suspense fallback={<LoadingScreen />}><PricingPage /></React.Suspense>
+        </Route>
+        <Route path="/operator-dashboard">
+          <React.Suspense fallback={<LoadingScreen />}><OperatorDashboard /></React.Suspense>
+        </Route>
+        <Route path="/tools/compress-pan-card">
+          <React.Suspense fallback={<LoadingScreen />}><SEOPhotoCompressor /></React.Suspense>
+        </Route>
+        <Route path="/nova-control">
+          <React.Suspense fallback={<LoadingScreen />}><AdminDashboard /></React.Suspense>
+        </Route>
+        <Route path="/admin/analytics">
+          <React.Suspense fallback={<LoadingScreen />}><AdminAnalytics /></React.Suspense>
+        </Route>
+        <Route path="/admin/upi-payments">
+          <React.Suspense fallback={<LoadingScreen />}><AdminUpiPayments /></React.Suspense>
+        </Route>
+        <Route path="/admin/coupons">
+          <React.Suspense fallback={<LoadingScreen />}><AdminCouponManagement /></React.Suspense>
+        </Route>
+        <Route path="/nova-login">
+          <React.Suspense fallback={<LoadingScreen />}><AdminLogin /></React.Suspense>
+        </Route>
+        <Route path="/login">
+          <React.Suspense fallback={<LoadingScreen />}><LoginPage /></React.Suspense>
+        </Route>
+        <Route path="/dashboard">
+          <React.Suspense fallback={<LoadingScreen />}><DashboardPage /></React.Suspense>
+        </Route>
+        <Route path="/history">
+          <React.Suspense fallback={<LoadingScreen />}><HistoryPage /></React.Suspense>
+        </Route>
+        <Route path="/blog">
+          <React.Suspense fallback={<LoadingScreen />}><BlogPage /></React.Suspense>
+        </Route>
+        <Route path="/blog/:slug">
+          <React.Suspense fallback={<LoadingScreen />}><BlogPostPage /></React.Suspense>
+        </Route>
+        <Route path="/referral">
+          <React.Suspense fallback={<LoadingScreen />}><ReferralPage /></React.Suspense>
+        </Route>
+        <Route path="/student-offer">
+          <React.Suspense fallback={<LoadingScreen />}><StudentOfferPage /></React.Suspense>
+        </Route>
+        <Route path="/resources">
+          <React.Suspense fallback={<LoadingScreen />}><ResourcesPage /></React.Suspense>
+        </Route>
+        <Route path="/contact">
+          <React.Suspense fallback={<LoadingScreen />}><ContactPage /></React.Suspense>
+        </Route>
+        <Route path="/profile">
+          <React.Suspense fallback={<LoadingScreen />}><ProfilePage /></React.Suspense>
+        </Route>
+        <Route path="/privacy">
+          <React.Suspense fallback={<LoadingScreen />}><PrivacyPolicy /></React.Suspense>
+        </Route>
+        <Route path="/terms">
+          <React.Suspense fallback={<LoadingScreen />}><TermsOfService /></React.Suspense>
+        </Route>
+        <Route path="/cookie-policy">
+          <React.Suspense fallback={<LoadingScreen />}><CookiePolicy /></React.Suspense>
+        </Route>
         <Route component={NotFound} />
       </Switch>
     </>

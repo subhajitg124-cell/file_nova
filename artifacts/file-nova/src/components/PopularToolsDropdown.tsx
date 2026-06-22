@@ -73,18 +73,18 @@ export function PopularToolsDropdown() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.2, type: "spring", stiffness: 400, damping: 25 }}
-            className="absolute right-0 mt-3 z-50 w-[90vw] sm:w-[520px] bg-[#0c0c14]/98 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl shadow-amber-950/20 overflow-hidden"
+            className="absolute right-0 mt-3 z-50 w-[90vw] sm:w-[520px] bg-card/98 backdrop-blur-2xl border border-border rounded-2xl shadow-2xl shadow-amber-500/10 overflow-hidden"
             style={{ fontFamily: "'Inter', 'Outfit', sans-serif" }}
           >
             {/* Header banner */}
-            <div className="px-5 py-3.5 border-b border-white/5 bg-gradient-to-r from-amber-500/10 to-transparent flex items-center justify-between">
+            <div className="px-5 py-3.5 border-b border-border/50 bg-gradient-to-r from-amber-500/10 to-transparent flex items-center justify-between">
               <div className="flex items-center gap-1.5">
                 <Zap className="h-4 w-4 text-amber-400 fill-amber-400/30" />
                 <span className="text-xs font-black text-amber-300 uppercase tracking-widest">
                   Quick Shortcuts
                 </span>
               </div>
-              <span className="text-[10px] text-gray-500 font-bold">30+ Free Tools</span>
+              <span className="text-[10px] text-muted-foreground font-bold">30+ Free Tools</span>
             </div>
 
             {/* Scrollable list container */}
@@ -123,20 +123,20 @@ export function PopularToolsDropdown() {
                               setLocation(tool.route);
                               setOpen(false);
                             }}
-                            className="group relative w-full flex items-center gap-3 p-2.5 rounded-xl text-left bg-white/[0.01] border border-white/5 hover:border-white/10 transition-all cursor-pointer overflow-hidden"
+                            className="group relative w-full flex items-center gap-3 p-2.5 rounded-xl text-left bg-muted/30 border border-border/50 hover:border-border transition-all cursor-pointer overflow-hidden"
                           >
                             {/* Inner gradient glow */}
                             <div className={`absolute inset-0 bg-gradient-to-br ${tool.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
 
                             {/* Icon container */}
-                            <div className={`relative w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br ${tool.gradient} border border-white/10 shrink-0 group-hover:scale-105 duration-300`}>
+                            <div className={`relative w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br ${tool.gradient} border border-border/20 shrink-0 group-hover:scale-105 duration-300`}>
                               <Icon className="w-4 h-4 text-white/90" />
                             </div>
 
                             {/* Label & Description */}
                             <div className="relative min-w-0 flex-1">
                               <div className="flex items-center gap-1.5">
-                                <span className="block font-black text-xs text-white/90 group-hover:text-white truncate transition-colors leading-tight">
+                                <span className="block font-black text-xs text-foreground group-hover:text-foreground truncate transition-colors leading-tight">
                                   {tool.label}
                                 </span>
                                 {tool.badge && (
@@ -149,7 +149,7 @@ export function PopularToolsDropdown() {
                                   </span>
                                 )}
                               </div>
-                              <span className="block text-[10px] text-white/50 group-hover:text-gray-300 truncate mt-0.5 transition-colors leading-none font-semibold">
+                              <span className="block text-[10px] text-muted-foreground group-hover:text-foreground truncate mt-0.5 transition-colors leading-none font-semibold">
                                 {tool.description}
                               </span>
                             </div>
