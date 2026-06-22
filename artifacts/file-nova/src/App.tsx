@@ -121,7 +121,7 @@ class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="min-h-screen flex items-center justify-center bg-slate-950 p-4 font-sans">
           <div className="bg-slate-900/40 border border-white/10 p-8 rounded-3xl shadow-2xl max-w-lg w-full text-center backdrop-blur-2xl">
-            <div className="w-16 h-16 bg-red-550/10 border border-red-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <div className="w-16 h-16 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
               <span className="text-3xl">⚠️</span>
             </div>
             <h1 className="text-2xl font-black text-white mb-2">
@@ -145,7 +145,7 @@ class ErrorBoundary extends Component<Props, State> {
                   localStorage.clear();
                   window.location.href = '/';
                 }}
-                className="w-full bg-slate-800 border border-slate-700 text-slate-200 py-3 rounded-xl hover:bg-slate-750 transition text-xs font-bold cursor-pointer"
+                className="w-full bg-slate-800 border border-slate-700 text-slate-200 py-3 rounded-xl hover:bg-slate-700 transition text-xs font-bold cursor-pointer"
               >
                 🗑️ Clear data & restart
               </button>
@@ -330,6 +330,9 @@ function Router() {
         <Route path="/tools/ai-pdf-summary"><Redirect to="/ai-pdf-summary" /></Route>
         <Route path="/tools/ai-summarize"><Redirect to="/ai-pdf-summary" /></Route>
 
+        <Route path="/tools/compress-pan-card">
+          <React.Suspense fallback={<LoadingScreen />}><SEOPhotoCompressor /></React.Suspense>
+        </Route>
         <Route path="/tools/:toolId" component={ToolPage} />
         <Route path="/beta-test">
           <React.Suspense fallback={<LoadingScreen />}><BetaTestingZone /></React.Suspense>
@@ -342,9 +345,6 @@ function Router() {
         </Route>
         <Route path="/operator-dashboard">
           <React.Suspense fallback={<LoadingScreen />}><OperatorDashboard /></React.Suspense>
-        </Route>
-        <Route path="/tools/compress-pan-card">
-          <React.Suspense fallback={<LoadingScreen />}><SEOPhotoCompressor /></React.Suspense>
         </Route>
         <Route path="/nova-control">
           <React.Suspense fallback={<LoadingScreen />}><AdminDashboard /></React.Suspense>
@@ -370,11 +370,11 @@ function Router() {
         <Route path="/history">
           <React.Suspense fallback={<LoadingScreen />}><HistoryPage /></React.Suspense>
         </Route>
-        <Route path="/blog">
-          <React.Suspense fallback={<LoadingScreen />}><BlogPage /></React.Suspense>
-        </Route>
         <Route path="/blog/:slug">
           <React.Suspense fallback={<LoadingScreen />}><BlogPostPage /></React.Suspense>
+        </Route>
+        <Route path="/blog">
+          <React.Suspense fallback={<LoadingScreen />}><BlogPage /></React.Suspense>
         </Route>
         <Route path="/referral">
           <React.Suspense fallback={<LoadingScreen />}><ReferralPage /></React.Suspense>

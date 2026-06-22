@@ -58,7 +58,8 @@ function cleanupExpiredShares() {
 }
 
 // Run cleanup every 15 minutes
-setInterval(cleanupExpiredShares, 15 * 60 * 1000);
+const shareCleanupTimer = setInterval(cleanupExpiredShares, 15 * 60 * 1000);
+shareCleanupTimer.unref();
 
 router.post("/share-file", (req: Request, res: Response): void => {
   const { fileData, fileName, mimeType } = req.body;
