@@ -75,6 +75,7 @@ export const SpreadsheetPreviewer: React.FC<{ filename: string }> = ({ filename 
 
 // 1. PDF_EDITOR Workspace Layout
 export const PdfEditorWorkspace: React.FC<WorkspaceProps> = ({ files, configPanel, previewPanel }) => {
+  const removeFile = useFileStore((s) => s.removeFile);
   return (
     <div className="w-full grid grid-cols-1 gap-6">
       <div className="bg-slate-950/40 border border-white/[0.05] rounded-3xl p-4 space-y-4">
@@ -90,7 +91,7 @@ export const PdfEditorWorkspace: React.FC<WorkspaceProps> = ({ files, configPane
             <div key={file.id} className="p-3 bg-slate-900 border border-white/5 rounded-2xl flex flex-col justify-between h-32 relative group">
               <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button title="Rotate page" className="p-1 rounded bg-slate-950 border border-white/10 hover:bg-slate-800 text-slate-400 hover:text-white cursor-pointer"><RotateCw className="h-3 w-3" /></button>
-                <button title="Delete page" className="p-1 rounded bg-slate-950 border border-white/10 hover:bg-rose-950 text-slate-450 hover:text-rose-400 cursor-pointer"><Trash2 className="h-3 w-3" /></button>
+                <button title="Delete page" onClick={() => removeFile(file.id)} className="p-1 rounded bg-slate-950 border border-white/10 hover:bg-rose-950 text-slate-400 hover:text-rose-400 cursor-pointer"><Trash2 className="h-3 w-3" /></button>
               </div>
 
               <div className="h-14 flex items-center justify-center bg-slate-950 border border-white/5 rounded-xl text-xs text-slate-500 font-bold">

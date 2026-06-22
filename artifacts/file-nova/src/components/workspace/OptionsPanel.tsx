@@ -489,11 +489,10 @@ export const OptionsPanel: React.FC = () => {
   const isAudio     = fileType.startsWith('audio/');
   const isScanMode  = actionName === 'scan_to_pdf';
 
-  if (files.length === 0 && !isScanMode) return null;
-  if (!selectedOperation) return null;
+  const hasNoFiles = files.length === 0 && !isScanMode;
+  const hasNoOperation = !selectedOperation;
 
   // Load natural dimensions
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if ((selectedOperation === 'resize' || actionName === 'image_crop') && rawFiles[0] && isImage) {
       getImageDimensions(rawFiles[0]).then((d) => {
@@ -506,9 +505,7 @@ export const OptionsPanel: React.FC = () => {
   }, [selectedOperation, actionName, rawFiles[0]?.name]);
 
   // ── Local history: "Use same settings?" banner ────────────────────────────
-  // Placed after actionName declaration to avoid TS2448 (used before declared)
   const [historySuggestion, setHistorySuggestion] = useState<LocalHistoryEntry | null>(null);
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (!selectedOperation) return;
     const toolId = String(actionName || selectedOperation);
@@ -2045,6 +2042,8 @@ export const OptionsPanel: React.FC = () => {
   // Helper for history label — defined inline to avoid hoisting issues
   const panelTitleForHistory = (action: string, op: string | null) =>
     actionLabels[action] || operationLabels[op ?? ''] || 'Operation';
+
+  if (hasNoFiles || hasNoOperation) return null;
 
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}

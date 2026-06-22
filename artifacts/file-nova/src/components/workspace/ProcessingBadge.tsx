@@ -27,7 +27,7 @@ export function ProcessingBadge({ durationSeconds, isLocalOnly, toolName }: Proc
       {isLocalOnly && (
         <>
           <span className="w-px h-4 bg-emerald-500/30" aria-hidden="true" />
-          <span className="flex items-center gap-1 gap-1">
+          <span className="flex items-center gap-1">
             <Shield className="h-3 w-3" aria-hidden="true" />
             <span>100% on your device</span>
           </span>
@@ -36,6 +36,8 @@ export function ProcessingBadge({ durationSeconds, isLocalOnly, toolName }: Proc
     </div>
   );
 }
+
+export default ProcessingBadge;
 
 export function ProcessingBadgeSkeleton() {
   return (

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { m as motion } from 'framer-motion';
-import { HardDriveUpload, Settings, Cpu, FileCheck, Loader2, Clock, Users, AlertCircle } from 'lucide-react';
+import { HardDriveUpload, Settings, Cpu, FileCheck, Loader2, Clock, Users } from 'lucide-react';
 import { useFileStore } from '@/store/useFileStore';
 
 const STEPS = [
@@ -11,29 +11,31 @@ const STEPS = [
 ];
 
 export const ProgressTracker: React.FC = () => {
-  const { progress, isProcessing, processingQueue } = useFileStore();
+  const { progress, isProcessing } = useFileStore();
   const [estimatedTime, setEstimatedTime] = useState<number | null>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
 
-  if (!isProcessing) return null;
-
   const step = [...STEPS].reverse().find(s => progress >= s.threshold) || STEPS[0];
-  const StepIcon = step.icon;
-  const pct = Math.min(100, Math.round(progress));
 
   useEffect(() => {
+    if (!isProcessing) return;
     const currentStepIndex = STEPS.findIndex(s => progress >= s.threshold);
     const remainingSteps = STEPS.slice(currentStepIndex + 1);
     const totalEstimate = remainingSteps.reduce((sum, s) => sum + (s.timeEstimate || 0), 0) + 
-                          (step.timeEstimate || 0) * (1 - (progress - (step.threshold || 0)) / 25);
+                          (step?.timeEstimate || 0) * (1 - (progress - (step?.threshold || 0)) / 25);
     setEstimatedTime(Math.max(1, Math.round(totalEstimate)));
-  }, [progress]);
+  }, [progress, isProcessing, step]);
 
   useEffect(() => {
     if (estimatedTime !== null) {
       setCountdown(estimatedTime);
     }
   }, [estimatedTime]);
+
+  if (!isProcessing) return null;
+
+  const StepIcon = step.icon;
+  const pct = Math.min(100, Math.round(progress));
 
   return (
     <motion.div

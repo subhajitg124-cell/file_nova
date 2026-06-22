@@ -280,16 +280,48 @@
 
   /* Legacy palette shims for components that predate the redesign theme. */
   .text-slate-250 { color: #e2e8f0; }
+  .text-slate-350 { color: #cbd5e1; }
   .text-slate-355 { color: #cbd5e1; }
+  .text-slate-450 { color: #94a3b8; }
   .text-slate-455 { color: #94a3b8; }
   .text-slate-550,
   .text-slate-555 { color: #64748b; }
+  .text-slate-650 { color: #64748b; }
   .text-indigo-650 { color: #4f46e5; }
   .text-purple-605 { color: #7c3aed; }
   .text-rose-405 { color: #fb7185; }
+  .text-emerald-450 { color: #34d399; }
+  .text-sky-450 { color: #38bdf8; }
+  .text-violet-350 { color: #c4b5fd; }
+  .text-violet-450 { color: #a78bfa; }
+
+  .text-slate-305 { color: #cbd5e1; }
+  .text-indigo-655 { color: #4f46e5; }
+  .text-gray-850 { color: #1f2937; }
+  .text-gray-250 { color: #e5e7eb; }
+  .hover\:text-violet-350:hover { color: #c4b5fd; }
+
+  .h-4\.5 { height: 18px; }
+  .w-4\.5 { width: 18px; }
 
   .bg-slate-850 { background-color: #1e293b; }
   .bg-slate-955 { background-color: #020617; }
+  .bg-violet-505 { background-color: #6d28d9; }
+  .bg-amber-550 { background-color: #d97706; }
+  .hover\:bg-emerald-750:hover { background-color: #047857; }
+  .hover\:bg-slate-850:hover { background-color: #1e293b; }
+  .hover\:bg-gray-850:hover { background-color: #1f2937; }
+
+  .border-gray-150 { border-color: #f3f4f6; }
+  .border-gray-250 { border-color: #e5e7eb; }
+  .border-gray-750 { border-color: #374151; }
+  .border-gray-850 { border-color: #1f2937; }
+  .border-slate-750 { border-color: #334155; }
+  .border-slate-850 { border-color: #1e293b; }
+
+  .duration-350 { transition-duration: 350ms; }
+
+  .dark .dark\:hover\:text-slate-350:hover { color: #cbd5e1; }
   .bg-slate-955\/20 { background-color: rgb(2 6 23 / 0.2); }
   .bg-slate-955\/30 { background-color: rgb(2 6 23 / 0.3); }
   .bg-slate-955\/40 { background-color: rgb(2 6 23 / 0.4); }

@@ -59,10 +59,30 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
   };
 
   const [loading, setLoading] = useState(false);
-  const [pdfPages, setPdfPages] = useState<string[]>([]); // Data URLs of PDF page thumbnails
+  const [pdfPages, setPdfPages] = useState<string[]>([]);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const objectUrlRef = useRef<string | null>(null);
 
   const primaryFile = files[0];
+  const isPdf = primaryFile ? (primaryFile.type === "application/pdf" || primaryFile.name.toLowerCase().endsWith(".pdf")) : false;
+  const isImage = primaryFile ? primaryFile.type.startsWith("image/") : false;
+  const isVideo = primaryFile ? primaryFile.type.startsWith("video/") : false;
+
+  useEffect(() => {
+    return () => {
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current);
+        objectUrlRef.current = null;
+      }
+    };
+  }, []);
+
+  const getObjectUrl = (file: File): string => {
+    if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
+    const url = URL.createObjectURL(file);
+    objectUrlRef.current = url;
+    return url;
+  };
 
   // Helper to load and render PDF pages via pdfjs-dist
   useEffect(() => {
@@ -127,10 +147,6 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
       </div>
     );
   }
-
-  const isPdf = primaryFile.type === "application/pdf" || primaryFile.name.toLowerCase().endsWith(".pdf");
-  const isImage = primaryFile.type.startsWith("image/");
-  const isVideo = primaryFile.type.startsWith("video/");
 
   // Render individual views
   if (loading) {
@@ -484,7 +500,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
 
   /* ────────── IMAGE PREVIEWS ────────── */
   if (isImage) {
-    const objectUrl = URL.createObjectURL(primaryFile);
+    const objectUrl = getObjectUrl(primaryFile);
 
     // BG REMOVE PREVIEW (Transparent checkerboard background)
     if (slug === "bg-remover") {
@@ -538,7 +554,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
 
   /* ────────── VIDEO PREVIEWS ────────── */
   if (isVideo) {
-    const objectUrl = URL.createObjectURL(primaryFile);
+    const objectUrl = getObjectUrl(primaryFile);
     return (
       <div className="border border-white/10 rounded-2xl overflow-hidden bg-black max-w-lg mx-auto">
         <video src={objectUrl} controls className="w-full max-h-[300px] object-contain" />

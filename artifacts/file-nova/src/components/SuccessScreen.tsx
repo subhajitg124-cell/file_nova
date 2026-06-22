@@ -149,11 +149,11 @@ export function SuccessScreen({
         <div className="grid grid-cols-3 gap-2 p-3 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 text-xs">
           <div>
             <span className="text-gray-400 block uppercase font-bold tracking-wider text-[9px] mb-0.5">Original</span>
-            <span className="font-extrabold text-gray-850 dark:text-gray-200">{formatSize(originalSize)}</span>
+            <span className="font-extrabold text-gray-900 dark:text-gray-200">{formatSize(originalSize)}</span>
           </div>
           <div className="border-x border-gray-100 dark:border-gray-800">
             <span className="text-gray-400 block uppercase font-bold tracking-wider text-[9px] mb-0.5">Processed</span>
-            <span className="font-extrabold text-gray-850 dark:text-gray-200">{formatSize(newSize)}</span>
+            <span className="font-extrabold text-gray-900 dark:text-gray-200">{formatSize(newSize)}</span>
           </div>
           <div>
             <span className="text-gray-400 block uppercase font-bold tracking-wider text-[9px] mb-0.5">Reduction</span>
@@ -177,7 +177,7 @@ export function SuccessScreen({
           <button
             onClick={handleCopyLink}
             disabled={isGenerating}
-            className="flex items-center justify-center gap-1.5 py-2.5 bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-850 text-gray-700 dark:text-gray-300 border border-gray-250 dark:border-gray-750 rounded-xl font-bold text-xs transition duration-200 cursor-pointer active:scale-[0.98] disabled:opacity-50"
+            className="flex items-center justify-center gap-1.5 py-2.5 bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-xl font-bold text-xs transition duration-200 cursor-pointer active:scale-[0.98] disabled:opacity-50"
           >
             {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
             {copied ? tText("Copied!") : tText("Copy Link")}
@@ -200,7 +200,7 @@ export function SuccessScreen({
         )}
       </div>
 
-      <div className="border-t border-gray-150 dark:border-gray-750 pt-4">
+      <div className="border-t border-gray-100 dark:border-gray-600 pt-4">
         <button
           onClick={onReset}
           className="w-full flex items-center justify-center gap-2 py-2 bg-transparent hover:bg-gray-50 dark:hover:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 font-semibold rounded-xl transition duration-200 text-xs cursor-pointer"
