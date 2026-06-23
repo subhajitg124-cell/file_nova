@@ -6,7 +6,6 @@ import ScholarshipZIPMaker from "@/pages/ScholarshipZIPMaker";
 import Workspace from "@/pages/Home";
 import { Loader2 } from "lucide-react";
 import { apiClient, apiMock } from "@/lib/api";
-import { setPageMeta, toolJsonLd, TOOL_META, DEFAULT_META } from "@/lib/seo";
 
 interface ToolPageProps {
   params: {
@@ -121,27 +120,6 @@ export default function ToolPage({ params }: ToolPageProps) {
 
     setIsConfigured(true);
 
-    // ── SEO meta ─────────────────────────────────────────────────────────
-    const meta = TOOL_META[slug];
-    if (meta) {
-      setPageMeta({
-        title: meta.title,
-        description: meta.description,
-        keywords: meta.keywords,
-        canonical: `/tools/${slug}`,
-        jsonLd: toolJsonLd({
-          name: meta.title.split("|")[0].trim(),
-          description: meta.description,
-          url: `https://filenova.in/tools/${slug}`,
-        }),
-      });
-    } else {
-      setPageMeta({
-        ...DEFAULT_META,
-        title: `${toolId.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())} | FileNova`,
-        canonical: `/tools/${toolId}`,
-      });
-    }
   }, [toolId]);
 
   if (!isConfigured) {

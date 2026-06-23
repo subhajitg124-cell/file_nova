@@ -1,24 +1,60 @@
 import { useHead } from "@unhead/react";
 import { useLocation } from "wouter";
 import { TOOL_META } from "./toolMeta";
-import { useEffect } from "react";
+
+function lookupMeta(pathname: string) {
+  if (TOOL_META[pathname]) return TOOL_META[pathname];
+  if (pathname.startsWith("/tools/")) {
+    const subPath = "/" + pathname.slice("/tools/".length);
+    return TOOL_META[subPath] ?? TOOL_META["/"];
+  }
+  return TOOL_META["/"];
+}
+
+const NON_INDEXABLE_PATHS = [
+  "/beta-test", "/operator-dashboard", "/ref", "/nova-control",
+  "/nova-login", "/admin/analytics", "/admin/upi-payments",
+  "/admin/coupons", "/admin/discount-codes",
+];
+
+function shouldIndex(pathname: string) {
+  if (pathname.startsWith("/admin") || pathname.startsWith("/nova")) return false;
+  if (NON_INDEXABLE_PATHS.includes(pathname)) return false;
+  if (pathname.startsWith("/ref/") || pathname.startsWith("/ref")) return false;
+  return true;
+}
+
+const TOOL_PATHS = new Set([
+  "/aadhaar-mask-pdf", "/aadhaar-mask", "/pan-card-resize",
+  "/scholarship-zip", "/compress-pdf", "/compress-pdf-for-upload",
+  "/merge-pdf", "/split-pdf", "/protect-pdf", "/unlock-pdf",
+  "/rotate-pdf", "/resize-pdf", "/pdf-to-word", "/pdf-to-jpg",
+  "/jpg-to-pdf", "/word-to-pdf", "/resize-photo", "/resize-image",
+  "/compress-image", "/remove-background", "/ocr", "/compress-doc",
+  "/ai-ppt-maker", "/ai-pdf-summary", "/government-form-fill",
+  "/tools", "/pdf-tools", "/image-tools", "/video-tools",
+  "/document-tools", "/india-tools", "/tools/compress-pan-card",
+]);
+
+function isToolOrCategoryPage(pathname: string) {
+  if (TOOL_PATHS.has(pathname)) return true;
+  if (pathname.startsWith("/tools/") && pathname !== "/tools") {
+    const subPath = "/" + pathname.slice("/tools/".length);
+    return TOOL_PATHS.has(subPath);
+  }
+  return false;
+}
 
 export function ToolSEO() {
   const [pathname] = useLocation();
-  const meta = TOOL_META[pathname] ?? TOOL_META["/"];
+  const meta = lookupMeta(pathname);
 
   const siteName = "FileNova";
 
-  // Set document title with proper site name
-  useEffect(() => {
-    document.title = meta.title;
-  }, [meta.title]);
-
   const jsonLdScripts: Record<string, unknown>[] = [];
 
-  // 1. SoftwareApplication schema (for tool pages)
-  const isToolPage = pathname !== "/" && !pathname.startsWith("/admin") && !pathname.startsWith("/nova");
-  if (isToolPage && meta.schemaName) {
+  // 1. SoftwareApplication schema (only for actual tool/category pages)
+  if (isToolOrCategoryPage(pathname) && meta.schemaName) {
     jsonLdScripts.push({
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
@@ -71,9 +107,9 @@ export function ToolSEO() {
     });
   }
 
-  // 3. BreadcrumbList
+  // 3. BreadcrumbList (skip for redirect stubs)
   const pathParts = pathname.split("/").filter(Boolean);
-  if (pathParts.length > 0 && pathname !== "/") {
+  if (pathParts.length > 0 && pathname !== "/" && shouldIndex(pathname)) {
     const breadcrumbItems = [
       {
         "@type": "ListItem",
@@ -136,8 +172,12 @@ export function ToolSEO() {
   }
 
   // Determine index/follow rules
-  const isAdmin = pathname.startsWith("/admin") || pathname.startsWith("/nova");
-  const robotsContent = isAdmin ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1";
+  const indexable = shouldIndex(pathname);
+  const robotsContent = indexable
+    ? "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    : "noindex, nofollow";
+
+  const noIndexMeta = indexable ? [] : [{ name: "googlebot", content: "noindex, nofollow" }];
 
   useHead({
     title: meta.title,
@@ -145,9 +185,9 @@ export function ToolSEO() {
       { name: "description", content: meta.description },
       { name: "keywords", content: meta.keywords },
       { name: "robots", content: robotsContent },
-      { name: "googlebot", content: isAdmin ? "noindex, nofollow" : "index, follow" },
       { name: "geo.region", content: "IN" },
       { name: "geo.country", content: "India" },
+      ...noIndexMeta,
       // Open Graph
       { property: "og:title", content: meta.ogTitle ?? meta.title },
       { property: "og:description", content: meta.ogDescription ?? meta.description },

@@ -248,6 +248,19 @@
     <priority>0.75</priority>
   </url>
 
+  <!-- ═══ IMAGE TOOLS (COMPRESS) ═══ -->
+  <url>
+    <loc>https://filenova.in/compress-image</loc>
+    <lastmod>2026-06-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+    <image:image>
+      <image:loc>https://filenova.in/photo_resize_mockup.png</image:loc>
+      <image:title>Compress Image Online Free – Reduce Photo Size Under 50KB</image:title>
+      <image:caption>Compress JPEG, PNG, WebP images under 50KB for scholarship portal upload.</image:caption>
+    </image:image>
+  </url>
+
   <!-- ═══ STATIC PAGES ═══ -->
   <url>
     <loc>https://filenova.in/pricing</loc>
@@ -285,6 +298,13 @@
   </url>
 
   <url>
+    <loc>https://filenova.in/referral</loc>
+    <lastmod>2026-06-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
     <loc>https://filenova.in/privacy</loc>
     <lastmod>2026-06-23</lastmod>
     <changefreq>monthly</changefreq>
@@ -303,6 +323,13 @@
     <lastmod>2026-06-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
+  </url>
+
+  <url>
+    <loc>https://filenova.in/premium</loc>
+    <lastmod>2026-06-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
 
   <!-- ═══ EXTENDED TOOL ROUTES ═══ -->
@@ -415,7 +442,7 @@
     <loc>https://filenova.in/tools/compress-pan-card</loc>
     <lastmod>2026-06-23</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.85</priority>
   </url>
 
   <!-- ═══ BLOG POSTS ═══ -->

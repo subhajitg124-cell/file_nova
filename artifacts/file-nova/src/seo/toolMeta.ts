@@ -64,13 +64,13 @@ export const TOOL_META: Record<string, ToolMeta> = {
   },
 
   "/aadhaar-mask": {
-    title: "Mask Aadhaar Card Online Free – UIDAI Compliant | FileNova",
-    description: "Mask Aadhaar card number online free. Hide first 8 digits of Aadhaar PDF instantly — UIDAI compliant. 100% browser-based, files never uploaded.",
+    title: "Aadhaar Number Mask Online – Hide Digits Instantly | FileNova",
+    description: "Hide first 8 digits of your Aadhaar number online instantly. UIDAI-compliant PDF masking tool. 100% browser-based, files never uploaded. Redirects to Aadhaar Mask PDF tool.",
     canonical: "https://filenova.in/aadhaar-mask-pdf",
-    keywords: "mask aadhaar card online free, aadhaar masking online free, hide aadhaar number, uidai compliant masking",
+    keywords: "aadhaar number mask online, hide aadhaar digits, aadhaar privacy tool, uidai compliant masking",
     ogImage: OG_INDIA,
-    ogTitle: "Mask Aadhaar Card Online Free | FileNova",
-    ogDescription: "Hide first 8 digits of your Aadhaar PDF instantly. UIDAI-compliant masking. Files never uploaded.",
+    ogTitle: "Aadhaar Number Mask Online | FileNova",
+    ogDescription: "Hide first 8 digits of your Aadhaar number. UIDAI-compliant masking. Files never uploaded.",
     schemaName: "Aadhaar Masking Tool",
     ratingValue: "4.9",
     ratingCount: "2140",
@@ -222,6 +222,7 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogImage: OG_PDF,
     ogTitle: "Rotate PDF Pages Online Free | FileNova",
     ogDescription: "Rotate PDF pages 90°, 180° online free. Fix inverted scanned documents and certificates in your browser instantly.",
+    schemaName: "PDF Page Rotator",
     ratingValue: "4.6",
     ratingCount: "1190",
   },
@@ -314,13 +315,13 @@ export const TOOL_META: Record<string, ToolMeta> = {
   },
 
   "/resize-image": {
-    title: "Resize Photo Online Free – Passport, Scholarship | FileNova",
-    description: "Resize photos for scholarship forms, passports, NEET, JEE online free. Exact pixel dimensions guaranteed. No upload — 100% browser-based.",
+    title: "Resize Image Online Free – Custom Dimensions | FileNova",
+    description: "Resize images and photos to exact pixel or percentage dimensions online free. Perfect for passport, scholarship, NEET, JEE, and government portal uploads. 100% browser-based resize image tool.",
     canonical: "https://filenova.in/resize-photo",
-    keywords: "resize photo online free india, passport photo resize free, photo size reducer, resize image online",
+    keywords: "resize image online free, photo size reducer, resize image dimensions, passport photo resize, image scaler free",
     ogImage: OG_IMAGE,
-    ogTitle: "Resize Photo Online Free | FileNova",
-    ogDescription: "Resize photos for scholarship forms, passports, NEET, JEE. Exact pixel dimensions. No upload needed.",
+    ogTitle: "Resize Image Online Free | FileNova",
+    ogDescription: "Resize images to exact pixel dimensions for passports, scholarships, and government portals. No upload needed.",
   },
 
   "/compress-image": {
@@ -644,5 +645,29 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogImage: OG_DEFAULT,
     ogTitle: "Workflows – Automated Document Processing | FileNova",
     ogDescription: "Create automated document processing workflows. Batch process PDFs and images with presets for scholarships.",
+  },
+
+  "/premium": {
+    title: "FileNova Premium – AI Document Tools & Features",
+    description: "Unlock FileNova Premium features. Access batch processing, AI PDF summarizer, unlimited OCR, priority support, and advanced document tools. Upgrade your document workflow today.",
+    canonical: "https://filenova.in/premium",
+    keywords: "filenova premium, premium document tools, ai pdf tools premium, batch processing, unlimited ocr, priority support",
+    ogImage: OG_DEFAULT,
+    ogTitle: "FileNova Premium – AI Document Tools & Features",
+    ogDescription: "Unlock Premium features: batch processing, AI summarizer, unlimited OCR, priority support. Upgrade your document workflow.",
+  },
+
+  "/tools/compress-pan-card": {
+    title: "Compress PAN Card Photo Free Online | FileNova",
+    description: "Compress PAN card photo and signature to exact KB size online free. Reduce PAN card image below 50KB for NEET, NSP, railway, and government portal uploads. 100% browser-based, no upload.",
+    canonical: "https://filenova.in/tools/compress-pan-card",
+    keywords: "compress pan card photo online free, reduce pan card image size, pan card photo under 50kb, pan card signature resize, portal upload pan card",
+    ogImage: OG_INDIA,
+    ogTitle: "Compress PAN Card Photo Free Online | FileNova",
+    ogDescription: "Compress PAN card photo and signature to exact KB size for NEET, NSP, railway portals. 100% browser-based.",
+    schemaName: "PAN Card Photo Compressor",
+    schemaCategory: "UtilitiesApplication",
+    ratingValue: "4.7",
+    ratingCount: "630",
   },
 };

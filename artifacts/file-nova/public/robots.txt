@@ -25,7 +25,6 @@ Disallow: /workspace/
 Disallow: /nova-control/
 Disallow: /nova-login/
 Disallow: /ref/
-Disallow: /login
 Disallow: /profile
 Disallow: /history
 

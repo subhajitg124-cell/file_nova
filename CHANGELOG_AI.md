@@ -4,7 +4,47 @@
 
 ---
 
-## 2025-06-22 — Initial Documentation System
+## 2026-06-23 — Technical SEO Audit & Complete Fix
+
+**Agent:** Opencode (AI Lead Architect)
+**Scope:** SEO infrastructure — toolMeta.ts, ToolSEO.tsx, ToolPage.tsx, robots.txt, sitemap.xml, CHANGELOG_AI.md
+**Issue:** Dual SEO systems conflicting, duplicate titles, missing pages, incorrect structured data, robots.txt blocking public pages, sitemap missing indexable pages
+
+### Audit Findings (8 categories)
+- **Duplicate titles:** `/aadhaar-mask` and `/aadhaar-mask-pdf` shared same title; `/resize-photo` and `/resize-image` nearly identical
+- **Missing page entries:** 6 pages absent from `toolMeta.ts` (`/beta-test`, `/premium`, `/operator-dashboard`, `/ref`, `/ref/:code`, `/tools/compress-pan-card`)
+- **Dual SEO conflict:** `ToolSEO.tsx` (@unhead/react) and `ToolPage.tsx` (direct DOM via `lib/seo.ts`) both set meta tags, creating conflicts
+- **Incorrect structured data:** `SoftwareApplication` schema applied to all non-admin pages (workspace, dashboard, login, blog, etc.)
+- **robots.txt:** `/login` incorrectly disallowed from indexing (public page)
+- **Sitemap:** Missing `/compress-image`, `/premium`, `/referral`, `/tools/compress-pan-card`
+- **Missing OG images:** `/rotate-pdf` lacked custom OG image
+- **`/tools/:toolId` mismatch:** ToolSEO couldn't resolve `/tools/X` paths, falling back to homepage meta
+
+### Changes
+- Modified `src/seo/toolMeta.ts`:
+  - Gave `/aadhaar-mask` unique title ("Aadhaar Number Mask Online – Hide Digits Instantly")
+  - Gave `/resize-image` unique title ("Resize Image Online Free – Custom Dimensions")
+  - Added `schemaName` for `/rotate-pdf`
+  - Added entries for `/premium` and `/tools/compress-pan-card`
+- Modified `src/seo/ToolSEO.tsx`:
+  - Added `lookupMeta()` to handle `/tools/:toolId` paths by stripping prefix
+  - Added `shouldIndex()` to set `noindex` on beta-test, operator-dashboard, ref pages
+  - Added `isToolOrCategoryPage()` to restrict SoftwareApplication schema to actual tool/category pages only
+  - Replaced generic admin check with explicit path lists
+- Modified `src/pages/ToolPage.tsx`:
+  - Removed `setPageMeta()` calls (eliminated dual SEO conflict with ToolSEO.tsx)
+  - Removed unused imports from `@/lib/seo`
+- Modified `public/robots.txt`: Allowed `/login` for indexing
+- Modified `public/sitemap.xml`: Added `/compress-image`, `/premium`, `/referral`, `/tools/compress-pan-card`
+- Modified `CHANGELOG_AI.md`: This entry
+
+### Verification
+- [x] TypeScript compiles (`pnpm typecheck` passes)
+- [ ] Production build verified
+- [ ] Manual QA completed (theme + responsive)
+- [x] No regressions detected
+
+---
 
 **Agent:** Kilo (AI Principal Architect)  
 **Scope:** Repository-wide  
@@ -161,6 +201,17 @@ Every AI agent (Kilo Code, Codex, Claude Code, Gemini CLI, future agents) MUST:
 ### Documentation Updates
 - 2025-06-22: Initial documentation system (16 files created)
 - 2025-06-22: Full regression audit with 25+ findings
+- 2026-06-23: Technical SEO audit report (8 categories, 15+ issues)
+
+### SEO Improvements
+- Fixed duplicate titles for `/aadhaar-mask` and `/resize-image`
+- Added SEO entries for `/premium` and `/tools/compress-pan-card`
+- Eliminated dual SEO system conflict (ToolSEO.tsx + ToolPage.tsx)
+- Restricted SoftwareApplication schema to actual tool pages only
+- Fixed `/tools/:toolId` path resolution in ToolSEO.tsx
+- Allowed `/login` in robots.txt for indexing
+- Added missing pages to sitemap: `/compress-image`, `/premium`, `/referral`, `/tools/compress-pan-card`
+- Added custom OG image for `/rotate-pdf`
 
 ### Dependency Updates
 *(None yet)*
@@ -201,6 +252,7 @@ Every AI agent (Kilo Code, Codex, Claude Code, Gemini CLI, future agents) MUST:
 | 2026-06-22 | Opencode | Extract routes, fetch interceptor, decompose ToolWorkspace | ✅ Completed |
 | 2026-06-23 | Opencode | Add discount code generator: schema, backend CRUD + validation, admin UI | ✅ Completed |
 | 2026-06-23 | Opencode | Fix referral system: handle server unreachable, local mock user fallback, 401 errors, duplicate authMiddleware | ✅ Completed |
+| 2026-06-23 | Opencode | Technical SEO audit + complete fix: dedup titles, fix dual SEO conflict, add missing pages, fix robots.txt, add OG images, fix sitemap | ✅ Completed |
 
 ---
 
