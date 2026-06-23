@@ -43,6 +43,16 @@ router.post("/complete", requireAuth, async (req: AuthRequest, res): Promise<voi
   }
 });
 
+function obfuscateEmail(email: string | null | undefined): string {
+  if (!email) return "anonymous";
+  const [local, domain] = email.split("@");
+  if (!domain) return local;
+  if (local.length <= 3) {
+    return `${local.substring(0, 1)}***@${domain}`;
+  }
+  return `${local.substring(0, 3)}***@${domain}`;
+}
+
 router.get("/stats", requireAuth, async (req: AuthRequest, res): Promise<void> => {
   try {
     const referralCode = await ensureUserReferralCode(req.user!.id);
@@ -54,6 +64,15 @@ router.get("/stats", requireAuth, async (req: AuthRequest, res): Promise<void> =
       if (ref.upgradeRewardGiven) rewardsEarned += 7;
     }
 
+    const referralList = referrals.map((r) => ({
+      id: r.id,
+      email: obfuscateEmail(r.referredEmail),
+      status: r.status,
+      rewardGiven: r.rewardGiven,
+      upgradeRewardGiven: r.upgradeRewardGiven,
+      createdAt: r.createdAt,
+    }));
+
     res.json({
       success: true,
       referralCode,
@@ -63,6 +82,7 @@ router.get("/stats", requireAuth, async (req: AuthRequest, res): Promise<void> =
         successfulSignups: successful,
         rewardsEarned,
       },
+      referrals: referralList,
     });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message || "Failed to load referral stats" });
