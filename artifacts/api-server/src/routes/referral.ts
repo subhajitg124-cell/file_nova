@@ -48,7 +48,11 @@ router.get("/stats", requireAuth, async (req: AuthRequest, res): Promise<void> =
     const referralCode = await ensureUserReferralCode(req.user!.id);
     const referrals = await db.select().from(referralsTable).where(eq(referralsTable.referrerUserId, req.user!.id));
     const successful = referrals.filter((referral) => referral.status === "completed").length;
-    const rewardsEarned = referrals.filter((referral) => referral.rewardGiven).length * 7;
+    let rewardsEarned = 0;
+    for (const ref of referrals) {
+      if (ref.rewardGiven) rewardsEarned += 3;
+      if (ref.upgradeRewardGiven) rewardsEarned += 7;
+    }
 
     res.json({
       success: true,

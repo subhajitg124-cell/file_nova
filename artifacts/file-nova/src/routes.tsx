@@ -1,5 +1,6 @@
 import { Switch, Route, Redirect, useLocation } from "wouter";
 import React, { useEffect } from "react";
+import { BACKEND_URL, HAS_BACKEND } from "@/lib/api";
 import Home from "@/pages/SimpleHome";
 import Workspace from "@/pages/Home";
 import ToolsPage from "@/pages/ToolsPage";
@@ -70,6 +71,38 @@ const ProfilePage = React.lazy(() => import("@/pages/ProfilePage"));
 const PrivacyPolicy = React.lazy(() => import("@/pages/PrivacyPolicy"));
 const TermsOfService = React.lazy(() => import("@/pages/TermsOfService"));
 const CookiePolicy = React.lazy(() => import("@/pages/CookiePolicy"));
+
+function ReferralRedirect({ code: propCode }: { code?: string }) {
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const code = propCode || searchParams.get("code") || searchParams.get("ref");
+
+    if (code) {
+      localStorage.setItem("filenova_referral_code", code);
+      localStorage.setItem("referralCode", code);
+
+      if (HAS_BACKEND) {
+        fetch(`${BACKEND_URL}/api/v1/referral/track`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ referralCode: code }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success && data.referralId) {
+              localStorage.setItem("filenova_referral_tracking_id", data.referralId);
+            }
+          })
+          .catch(() => {});
+      }
+    }
+    setLocation("/login");
+  }, [propCode, setLocation]);
+
+  return <LoadingScreen />;
+}
 
 export function Router() {
   const { settings } = useAdmin();
@@ -226,6 +259,12 @@ export function Router() {
           </Route>
           <Route path="/referral">
             <ReferralPage />
+          </Route>
+          <Route path="/ref">
+            <ReferralRedirect />
+          </Route>
+          <Route path="/ref/:code">
+            {(params) => <ReferralRedirect code={params.code} />}
           </Route>
           <Route path="/student-offer">
             <StudentOfferPage />

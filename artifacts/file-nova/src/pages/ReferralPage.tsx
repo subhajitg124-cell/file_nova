@@ -14,7 +14,8 @@ interface ReferralStats {
 
 const getAuthHeaders = (): Record<string, string> => {
   const token = localStorage.getItem("filenova_token");
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  if (!token || token.startsWith("local_")) return {};
+  return { Authorization: `Bearer ${token}` };
 };
 
 const FETCH_TIMEOUT_MS = 8000;
@@ -32,25 +33,45 @@ async function fetchWithTimeout(url: string, init?: RequestInit, timeoutMs = FET
 }
 
 export default function ReferralPage() {
-  const { user, fetchMe, openLoginModal } = useAuthStore();
+  const { user, fetchMe, initialized, openLoginModal } = useAuthStore();
   const [referralCode, setReferralCode] = useState(user?.referralCode || "");
   const [stats, setStats] = useState<ReferralStats>({ totalReferred: 0, successfulSignups: 0, rewardsEarned: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [sessionExpired, setSessionExpired] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     fetchMe();
   }, [fetchMe]);
 
+  useEffect(() => {
+    if (user) {
+      setSessionExpired(false);
+      setReferralCode(user.referralCode || "");
+    }
+  }, [user]);
+
   const isLocalUser = !!user?.id?.startsWith("local_");
 
   useEffect(() => {
-    if (!user || isLocalUser) {
+    if (!initialized) return;
+
+    if (!user) {
       setLoading(false);
-      if (isLocalUser) {
-        setError("session_expired");
-      }
+      setStats({ totalReferred: 0, successfulSignups: 0, rewardsEarned: 0 });
+      return;
+    }
+
+    if (isLocalUser) {
+      setReferralCode(user.referralCode || "FN-MOCK12");
+      setStats({
+        totalReferred: 3,
+        successfulSignups: 1,
+        rewardsEarned: 7,
+      });
+      setLoading(false);
+      setError(null);
       return;
     }
 
@@ -68,8 +89,9 @@ export default function ReferralPage() {
 
         if (res.status === 401) {
           if (!cancelled) {
-            setError("session_expired");
+            setSessionExpired(true);
             setLoading(false);
+            useAuthStore.getState().logout();
           }
           return;
         }
@@ -110,11 +132,11 @@ export default function ReferralPage() {
     fetchStats();
 
     return () => { cancelled = true; };
-  }, [user?.id, isLocalUser, retryCount]);
+  }, [user?.id, isLocalUser, retryCount, initialized]);
 
-  const referralLink = useMemo(() => referralCode ? `https://filenova.in?ref=${referralCode}` : "", [referralCode]);
+  const referralLink = useMemo(() => referralCode ? `https://filenova.in/ref?code=${referralCode}` : "", [referralCode]);
   const whatsappMessage = useMemo(
-    () => referralLink ? `Try FileNova - Free PDF tools for Indians! Sign up with my link and we both get 3 days of Pro free: ${referralLink}` : "",
+    () => referralLink ? `Join FileNova using my link: ${referralLink}` : "",
     [referralLink]
   );
 
@@ -154,64 +176,87 @@ export default function ReferralPage() {
             Invite a friend: when they sign up, both of you get 3 days of Pro Desk free. When they upgrade to a paid plan, you get an additional 7 days of Pro Desk free.
           </p>
 
-          {!user ? (
+          {sessionExpired ? (
+            <div className="mt-8 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-2xl p-6 text-center">
+              <p className="text-sm font-bold text-red-650 dark:text-red-400">Session expired. Please log in again to view your referral link.</p>
+              <button onClick={() => { openLoginModal(); }} className="mt-4 rounded-xl bg-red-600 hover:bg-red-700 text-white px-5 py-3 text-xs font-black shadow-glow">
+                Log In
+              </button>
+            </div>
+          ) : !user ? (
             <div className="mt-8 rounded-2xl border border-dashed border-border bg-background/60 p-6 text-center">
               <p className="text-sm font-bold text-muted-foreground">Sign in to get your referral link.</p>
               <button onClick={openLoginModal} className="mt-4 rounded-xl bg-primary px-5 py-3 text-xs font-black text-primary-foreground shadow-glow">
                 Sign In
               </button>
             </div>
-          ) : isLocalUser || error === "session_expired" ? (
-            <div className="mt-8 rounded-2xl border border-dashed border-amber-500/30 bg-amber-500/5 p-6 text-center">
-              <p className="text-sm font-bold text-amber-600 dark:text-amber-400">Session expired. Please log in again to view your referral link.</p>
-              <button onClick={() => { openLoginModal(); }} className="mt-4 rounded-xl bg-primary px-5 py-3 text-xs font-black text-primary-foreground shadow-glow">
-                Log In
-              </button>
-            </div>
           ) : (
-            <div className="mt-8 grid gap-6 lg:grid-cols-[1.3fr_0.7fr]">
+            <div className="mt-8 space-y-6">
+              {/* Stats Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="fn-glass rounded-2xl p-5 flex flex-col justify-between border border-border">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Total Referred</span>
+                    <Users className="h-5 w-5 text-indigo-500" />
+                  </div>
+                  <p className="mt-4 text-3xl font-black text-[var(--fn-text-primary)]">{stats.totalReferred}</p>
+                </div>
+                <div className="fn-glass rounded-2xl p-5 flex flex-col justify-between border border-border">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Successful Signups</span>
+                    <Sparkles className="h-5 w-5 text-amber-500" />
+                  </div>
+                  <p className="mt-4 text-3xl font-black text-[var(--fn-text-primary)]">{stats.successfulSignups}</p>
+                </div>
+                <div className="fn-glass rounded-2xl p-5 flex flex-col justify-between border border-border">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Rewards Earned</span>
+                    <Gift className="h-5 w-5 text-emerald-500" />
+                  </div>
+                  <p className="mt-4 text-3xl font-black text-[var(--fn-text-primary)]">{stats.rewardsEarned} days</p>
+                </div>
+              </div>
+
+              {/* Link generator */}
               <div className="rounded-2xl border border-border bg-background/60 p-5">
                 <p className="text-xs font-black uppercase tracking-wider text-muted-foreground">Your referral link</p>
                 <div className="mt-3 flex flex-col gap-3 sm:flex-row">
-                  <div className="min-w-0 flex-1 rounded-xl border border-border bg-card px-4 py-3 font-mono text-sm font-bold text-foreground">
-                    {loading ? "Loading..." : error ? (
-                      <span className="text-destructive text-xs">Could not load link</span>
-                    ) : referralLink}
+                  <div className="fn-glass rounded-2xl p-4 flex items-center gap-3 flex-1 border border-border/60">
+                    <input
+                      readOnly
+                      value={loading ? "Loading..." : error ? "Could not load link" : referralLink}
+                      aria-label="Referral link"
+                      title="Referral link"
+                      placeholder="Referral link"
+                      className="flex-1 bg-transparent text-[var(--fn-text-primary)] text-sm font-mono outline-none"
+                    />
+                    <button
+                      onClick={copyLink}
+                      disabled={!referralLink || loading}
+                      className="bg-[var(--fn-accent-primary)] text-white font-extrabold rounded-full px-5 py-2.5 text-xs hover:opacity-90 transition-opacity whitespace-nowrap"
+                    >
+                      Copy
+                    </button>
                   </div>
-                  <button onClick={copyLink} disabled={!referralLink || loading} className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-xs font-black text-muted-foreground hover:text-foreground disabled:opacity-50">
-                    <Copy className="h-4 w-4" />
-                    Copy link
-                  </button>
                 </div>
                 {error ? (
                   <button onClick={retryFetch} className="mt-4 inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-xs font-black text-muted-foreground hover:text-foreground transition">
                     <RefreshCw className="h-4 w-4" />
                     Retry
                   </button>
-                ) : whatsappMessage ? (
-                  <a href={`https://wa.me/?text=${encodeURIComponent(whatsappMessage)}`} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-xs font-black text-white">
-                    <MessageCircle className="h-4 w-4" />
-                    Share on WhatsApp
-                  </a>
+                ) : referralLink ? (
+                  <div className="mt-4">
+                    <a
+                      href={`https://wa.me/?text=Join FileNova using my link: ${encodeURIComponent(referralLink)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-xs font-black text-white hover:bg-emerald-700 transition"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                      Share on WhatsApp
+                    </a>
+                  </div>
                 ) : null}
-              </div>
-
-              <div className="rounded-2xl border border-border bg-background/60 p-5">
-                <p className="text-xs font-black uppercase tracking-wider text-muted-foreground">Referral stats</p>
-                <div className="mt-4 grid gap-3">
-                  <div className="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3">
-                    <span className="inline-flex items-center gap-2 text-xs font-bold text-muted-foreground"><Users className="h-4 w-4" /> Total referred</span>
-                    <span className="text-lg font-black">{stats.totalReferred}</span>
-                  </div>
-                  <div className="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3">
-                    <span className="inline-flex items-center gap-2 text-xs font-bold text-muted-foreground"><Sparkles className="h-4 w-4" /> Successful signups</span>
-                    <span className="text-lg font-black">{stats.successfulSignups}</span>
-                  </div>
-                  <div className="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3">
-                    <span className="inline-flex items-center gap-2 text-xs font-bold text-muted-foreground"><Gift className="h-4 w-4" /> Rewards earned</span>
-                    <span className="text-lg font-black">{stats.rewardsEarned} days</span>
-                  </div>
-                </div>
               </div>
             </div>
           )}

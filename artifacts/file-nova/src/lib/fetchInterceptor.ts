@@ -9,6 +9,30 @@ export function setupFetchInterceptor(
 
   window.fetch = async (...args) => {
     const [input, init] = args;
+    let newInit = init ? { ...init } : {};
+
+    // Sanitize headers: remove local_ mock tokens to ensure backend cookie authentication works
+    if (newInit.headers) {
+      if (newInit.headers instanceof Headers) {
+        const auth = newInit.headers.get("Authorization");
+        if (auth && auth.includes("local_")) {
+          newInit.headers.delete("Authorization");
+        }
+      } else if (Array.isArray(newInit.headers)) {
+        newInit.headers = newInit.headers.filter(([k, v]) => {
+          return !(k.toLowerCase() === "authorization" && v.includes("local_"));
+        });
+      } else {
+        const headers = { ...newInit.headers } as Record<string, string>;
+        for (const k of Object.keys(headers)) {
+          if (k.toLowerCase() === "authorization" && headers[k].includes("local_")) {
+            delete headers[k];
+          }
+        }
+        newInit.headers = headers;
+      }
+    }
+
     const url = typeof input === "string"
       ? input
       : (input instanceof URL
@@ -45,17 +69,29 @@ export function setupFetchInterceptor(
         else if (activeCount >= 3) bonusLimit = "12";
 
         if (bonusLimit) {
-          const newInit = { ...(init || {}) };
-          const newHeaders = { ...(newInit.headers || {}) };
-          // @ts-ignore
-          newHeaders["x-filenova-bonus-limit"] = bonusLimit;
-          newInit.headers = newHeaders;
-          args[1] = newInit;
+          if (newInit.headers instanceof Headers) {
+            newInit.headers.set("x-filenova-bonus-limit", bonusLimit);
+          } else if (Array.isArray(newInit.headers)) {
+            newInit.headers.push(["x-filenova-bonus-limit", bonusLimit]);
+          } else {
+            const headers = { ...newInit.headers } as Record<string, string>;
+            headers["x-filenova-bonus-limit"] = bonusLimit;
+            newInit.headers = headers;
+          }
         }
       } catch (_) {}
     }
 
-    const response = await originalFetch(...args);
+    const response = await originalFetch(input, newInit);
+    if (response.status === 401) {
+      try {
+        const { useAuthStore } = await import("@/store/useAuthStore");
+        const { user, logout } = useAuthStore.getState();
+        if (user) {
+          logout();
+        }
+      } catch (_) {}
+    }
     if (response.status === 403) {
       const clone = response.clone();
       try {
