@@ -230,12 +230,6 @@ function PlanCard({
 
   const cardContent = (
     <div className={`p-6 flex flex-col h-full relative z-10 ${isPro ? 'animated-lines-bg' : ''}`}>
-      {isPopular && (
-        <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-400 to-purple-400 text-white text-xs font-bold rounded-full px-4 py-1 whitespace-nowrap z-20">
-          Most Popular
-        </span>
-      )}
-
       <div className="flex flex-col h-full gap-5 flex-1">
         <div className="flex flex-col h-full">
           <div className="flex flex-col gap-4">
@@ -286,7 +280,12 @@ function PlanCard({
 
   if (id === "pro") {
     return (
-      <div className={`neon-sweep-wrapper shadow-neon-pro h-full group transition-all duration-300 ${isActive ? "spatial-active-ring" : "hover:scale-[1.01]"}`}>
+      <div className={`neon-sweep-wrapper shadow-neon-pro h-full group transition-all duration-300 relative ${isActive ? "spatial-active-ring" : "hover:scale-[1.01]"}`}>
+        {isPopular && (
+          <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-400 to-purple-400 text-white text-xs font-bold rounded-full px-4 py-1 whitespace-nowrap z-30">
+            Most Popular
+          </span>
+        )}
         <div className="neon-sweep-bg" />
         <SpotlightCard
           className="neon-sweep-content bg-indigo-600 dark:bg-indigo-950 dark:border dark:border-indigo-500/30 text-white rounded-2xl shadow-[var(--fn-shadow-elevated)] h-full border-none"
