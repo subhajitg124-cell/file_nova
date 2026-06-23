@@ -440,11 +440,11 @@ export default function SimpleHome() {
       <Navbar />
 
       {premiumTier === "free" && showUpgradeBanner && (
-        <div className="bg-gradient-to-r from-indigo-900 via-indigo-950 to-indigo-900 border-b border-indigo-500/20 py-2 px-4 text-center text-xs font-bold text-slate-200 flex items-center justify-center gap-2 relative z-20">
+        <div className="bg-gradient-to-r from-indigo-900 via-indigo-950 to-indigo-900 border-b border-indigo-500/20 py-2 px-4 text-center text-xs font-bold text-indigo-100 flex items-center justify-center gap-2 relative z-20">
           <span>{tText("Free plan:")} {Math.max(0, getDailyLimit() - useCount)} {tText("of")} {getDailyLimit()} {tText("uses remaining today")} → <Link href="/pricing" className="text-indigo-400 hover:text-indigo-300 underline">{tText("Upgrade to Pro ₹99/month")}</Link></span>
           <button
             onClick={() => setShowUpgradeBanner(false)}
-            className="absolute right-4 text-slate-400 hover:text-slate-200 cursor-pointer"
+            className="absolute right-4 text-indigo-300 hover:text-white cursor-pointer"
             title="Dismiss banner"
           >
             <X className="h-3.5 w-3.5" />
