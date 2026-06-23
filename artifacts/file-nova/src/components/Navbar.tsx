@@ -29,7 +29,11 @@ export function Navbar({ showSearch = true }: NavbarProps) {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
       const header = document.querySelector("header");
-      if (!header || header.contains(target)) return;
+      const mobileMenu = document.querySelector(".mobile-menu-panel");
+      if (
+        (header && header.contains(target)) ||
+        (mobileMenu && mobileMenu.contains(target))
+      ) return;
       if (mobileMenuOpen) setMobileMenuOpen(false);
       if (settingsOpen) setSettingsOpen(false);
       if (moreMenuOpen) setMoreMenuOpen(false);
