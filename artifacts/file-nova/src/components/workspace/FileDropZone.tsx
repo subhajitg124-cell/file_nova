@@ -180,7 +180,7 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
             relative cursor-pointer rounded-2xl border-2 transition-all duration-300 min-h-[140px] flex items-center justify-center text-center p-4
             ${isDragActive
               ? `border-${accentColor}-500 bg-slate-900 border-march ${theme.activeBg}`
-              : `border-dashed border-white/10 ${theme.bg} ${theme.border} hover:border-white/20 hover:bg-white/[0.02]`
+              : `fn-glass rounded-2xl border-dashed border-[var(--fn-border-strong)] hover:border-[var(--fn-border-strong)]/80 hover:bg-white/[0.05]`
             }
           `}
         >

@@ -113,6 +113,46 @@
   --shim-violet-450: #7c3aed;
   --shim-sky-450:    #0369a1;
   --shim-emerald-450: #047857;
+
+  /* Backgrounds */
+  --fn-bg:              #F0F4FF;        /* page background, slight indigo tint */
+  --fn-surface:         #FFFFFF;        /* cards, panels */
+  --fn-surface-elevated:#F8F9FF;        /* hover state, inner panels */
+  --fn-surface-glass:   rgba(255,255,255,0.65); /* glassmorphism panels */
+
+  /* Text */
+  --fn-text-primary:    #0F172A;        /* headings, primary labels */
+  --fn-text-secondary:  #475569;        /* body, descriptions */
+  --fn-text-tertiary:   #94A3B8;        /* hints, placeholders */
+  --fn-text-on-accent:  #FFFFFF;        /* text on colored buttons */
+
+  /* Borders */
+  --fn-border:          rgba(15,23,42,0.1);  /* card borders */
+  --fn-border-strong:   rgba(15,23,42,0.2);  /* focus rings */
+
+  /* Accents — keep FileNova's existing palette */
+  --fn-accent-primary:  #6366F1;        /* indigo — main CTA */
+  --fn-accent-india:    #10B981;        /* emerald — India Tools */
+  --fn-accent-elite:    #F59E0B;        /* amber — Elite/premium */
+  --fn-accent-danger:   #EF4444;
+
+  /* Morphism */
+  --fn-blur:            blur(16px);
+  --fn-shadow-card:     0 2px 8px rgba(99,102,241,0.08);
+  --fn-shadow-elevated: 0 8px 32px rgba(99,102,241,0.16);
+  --fn-shadow-glass:    0 4px 24px rgba(99,102,241,0.12);
+  --fn-shadow-clay:     6px 6px 12px rgba(99,102,241,0.15),
+                        -4px -4px 10px rgba(255,255,255,0.8);
+  --fn-shadow-neu-out:  4px 4px 10px rgba(99,102,241,0.12),
+                        -4px -4px 10px rgba(255,255,255,0.9);
+  --fn-shadow-neu-in:   inset 3px 3px 6px rgba(99,102,241,0.1),
+                        inset -3px -3px 6px rgba(255,255,255,0.8);
+
+  /* Aurora gradient */
+  --fn-aurora:          linear-gradient(135deg,
+                          rgba(99,102,241,0.15) 0%,
+                          rgba(16,185,129,0.1) 40%,
+                          rgba(245,158,11,0.08) 100%);
 }
 
 /* ── Light Mode Custom Class Overrides (Contrast & Readability) ──────────── */
@@ -235,6 +275,40 @@
   --shim-violet-450: #a78bfa;
   --shim-sky-450:    #38bdf8;
   --shim-emerald-450: #34d399;
+
+  --fn-bg:              #080C14;
+  --fn-surface:         #0F1626;
+  --fn-surface-elevated:#151F35;
+  --fn-surface-glass:   rgba(15,22,38,0.7);
+
+  --fn-text-primary:    #F1F5F9;
+  --fn-text-secondary:  #94A3B8;
+  --fn-text-tertiary:   #475569;
+  --fn-text-on-accent:  #FFFFFF;
+
+  --fn-border:          rgba(255,255,255,0.08);
+  --fn-border-strong:   rgba(255,255,255,0.16);
+
+  /* Accents same hues, slightly brighter in dark */
+  --fn-accent-primary:  #818CF8;
+  --fn-accent-india:    #34D399;
+  --fn-accent-elite:    #FCD34D;
+  --fn-accent-danger:   #F87171;
+
+  --fn-shadow-card:     0 2px 8px rgba(0,0,0,0.4);
+  --fn-shadow-elevated: 0 8px 32px rgba(0,0,0,0.6);
+  --fn-shadow-glass:    0 4px 24px rgba(0,0,0,0.5);
+  --fn-shadow-clay:     6px 6px 16px rgba(0,0,0,0.5),
+                        -4px -4px 12px rgba(255,255,255,0.04);
+  --fn-shadow-neu-out:  4px 4px 10px rgba(0,0,0,0.5),
+                        -4px -4px 10px rgba(255,255,255,0.03);
+  --fn-shadow-neu-in:   inset 3px 3px 6px rgba(0,0,0,0.4),
+                        inset -3px -3px 6px rgba(255,255,255,0.03);
+
+  --fn-aurora:          linear-gradient(135deg,
+                          rgba(129,140,248,0.12) 0%,
+                          rgba(52,211,153,0.08) 40%,
+                          rgba(252,211,77,0.06) 100%);
 }
 
 /* ── Base ────────────────────────────────────────────────────────────────── */
@@ -705,6 +779,55 @@
     background-size: 200% 100%;
     animation: skeleton-shimmer 1.6s ease-in-out infinite;
     border-radius: var(--radius-sm, 6px);
+  }
+
+  /* Utility classes derived from tokens — use these in components */
+  .fn-glass {
+    background: var(--fn-surface-glass);
+    -webkit-backdrop-filter: var(--fn-blur);
+    backdrop-filter: var(--fn-blur);
+    border: 1px solid var(--fn-border);
+    box-shadow: var(--fn-shadow-glass);
+  }
+  .fn-clay {
+    background: var(--fn-surface);
+    border-radius: 20px;
+    box-shadow: var(--fn-shadow-clay);
+    border: 1.5px solid var(--fn-border);
+  }
+  .fn-neu {
+    background: var(--fn-surface);
+    border-radius: 16px;
+    box-shadow: var(--fn-shadow-neu-out);
+  }
+  .fn-neu-pressed {
+    box-shadow: var(--fn-shadow-neu-in);
+  }
+  .fn-aurora-bg {
+    background: var(--fn-bg);
+    background-image: var(--fn-aurora);
+  }
+  .fn-card {
+    background: var(--fn-surface);
+    border: 1px solid var(--fn-border);
+    border-radius: 16px;
+    box-shadow: var(--fn-shadow-card);
+  }
+  .fn-card:hover {
+    box-shadow: var(--fn-shadow-elevated);
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .fn-card, .fn-clay, .fn-glass {
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    .fn-card:hover, .fn-clay:hover { transform: translateY(-2px); }
+    .fn-glass:hover {
+      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(20px);
+    }
   }
 }
 

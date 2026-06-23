@@ -48,7 +48,7 @@ export function WorkspaceHeader({
   const theme = TOOL_THEMES[accentColor] || TOOL_THEMES.violet;
 
   return (
-    <header className="h-14 bg-card/90 border-b border-border backdrop-blur-xl flex items-center justify-between px-4 z-40 sticky top-0">
+    <header className="h-14 fn-glass flex items-center justify-between px-4 z-40 sticky top-0">
       <div className="flex items-center gap-3">
         <Link href="/" className="p-1.5 rounded-lg border border-border hover:bg-muted text-muted-foreground hover:text-foreground transition">
           <ArrowLeft className="h-4 w-4" />
@@ -117,7 +117,7 @@ export function WorkspaceHeader({
               <Clock className="h-3.5 w-3.5" />
               <span className="hidden md:inline">Recent</span>
             </button>
-            <div className="absolute right-0 top-8 w-56 bg-slate-900 border border-white/10 rounded-2xl shadow-2xl p-2 hidden group-hover:block z-50">
+            <div className="absolute right-0 top-8 w-56 fn-glass rounded-xl shadow-[var(--fn-shadow-elevated)] p-2 hidden group-hover:block z-50 text-[var(--fn-text-primary)]">
               <span className="text-[9px] font-black uppercase text-slate-500 px-2 py-1 block">Recently Processed</span>
               <div className="space-y-1 mt-1 max-h-40 overflow-y-auto">
                 {recentFiles.map((f, i) => (

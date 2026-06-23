@@ -73,7 +73,7 @@ export function PopularToolsDropdown() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.2, type: "spring", stiffness: 400, damping: 25 }}
-            className="absolute right-0 mt-3 z-50 w-[90vw] sm:w-[520px] bg-card/98 backdrop-blur-2xl border border-border rounded-2xl shadow-2xl shadow-amber-500/10 overflow-hidden"
+            className="absolute right-0 mt-3 z-50 w-[90vw] sm:w-[520px] fn-glass rounded-xl shadow-[var(--fn-shadow-elevated)] overflow-hidden text-[var(--fn-text-primary)]"
             style={{ fontFamily: "'Inter', 'Outfit', sans-serif" }}
           >
             {/* Header banner */}
@@ -123,20 +123,20 @@ export function PopularToolsDropdown() {
                               setLocation(tool.route);
                               setOpen(false);
                             }}
-                            className="group relative w-full flex items-center gap-3 p-2.5 rounded-xl text-left bg-muted/30 border border-border/50 hover:border-border transition-all cursor-pointer overflow-hidden"
+                            className="group relative w-full flex items-center gap-3 p-2.5 rounded-xl text-left bg-[var(--fn-surface-elevated)] border border-[var(--fn-border)] hover:border-[var(--fn-border-strong)] transition-all cursor-pointer overflow-hidden text-[var(--fn-text-primary)]"
                           >
                             {/* Inner gradient glow */}
                             <div className={`absolute inset-0 bg-gradient-to-br ${tool.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
 
                             {/* Icon container */}
-                            <div className={`relative w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br ${tool.gradient} border border-border/20 shrink-0 group-hover:scale-105 duration-300`}>
-                              <Icon className="w-4 h-4 text-white/90" />
+                            <div className={`relative w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br ${tool.gradient} border border-[var(--fn-border)] shrink-0 group-hover:scale-105 duration-300`}>
+                              <Icon className="w-4 h-4 text-white" />
                             </div>
 
                             {/* Label & Description */}
                             <div className="relative min-w-0 flex-1">
                               <div className="flex items-center gap-1.5">
-                                <span className="block font-black text-xs text-foreground group-hover:text-foreground truncate transition-colors leading-tight">
+                                <span className="block font-black text-xs text-[var(--fn-text-primary)] group-hover:text-[var(--fn-accent-primary)] truncate transition-colors leading-tight">
                                   {tool.label}
                                 </span>
                                 {tool.badge && (
@@ -149,7 +149,7 @@ export function PopularToolsDropdown() {
                                   </span>
                                 )}
                               </div>
-                              <span className="block text-[10px] text-muted-foreground group-hover:text-foreground truncate mt-0.5 transition-colors leading-none font-semibold">
+                              <span className="block text-[10px] text-[var(--fn-text-secondary)] group-hover:text-[var(--fn-text-primary)] truncate mt-0.5 transition-colors leading-none font-semibold">
                                 {tool.description}
                               </span>
                             </div>

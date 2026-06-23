@@ -73,7 +73,7 @@ export default function IndiaToolsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans">
+    <div className="min-h-screen fn-aurora-bg text-foreground font-sans relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none z-0 opacity-70" />
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.08),transparent_65%)] pointer-events-none z-0" />
@@ -91,7 +91,7 @@ export default function IndiaToolsPage() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-lg text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider"
+            className="inline-flex items-center gap-1.5 fn-glass rounded-full px-4 py-2 border border-[var(--fn-accent-india)] text-xs font-bold text-[var(--fn-accent-india)] uppercase tracking-wider"
           >
             🇮🇳 Made for India
           </motion.div>
@@ -146,10 +146,10 @@ export default function IndiaToolsPage() {
               >
                 <Link
                   href={tool.href}
-                  className="group block bg-card border border-border hover:border-brand-primary/45 rounded-2xl p-6 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 h-full"
+                  className="group block fn-clay rounded-2xl p-6 transition-all duration-300 hover:shadow-[var(--fn-shadow-elevated)] hover:-translate-y-1 h-full"
                 >
                   <div className="flex items-start justify-between mb-4">
-                    <div className={`h-12 w-12 rounded-xl ${tool.color} flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                    <div className="h-12 w-12 rounded-xl bg-[var(--fn-accent-india)]/10 text-[var(--fn-accent-india)] border border-[var(--fn-accent-india)]/20 flex items-center justify-center group-hover:scale-110 transition-transform">
                       <Icon className="h-6 w-6" />
                     </div>
                     {tool.badge && (

@@ -87,7 +87,7 @@ export function LanguageSelector({
             exit={{ opacity: 0, y: -10, scale: 0.94 }}
             transition={{ duration: 0.2, type: "spring", stiffness: 400, damping: 25 }}
             role="listbox"
-            className="absolute right-0 top-full mt-2.5 z-50 w-56 bg-card/95 backdrop-blur-2xl border border-border rounded-2xl shadow-2xl shadow-indigo-500/10 overflow-hidden"
+            className="absolute right-0 top-full mt-2.5 z-50 w-56 fn-glass rounded-xl shadow-[var(--fn-shadow-elevated)] overflow-hidden text-[var(--fn-text-primary)]"
             style={{ fontFamily: "'Inter', 'Outfit', sans-serif" }}
           >
             <div className="px-4 pt-3 pb-2 border-b border-border/50">
@@ -122,10 +122,10 @@ export function LanguageSelector({
                   >
                     <span className="text-base shrink-0 leading-none">{lang.flag}</span>
                     <div className="min-w-0 flex-1">
-                      <span className={`block font-extrabold truncate leading-tight ${active ? "text-indigo-600 dark:text-indigo-300" : "text-foreground"}`}>
+                      <span className={`block font-extrabold truncate leading-tight ${active ? "text-[var(--fn-accent-primary)]" : "text-[var(--fn-text-primary)]"}`}>
                         {lang.native}
                       </span>
-                      <span className={`block text-[9px] font-medium truncate leading-tight ${active ? "text-indigo-600/80 dark:text-indigo-400/80" : "text-muted-foreground"}`}>
+                      <span className={`block text-[9px] font-medium truncate leading-tight ${active ? "text-[var(--fn-accent-primary)]/80" : "text-[var(--fn-text-secondary)]"}`}>
                         {lang.label}
                       </span>
                     </div>

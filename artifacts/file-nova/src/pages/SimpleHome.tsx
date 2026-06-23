@@ -123,7 +123,7 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, categoryOverride, index, tTex
         onMouseMove={handleMouseMove}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className="group relative bg-card hover:bg-accent/40 border border-border hover:border-brand-primary/45 rounded-xl p-5 cursor-pointer transition-all duration-300 flex flex-col justify-between shadow-sm hover:shadow-md hover:-translate-y-0.5 text-left block overflow-hidden min-h-[200px]"
+        className="group relative fn-clay rounded-xl p-5 cursor-pointer transition-all duration-300 flex flex-col justify-between hover:shadow-[var(--fn-shadow-elevated)] hover:-translate-y-1 text-left block overflow-hidden min-h-[200px]"
       >
         {/* Dynamic cursor-spotlight shine overlay */}
         {isHovered && (
@@ -138,7 +138,7 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, categoryOverride, index, tTex
         
         <div className="relative z-10">
           <div className="flex items-start justify-between mb-4">
-            <div className="h-10 w-10 rounded-xl bg-indigo-50 dark:bg-slate-900 border border-indigo-100 dark:border-slate-850 flex items-center justify-center text-brand-primary group-hover:scale-110 group-hover:rotate-[4deg] transition-all duration-300">
+            <div className="h-10 w-10 fn-glass rounded-xl p-2 flex items-center justify-center text-[var(--fn-accent-primary)] group-hover:scale-110 group-hover:rotate-[4deg] transition-all duration-300">
               <ToolIcon className="h-5 w-5" />
             </div>
             {tool.badge && (
@@ -430,7 +430,7 @@ export default function SimpleHome() {
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      className="min-h-screen bg-background text-foreground font-sans selection:bg-indigo-500 selection:text-white transition-colors duration-300 relative"
+      className="min-h-screen fn-aurora-bg text-foreground font-sans selection:bg-indigo-500 selection:text-white transition-colors duration-300 relative"
     >
       {/* Premium background grid & radial glow */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none z-0 opacity-70" />
@@ -508,16 +508,16 @@ export default function SimpleHome() {
                 <Link
                   key={idx}
                   href={item.href}
-                  className="flex flex-col justify-between p-4 bg-card border border-border hover:border-brand-primary/45 rounded-xl transition-all duration-300 group shadow-sm hover:shadow-md hover:-translate-y-0.5 cursor-pointer text-left block min-h-[140px]"
+                  className="flex flex-col justify-between p-4 fn-clay transition-all duration-200 group cursor-pointer text-left block min-h-[140px] hover:shadow-[var(--fn-shadow-elevated)] hover:-translate-y-1"
                 >
-                  <div className={`h-8 w-8 rounded-lg flex items-center justify-center mb-2.5 ${item.color} group-hover:scale-110 transition-transform`}>
-                    <IconComp className="h-4.5 w-4.5" />
+                  <div className="h-8 w-8 fn-glass rounded-xl p-2 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-all duration-300">
+                    <IconComp className="h-4.5 w-4.5 text-[var(--fn-accent-primary)]" />
                   </div>
                   <div>
                     <span className="font-extrabold text-[12px] text-foreground block group-hover:text-brand-primary transition-colors leading-tight">{item.title}</span>
                     <span className="text-[9px] text-muted-foreground block mt-0.5 leading-normal">{item.desc}</span>
                   </div>
-                  <span className="text-[9px] text-brand-primary font-bold mt-2.5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
+                  <span className="text-[9px] text-[var(--fn-accent-primary)] font-bold mt-2.5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
                     Start <ArrowRight className="h-3 w-3" />
                   </span>
                 </Link>
@@ -759,8 +759,9 @@ export default function SimpleHome() {
             {/* Bento Card 1: Aadhaar safety (2-col flagship bento block) */}
             <motion.div 
               whileHover={{ y: -4 }}
-              className="md:col-span-2 p-8 bg-slate-900/40 border border-border/80 rounded-3xl space-y-4 shadow-premium hover:border-brand-primary/45 transition-all backdrop-blur-xl relative overflow-hidden flex flex-col md:flex-row gap-6 items-center justify-between group"
+              className="md:col-span-2 p-8 fn-glass rounded-3xl space-y-4 transition-all relative overflow-hidden flex flex-col md:flex-row gap-6 items-center justify-between group"
             >
+              <div className="absolute inset-0 opacity-15 pointer-events-none" style={{ backgroundImage: "var(--fn-aurora)" }} />
               <div className="space-y-3 max-w-sm">
                 <div className="h-10 w-10 rounded-xl bg-emerald-500/10 text-emerald-450 flex items-center justify-center font-bold text-lg">🔒</div>
                 <h3 className="font-extrabold text-sm text-white">{tText("Aadhaar safety: Local-first processing")}</h3>
@@ -825,7 +826,7 @@ export default function SimpleHome() {
             {/* Bento Card 2: Built for Indian portals (1-col bento block) */}
             <motion.div 
               whileHover={{ y: -4 }}
-              className="p-6 bg-slate-900/40 border border-border/80 rounded-3xl space-y-4 shadow-premium hover:border-brand-primary/45 transition-all backdrop-blur-xl flex flex-col justify-between"
+              className="p-6 fn-clay rounded-3xl space-y-4 transition-all flex flex-col justify-between hover:shadow-[var(--fn-shadow-elevated)]"
             >
               <div className="space-y-3">
                 <div className="h-10 w-10 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center font-bold text-lg">🇮🇳</div>
@@ -843,7 +844,7 @@ export default function SimpleHome() {
             {/* Bento Card 3: No account, no wait (1-col bento block) */}
             <motion.div 
               whileHover={{ y: -4 }}
-              className="p-6 bg-slate-900/40 border border-border/80 rounded-3xl space-y-4 shadow-premium hover:border-brand-primary/45 transition-all backdrop-blur-xl flex flex-col justify-between"
+              className="p-6 fn-clay rounded-3xl space-y-4 transition-all flex flex-col justify-between hover:shadow-[var(--fn-shadow-elevated)]"
             >
               <div className="space-y-3">
                 <div className="h-10 w-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold text-lg">⚡</div>

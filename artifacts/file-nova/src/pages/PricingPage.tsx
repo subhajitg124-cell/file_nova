@@ -31,8 +31,8 @@ function SpotlightCard({
   children,
   className = "",
   spotlightColor = "rgba(99, 102, 241, 0.15)",
-  borderColor = "rgba(255, 255, 255, 0.1)",
-  defaultBorder = "rgba(255, 255, 255, 0.05)",
+  borderColor = "var(--fn-border-strong)",
+  defaultBorder = "var(--fn-border)",
   isActive = false,
   ...props
 }: SpotlightCardProps) {
@@ -147,6 +147,9 @@ function PlanCard({
   const secondHalf = features.slice(midPoint);
   const displayFeaturesGrid = isPro || isElite;
 
+  const textPrimaryClass = id === "pro" ? "text-white" : "text-[var(--fn-text-primary)] dark:text-white";
+  const textSecondaryClass = id === "pro" ? "text-white/80" : "text-[var(--fn-text-secondary)]";
+
   const cardContent = (
     <div className={`p-6 sm:p-8 flex flex-col justify-between h-full relative z-10 ${isPro ? 'animated-lines-bg' : ''}`}>
       {isPopular && (
@@ -160,21 +163,21 @@ function PlanCard({
         <div className={`${displayFeaturesGrid ? 'lg:col-span-5 flex flex-col justify-between h-full' : 'flex flex-col'}`}>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className={`${isPopular ? "text-2xl sm:text-3xl" : "text-xl"} font-black text-foreground`}>{title}</h3>
+              <h3 className={`${isPopular ? "text-2xl sm:text-3xl" : "text-xl"} font-black ${textPrimaryClass}`}>{title}</h3>
               {isElite && (
                 <span className="text-[9px] bg-violet-500/15 text-violet-400 font-bold px-2 py-0.5 rounded-full border border-violet-500/20">
                   Console Mode
                 </span>
               )}
             </div>
-            <p className="text-xs text-muted-foreground mt-2 leading-relaxed min-h-8">
+            <p className={`text-xs ${textSecondaryClass} mt-2 leading-relaxed min-h-8`}>
               {description}
             </p>
             <div className="mt-4 flex items-baseline gap-1">
               {price}
-              {period && <span className="text-xs font-semibold text-muted-foreground">/{period}</span>}
+              {period && <span className={`text-xs font-semibold ${textSecondaryClass}`}>/{period}</span>}
             </div>
-            <div className="mt-2 text-xs font-bold text-primary">{limit}</div>
+            <div className={`mt-2 text-xs font-bold ${id === "pro" ? "text-white/90" : "text-[var(--fn-accent-primary)] dark:text-white"}`}>{limit}</div>
           </div>
 
           <div className="mt-6">
@@ -182,12 +185,12 @@ function PlanCard({
               <button
                 onClick={onSelect}
                 disabled={isCurrent || loading}
-                className={`w-full py-3 rounded-xl text-sm font-black transition flex items-center justify-center gap-2 cursor-pointer ${
+                className={`w-full py-3 text-sm font-black transition flex items-center justify-center gap-2 cursor-pointer ${
                   isCurrent
-                    ? "bg-muted border border-border text-muted-foreground cursor-default"
-                    : isPopular
-                      ? "bg-primary text-primary-foreground hover:opacity-90 shadow-glow"
-                      : "border border-border bg-background hover:bg-muted text-foreground"
+                    ? "fn-neu border border-[var(--fn-border)] text-[var(--fn-text-secondary)] dark:text-white rounded-full cursor-default"
+                    : id === "pro"
+                      ? "bg-white text-[var(--fn-accent-primary)] hover:bg-white/90 rounded-full shadow-[var(--fn-shadow-elevated)]"
+                      : "bg-[var(--fn-accent-primary)] text-white hover:bg-[var(--fn-accent-primary)]/90 rounded-full"
                 }`}
               >
                 {loading && !isCurrent ? (
@@ -212,24 +215,32 @@ function PlanCard({
           <div className="hidden lg:block lg:col-span-1 border-r border-border/20 self-stretch my-1" />
         )}
 
-        <div className={`${displayFeaturesGrid ? 'lg:col-span-6 mt-6 lg:mt-0 flex flex-col justify-center' : 'mt-4 border-t border-border pt-4'}`}>
-          <p className="text-[10px] uppercase font-black tracking-wider text-muted-foreground mb-3">
+        <div className={`${
+          displayFeaturesGrid 
+            ? `lg:col-span-6 mt-6 lg:mt-0 flex flex-col justify-center p-6 rounded-2xl border ${
+                id === "pro" 
+                  ? "bg-white/10 border-white/10" 
+                  : "bg-[var(--fn-surface-elevated)] dark:bg-slate-950 border-[var(--fn-border)]"
+              }` 
+            : 'mt-4 border-t border-border pt-4'
+        }`}>
+          <p className={`text-[10px] uppercase font-black tracking-wider ${id === "pro" ? "text-white/80" : "text-[var(--fn-text-tertiary)]"} mb-3`}>
             Features Unlocked:
           </p>
           {displayFeaturesGrid ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
               <ul className="space-y-2.5">
                 {firstHalf.map((feat) => (
-                  <li key={feat} className="flex items-start gap-2.5 text-foreground/90 font-medium text-xs">
-                    <CheckCircle2 className={`h-4 w-4 shrink-0 mt-0.5 ${accent}`} />
+                  <li key={feat} className={`flex items-start gap-2.5 ${id === "pro" ? "text-white" : "text-[var(--fn-text-secondary)]"} font-medium text-xs`}>
+                    <CheckCircle2 className={`h-4 w-4 shrink-0 mt-0.5 ${id === "pro" ? "stroke-white text-transparent fill-white/20" : "stroke-[var(--fn-accent-india)] text-transparent fill-[var(--fn-accent-india)]/20"}`} />
                     <span>{feat}</span>
                   </li>
                 ))}
               </ul>
               <ul className="space-y-2.5">
                 {secondHalf.map((feat) => (
-                  <li key={feat} className="flex items-start gap-2.5 text-foreground/90 font-medium text-xs">
-                    <CheckCircle2 className={`h-4 w-4 shrink-0 mt-0.5 ${accent}`} />
+                  <li key={feat} className={`flex items-start gap-2.5 ${id === "pro" ? "text-white" : "text-[var(--fn-text-secondary)]"} font-medium text-xs`}>
+                    <CheckCircle2 className={`h-4 w-4 shrink-0 mt-0.5 ${id === "pro" ? "stroke-white text-transparent fill-white/20" : "stroke-[var(--fn-accent-india)] text-transparent fill-[var(--fn-accent-india)]/20"}`} />
                     <span>{feat}</span>
                   </li>
                 ))}
@@ -238,8 +249,8 @@ function PlanCard({
           ) : (
             <ul className="space-y-2.5">
               {features.map((feat) => (
-                <li key={feat} className="flex items-start gap-2.5 text-foreground/90 font-medium text-xs">
-                  <CheckCircle2 className={`h-4 w-4 shrink-0 mt-0.5 ${accent}`} />
+                <li key={feat} className="flex items-start gap-2.5 text-[var(--fn-text-secondary)] font-medium text-xs">
+                  <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5 stroke-[var(--fn-accent-india)] text-transparent fill-[var(--fn-accent-india)]/20" />
                   <span>{feat}</span>
                 </li>
               ))}
@@ -248,15 +259,13 @@ function PlanCard({
         </div>
       </div>
     </div>
-  );
-
-  if (id === "pro") {
+  );  if (id === "pro") {
     return (
       <div className={`neon-sweep-wrapper shadow-neon-pro h-full group transition-all duration-300 ${isActive ? "spatial-active-ring" : "hover:scale-[1.01]"}`}>
         <div className="neon-sweep-bg" />
         <SpotlightCard
-          className="neon-sweep-content bg-slate-950/95 h-full"
-          spotlightColor="rgba(99, 102, 241, 0.22)"
+          className="neon-sweep-content bg-[var(--fn-accent-primary)] text-white rounded-2xl shadow-[var(--fn-shadow-elevated)] h-full border-none"
+          spotlightColor="rgba(255, 255, 255, 0.2)"
           borderColor="transparent"
           defaultBorder="transparent"
           isActive={isActive}
@@ -270,10 +279,10 @@ function PlanCard({
   if (id === "elite") {
     return (
       <SpotlightCard
-        className="h-full shadow-neon-elite transition-transform duration-300 border-soft"
+        className="fn-clay border-[var(--fn-accent-elite)] h-full transition-transform duration-300"
         spotlightColor="rgba(139, 92, 246, 0.2)"
-        borderColor="rgba(139, 92, 246, 0.5)"
-        defaultBorder="rgba(139, 92, 246, 0.2)"
+        borderColor="var(--fn-accent-elite)"
+        defaultBorder="var(--fn-accent-elite)"
         isActive={isActive}
       >
         {cardContent}
@@ -284,10 +293,10 @@ function PlanCard({
   if (id === "basic") {
     return (
       <SpotlightCard
-        className="h-full transition-all duration-300"
+        className="fn-glass h-full transition-all duration-300"
         spotlightColor="rgba(16, 185, 129, 0.15)"
-        borderColor="rgba(16, 185, 129, 0.45)"
-        defaultBorder="rgba(16, 185, 129, 0.15)"
+        borderColor="var(--fn-border-strong)"
+        defaultBorder="var(--fn-border)"
         isActive={isActive}
       >
         {cardContent}
@@ -297,10 +306,10 @@ function PlanCard({
 
   return (
     <SpotlightCard
-      className="h-full transition-all duration-300"
+      className="fn-neu h-full transition-all duration-300"
       spotlightColor="rgba(148, 163, 184, 0.08)"
-      borderColor="rgba(148, 163, 184, 0.25)"
-      defaultBorder="rgba(255, 255, 255, 0.06)"
+      borderColor="var(--fn-border-strong)"
+      defaultBorder="var(--fn-border)"
       isActive={isActive}
     >
       {cardContent}
@@ -512,17 +521,18 @@ export default function PricingPage() {
   };
 
   const getPlanPrice = (planId: PremiumTier, original: number) => {
-    if (planId === "free") return <span className="text-3xl font-black text-foreground">₹0</span>;
+    const textClass = planId === "pro" ? "text-white" : "text-[var(--fn-text-primary)] dark:text-white";
+    if (planId === "free") return <span className={`text-3xl font-black ${textClass}`}>₹0</span>;
     if (isTesting) return <span className="text-3xl font-black text-emerald-500">FREE</span>;
     const discounted = appliedDiscount > 0 ? Math.round(original * (1 - appliedDiscount / 100)) : original;
-    return <span className="text-3xl font-black text-foreground">₹{discounted}</span>;
+    return <span className={`text-3xl font-black ${textClass}`}>₹{discounted}</span>;
   };
 
   const getPlanCta = (id: PremiumTier, cta: string) => (isTesting ? "Unlocked" : cta);
   const getPayableAmount = (planId: PremiumTier, original: number) => (planId === "free" ? 0 : Math.round(original * (1 - appliedDiscount / 100)));
 
   return (
-    <div className={`min-h-screen bg-background text-foreground flex flex-col bg-mesh ${themeClass}`}>
+    <div className={`min-h-screen fn-aurora-bg text-foreground flex flex-col ${themeClass}`}>
       <TestingNotice />
       <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
@@ -547,27 +557,27 @@ export default function PricingPage() {
         </motion.div>
         <motion.div initial="hidden" animate="visible" variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1 } } }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-6xl mx-auto">
           <motion.div variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }}>
-            <SpotlightCard className="p-6 flex flex-col justify-between h-full" isActive={hudActiveIndex === 4}>
-              <div><h3 className="text-base font-black font-display">24-Hour Pass</h3><p className="text-xs text-muted-foreground mt-2">Access to all premium tools for 24h.</p></div>
-              <div className="pt-4 border-t border-border/20 mt-4"><div className="flex items-baseline gap-1 mb-2"><span className="text-2xl font-black">₹9</span></div><div className="grid grid-cols-2 gap-2"><button onClick={() => handleSelectPlan("pass_24h")} className="py-2 bg-primary text-primary-foreground rounded-xl text-xs font-black">Buy</button><UpiPaymentBox plan="pass_24h" amount={9} /></div></div>
+            <SpotlightCard className="fn-glass p-6 flex flex-col justify-between h-full text-[var(--fn-text-primary)]" isActive={hudActiveIndex === 4}>
+              <div><h3 className="text-base font-black font-display text-[var(--fn-text-primary)]">24-Hour Pass</h3><p className="text-xs text-[var(--fn-text-secondary)] mt-2">Access to all premium tools for 24h.</p></div>
+              <div className="pt-4 border-t border-[var(--fn-border)] mt-4"><div className="flex items-baseline gap-1 mb-2"><span className="text-2xl font-black text-[var(--fn-text-primary)]">₹9</span></div><div className="grid grid-cols-2 gap-2"><button onClick={() => handleSelectPlan("pass_24h")} className="py-2 bg-[var(--fn-accent-primary)] text-white rounded-full text-xs font-black cursor-pointer">Buy</button><UpiPaymentBox plan="pass_24h" amount={9} /></div></div>
             </SpotlightCard>
           </motion.div>
           <motion.div variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }}>
-            <SpotlightCard className="p-6 flex flex-col justify-between h-full" isActive={hudActiveIndex === 5}>
-              <div><h3 className="text-base font-black font-display">Weekly Pass</h3><p className="text-xs text-muted-foreground mt-2">Perfect for 7-day cycles.</p></div>
-              <div className="pt-4 border-t border-border/20 mt-4"><div className="flex items-baseline gap-1 mb-2"><span className="text-2xl font-black">₹29</span></div><div className="grid grid-cols-2 gap-2"><button onClick={() => handleSelectPlan("pass_7d")} className="py-2 bg-purple-600 text-white rounded-xl text-xs font-black">Buy</button><UpiPaymentBox plan="pass_7d" amount={29} /></div></div>
+            <SpotlightCard className="fn-glass p-6 flex flex-col justify-between h-full text-[var(--fn-text-primary)]" isActive={hudActiveIndex === 5}>
+              <div><h3 className="text-base font-black font-display text-[var(--fn-text-primary)]">Weekly Pass</h3><p className="text-xs text-[var(--fn-text-secondary)] mt-2">Perfect for 7-day cycles.</p></div>
+              <div className="pt-4 border-t border-[var(--fn-border)] mt-4"><div className="flex items-baseline gap-1 mb-2"><span className="text-2xl font-black text-[var(--fn-text-primary)]">₹29</span></div><div className="grid grid-cols-2 gap-2"><button onClick={() => handleSelectPlan("pass_7d")} className="py-2 bg-purple-600 text-white rounded-full text-xs font-black cursor-pointer">Buy</button><UpiPaymentBox plan="pass_7d" amount={29} /></div></div>
             </SpotlightCard>
           </motion.div>
           <motion.div variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }}>
-            <SpotlightCard className="p-5 flex flex-col gap-3 h-full">
-              <p className="text-sm font-black">Have a coupon?</p>
-              <div className="flex gap-2"><input value={couponCode} onChange={(e) => setCouponCode(e.target.value)} placeholder="Coupon Code (e.g. STUDENT20)" title="Coupon Code" aria-label="Coupon Code" className="w-full rounded-xl border border-border bg-background/50 px-3 py-2 text-xs" /><button onClick={handleValidateCoupon} title="Apply Coupon" aria-label="Apply Coupon" className="px-4 py-2 bg-primary text-white rounded-xl text-xs font-black">Apply</button></div>
+            <SpotlightCard className="fn-clay p-5 flex flex-col gap-3 h-full text-[var(--fn-text-primary)]">
+              <p className="text-sm font-black text-[var(--fn-text-primary)]">Have a coupon?</p>
+              <div className="flex gap-2"><input value={couponCode} onChange={(e) => setCouponCode(e.target.value)} placeholder="Coupon Code (e.g. STUDENT20)" title="Coupon Code" aria-label="Coupon Code" className="w-full rounded-xl border border-[var(--fn-border)] bg-background px-3 py-2 text-xs text-[var(--fn-text-primary)]" /><button onClick={handleValidateCoupon} title="Apply Coupon" aria-label="Apply Coupon" className="px-4 py-2 bg-[var(--fn-accent-primary)] text-white rounded-xl text-xs font-black cursor-pointer">Apply</button></div>
             </SpotlightCard>
           </motion.div>
           <motion.div variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }}>
-            <SpotlightCard className="p-5 flex flex-col justify-center h-full">
-              <p className="text-sm font-black">Secure Checkout</p>
-              <p className="text-[11px] text-muted-foreground mt-1">100% encrypted & protected.</p>
+            <SpotlightCard className="fn-glass p-5 flex flex-col justify-center h-full text-[var(--fn-text-primary)]">
+              <p className="text-sm font-black text-[var(--fn-text-primary)]">Secure Checkout</p>
+              <p className="text-[11px] text-[var(--fn-text-secondary)] mt-1">100% encrypted & protected.</p>
             </SpotlightCard>
           </motion.div>
         </motion.div>
@@ -590,7 +600,7 @@ export default function PricingPage() {
       <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
 
       {/* Spatial Key HUD */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-fade-up">
+      <div className="sr-only">
         <div className="glass px-5 py-3 rounded-full border border-white/10 shadow-2xl flex items-center gap-6 text-[11px] font-bold text-muted-foreground backdrop-blur-xl spatial-hud-glow">
           <div className="flex items-center gap-1.5">
             <span className="spatial-keycap px-2 py-1 rounded text-[10px] font-sans font-black shadow-sm mr-1">←</span>

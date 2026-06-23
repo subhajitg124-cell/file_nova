@@ -64,7 +64,7 @@ export function Navbar({ showSearch = true }: NavbarProps) {
             <div className="relative hidden md:block">
               <button
                 onClick={() => setSettingsOpen(!settingsOpen)}
-                className="flex items-center justify-center p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all cursor-pointer"
+                className="flex items-center justify-center p-2 rounded-lg text-muted-foreground hover:text-foreground hover:fn-neu-pressed transition-all cursor-pointer"
                 aria-label="Settings"
                 title="Settings"
               >
@@ -77,7 +77,7 @@ export function Navbar({ showSearch = true }: NavbarProps) {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
                     transition={{ duration: 0.15, ease: "easeOut" }}
-                    className="absolute right-0 top-full mt-3 bg-card border border-border rounded-xl shadow-xl p-4 space-y-4 z-50 min-w-[200px]"
+                    className="absolute right-0 top-full mt-3 fn-glass rounded-xl shadow-[var(--fn-shadow-elevated)] p-4 space-y-4 z-50 min-w-[200px] text-[var(--fn-text-primary)]"
                   >
                     <div>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">{tText("Theme")}</p>
@@ -101,7 +101,7 @@ export function Navbar({ showSearch = true }: NavbarProps) {
                 <Zap className="h-3.5 w-3.5" />
                 {tText("Workflows")}
               </Link>
-              <Link href="/workspace" className="flex items-center gap-1 text-[11px] text-foreground hover:text-primary font-bold py-1.5 px-2.5 rounded-lg border border-border bg-card hover:border-primary/35 hover:bg-primary/10 transition-all whitespace-nowrap">
+              <Link href="/workspace" className="flex items-center gap-1 text-[11px] text-foreground hover:text-primary font-bold py-1.5 px-2.5 rounded-lg border border-border bg-card hover:fn-neu-pressed transition-all whitespace-nowrap">
                 <FileText className="h-3.5 w-3.5" />
                 {tText("Workspace")}
               </Link>
@@ -122,7 +122,7 @@ export function Navbar({ showSearch = true }: NavbarProps) {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
                     transition={{ duration: 0.15, ease: "easeOut" }}
-                    className="absolute right-0 top-full mt-3 bg-card border border-border rounded-xl shadow-xl p-2 z-50 min-w-[190px] space-y-0.5"
+                    className="absolute right-0 top-full mt-3 fn-glass rounded-xl shadow-[var(--fn-shadow-elevated)] p-2 z-50 min-w-[190px] space-y-0.5 text-[var(--fn-text-primary)]"
                   >
                     <div className="px-2 py-1.5"><PopularToolsDropdown /></div>
                     <Link href="/india-tools" onClick={() => setMoreMenuOpen(false)} className="flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-bold text-emerald-500 hover:bg-accent/60 transition-colors">
