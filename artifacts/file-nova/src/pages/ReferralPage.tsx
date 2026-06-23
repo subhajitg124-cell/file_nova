@@ -37,14 +37,20 @@ export default function ReferralPage() {
   const [stats, setStats] = useState<ReferralStats>({ totalReferred: 0, successfulSignups: 0, rewardsEarned: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     fetchMe();
   }, [fetchMe]);
 
+  const isLocalUser = !!user?.id?.startsWith("local_");
+
   useEffect(() => {
-    if (!user) {
+    if (!user || isLocalUser) {
       setLoading(false);
+      if (isLocalUser) {
+        setError("session_expired");
+      }
       return;
     }
 
@@ -60,8 +66,17 @@ export default function ReferralPage() {
           headers: getAuthHeaders(),
         });
 
+        if (res.status === 401) {
+          if (!cancelled) {
+            setError("session_expired");
+            setLoading(false);
+          }
+          return;
+        }
+
         if (!res.ok) {
-          throw new Error(`Server returned ${res.status}`);
+          const errBody = await res.json().catch(() => null);
+          throw new Error(errBody?.error || `Server returned ${res.status}`);
         }
 
         const data = await res.json();
@@ -78,13 +93,12 @@ export default function ReferralPage() {
         const isLastAttempt = attempt >= MAX_RETRIES;
 
         if (isAbort && !isLastAttempt) {
-          // Retry on timeout
           await new Promise(r => setTimeout(r, 1000));
           return fetchStats(attempt + 1);
         }
 
         const message = isAbort
-          ? "Server is unreachable. Please try again."
+          ? "Server is unreachable. Please try again later."
           : err.message || "Failed to load referral stats";
         setError(message);
         toast.error(message);
@@ -96,7 +110,7 @@ export default function ReferralPage() {
     fetchStats();
 
     return () => { cancelled = true; };
-  }, [user?.id]);
+  }, [user?.id, isLocalUser, retryCount]);
 
   const referralLink = useMemo(() => referralCode ? `https://filenova.in?ref=${referralCode}` : "", [referralCode]);
   const whatsappMessage = useMemo(
@@ -111,10 +125,10 @@ export default function ReferralPage() {
   };
 
   const retryFetch = () => {
-    setLoading(true);
     setError(null);
-    // Trigger re-fetch by bumping a key — use user refetch instead
+    setLoading(true);
     fetchMe();
+    setRetryCount((c) => c + 1);
   };
 
   return (
@@ -145,6 +159,13 @@ export default function ReferralPage() {
               <p className="text-sm font-bold text-muted-foreground">Sign in to get your referral link.</p>
               <button onClick={openLoginModal} className="mt-4 rounded-xl bg-primary px-5 py-3 text-xs font-black text-primary-foreground shadow-glow">
                 Sign In
+              </button>
+            </div>
+          ) : isLocalUser || error === "session_expired" ? (
+            <div className="mt-8 rounded-2xl border border-dashed border-amber-500/30 bg-amber-500/5 p-6 text-center">
+              <p className="text-sm font-bold text-amber-600 dark:text-amber-400">Session expired. Please log in again to view your referral link.</p>
+              <button onClick={() => { openLoginModal(); }} className="mt-4 rounded-xl bg-primary px-5 py-3 text-xs font-black text-primary-foreground shadow-glow">
+                Log In
               </button>
             </div>
           ) : (

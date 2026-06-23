@@ -200,6 +200,7 @@ Every AI agent (Kilo Code, Codex, Claude Code, Gemini CLI, future agents) MUST:
 | 2026-06-22 | Opencode | Extract shared Navbar, fix ErrorBoundary, dead imports, CSS utilities | ✅ Completed |
 | 2026-06-22 | Opencode | Extract routes, fetch interceptor, decompose ToolWorkspace | ✅ Completed |
 | 2026-06-23 | Opencode | Add discount code generator: schema, backend CRUD + validation, admin UI | ✅ Completed |
+| 2026-06-23 | Opencode | Fix referral system: handle server unreachable, local mock user fallback, 401 errors, duplicate authMiddleware | ✅ Completed |
 
 ---
 

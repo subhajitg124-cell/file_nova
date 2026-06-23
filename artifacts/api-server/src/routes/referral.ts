@@ -2,7 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { db, referralsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
-import { authMiddleware, requireAuth, type AuthRequest } from "../middlewares/auth";
+import { requireAuth, type AuthRequest } from "../middlewares/auth";
 import { completeReferral, ensureUserReferralCode, trackReferralClick } from "../services/referralService";
 
 const router = Router();
@@ -25,7 +25,7 @@ router.post("/track", async (req, res): Promise<void> => {
   }
 });
 
-router.post("/complete", authMiddleware, requireAuth, async (req: AuthRequest, res): Promise<void> => {
+router.post("/complete", requireAuth, async (req: AuthRequest, res): Promise<void> => {
   try {
     const bodySchema = z.object({
       referralCode: z.string().min(1).max(8),
@@ -43,7 +43,7 @@ router.post("/complete", authMiddleware, requireAuth, async (req: AuthRequest, r
   }
 });
 
-router.get("/stats", authMiddleware, requireAuth, async (req: AuthRequest, res): Promise<void> => {
+router.get("/stats", requireAuth, async (req: AuthRequest, res): Promise<void> => {
   try {
     const referralCode = await ensureUserReferralCode(req.user!.id);
     const referrals = await db.select().from(referralsTable).where(eq(referralsTable.referrerUserId, req.user!.id));

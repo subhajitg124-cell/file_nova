@@ -140,7 +140,9 @@ const decodeGoogleCredential = (credential: string): { email?: string; name?: st
 
 const getAuthHeaders = (): Record<string, string> => {
   const token = localStorage.getItem(SESSION_TOKEN_KEY);
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  // Don't send local mock tokens to the real server
+  if (!token || token.startsWith("local_")) return {};
+  return { Authorization: `Bearer ${token}` };
 };
 
 // Safe JSON parse with empty response handling
