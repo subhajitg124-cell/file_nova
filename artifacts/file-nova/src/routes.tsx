@@ -45,6 +45,7 @@ const DocumentToolsPage = React.lazy(() => import("@/pages/DocumentToolsPage"));
 const AdminDashboard = React.lazy(() => import("@/pages/AdminDashboard"));
 const AdminUpiPayments = React.lazy(() => import("@/pages/AdminUpiPayments"));
 const AdminCouponManagement = React.lazy(() => import("@/pages/AdminCouponManagement"));
+const AdminDiscountCodes = React.lazy(() => import("@/pages/AdminDiscountCodes"));
 const AdminLogin = React.lazy(() => import("@/pages/AdminLogin"));
 const AdminAnalytics = React.lazy(() => import("@/pages/AdminAnalytics"));
 const PremiumSuite = React.lazy(() => import("@/pages/PremiumSuite"));
@@ -201,6 +202,9 @@ export function Router() {
           </Route>
           <Route path="/admin/coupons">
             <AdminCouponManagement />
+          </Route>
+          <Route path="/admin/discount-codes">
+            <AdminDiscountCodes />
           </Route>
           <Route path="/nova-login">
             <AdminLogin />

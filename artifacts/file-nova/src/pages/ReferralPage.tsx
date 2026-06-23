@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
-import { ArrowLeft, Copy, Gift, MessageCircle, Sparkles, Users } from "lucide-react";
+import { ArrowLeft, Copy, Gift, MessageCircle, Sparkles, Users, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -17,11 +17,26 @@ const getAuthHeaders = (): Record<string, string> => {
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
+const FETCH_TIMEOUT_MS = 8000;
+const MAX_RETRIES = 2;
+
+async function fetchWithTimeout(url: string, init?: RequestInit, timeoutMs = FETCH_TIMEOUT_MS): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { ...init, signal: controller.signal });
+    return res;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export default function ReferralPage() {
   const { user, fetchMe, openLoginModal } = useAuthStore();
   const [referralCode, setReferralCode] = useState(user?.referralCode || "");
   const [stats, setStats] = useState<ReferralStats>({ totalReferred: 0, successfulSignups: 0, rewardsEarned: 0 });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchMe();
@@ -33,28 +48,73 @@ export default function ReferralPage() {
       return;
     }
 
-    setLoading(true);
-    fetch(`${BACKEND_URL}/api/v1/referral/stats`, {
-      credentials: "include",
-      headers: getAuthHeaders(),
-    })
-      .then((res) => res.json())
-      .then((data) => {
+    let cancelled = false;
+
+    const fetchStats = async (attempt = 0) => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const res = await fetchWithTimeout(`${BACKEND_URL}/api/v1/referral/stats`, {
+          credentials: "include",
+          headers: getAuthHeaders(),
+        });
+
+        if (!res.ok) {
+          throw new Error(`Server returned ${res.status}`);
+        }
+
+        const data = await res.json();
         if (!data.success) throw new Error(data.error || "Failed to load referral stats");
-        setReferralCode(data.referralCode);
-        setStats(data.stats);
-      })
-      .catch((err) => toast.error(err.message || "Failed to load referral stats"))
-      .finally(() => setLoading(false));
-  }, [user]);
+
+        if (!cancelled) {
+          setReferralCode(data.referralCode);
+          setStats(data.stats);
+        }
+      } catch (err: any) {
+        if (cancelled) return;
+
+        const isAbort = err.name === "AbortError";
+        const isLastAttempt = attempt >= MAX_RETRIES;
+
+        if (isAbort && !isLastAttempt) {
+          // Retry on timeout
+          await new Promise(r => setTimeout(r, 1000));
+          return fetchStats(attempt + 1);
+        }
+
+        const message = isAbort
+          ? "Server is unreachable. Please try again."
+          : err.message || "Failed to load referral stats";
+        setError(message);
+        toast.error(message);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    fetchStats();
+
+    return () => { cancelled = true; };
+  }, [user?.id]);
 
   const referralLink = useMemo(() => referralCode ? `https://filenova.in?ref=${referralCode}` : "", [referralCode]);
-  const whatsappMessage = `Try FileNova - Free PDF tools for Indians! Sign up with my link and we both get 3 days of Pro free: ${referralLink}`;
+  const whatsappMessage = useMemo(
+    () => referralLink ? `Try FileNova - Free PDF tools for Indians! Sign up with my link and we both get 3 days of Pro free: ${referralLink}` : "",
+    [referralLink]
+  );
 
   const copyLink = async () => {
     if (!referralLink) return;
     await navigator.clipboard.writeText(referralLink);
     toast.success("Referral link copied.");
+  };
+
+  const retryFetch = () => {
+    setLoading(true);
+    setError(null);
+    // Trigger re-fetch by bumping a key — use user refetch instead
+    fetchMe();
   };
 
   return (
@@ -93,17 +153,26 @@ export default function ReferralPage() {
                 <p className="text-xs font-black uppercase tracking-wider text-muted-foreground">Your referral link</p>
                 <div className="mt-3 flex flex-col gap-3 sm:flex-row">
                   <div className="min-w-0 flex-1 rounded-xl border border-border bg-card px-4 py-3 font-mono text-sm font-bold text-foreground">
-                    {loading ? "Loading..." : referralLink}
+                    {loading ? "Loading..." : error ? (
+                      <span className="text-destructive text-xs">Could not load link</span>
+                    ) : referralLink}
                   </div>
-                  <button onClick={copyLink} disabled={!referralLink} className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-xs font-black text-muted-foreground hover:text-foreground disabled:opacity-50">
+                  <button onClick={copyLink} disabled={!referralLink || loading} className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-xs font-black text-muted-foreground hover:text-foreground disabled:opacity-50">
                     <Copy className="h-4 w-4" />
                     Copy link
                   </button>
                 </div>
-                <a href={`https://wa.me/?text=${encodeURIComponent(whatsappMessage)}`} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-xs font-black text-white">
-                  <MessageCircle className="h-4 w-4" />
-                  Share on WhatsApp
-                </a>
+                {error ? (
+                  <button onClick={retryFetch} className="mt-4 inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-xs font-black text-muted-foreground hover:text-foreground transition">
+                    <RefreshCw className="h-4 w-4" />
+                    Retry
+                  </button>
+                ) : whatsappMessage ? (
+                  <a href={`https://wa.me/?text=${encodeURIComponent(whatsappMessage)}`} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-xs font-black text-white">
+                    <MessageCircle className="h-4 w-4" />
+                    Share on WhatsApp
+                  </a>
+                ) : null}
               </div>
 
               <div className="rounded-2xl border border-border bg-background/60 p-5">

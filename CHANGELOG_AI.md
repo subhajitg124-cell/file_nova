@@ -180,6 +180,15 @@ Every AI agent (Kilo Code, Codex, Claude Code, Gemini CLI, future agents) MUST:
 - Added BackHomeBar to PricingPage, IndiaToolsPage, Home (workspace), and ToolPageLayout
 - Replaced PricingPage's inline "Back to Home" link with BackHomeBar
 
+### Bug Fixes
+- Fixed referral page (/referral) stuck on "Loading..." permanently:
+  - Added 8s fetch timeout with AbortController — no more infinite loading
+  - Added retry logic (2 retries with 1s delay) on timeout
+  - Added visible error state in UI with "Retry" button instead of silent toast-only failure
+  - WhatsApp share button only renders when referral link is available (no empty URL)
+  - Copy link button disabled during loading state
+  - Fixed effect dependency to use `user?.id` instead of `user` object (prevents unnecessary re-fetches)
+
 ---
 
 ## Agent Interaction Log
@@ -190,6 +199,7 @@ Every AI agent (Kilo Code, Codex, Claude Code, Gemini CLI, future agents) MUST:
 | 2025-06-22 | Opencode | Full regression audit (read-only) | ✅ Completed |
 | 2026-06-22 | Opencode | Extract shared Navbar, fix ErrorBoundary, dead imports, CSS utilities | ✅ Completed |
 | 2026-06-22 | Opencode | Extract routes, fetch interceptor, decompose ToolWorkspace | ✅ Completed |
+| 2026-06-23 | Opencode | Add discount code generator: schema, backend CRUD + validation, admin UI | ✅ Completed |
 
 ---
 

@@ -80,6 +80,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
     { href: "/nova-control", label: "Dashboard Overview", icon: SlidersHorizontal },
     { href: "/admin/upi-payments", label: "UPI Verification", icon: CreditCard },
     { href: "/admin/coupons", label: "Coupons & Offers", icon: Percent },
+    { href: "/admin/discount-codes", label: "Discount Codes", icon: Percent },
     { href: "/admin/analytics", label: "System Analytics", icon: BarChart3 },
   ];
 

@@ -2,7 +2,7 @@ import { Router, type Request, type Response } from "express";
 import crypto from "node:crypto";
 import { z } from "zod";
 import Razorpay from "razorpay";
-import { db, usersTable, subscriptionsTable, processingJobsTable, couponsTable, couponUsagesTable } from "@workspace/db";
+import { db, usersTable, subscriptionsTable, processingJobsTable, couponsTable, couponUsagesTable, discountCodesTable, discountCodeUsagesTable } from "@workspace/db";
 import { eq, desc, count, and, gte, lte, sql, inArray } from "drizzle-orm";
 import { logger } from "../lib/logger";
 import { adminAuth } from "../middlewares/adminAuth";
@@ -53,6 +53,45 @@ async function getCouponDiscount(couponCode: string | undefined, plan: string, u
       discountPercentage: staticCoupons[code],
       message: `${staticCoupons[code]}% discount applied!`,
     };
+  }
+
+  // Check discount_codes table
+  const now = new Date();
+  const [discountCode] = await db
+    .select()
+    .from(discountCodesTable)
+    .where(
+      and(
+        eq(discountCodesTable.code, code),
+        eq(discountCodesTable.isActive, true),
+        lte(discountCodesTable.validFrom, now),
+        gte(discountCodesTable.validUntil, now)
+      )
+    )
+    .limit(1);
+
+  if (discountCode) {
+    const applicablePlans = discountCode.applicablePlans as ("free" | "basic" | "pro" | "elite")[];
+    if (!applicablePlans.includes(plan as any)) {
+      return { valid: false, discountPercentage: 0, message: "Discount code not applicable to this plan." };
+    }
+    if (discountCode.usedCount >= discountCode.usageLimit) {
+      return { valid: false, discountPercentage: 0, message: "Discount code usage limit reached." };
+    }
+    if (discountCode.type === "percentage") {
+      return {
+        valid: true,
+        discountPercentage: discountCode.value,
+        message: `${discountCode.value}% discount applied!`,
+      };
+    } else {
+      // fixed discount — return 0 percentage, the order endpoint will calculate
+      return {
+        valid: true,
+        discountPercentage: 0,
+        message: `₹${(discountCode.value / 100).toFixed(2)} discount applied!`,
+      };
+    }
   }
 
   try {
@@ -1068,6 +1107,270 @@ router.post("/webhook", async (req: Request, res: Response) => {
   }
 
   res.json({ status: "ok" });
+});
+
+// ── Discount Code Endpoints ────────────────────────────────────────────────────
+
+// GET /admin/discount-codes — List all discount codes with stats
+router.get("/admin/discount-codes", adminAuth, async (_req: Request, res: Response) => {
+  try {
+    const codes = await db
+      .select({
+        id: discountCodesTable.id,
+        code: discountCodesTable.code,
+        type: discountCodesTable.type,
+        value: discountCodesTable.value,
+        maxDiscount: discountCodesTable.maxDiscount,
+        validFrom: discountCodesTable.validFrom,
+        validUntil: discountCodesTable.validUntil,
+        usageLimit: discountCodesTable.usageLimit,
+        usedCount: discountCodesTable.usedCount,
+        perUserLimit: discountCodesTable.perUserLimit,
+        applicablePlans: discountCodesTable.applicablePlans,
+        isActive: discountCodesTable.isActive,
+        description: discountCodesTable.description,
+        createdAt: discountCodesTable.createdAt,
+        updatedAt: discountCodesTable.updatedAt,
+        createdByName: usersTable.name,
+      })
+      .from(discountCodesTable)
+      .leftJoin(usersTable, eq(discountCodesTable.createdBy, usersTable.id))
+      .orderBy(desc(discountCodesTable.createdAt));
+
+    res.json({ success: true, codes });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || "Failed to fetch discount codes" });
+  }
+});
+
+// POST /admin/discount-codes — Create new discount code
+router.post("/admin/discount-codes", adminAuth, async (req: Request, res: Response) => {
+  try {
+    const data = z.object({
+      code: z.string().min(3).max(30).toUpperCase(),
+      type: z.enum(["percentage", "fixed"]).default("percentage"),
+      value: z.number().int().positive(),
+      maxDiscount: z.number().int().nonnegative().optional(),
+      validFrom: z.string().datetime(),
+      validUntil: z.string().datetime(),
+      usageLimit: z.number().int().positive().default(1),
+      perUserLimit: z.number().int().positive().default(1),
+      applicablePlans: z.array(z.enum(["free", "basic", "pro", "elite"])).default(["basic", "pro", "elite"]),
+      description: z.string().optional(),
+    }).parse(req.body);
+
+    const validFrom = new Date(data.validFrom);
+    const validUntil = new Date(data.validUntil);
+    if (validFrom >= validUntil) {
+      return res.status(400).json({ error: "validFrom must be before validUntil" });
+    }
+
+    const [existing] = await db
+      .select({ id: discountCodesTable.id })
+      .from(discountCodesTable)
+      .where(eq(discountCodesTable.code, data.code))
+      .limit(1);
+    if (existing) {
+      return res.status(400).json({ error: "Discount code already exists" });
+    }
+
+    const [newCode] = await db
+      .insert(discountCodesTable)
+      .values({
+        ...data,
+        validFrom,
+        validUntil,
+      })
+      .returning();
+
+    res.json({ success: true, code: newCode });
+  } catch (err: any) {
+    if (err.code === "23505") {
+      res.status(400).json({ error: "Discount code already exists" });
+    } else {
+      res.status(500).json({ error: err.message || "Failed to create discount code" });
+    }
+  }
+});
+
+// PATCH /admin/discount-codes/:id — Update discount code
+router.patch("/admin/discount-codes/:id", adminAuth, async (req: Request, res: Response) => {
+  try {
+    const codeId = req.params.id as string;
+    const data = z.object({
+      code: z.string().min(3).max(30).toUpperCase().optional(),
+      type: z.enum(["percentage", "fixed"]).optional(),
+      value: z.number().int().positive().optional(),
+      maxDiscount: z.number().int().nonnegative().nullable().optional(),
+      validFrom: z.string().datetime().optional(),
+      validUntil: z.string().datetime().optional(),
+      usageLimit: z.number().int().positive().optional(),
+      perUserLimit: z.number().int().positive().optional(),
+      applicablePlans: z.array(z.enum(["free", "basic", "pro", "elite"])).optional(),
+      isActive: z.boolean().optional(),
+      description: z.string().nullable().optional(),
+    }).parse(req.body);
+
+    if (data.validFrom && data.validUntil) {
+      if (new Date(data.validFrom) >= new Date(data.validUntil)) {
+        return res.status(400).json({ error: "validFrom must be before validUntil" });
+      }
+    }
+
+    const [existing] = await db
+      .select({ id: discountCodesTable.id })
+      .from(discountCodesTable)
+      .where(eq(discountCodesTable.id, codeId))
+      .limit(1);
+    if (!existing) {
+      return res.status(404).json({ error: "Discount code not found" });
+    }
+
+    const [updated] = await db
+      .update(discountCodesTable)
+      .set({
+        ...data,
+        validFrom: data.validFrom ? new Date(data.validFrom) : undefined,
+        validUntil: data.validUntil ? new Date(data.validUntil) : undefined,
+        updatedAt: new Date(),
+      })
+      .where(eq(discountCodesTable.id, codeId))
+      .returning();
+
+    res.json({ success: true, code: updated });
+  } catch (err: any) {
+    if (err.code === "23505") {
+      res.status(400).json({ error: "Discount code already exists" });
+    } else {
+      res.status(500).json({ error: err.message || "Failed to update discount code" });
+    }
+  }
+});
+
+// POST /admin/discount-codes/:id/toggle — Toggle active status
+router.post("/admin/discount-codes/:id/toggle", adminAuth, async (req: Request, res: Response) => {
+  try {
+    const codeId = req.params.id as string;
+    const [existing] = await db
+      .select()
+      .from(discountCodesTable)
+      .where(eq(discountCodesTable.id, codeId))
+      .limit(1);
+
+    if (!existing) {
+      return res.status(404).json({ error: "Discount code not found" });
+    }
+
+    const [updated] = await db
+      .update(discountCodesTable)
+      .set({ isActive: !existing.isActive, updatedAt: new Date() })
+      .where(eq(discountCodesTable.id, codeId))
+      .returning();
+
+    res.json({ success: true, code: updated });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || "Failed to toggle discount code" });
+  }
+});
+
+// DELETE /admin/discount-codes/:id — Delete discount code
+router.delete("/admin/discount-codes/:id", adminAuth, async (req: Request, res: Response) => {
+  try {
+    const codeId = req.params.id as string;
+    const [existing] = await db
+      .select({ id: discountCodesTable.id })
+      .from(discountCodesTable)
+      .where(eq(discountCodesTable.id, codeId))
+      .limit(1);
+
+    if (!existing) {
+      return res.status(404).json({ error: "Discount code not found" });
+    }
+
+    await db.delete(discountCodesTable).where(eq(discountCodesTable.id, codeId));
+    res.json({ success: true });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || "Failed to delete discount code" });
+  }
+});
+
+// POST /validate-discount-code — Validate a discount code (public endpoint, requires auth for user tracking)
+router.post("/validate-discount-code", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const user = (req as AuthRequest).user!;
+    const data = z.object({
+      code: z.string().min(1),
+      plan: z.enum(["free", "basic", "pro", "elite"]),
+    }).parse(req.body);
+
+    const code = data.code.toUpperCase().trim();
+    const now = new Date();
+
+    const [discountCode] = await db
+      .select()
+      .from(discountCodesTable)
+      .where(
+        and(
+          eq(discountCodesTable.code, code),
+          eq(discountCodesTable.isActive, true),
+          lte(discountCodesTable.validFrom, now),
+          gte(discountCodesTable.validUntil, now)
+        )
+      )
+      .limit(1);
+
+    if (!discountCode) {
+      return res.json({ valid: false, message: "Invalid or expired discount code." });
+    }
+
+    if (!discountCode.applicablePlans.includes(data.plan as any)) {
+      return res.json({ valid: false, message: "This code does not apply to the selected plan." });
+    }
+
+    if (discountCode.usedCount >= discountCode.usageLimit) {
+      return res.json({ valid: false, message: "This code has reached its usage limit." });
+    }
+
+    // Check per-user usage
+    const [userUsage] = await db
+      .select({ count: count() })
+      .from(discountCodeUsagesTable)
+      .where(
+        and(
+          eq(discountCodeUsagesTable.discountCodeId, discountCode.id),
+          eq(discountCodeUsagesTable.userId, user.id)
+        )
+      );
+
+    if (userUsage.count >= discountCode.perUserLimit) {
+      return res.json({ valid: false, message: "You have already used this code." });
+    }
+
+    // Calculate discount
+    let discountPercentage = 0;
+    let message = "";
+    if (discountCode.type === "percentage") {
+      discountPercentage = discountCode.value;
+      message = `${discountCode.value}% discount applied!`;
+      if (discountCode.maxDiscount) {
+        message += ` (max ₹${(discountCode.maxDiscount / 100).toFixed(0)})`;
+      }
+    } else {
+      discountPercentage = 0; // fixed discount handled separately
+      message = `₹${(discountCode.value / 100).toFixed(2)} discount applied!`;
+    }
+
+    res.json({
+      valid: true,
+      discountPercentage,
+      discountType: discountCode.type,
+      discountValue: discountCode.value,
+      maxDiscount: discountCode.maxDiscount,
+      message,
+    });
+  } catch (err: any) {
+    res.status(500).json({ valid: false, message: err.message || "Failed to validate discount code" });
+  }
 });
 
 export default router;
