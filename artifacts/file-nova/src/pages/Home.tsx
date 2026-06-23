@@ -16,6 +16,7 @@ import {
   Sun, Moon, ShieldCheck, Zap, AlertTriangle, FileText, Sparkles,
   Video, FileSpreadsheet, ArrowLeft, FolderOpen, Cpu, Lock
 } from 'lucide-react';
+import { BackHomeBar } from '@/components/BackHomeBar';
 
 const SUITES = [
   {
@@ -313,6 +314,9 @@ export default function Home() {
             transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
             className="space-y-12"
           >
+            {/* Back Navigation */}
+            <BackHomeBar />
+
             {/* Hero */}
             <div className="text-center space-y-5 max-w-2xl mx-auto pt-4">
               <motion.div

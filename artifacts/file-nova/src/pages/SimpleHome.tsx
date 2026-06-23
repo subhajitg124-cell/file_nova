@@ -759,32 +759,32 @@ export default function SimpleHome() {
             {/* Bento Card 1: Aadhaar safety (2-col flagship bento block) */}
             <motion.div 
               whileHover={{ y: -4 }}
-              className="md:col-span-2 p-8 fn-glass rounded-3xl space-y-4 transition-all relative overflow-hidden flex flex-col md:flex-row gap-6 items-center justify-between group"
+              className="md:col-span-2 p-8 bg-[var(--fn-surface)] dark:bg-[rgba(15,22,38,0.7)] border border-[var(--fn-border)] dark:border-white/10 shadow-[var(--fn-shadow-card)] backdrop-blur-md rounded-3xl space-y-4 transition-all relative overflow-hidden flex flex-col md:flex-row gap-6 items-center justify-between group"
             >
               <div className="absolute inset-0 opacity-15 pointer-events-none" style={{ backgroundImage: "var(--fn-aurora)" }} />
               <div className="space-y-3 max-w-sm">
-                <div className="h-10 w-10 rounded-xl bg-emerald-500/10 text-emerald-450 flex items-center justify-center font-bold text-lg">🔒</div>
-                <h3 className="font-extrabold text-sm text-white">{tText("Aadhaar safety: Local-first processing")}</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
+                <div className="h-10 w-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-450 flex items-center justify-center font-bold text-lg">🔒</div>
+                <h3 className="font-extrabold text-sm text-[var(--fn-text-primary)] dark:text-white">{tText("Aadhaar safety: Local-first processing")}</h3>
+                <p className="text-xs text-[var(--fn-text-secondary)] dark:text-slate-400 leading-relaxed">
                   {tText("Aadhaar masking, PAN resizing, and photos are processed entirely within your browser sandboxed sandbox. Your document files never upload to any remote server.")}
                 </p>
               </div>
               
               {/* Animated Interactive Masking Simulation Card */}
-              <div className="w-full max-w-[240px] bg-slate-950 border border-slate-800/80 rounded-2xl p-4 space-y-3 shadow-2xl relative overflow-hidden select-none shrink-0">
-                <div className="absolute top-0 right-0 p-1 px-2 rounded-bl-xl bg-emerald-500/15 border-l border-b border-emerald-500/20 text-[8px] font-black text-emerald-400 uppercase tracking-widest">
+              <div className="w-full max-w-[240px] bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-800/80 rounded-2xl p-4 space-y-3 shadow-2xl relative overflow-hidden select-none shrink-0">
+                <div className="absolute top-0 right-0 p-1 px-2 rounded-bl-xl bg-emerald-500/15 border-l border-b border-emerald-500/20 text-[8px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">
                   Client Side
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="h-6 w-6 rounded bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-[10px]">🇮🇳</div>
+                  <div className="h-6 w-6 rounded bg-indigo-500/20 text-indigo-500 dark:text-indigo-400 flex items-center justify-center font-bold text-[10px]">🇮🇳</div>
                   <div>
-                    <div className="h-1.5 w-16 bg-slate-800 rounded" />
-                    <div className="h-1 w-10 bg-slate-900 rounded mt-1" />
+                    <div className="h-1.5 w-16 bg-gray-200 dark:bg-slate-800 rounded" />
+                    <div className="h-1 w-10 bg-gray-100 dark:bg-slate-900 rounded mt-1" />
                   </div>
                 </div>
                 <div className="space-y-1.5 pt-2">
-                  <div className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">{tText("Aadhaar Number")}</div>
-                  <div className="h-8 bg-slate-900/60 rounded-xl border border-slate-850 flex items-center justify-center px-3 font-mono text-xs text-slate-350 relative overflow-hidden">
+                  <div className="text-[9px] text-gray-400 dark:text-slate-500 font-bold uppercase tracking-wider">{tText("Aadhaar Number")}</div>
+                  <div className="h-8 bg-gray-50 dark:bg-slate-900/60 rounded-xl border border-gray-200 dark:border-slate-850 flex items-center justify-center px-3 font-mono text-xs text-gray-500 dark:text-slate-350 relative overflow-hidden">
                     <motion.span
                       animate={{
                         opacity: [1, 0, 1],
@@ -796,7 +796,7 @@ export default function SimpleHome() {
                       }}
                       className="absolute"
                     >
-                      1234 5678 9012
+                      xxxx xxxx 9012
                     </motion.span>
                     <motion.span
                       animate={{
@@ -807,16 +807,16 @@ export default function SimpleHome() {
                         duration: 3,
                         times: [0, 0.5, 1],
                       }}
-                      className="absolute text-emerald-450 font-bold"
+                      className="absolute text-emerald-500 dark:text-emerald-450 font-bold"
                     >
                       xxxx xxxx 9012
                     </motion.span>
                   </div>
                 </div>
-                <div className="flex justify-between items-center text-[9px] text-slate-500 pt-1 border-t border-slate-900">
+                <div className="flex justify-between items-center text-[9px] text-gray-400 dark:text-slate-500 pt-1 border-t border-gray-100 dark:border-slate-900">
                   <span>Status:</span>
-                  <span className="text-emerald-400 font-bold flex items-center gap-1">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
+                  <span className="text-emerald-500 dark:text-emerald-400 font-bold flex items-center gap-1">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-ping" />
                     Secured
                   </span>
                 </div>
@@ -826,36 +826,36 @@ export default function SimpleHome() {
             {/* Bento Card 2: Built for Indian portals (1-col bento block) */}
             <motion.div 
               whileHover={{ y: -4 }}
-              className="p-6 fn-clay rounded-3xl space-y-4 transition-all flex flex-col justify-between hover:shadow-[var(--fn-shadow-elevated)]"
+              className="p-6 bg-[var(--fn-surface)] border border-[var(--fn-border)] dark:border-white/10 shadow-[var(--fn-shadow-card)] rounded-3xl space-y-4 transition-all flex flex-col justify-between hover:shadow-[var(--fn-shadow-elevated)]"
             >
               <div className="space-y-3">
-                <div className="h-10 w-10 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center font-bold text-lg">🇮🇳</div>
-                <h3 className="font-extrabold text-sm text-white">{tText("Built for Indian portals")}</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
+                <div className="h-10 w-10 rounded-xl bg-orange-500/10 text-orange-500 dark:text-orange-400 flex items-center justify-center font-bold text-lg">🇮🇳</div>
+                <h3 className="font-extrabold text-sm text-[var(--fn-text-primary)] dark:text-white">{tText("Built for Indian portals")}</h3>
+                <p className="text-xs text-[var(--fn-text-secondary)] dark:text-slate-400 leading-relaxed">
                   {tText("Exact pixel dimensions and KB compression ranges for NSP, SVMCM, OASIS, NSDL/UTI — preconfigured to bypass verification errors.")}
                 </p>
               </div>
-              <div className="pt-2 border-t border-slate-900/40 flex justify-between items-center text-[9px] text-slate-500 font-bold uppercase tracking-wider">
-                <span>OASIS • NSP • SVMCM</span>
-                <span className="text-brand-primary">100% Match</span>
+              <div className="pt-2 border-t border-[var(--fn-border)] dark:border-slate-900/40 flex justify-between items-center text-[9px] font-bold uppercase tracking-wider">
+                <span className="text-[var(--fn-text-tertiary)] dark:text-gray-500">OASIS • NSP • SVMCM</span>
+                <span className="text-[var(--fn-accent-india)] dark:text-emerald-400">100% Match</span>
               </div>
             </motion.div>
 
             {/* Bento Card 3: No account, no wait (1-col bento block) */}
             <motion.div 
               whileHover={{ y: -4 }}
-              className="p-6 fn-clay rounded-3xl space-y-4 transition-all flex flex-col justify-between hover:shadow-[var(--fn-shadow-elevated)]"
+              className="p-6 bg-[var(--fn-surface)] border border-[var(--fn-border)] dark:border-white/10 shadow-[var(--fn-shadow-card)] rounded-3xl space-y-4 transition-all flex flex-col justify-between hover:shadow-[var(--fn-shadow-elevated)]"
             >
               <div className="space-y-3">
-                <div className="h-10 w-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold text-lg">⚡</div>
-                <h3 className="font-extrabold text-sm text-white">{tText("Zero delays or email blocks")}</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
+                <div className="h-10 w-10 rounded-xl bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 flex items-center justify-center font-bold text-lg">⚡</div>
+                <h3 className="font-extrabold text-sm text-[var(--fn-text-primary)] dark:text-white">{tText("Zero delays or email blocks")}</h3>
+                <p className="text-xs text-[var(--fn-text-secondary)] dark:text-slate-400 leading-relaxed">
                   {tText("Every tool functions instantly upon landing. No email login gates, no captcha loops, and no downloads wait queue.")}
                 </p>
               </div>
-              <div className="pt-2 border-t border-slate-900/40 flex justify-between items-center text-[9px] text-slate-500 font-bold uppercase tracking-wider">
-                <span>Direct Access</span>
-                <span className="text-emerald-400">100% Free</span>
+              <div className="pt-2 border-t border-[var(--fn-border)] dark:border-slate-900/40 flex justify-between items-center text-[9px] font-bold uppercase tracking-wider">
+                <span className="text-[var(--fn-text-tertiary)] dark:text-gray-500">Direct Access</span>
+                <span className="text-[var(--fn-accent-india)] dark:text-emerald-400">100% Free</span>
               </div>
             </motion.div>
           </div>

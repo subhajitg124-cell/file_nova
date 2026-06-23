@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useFileStore } from "@/store/useFileStore";
 import { useLanguage, useTranslation } from "@/lib/i18n";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
+import { BackHomeBar } from "@/components/BackHomeBar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { PlanBadge } from "@/components/PlanBadge";
 import Footer from "@/components/Footer";
@@ -263,6 +264,11 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
        {/* Main Container */}
        <main className="max-w-5xl mx-auto px-4 pt-10 pb-20 relative z-10">
          
+         {/* Back Navigation */}
+         <div className="mb-4">
+           <BackHomeBar />
+         </div>
+
          {/* Visual Breadcrumb */}
          <nav className="flex items-center gap-2 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-6" aria-label="Breadcrumb">
            <Link href="/" className="hover:text-primary transition-colors">Home</Link>

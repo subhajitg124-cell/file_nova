@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'wouter';
+import { BackHomeBar } from '@/components/BackHomeBar';
 import { motion } from 'framer-motion';
 import {
   Fingerprint, CreditCard, FileCheck2, UploadCloud, GraduationCap,
@@ -79,6 +80,9 @@ export default function IndiaToolsPage() {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.08),transparent_65%)] pointer-events-none z-0" />
 
       <main className="max-w-5xl mx-auto px-4 py-12 relative z-10 space-y-12">
+        {/* Back Navigation */}
+        <BackHomeBar />
+
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider" aria-label="Breadcrumb">
           <Link href="/" className="hover:text-primary transition-colors">Home</Link>
