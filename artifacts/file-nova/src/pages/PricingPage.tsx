@@ -143,11 +143,6 @@ function PlanCard({
   const isPro = id === "pro";
   const isElite = id === "elite";
 
-  const midPoint = Math.ceil(features.length / 2);
-  const firstHalf = features.slice(0, midPoint);
-  const secondHalf = features.slice(midPoint);
-  const displayFeaturesGrid = isPro; // ONLY Pro has the split features layout, Elite is unified vertical!
-
   const textPrimaryClass = id === "pro" ? "text-white" : "text-[var(--fn-text-primary)] dark:text-white";
   const textSecondaryClass = id === "pro" ? "text-white/80" : "text-[var(--fn-text-secondary)]";
 
@@ -241,8 +236,8 @@ function PlanCard({
         </span>
       )}
 
-      <div className={`flex flex-col h-full ${displayFeaturesGrid ? 'lg:grid lg:grid-cols-12 lg:gap-8 lg:items-stretch' : 'gap-5 flex-1'}`}>
-        <div className={`${displayFeaturesGrid ? 'lg:col-span-5 flex flex-col justify-between h-full' : 'flex flex-col h-full'}`}>
+      <div className="flex flex-col h-full gap-5 flex-1">
+        <div className="flex flex-col h-full">
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2">
               <h3 className={`${isPopular ? "text-2xl sm:text-3xl" : "text-xl"} font-black ${textPrimaryClass}`}>{title}</h3>
@@ -272,47 +267,18 @@ function PlanCard({
           </div>
         </div>
 
-        <div className={`${
-          displayFeaturesGrid 
-            ? `lg:col-span-6 mt-6 lg:mt-0 flex flex-col justify-center p-6 rounded-2xl border ${
-                id === "pro" 
-                  ? "bg-white/10 border-white/10" 
-                  : "bg-[var(--fn-surface-elevated)] border-[var(--fn-border)]"
-              }` 
-            : 'mt-6 border-t border-[var(--fn-border)] pt-4 flex-1'
-        }`}>
+        <div className={`mt-6 border-t pt-4 flex-1 ${id === "pro" ? "border-white/10" : "border-[var(--fn-border)]"}`}>
           <p className={`text-[10px] uppercase font-black tracking-wider ${id === "pro" ? "text-indigo-200" : "text-[var(--fn-text-tertiary)]"} mb-3`}>
             Features Unlocked:
           </p>
-          {displayFeaturesGrid ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
-              <ul className="space-y-2.5">
-                {firstHalf.map((feat) => (
-                  <li key={feat} className="flex items-start gap-2.5 text-white font-medium text-xs">
-                    <CheckCircle2 className={`h-4 w-4 shrink-0 mt-0.5 ${getFeatureIconClass()}`} />
-                    <span>{feat}</span>
-                  </li>
-                ))}
-              </ul>
-              <ul className="space-y-2.5">
-                {secondHalf.map((feat) => (
-                  <li key={feat} className="flex items-start gap-2.5 text-white font-medium text-xs">
-                    <CheckCircle2 className={`h-4 w-4 shrink-0 mt-0.5 ${getFeatureIconClass()}`} />
-                    <span>{feat}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : (
-            <ul className="space-y-2.5">
-              {features.map((feat) => (
-                <li key={feat} className="flex items-start gap-2.5 text-[var(--fn-text-secondary)] font-medium text-xs">
-                  <CheckCircle2 className={`h-4 w-4 shrink-0 mt-0.5 ${getFeatureIconClass()}`} />
-                  <span>{feat}</span>
-                </li>
-              ))}
-            </ul>
-          )}
+          <ul className="space-y-2.5">
+            {features.map((feat) => (
+              <li key={feat} className={`flex items-start gap-2.5 ${id === "pro" ? "text-white" : "text-[var(--fn-text-secondary)]"} font-medium text-xs`}>
+                <CheckCircle2 className={`h-4 w-4 shrink-0 mt-0.5 ${getFeatureIconClass()}`} />
+                <span>{feat}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>
