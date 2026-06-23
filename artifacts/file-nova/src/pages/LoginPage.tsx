@@ -224,7 +224,7 @@ const isValidationError = (err: string): boolean => {
         <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
         <div className="relative z-10 flex items-center gap-2.5">
           <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-primary/10 border border-primary/20">
-            <img src="/logo.png" alt="FileNova logo" className="h-6 w-auto" />
+            <img src="/logo.png" alt="FileNova - AI PDF & Image Tools" className="h-6 w-auto" />
           </div>
           <div>
             <span className="font-extrabold text-base tracking-tight text-white">FileNova AI</span>

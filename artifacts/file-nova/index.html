@@ -4,10 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- ✅ SEO: Primary Title & Description (SPA fallback — per-page titles set by ToolSEO.tsx) -->
-    <title>FileNova – Free PDF & Image Tools for India | Aadhaar, PAN, Scholarship</title>
-    <meta name="description" content="Free online PDF and image tools for Indian students and professionals. Merge, compress, split PDFs. Aadhaar masking, PAN card resize, scholarship ZIP maker, Hindi & Bengali OCR. 100% browser-based — files never uploaded." />
-    <meta name="keywords" content="free pdf tools india, aadhaar masking online free, pan card resize online, scholarship zip maker, compress pdf india, resize photo scholarship, hindi ocr free, pdf tools for students india" />
+    <!-- Site Name for Google Search -->
+    <meta name="apple-mobile-web-app-title" content="FileNova" />
+    <meta name="application-name" content="FileNova" />
+
+    <!-- SEO: Primary Title & Description (SPA fallback) -->
+    <title>FileNova – AI PDF & Image Tools | Fast, Secure & Free</title>
+    <meta name="description" content="FileNova offers 30+ free online PDF and image tools for Indian students and professionals. Merge PDF, compress PDF, Aadhaar masking, PAN resize, scholarship ZIP, OCR in Hindi & Bengali. 100% browser-based, files never uploaded." />
+    <meta name="keywords" content="filenova, free pdf tools india, ai pdf tools, pdf editor online free, pdf compressor, aadhaar masking online free, pan card resize online, scholarship zip maker, compress pdf india, ocr hindi bengali free" />
 
     <!-- Geographic targeting -->
     <meta name="geo.region" content="IN" />
@@ -16,9 +20,9 @@
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="googlebot" content="index, follow" />
 
-    <!-- Open Graph (WhatsApp link previews) -->
-    <meta property="og:title" content="FileNova – Free PDF & Image Tools for India" />
-    <meta property="og:description" content="Aadhaar masking, PAN resize, scholarship ZIP, compress PDF, OCR. 100% browser-based — files never uploaded to any server." />
+    <!-- Open Graph -->
+    <meta property="og:title" content="FileNova – AI PDF & Image Tools | Fast, Secure & Free" />
+    <meta property="og:description" content="30+ free online PDF and image tools. Merge, compress, convert PDFs. Aadhaar masking, PAN resize, scholarship ZIP, OCR. 100% browser-based, files never uploaded." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://filenova.in" />
     <meta property="og:site_name" content="FileNova" />
@@ -30,8 +34,8 @@
     <!-- Twitter / X Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@filenovaapp" />
-    <meta name="twitter:title" content="FileNova – Free PDF & Image Tools for India" />
-    <meta name="twitter:description" content="Aadhaar masking, PAN resize, scholarship ZIP, compress PDF — 100% browser-based." />
+    <meta name="twitter:title" content="FileNova – AI PDF & Image Tools | Fast, Secure & Free" />
+    <meta name="twitter:description" content="30+ free online PDF and image tools. Merge, compress, convert PDFs. Aadhaar masking, PAN resize, scholarship ZIP, OCR." />
     <meta name="twitter:image" content="https://filenova.in/og-default.png" />
 
     <!-- Canonical -->
@@ -40,29 +44,32 @@
     <link rel="alternate" hreflang="x-default" href="https://filenova.in" />
 
     <!-- Favicon & Icons -->
-    <link rel="icon" href="/favicon.ico" sizes="any" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="icon" href="/icon.png" type="image/png" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/icon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="mask-icon" href="/favicon.svg" color="#6366f1" />
     <meta name="theme-color" content="#6366f1" />
 
     <!-- Web App Manifest (PWA) -->
     <link rel="manifest" href="/manifest.json" />
 
-    <!-- DNS Prefetch for external resources -->
+    <!-- DNS Prefetch -->
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
     <link rel="dns-prefetch" href="https://accounts.google.com" />
     <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
 
-    <!-- Preconnect to critical origins -->
+    <!-- Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-    <!-- Fonts with display=swap for better CLS -->
+    <!-- Fonts with display=swap -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
-    <!-- Preload critical resources for LCP improvement -->
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/logo.png" as="image" type="image/png" />
     <link rel="preload" href="/pdf.worker.min.js" as="script" />
 
     <!-- Google AdSense -->
@@ -71,12 +78,13 @@
     <!-- Google Identity Services SDK -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-    <!-- Inline critical JSON-LD: Organization + WebSite schema (visible before JS hydration) -->
+    <!-- Inline critical JSON-LD: Organization + WebSite schema -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Organization",
       "name": "FileNova",
+      "alternateName": "FileNova AI",
       "url": "https://filenova.in",
       "logo": "https://filenova.in/logo.png",
       "description": "Free online PDF and image tools built for India — Aadhaar masking, PAN card resize, scholarship ZIP maker, Hindi OCR, PDF compress.",
@@ -91,6 +99,7 @@
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "FileNova",
+      "alternateName": "FileNova AI",
       "url": "https://filenova.in",
       "description": "Free online PDF and image tools for Indian students and professionals.",
       "inLanguage": ["en-IN", "hi-IN", "bn-IN"],

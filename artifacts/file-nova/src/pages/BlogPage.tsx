@@ -36,7 +36,7 @@ export default function BlogPage() {
           {blogPosts.map((post) => (
             <Link key={post.slug} href={`/blog/${post.slug}`} className="group overflow-hidden rounded-lg border border-border bg-card transition hover:border-primary/50 hover:shadow-premium">
               <div className="aspect-[16/9] overflow-hidden bg-muted">
-                <img src={post.thumbnail} alt="" className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                <img src={post.thumbnail} alt={`${post.title} - FileNova Blog`} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" loading="lazy" />
               </div>
               <div className="space-y-3 p-5">
                 <div className="flex flex-wrap items-center gap-3 text-[11px] font-bold text-muted-foreground">

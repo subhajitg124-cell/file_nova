@@ -4,18 +4,9 @@ import { ArrowLeft, CalendarDays, Clock, Copy, MessageCircle, Share2 } from "luc
 import { getBlogPost } from "@/data/blogPosts";
 import NotFound from "@/pages/not-found";
 import { toast } from "sonner";
+import { useHead } from "@unhead/react";
 
 const SITE_URL = "https://filenova.in";
-
-function setMeta(name: string, content: string, attr: "name" | "property" = "name") {
-  let element = document.head.querySelector<HTMLMetaElement>(`meta[${attr}="${name}"]`);
-  if (!element) {
-    element = document.createElement("meta");
-    element.setAttribute(attr, name);
-    document.head.appendChild(element);
-  }
-  element.content = content;
-}
 
 export default function BlogPostPage() {
   const [, params] = useRoute("/blog/:slug");
@@ -23,46 +14,29 @@ export default function BlogPostPage() {
 
   useEffect(() => {
     if (!post) return;
-
-    const url = `${SITE_URL}/blog/${post.slug}`;
     document.title = `${post.title} | FileNova Blog`;
-    setMeta("description", post.description);
-    setMeta("keywords", post.keywords);
-    setMeta("og:title", post.title, "property");
-    setMeta("og:description", post.description, "property");
-    setMeta("og:type", "article", "property");
-    setMeta("og:url", url, "property");
-    setMeta("og:image", `${SITE_URL}${post.thumbnail}`, "property");
-    setMeta("twitter:card", "summary_large_image");
-    setMeta("twitter:title", post.title);
-    setMeta("twitter:description", post.description);
-
-    const schema = {
-      "@context": "https://schema.org",
-      "@type": "Article",
-      headline: post.title,
-      description: post.description,
-      image: `${SITE_URL}${post.thumbnail}`,
-      datePublished: post.date,
-      dateModified: post.date,
-      author: { "@type": "Organization", name: "FileNova" },
-      publisher: {
-        "@type": "Organization",
-        name: "FileNova",
-        logo: { "@type": "ImageObject", url: `${SITE_URL}/logo.png` },
-      },
-      mainEntityOfPage: url,
-    };
-
-    let script = document.getElementById("filenova-article-schema") as HTMLScriptElement | null;
-    if (!script) {
-      script = document.createElement("script");
-      script.id = "filenova-article-schema";
-      script.type = "application/ld+json";
-      document.head.appendChild(script);
-    }
-    script.textContent = JSON.stringify(schema);
   }, [post]);
+
+  useHead({
+    title: post ? `${post.title} | FileNova Blog` : "Blog Post | FileNova",
+    meta: post ? [
+      { name: "description", content: post.description },
+      { name: "keywords", content: post.keywords },
+      { property: "og:title", content: `${post.title} | FileNova Blog` },
+      { property: "og:description", content: post.description },
+      { property: "og:type", content: "article" },
+      { property: "og:url", content: `${SITE_URL}/blog/${post.slug}` },
+      { property: "og:image", content: `${SITE_URL}${post.thumbnail}` },
+      { property: "og:site_name", content: "FileNova" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: `${post.title} | FileNova Blog` },
+      { name: "twitter:description", content: post.description },
+      { name: "twitter:image", content: `${SITE_URL}${post.thumbnail}` },
+    ] : [],
+    link: post ? [
+      { rel: "canonical", href: `${SITE_URL}/blog/${post.slug}` },
+    ] : [],
+  });
 
   if (!post) return <NotFound />;
 
@@ -111,7 +85,7 @@ export default function BlogPostPage() {
         </div>
 
         <div className="mt-8 overflow-hidden rounded-lg border border-border bg-card">
-          <img src={post.thumbnail} alt="" className="h-auto w-full object-cover" />
+          <img src={post.thumbnail} alt={`${post.title} - FileNova Blog`} className="h-auto w-full object-cover" loading="lazy" width="1200" height="630" />
         </div>
 
         <div className="prose prose-slate dark:prose-invert mt-10 max-w-none prose-headings:font-black prose-p:leading-8">

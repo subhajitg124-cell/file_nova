@@ -1,20 +1,47 @@
 {
-  "name": "FileNova",
+  "name": "FileNova – AI PDF & Image Tools",
   "short_name": "FileNova",
-  "description": "Free PDF tools for Indian users",
+  "description": "30+ free online PDF and image tools for Indian students. Merge, compress, convert PDFs. Aadhaar masking, PAN resize, scholarship ZIP, OCR. Browser-based and secure.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f0f1a",
   "theme_color": "#6366f1",
+  "categories": ["productivity", "utilities", "education"],
+  "lang": "en-IN",
+  "dir": "ltr",
   "icons": [
     {
       "src": "/icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/icon-512x512.png",
       "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-16x16.png",
+      "sizes": "16x16",
       "type": "image/png"
     }
   ],

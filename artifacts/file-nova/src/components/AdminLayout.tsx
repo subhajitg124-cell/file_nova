@@ -125,7 +125,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
           
           <div className="flex items-center gap-2">
             <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center p-1.5 shadow-md shadow-indigo-500/10">
-              <img src="/logo.png" alt="Logo" className="h-full w-auto object-contain" />
+              <img src="/logo.png" alt="FileNova Admin" className="h-full w-auto object-contain" />
             </div>
             <div>
               <div className="flex items-center gap-1.5">

@@ -1,18 +1,52 @@
+# FileNova robots.txt
+# Production: https://filenova.in/robots.txt
+
 User-agent: *
 Allow: /
+Allow: /tools/
+Allow: /blog/
+Allow: /pdf-tools/
+Allow: /image-tools/
+Allow: /video-tools/
+Allow: /document-tools/
+Allow: /pricing
+Allow: /contact
+Allow: /resources
+Allow: /student-offer
+Allow: /india-tools
+Allow: /workflows
+Allow: /privacy
+Allow: /terms
+Allow: /cookie-policy
 Disallow: /api/
 Disallow: /admin/
 Disallow: /dashboard/
 Disallow: /workspace/
+Disallow: /nova-control/
+Disallow: /nova-login/
+Disallow: /ref/
+Disallow: /login
+Disallow: /profile
+Disallow: /history
 
-# Allow Googlebot to crawl all tool pages
 User-agent: Googlebot
 Allow: /
 Disallow: /api/
 Disallow: /admin/
+Disallow: /nova-control/
 
-# Crawl-delay hint for bandwidth-limited bots
+User-agent: Googlebot-Image
+Allow: /
+
 User-agent: Bingbot
 Crawl-delay: 10
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+
+User-agent: Twitterbot
+Allow: /
+Allow: /og-default.png
+Allow: /logo.png
 
 Sitemap: https://filenova.in/sitemap.xml

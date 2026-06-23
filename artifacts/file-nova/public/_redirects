@@ -1,17 +1,23 @@
-#!/usr/bin/env node
 # Don't redirect static files and assets
 /favicon.ico 200
 /favicon.svg 200
 /icon.png 200
 /icon-192x192.png 200
 /icon-512x512.png 200
+/icon-32x32.png 200
+/icon-16x16.png 200
 /logo.png 200
 /logo.svg 200
 /apple-touch-icon.png 200
+/android-chrome-192x192.png 200
+/android-chrome-512x512.png 200
 /opengraph.jpg 200
+/og-default.png 200
 /aadhaar_mask_mockup.png 200
 /document_processing_mockup.png 200
 /photo_resize_mockup.png 200
+/portal_photo_resize_guide.png 200
+/aadhaar_privacy_guide.png 200
 /*.json 200
 /*.txt 200
 /*.xml 200

@@ -1,56 +1,61 @@
 import { useHead } from "@unhead/react";
 import { useLocation } from "wouter";
 import { TOOL_META } from "./toolMeta";
+import { useEffect } from "react";
 
 export function ToolSEO() {
   const [pathname] = useLocation();
   const meta = TOOL_META[pathname] ?? TOOL_META["/"];
 
-  // Build JSON-LD array: SoftwareApplication + FAQPage (if present) + BreadcrumbList
+  const siteName = "FileNova";
+
+  // Set document title with proper site name
+  useEffect(() => {
+    document.title = meta.title;
+  }, [meta.title]);
+
   const jsonLdScripts: Record<string, unknown>[] = [];
 
-  // 1. SoftwareApplication schema
-  const softwareApp: Record<string, unknown> = {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    name: meta.schemaName ?? meta.title.split("–")[0].split("|")[0].trim(),
-    description: meta.description,
-    url: meta.canonical,
-    applicationCategory: meta.schemaCategory ?? "UtilitiesApplication",
-    operatingSystem: "Web Browser",
-    inLanguage: ["en-IN", "hi-IN", "bn-IN"],
-    isAccessibleForFree: true,
-    offers: {
-      "@type": "Offer",
-      price: "0",
-      priceCurrency: "INR",
-      availability: "https://schema.org/InStock",
-    },
-    provider: {
-      "@type": "Organization",
-      name: "FileNova",
-      url: "https://filenova.in",
-      logo: "https://filenova.in/logo.png",
-      sameAs: [
-        "https://twitter.com/filenovaapp",
-        "https://www.linkedin.com/company/filenova",
-      ],
-    },
-  };
-
-  // Aggregate rating (social proof, increases click-through)
-  if (meta.ratingValue && meta.ratingCount) {
-    softwareApp.aggregateRating = {
-      "@type": "AggregateRating",
-      ratingValue: meta.ratingValue,
-      ratingCount: meta.ratingCount,
-      bestRating: "5",
-      worstRating: "1",
-    };
+  // 1. SoftwareApplication schema (for tool pages)
+  const isToolPage = pathname !== "/" && !pathname.startsWith("/admin") && !pathname.startsWith("/nova");
+  if (isToolPage && meta.schemaName) {
+    jsonLdScripts.push({
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      name: meta.schemaName ?? meta.title.split("–")[0].split("|")[0].trim(),
+      description: meta.description,
+      url: meta.canonical,
+      applicationCategory: meta.schemaCategory ?? "UtilitiesApplication",
+      operatingSystem: "Web Browser",
+      inLanguage: ["en-IN", "hi-IN", "bn-IN"],
+      isAccessibleForFree: true,
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "INR",
+        availability: "https://schema.org/InStock",
+      },
+      aggregateRating: meta.ratingValue && meta.ratingCount ? {
+        "@type": "AggregateRating",
+        ratingValue: meta.ratingValue,
+        ratingCount: meta.ratingCount,
+        bestRating: "5",
+        worstRating: "1",
+      } : undefined,
+      provider: {
+        "@type": "Organization",
+        name: "FileNova",
+        url: "https://filenova.in",
+        logo: "https://filenova.in/logo.png",
+        sameAs: [
+          "https://twitter.com/filenovaapp",
+          "https://www.linkedin.com/company/filenova",
+        ],
+      },
+    });
   }
-  jsonLdScripts.push(softwareApp);
 
-  // 2. FAQPage schema (enables rich results accordion in Google SERP)
+  // 2. FAQPage schema
   if (meta.jsonLdFaq && meta.jsonLdFaq.length > 0) {
     jsonLdScripts.push({
       "@context": "https://schema.org",
@@ -68,33 +73,35 @@ export function ToolSEO() {
 
   // 3. BreadcrumbList
   const pathParts = pathname.split("/").filter(Boolean);
-  if (pathParts.length > 0) {
+  if (pathParts.length > 0 && pathname !== "/") {
+    const breadcrumbItems = [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "FileNova",
+        item: "https://filenova.in",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: meta.schemaName ?? meta.title.split("–")[0].split("|")[0].trim(),
+        item: meta.canonical,
+      },
+    ];
     jsonLdScripts.push({
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
-      itemListElement: [
-        {
-          "@type": "ListItem",
-          position: 1,
-          name: "FileNova",
-          item: "https://filenova.in",
-        },
-        {
-          "@type": "ListItem",
-          position: 2,
-          name: meta.schemaName ?? pathParts[0].replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
-          item: meta.canonical,
-        },
-      ],
+      itemListElement: breadcrumbItems,
     });
   }
 
-  // 4. WebSite schema with SearchAction (sitelinks search box)
+  // 4. WebSite schema with SearchAction (homepage only for unique schema)
   if (pathname === "/") {
     jsonLdScripts.push({
       "@context": "https://schema.org",
       "@type": "WebSite",
       name: "FileNova",
+      alternateName: "FileNova AI",
       url: "https://filenova.in",
       description: "Free online PDF and image tools for Indian students and professionals.",
       inLanguage: ["en-IN", "hi-IN", "bn-IN"],
@@ -108,14 +115,14 @@ export function ToolSEO() {
       },
     });
 
-    // Organization schema (homepage only)
     jsonLdScripts.push({
       "@context": "https://schema.org",
       "@type": "Organization",
       name: "FileNova",
+      alternateName: "FileNova AI",
       url: "https://filenova.in",
       logo: "https://filenova.in/logo.png",
-      description: "Free online PDF and image tools built for India — Aadhaar masking, PAN resize, scholarship ZIP, OCR.",
+      description: "Free online PDF and image tools built for India — Aadhaar masking, PAN resize, scholarship ZIP, OCR, AI PDF tools.",
       contactPoint: {
         "@type": "ContactPoint",
         contactType: "customer support",
@@ -128,23 +135,25 @@ export function ToolSEO() {
     });
   }
 
+  // Determine index/follow rules
+  const isAdmin = pathname.startsWith("/admin") || pathname.startsWith("/nova");
+  const robotsContent = isAdmin ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1";
+
   useHead({
     title: meta.title,
     meta: [
       { name: "description", content: meta.description },
       { name: "keywords", content: meta.keywords },
-      { name: "robots", content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" },
-      { name: "googlebot", content: "index, follow" },
-      // Geographic targeting — India
+      { name: "robots", content: robotsContent },
+      { name: "googlebot", content: isAdmin ? "noindex, nofollow" : "index, follow" },
       { name: "geo.region", content: "IN" },
       { name: "geo.country", content: "India" },
-      { name: "language", content: "en-IN" },
-      // Open Graph (WhatsApp / Facebook previews)
-      { property: "og:title", content: meta.title },
-      { property: "og:description", content: meta.description },
+      // Open Graph
+      { property: "og:title", content: meta.ogTitle ?? meta.title },
+      { property: "og:description", content: meta.ogDescription ?? meta.description },
       { property: "og:url", content: meta.canonical },
-      { property: "og:type", content: "website" },
-      { property: "og:site_name", content: "FileNova" },
+      { property: "og:type", content: pathname.startsWith("/blog/") ? "article" : "website" },
+      { property: "og:site_name", content: siteName },
       { property: "og:image", content: meta.ogImage ?? "https://filenova.in/og-default.png" },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
@@ -152,8 +161,8 @@ export function ToolSEO() {
       // Twitter / X Card
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@filenovaapp" },
-      { name: "twitter:title", content: meta.title },
-      { name: "twitter:description", content: meta.description },
+      { name: "twitter:title", content: meta.ogTitle ?? meta.title },
+      { name: "twitter:description", content: meta.ogDescription ?? meta.description },
       { name: "twitter:image", content: meta.ogImage ?? "https://filenova.in/og-default.png" },
     ],
     link: [
