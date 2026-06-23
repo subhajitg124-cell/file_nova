@@ -561,6 +561,11 @@ export default function PricingPage() {
       <Navbar />
       <main className="flex-1 mx-auto max-w-7xl px-4 py-12 space-y-12 pb-24 w-full">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center max-w-3xl mx-auto space-y-6">
+          <div className="flex justify-center mb-2">
+            <Link href="/" className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--fn-text-secondary)] hover:text-[var(--fn-text-primary)] transition-colors py-1.5 px-3.5 rounded-full border border-[var(--fn-border)] bg-[var(--fn-surface-elevated)] hover:bg-[var(--fn-surface)] shadow-sm">
+              <ChevronLeft className="h-3.5 w-3.5" /> Back to Home
+            </Link>
+          </div>
           <div className="fn-glass rounded-3xl px-8 py-4 inline-block shadow-sm">
             <span className="text-xs font-black text-[var(--fn-accent-primary)] uppercase tracking-wider">Simple, transparent pricing</span>
           </div>
