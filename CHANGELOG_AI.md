@@ -175,6 +175,11 @@ Every AI agent (Kilo Code, Codex, Claude Code, Gemini CLI, future agents) MUST:
   - WorkspaceFooter.tsx — bottom panel with compliance tips and process button
 - Exported COMPLIANCE_TIPS from ToolWorkspace.tsx for use by WorkspaceFooter
 
+### UI / Layout
+- Created shared BackHomeBar component for consistent back-navigation across sub-pages
+- Added BackHomeBar to PricingPage, IndiaToolsPage, Home (workspace), and ToolPageLayout
+- Replaced PricingPage's inline "Back to Home" link with BackHomeBar
+
 ---
 
 ## Agent Interaction Log
