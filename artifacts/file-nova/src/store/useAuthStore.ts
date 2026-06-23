@@ -75,6 +75,35 @@ const createLocalUser = (email: string, name: string | null, phoneNumber: string
 
 const processUser = (user: UserProfile | null): UserProfile | null => {
   if (!user) return null;
+  
+  if (!user.referralCode) {
+    const REFERRAL_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let suffix = "";
+    for (let i = 0; i < 5; i += 1) {
+      suffix += REFERRAL_ALPHABET[Math.floor(Math.random() * REFERRAL_ALPHABET.length)];
+    }
+    user.referralCode = `FN-${suffix}`;
+    
+    // Save back to local storage if it was loaded from there
+    try {
+      const raw = localStorage.getItem(LOCAL_USER_KEY);
+      if (raw) {
+        const localSession = JSON.parse(raw);
+        if (localSession && localSession.id === user.id) {
+          localSession.referralCode = user.referralCode;
+          localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(localSession));
+        }
+      }
+      
+      const localUsers = getLocalUsers();
+      const key = user.email.toLowerCase();
+      if (localUsers[key]) {
+        localUsers[key].user.referralCode = user.referralCode;
+        localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(localUsers));
+      }
+    } catch (_) {}
+  }
+
   if (user.email?.toLowerCase() === 'subhajitgho123@gmail.com') {
     return {
       ...user,

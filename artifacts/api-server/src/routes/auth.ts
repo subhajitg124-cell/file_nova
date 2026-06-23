@@ -6,7 +6,7 @@ import { db, usersTable, sessionsTable, subscriptionsTable } from "@workspace/db
 import { eq, or, desc } from "drizzle-orm";
 import { hashPassword, verifyPassword } from "../utils/hash";
 import { authMiddleware, AuthRequest } from "../middlewares/auth";
-import { completeReferral, generateUniqueReferralCode } from "../services/referralService";
+import { completeReferral, generateUniqueReferralCode, ensureUserReferralCode } from "../services/referralService";
 import { logger } from "../lib/logger";
 import { sendOtpEmail } from "../services/emailService";
 
@@ -325,6 +325,7 @@ router.get("/me", authMiddleware, async (req: AuthRequest, res): Promise<void> =
       return;
     }
 
+    const referralCode = await ensureUserReferralCode(req.user.id);
     const subscription = await getUserSubscriptionInfo(req.user.id);
 
     sendJson(res, {
@@ -338,7 +339,7 @@ router.get("/me", authMiddleware, async (req: AuthRequest, res): Promise<void> =
         role: req.user.role,
         premiumTier: req.user.premiumTier,
         premiumEnabled: req.user.premiumEnabled,
-        referralCode: req.user.referralCode,
+        referralCode,
       },
       subscription,
     });

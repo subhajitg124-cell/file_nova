@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
-import { ArrowLeft, Copy, Gift, MessageCircle, Sparkles, Users, RefreshCw } from "lucide-react";
+import { ArrowLeft, Copy, Gift, MessageCircle, Sparkles, Users, RefreshCw, Send, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -35,6 +35,9 @@ async function fetchWithTimeout(url: string, init?: RequestInit, timeoutMs = FET
 export default function ReferralPage() {
   const { user, fetchMe, initialized, openLoginModal } = useAuthStore();
   const [referralCode, setReferralCode] = useState(user?.referralCode || "");
+  const [referralLink, setReferralLink] = useState(
+    user?.referralCode ? `https://filenova.in/ref?code=${user.referralCode}` : ""
+  );
   const [stats, setStats] = useState<ReferralStats>({ totalReferred: 0, successfulSignups: 0, rewardsEarned: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -49,6 +52,9 @@ export default function ReferralPage() {
     if (user) {
       setSessionExpired(false);
       setReferralCode(user.referralCode || "");
+      if (user.referralCode) {
+        setReferralLink(`https://filenova.in/ref?code=${user.referralCode}`);
+      }
     }
   }, [user]);
 
@@ -64,7 +70,9 @@ export default function ReferralPage() {
     }
 
     if (isLocalUser) {
-      setReferralCode(user.referralCode || "FN-MOCK12");
+      const code = user.referralCode || "FN-MOCK12";
+      setReferralCode(code);
+      setReferralLink(`https://filenova.in/ref?code=${code}`);
       setStats({
         totalReferred: 3,
         successfulSignups: 1,
@@ -106,6 +114,7 @@ export default function ReferralPage() {
 
         if (!cancelled) {
           setReferralCode(data.referralCode);
+          setReferralLink(data.referralLink || `https://filenova.in/ref?code=${data.referralCode}`);
           setStats(data.stats);
         }
       } catch (err: any) {
@@ -134,12 +143,6 @@ export default function ReferralPage() {
     return () => { cancelled = true; };
   }, [user?.id, isLocalUser, retryCount, initialized]);
 
-  const referralLink = useMemo(() => referralCode ? `https://filenova.in/ref?code=${referralCode}` : "", [referralCode]);
-  const whatsappMessage = useMemo(
-    () => referralLink ? `Join FileNova using my link: ${referralLink}` : "",
-    [referralLink]
-  );
-
   const copyLink = async () => {
     if (!referralLink) return;
     await navigator.clipboard.writeText(referralLink);
@@ -151,6 +154,24 @@ export default function ReferralPage() {
     setLoading(true);
     fetchMe();
     setRetryCount((c) => c + 1);
+  };
+
+  const navigatorShareSupported = typeof navigator !== "undefined" && !!navigator.share;
+
+  const shareNative = async () => {
+    if (!referralLink) return;
+    try {
+      await navigator.share({
+        title: "FileNova",
+        text: "Join FileNova using my link and get free Pro access!",
+        url: referralLink,
+      });
+      toast.success("Shared successfully!");
+    } catch (err: any) {
+      if (err.name !== "AbortError") {
+        toast.error("Failed to share link.");
+      }
+    }
   };
 
   return (
@@ -245,9 +266,9 @@ export default function ReferralPage() {
                     Retry
                   </button>
                 ) : referralLink ? (
-                  <div className="mt-4">
+                  <div className="mt-4 flex flex-wrap gap-3">
                     <a
-                      href={`https://wa.me/?text=Join FileNova using my link: ${encodeURIComponent(referralLink)}`}
+                      href={`https://wa.me/?text=Join%20FileNova%20using%20my%20link%3A%20${encodeURIComponent(referralLink)}`}
                       target="_blank"
                       rel="noreferrer"
                       className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-xs font-black text-white hover:bg-emerald-700 transition"
@@ -255,6 +276,24 @@ export default function ReferralPage() {
                       <MessageCircle className="h-4 w-4" />
                       Share on WhatsApp
                     </a>
+                    <a
+                      href={`https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent("Join FileNova using my link:")}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 rounded-xl bg-[#0088cc] hover:bg-[#0077b5] px-4 py-3 text-xs font-black text-white transition shadow-sm"
+                    >
+                      <Send className="h-4 w-4" />
+                      Share on Telegram
+                    </a>
+                    {navigatorShareSupported && (
+                      <button
+                        onClick={shareNative}
+                        className="inline-flex items-center gap-2 rounded-xl bg-primary hover:bg-primary/90 px-4 py-3 text-xs font-black text-primary-foreground transition shadow-glow"
+                      >
+                        <Share2 className="h-4 w-4" />
+                        System Share
+                      </button>
+                    )}
                   </div>
                 ) : null}
               </div>

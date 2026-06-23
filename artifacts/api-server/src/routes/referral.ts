@@ -57,6 +57,7 @@ router.get("/stats", requireAuth, async (req: AuthRequest, res): Promise<void> =
     res.json({
       success: true,
       referralCode,
+      referralLink: `https://filenova.in/ref?code=${referralCode}`,
       stats: {
         totalReferred: referrals.length,
         successfulSignups: successful,

@@ -90,14 +90,16 @@ mockDb.users.set(defaultAdminId, {
 });
 
 function getParamForField(sql: string, fieldName: string, params: any[]): any {
-  const regex = new RegExp(`"${fieldName}"\\s*=\\s*\\$(\\d+)`, "i");
+  const pattern = `(?:\\"[a-zA-Z0-9_]+\\"\\.)?\\"${fieldName}\\"\\s*=\\s*\\$(\\d+)`;
+  const regex = new RegExp(pattern, "i");
   const match = sql.match(regex);
   if (match) {
     const idx = parseInt(match[1]) - 1;
     return params[idx];
   }
   
-  const regexNoQuotes = new RegExp(`${fieldName}\\s*=\\s*\\$(\\d+)`, "i");
+  const patternNoQuotes = `(?:[a-zA-Z0-9_]+\\.)?${fieldName}\\s*=\\s*\\$(\\d+)`;
+  const regexNoQuotes = new RegExp(patternNoQuotes, "i");
   const matchNoQuotes = sql.match(regexNoQuotes);
   if (matchNoQuotes) {
     const idx = parseInt(matchNoQuotes[1]) - 1;

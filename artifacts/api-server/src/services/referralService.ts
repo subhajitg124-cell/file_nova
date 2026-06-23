@@ -7,7 +7,7 @@ const REWARD_DAYS = 7;
 
 function makeReferralCode() {
   let suffix = "";
-  for (let i = 0; i < 6; i += 1) {
+  for (let i = 0; i < 5; i += 1) {
     suffix += REFERRAL_ALPHABET[crypto.randomInt(0, REFERRAL_ALPHABET.length)];
   }
   return `FN-${suffix}`;
