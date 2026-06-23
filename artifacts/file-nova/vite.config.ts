@@ -30,7 +30,7 @@ export default defineConfig(() => {
         registerType: 'autoUpdate',
         includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
         manifest: {
-          name: 'FileNova - Free PDF Tools for India',
+          name: 'FileNova',
           short_name: 'FileNova',
           description: 'Free online PDF tools built for India. Merge, split, compress, convert PDFs and manage Indian government documents offline.',
           theme_color: '#4f46e5',
