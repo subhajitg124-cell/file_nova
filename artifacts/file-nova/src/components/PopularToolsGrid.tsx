@@ -195,8 +195,8 @@ function ToolCard({ tool, index }: ToolCardProps) {
       className={`
         group relative overflow-hidden
         rounded-2xl p-4 text-left
-        bg-white/5 dark:bg-white/3
-        border border-white/10 dark:border-white/8
+        bg-card
+        border border-border
         backdrop-blur-md
         shadow-lg ${tool.glow} hover:shadow-xl
         transition-all duration-300 ease-out
@@ -225,7 +225,7 @@ function ToolCard({ tool, index }: ToolCardProps) {
             className={`
               w-9 h-9 rounded-xl flex items-center justify-center
               bg-gradient-to-br ${tool.gradient}
-              border border-white/10
+              border border-border/20
               transition-transform duration-300 group-hover:scale-110 group-hover:rotate-[-3deg]
             `}
           >
@@ -239,8 +239,8 @@ function ToolCard({ tool, index }: ToolCardProps) {
                 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full
                 ${
                   tool.badge === "AI"
-                    ? "bg-violet-500/20 text-violet-300 border border-violet-400/30"
-                    : "bg-orange-500/20 text-orange-300 border border-orange-400/30"
+                    ? "bg-violet-500/10 dark:bg-violet-500/20 text-violet-600 dark:text-violet-300 border border-violet-400/30"
+                    : "bg-orange-500/10 dark:bg-orange-500/20 text-orange-600 dark:text-orange-300 border border-orange-400/30"
                 }
               `}
             >

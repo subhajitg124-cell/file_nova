@@ -96,6 +96,99 @@
   --card-radius: 24px;
   --card-border: rgba(15, 23, 42, 0.08);
   --card-active-shadow: 0 8px 30px rgba(99, 102, 241, 0.15);
+
+  /* Legacy palette shims theme variables */
+  --shim-slate-250: #1e293b;
+  --shim-slate-305: #334155;
+  --shim-slate-350: #334155;
+  --shim-slate-355: #334155;
+  --shim-slate-450: #475569;
+  --shim-slate-455: #475569;
+  --shim-slate-550: #64748b;
+  --shim-slate-555: #64748b;
+  --shim-slate-650: #64748b;
+  --shim-gray-250:  #1f2937;
+  --shim-indigo-650: #4f46e5;
+  --shim-violet-350: #6d28d9;
+  --shim-violet-450: #7c3aed;
+  --shim-sky-450:    #0369a1;
+  --shim-emerald-450: #047857;
+}
+
+/* ── Light Mode Custom Class Overrides (Contrast & Readability) ──────────── */
+:root {
+  /* Force inputs, selects, textareas and options to be dark text on white background in light mode */
+  input, select, textarea {
+    background-color: #ffffff !important;
+    color: var(--brand-ink) !important;
+    border-color: rgba(15, 23, 42, 0.12) !important;
+  }
+  
+  select option {
+    background-color: #ffffff !important;
+    color: var(--brand-ink) !important;
+  }
+
+  /* Override low-contrast text shims in light mode */
+  .text-slate-400 { color: #576574 !important; }
+  .text-slate-300 { color: #354252 !important; }
+  .text-slate-200 { color: #1e293b !important; }
+  .text-slate-100 { color: #0f172a !important; }
+
+  /* Override dark backgrounds/overlays to light backgrounds in light mode */
+  .bg-slate-955,
+  .bg-slate-950\/60,
+  .bg-slate-950\/80,
+  .bg-slate-955\/60,
+  .bg-slate-955\/80,
+  .bg-slate-955\/45,
+  .bg-slate-950\/45,
+  .bg-slate-900\/60,
+  .bg-slate-900\/40,
+  .bg-slate-900\/10,
+  .bg-slate-900,
+  .bg-slate-950 {
+    background-color: #ffffff !important;
+    color: var(--brand-ink) !important;
+  }
+  
+  /* Ensure all child text inside overridden dark overlays is dark slate */
+  .bg-slate-900 *,
+  .bg-slate-955 *,
+  .bg-slate-950 *,
+  .bg-slate-950\/60 *,
+  .bg-slate-950\/80 *,
+  .bg-slate-950\/45 * {
+    color: var(--brand-ink);
+  }
+
+  /* Specific override for home page bento cards bg/text to look elegant */
+  .bg-slate-900\/40,
+  .bg-slate-900\/40 * {
+    background-color: #f1f5f9 !important;
+    color: var(--brand-ink) !important;
+  }
+
+  /* Override white transparent borders to subtle dark transparent borders in light mode */
+  .border-white\/10 { border-color: rgba(15, 23, 42, 0.08) !important; }
+  .border-white\/20 { border-color: rgba(15, 23, 42, 0.15) !important; }
+  .border-white\/5  { border-color: rgba(15, 23, 42, 0.05) !important; }
+  .border-white\/8  { border-color: rgba(15, 23, 42, 0.07) !important; }
+  .border-white\/15 { border-color: rgba(15, 23, 42, 0.12) !important; }
+  .border-white\/30 { border-color: rgba(15, 23, 42, 0.22) !important; }
+  .border-white\/40 { border-color: rgba(15, 23, 42, 0.32) !important; }
+
+  /* Override white transparent backgrounds to subtle dark transparent backgrounds in light mode */
+  .bg-white\/5  { background-color: rgba(15, 23, 42, 0.02) !important; }
+  .bg-white\/10 { background-color: rgba(15, 23, 42, 0.04) !important; }
+  .bg-white\/20 { background-color: rgba(15, 23, 42, 0.08) !important; }
+  .bg-white\/3  { background-color: rgba(15, 23, 42, 0.01) !important; }
+  
+  /* Placeholders */
+  input::placeholder,
+  textarea::placeholder {
+    color: #94a3b8 !important;
+  }
 }
 
 /* ── Dark Theme ──────────────────────────────────────────────────────────── */
@@ -125,6 +218,23 @@
   --destructive-foreground: #ffffff;
   --card-border: rgba(255, 255, 255, 0.1);
   --card-active-shadow: 0 8px 30px rgba(99, 102, 241, 0.15);
+
+  /* Legacy palette shims theme variables */
+  --shim-slate-250: #e2e8f0;
+  --shim-slate-305: #cbd5e1;
+  --shim-slate-350: #cbd5e1;
+  --shim-slate-355: #cbd5e1;
+  --shim-slate-450: #94a3b8;
+  --shim-slate-455: #94a3b8;
+  --shim-slate-550: #64748b;
+  --shim-slate-555: #64748b;
+  --shim-slate-650: #64748b;
+  --shim-gray-250:  #e5e7eb;
+  --shim-indigo-650: #6366f1;
+  --shim-violet-350: #c4b5fd;
+  --shim-violet-450: #a78bfa;
+  --shim-sky-450:    #38bdf8;
+  --shim-emerald-450: #34d399;
 }
 
 /* ── Base ────────────────────────────────────────────────────────────────── */
@@ -279,27 +389,26 @@
   .animate-bounce-in    { animation: scale-in       0.4s cubic-bezier(0.34,1.56,0.64,1) both; }
 
   /* Legacy palette shims for components that predate the redesign theme. */
-  .text-slate-250 { color: #e2e8f0; }
-  .text-slate-350 { color: #cbd5e1; }
-  .text-slate-355 { color: #cbd5e1; }
-  .text-slate-450 { color: #94a3b8; }
-  .text-slate-455 { color: #94a3b8; }
+  .text-slate-250 { color: var(--shim-slate-250); }
+  .text-slate-305 { color: var(--shim-slate-305); }
+  .text-slate-350 { color: var(--shim-slate-350); }
+  .text-slate-355 { color: var(--shim-slate-355); }
+  .text-slate-450 { color: var(--shim-slate-450); }
+  .text-slate-455 { color: var(--shim-slate-455); }
   .text-slate-550,
-  .text-slate-555 { color: #64748b; }
-  .text-slate-650 { color: #64748b; }
-  .text-indigo-650 { color: #4f46e5; }
+  .text-slate-555 { color: var(--shim-slate-550); }
+  .text-slate-650 { color: var(--shim-slate-650); }
+  .text-indigo-650 { color: var(--shim-indigo-650); }
+  .text-indigo-655 { color: var(--shim-indigo-650); }
   .text-purple-605 { color: #7c3aed; }
   .text-rose-405 { color: #fb7185; }
-  .text-emerald-450 { color: #34d399; }
-  .text-sky-450 { color: #38bdf8; }
-  .text-violet-350 { color: #c4b5fd; }
-  .text-violet-450 { color: #a78bfa; }
-
-  .text-slate-305 { color: #cbd5e1; }
-  .text-indigo-655 { color: #4f46e5; }
+  .text-emerald-450 { color: var(--shim-emerald-450); }
+  .text-sky-450 { color: var(--shim-sky-450); }
+  .text-violet-350 { color: var(--shim-violet-350); }
+  .text-violet-450 { color: var(--shim-violet-450); }
   .text-gray-850 { color: #1f2937; }
-  .text-gray-250 { color: #e5e7eb; }
-  .hover\:text-violet-350:hover { color: #c4b5fd; }
+  .text-gray-250 { color: var(--shim-gray-250); }
+  .hover\:text-violet-350:hover { color: var(--shim-violet-350); }
 
   .h-4\.5 { height: 18px; }
   .w-4\.5 { width: 18px; }

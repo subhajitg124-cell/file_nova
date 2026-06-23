@@ -91,7 +91,7 @@ export function LanguageSelector({
             style={{ fontFamily: "'Inter', 'Outfit', sans-serif" }}
           >
             <div className="px-4 pt-3 pb-2 border-b border-border/50">
-              <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">
+              <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">
                 Select Language
               </span>
             </div>
@@ -122,15 +122,15 @@ export function LanguageSelector({
                   >
                     <span className="text-base shrink-0 leading-none">{lang.flag}</span>
                     <div className="min-w-0 flex-1">
-                      <span className={`block font-extrabold truncate leading-tight ${active ? "text-indigo-300" : "text-foreground"}`}>
+                      <span className={`block font-extrabold truncate leading-tight ${active ? "text-indigo-600 dark:text-indigo-300" : "text-foreground"}`}>
                         {lang.native}
                       </span>
-                      <span className={`block text-[9px] font-medium truncate leading-tight ${active ? "text-indigo-400/80" : "text-muted-foreground"}`}>
+                      <span className={`block text-[9px] font-medium truncate leading-tight ${active ? "text-indigo-600/80 dark:text-indigo-400/80" : "text-muted-foreground"}`}>
                         {lang.label}
                       </span>
                     </div>
                     {active && (
-                      <Check className="h-3.5 w-3.5 text-indigo-400 shrink-0" />
+                      <Check className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
                     )}
                   </motion.button>
                 );

@@ -8,22 +8,22 @@ const CATEGORIES = [
   {
     title: "PDF Operations",
     routes: ["/merge-pdf", "/split-pdf", "/compress-pdf", "/rotate-pdf", "/protect-pdf", "/unlock-pdf", "/compress-pdf-for-upload"],
-    badgeColor: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
+    badgeColor: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20"
   },
   {
     title: "Document Converters",
     routes: ["/pdf-to-word", "/pdf-to-jpg", "/jpg-to-pdf", "/word-to-pdf"],
-    badgeColor: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+    badgeColor: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
   },
   {
     title: "Govt & Student Portals",
     routes: ["/pan-card-resize", "/aadhaar-mask-pdf", "/government-form-fill", "/scholarship-zip"],
-    badgeColor: "bg-orange-500/10 text-orange-400 border-orange-500/20"
+    badgeColor: "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20"
   },
   {
     title: "AI Tools",
     routes: ["/ocr", "/remove-background", "/ai-pdf-summary"],
-    badgeColor: "bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20"
+    badgeColor: "bg-fuchsia-500/10 text-fuchsia-600 dark:text-fuchsia-400 border-fuchsia-500/20"
   }
 ];
 
@@ -80,7 +80,7 @@ export function PopularToolsDropdown() {
             <div className="px-5 py-3.5 border-b border-border/50 bg-gradient-to-r from-amber-500/10 to-transparent flex items-center justify-between">
               <div className="flex items-center gap-1.5">
                 <Zap className="h-4 w-4 text-amber-400 fill-amber-400/30" />
-                <span className="text-xs font-black text-amber-300 uppercase tracking-widest">
+                <span className="text-xs font-black text-amber-600 dark:text-amber-300 uppercase tracking-widest">
                   Quick Shortcuts
                 </span>
               </div>
@@ -142,8 +142,8 @@ export function PopularToolsDropdown() {
                                 {tool.badge && (
                                   <span className={`text-[8px] font-black uppercase tracking-wider px-1 py-0.2 rounded-full leading-none shrink-0 ${
                                     tool.badge === "AI"
-                                      ? "bg-violet-500/20 text-violet-300 border border-violet-400/20"
-                                      : "bg-orange-500/20 text-orange-300 border border-orange-400/20"
+                                      ? "bg-violet-500/10 dark:bg-violet-500/20 text-violet-600 dark:text-violet-300 border border-violet-400/20"
+                                      : "bg-orange-500/10 dark:bg-orange-500/20 text-orange-600 dark:text-orange-300 border border-orange-400/20"
                                   }`}>
                                     {tool.badge}
                                   </span>
