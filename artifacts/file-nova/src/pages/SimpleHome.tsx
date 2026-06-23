@@ -863,20 +863,20 @@ export default function SimpleHome() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20 bg-slate-950 border-t border-border/60 overflow-hidden relative z-10">
+      <section className="py-20 bg-[var(--fn-bg)] border-t border-[var(--fn-border)] overflow-hidden relative z-10">
         <div className="max-w-4xl mx-auto px-4 text-center mb-12">
-          <h2 className="text-xl md:text-2xl font-black text-white mb-3 font-display">
+          <h2 className="text-xl md:text-2xl font-black text-[var(--fn-text-primary)] mb-3 font-display">
             {tText("Trusted by 10,000+ CSC Operators & Students")}
           </h2>
-          <p className="text-slate-450 text-xs max-w-md mx-auto">
+          <p className="text-[var(--fn-text-secondary)] text-xs max-w-md mx-auto">
             {tText("See how cyber cafe owners and students across India use FileNova to speed up portal applications.")}
           </p>
         </div>
 
         {/* Infinite Marquee Container */}
         <div className="relative w-full flex items-center justify-start py-4">
-          <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-slate-950 to-transparent z-20 pointer-events-none" />
-          <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-slate-950 to-transparent z-20 pointer-events-none" />
+          <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-[var(--fn-bg)] to-transparent z-20 pointer-events-none" />
+          <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-[var(--fn-bg)] to-transparent z-20 pointer-events-none" />
           
           <div className="animate-marquee animate-marquee-hover-pause flex gap-6">
             {[
@@ -906,17 +906,17 @@ export default function SimpleHome() {
                 quote: "No email verification gate, no ads, no wait queues. Just pure speed. Perfect for running a busy service kiosk."
               }
             ].map((t, i) => (
-              <div key={`t1-${i}`} className="w-[300px] shrink-0 p-6 bg-slate-900/40 border border-border/60 rounded-2xl space-y-4 backdrop-blur-md hover:border-brand-primary/45 transition-all select-none">
+              <div key={`t1-${i}`} className="w-[300px] shrink-0 p-6 fn-glass border border-[var(--fn-border)] rounded-2xl space-y-4 hover:border-[var(--fn-accent-primary)]/45 transition-all select-none">
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-brand-primary to-indigo-650 flex items-center justify-center font-bold text-white text-xs">
                     {t.name.charAt(0)}
                   </div>
                   <div>
-                    <h4 className="font-extrabold text-xs text-white">{t.name}</h4>
-                    <p className="text-[10px] text-slate-500 font-medium">{t.role}</p>
+                    <h4 className="font-extrabold text-xs text-[var(--fn-text-primary)]">{t.name}</h4>
+                    <p className="text-[10px] text-[var(--fn-text-secondary)] font-medium">{t.role}</p>
                   </div>
                 </div>
-                <p className="text-[11px] text-slate-300 leading-relaxed italic">"{t.quote}"</p>
+                <p className="text-[11px] text-[var(--fn-text-primary)] leading-relaxed italic">"{t.quote}"</p>
                 <div className="flex items-center gap-1 text-amber-500">
                   {[...Array(5)].map((_, idx) => (
                     <Star key={idx} className="h-3 w-3 fill-current" />
@@ -951,17 +951,17 @@ export default function SimpleHome() {
                 quote: "No email verification gate, no ads, no wait queues. Just pure speed. Perfect for running a busy service kiosk."
               }
             ].map((t, i) => (
-              <div key={`t2-${i}`} className="w-[300px] shrink-0 p-6 bg-slate-900/40 border border-border/60 rounded-2xl space-y-4 backdrop-blur-md hover:border-brand-primary/45 transition-all select-none">
+              <div key={`t2-${i}`} className="w-[300px] shrink-0 p-6 fn-glass border border-[var(--fn-border)] rounded-2xl space-y-4 hover:border-[var(--fn-accent-primary)]/45 transition-all select-none">
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-brand-primary to-indigo-650 flex items-center justify-center font-bold text-white text-xs">
                     {t.name.charAt(0)}
                   </div>
                   <div>
-                    <h4 className="font-extrabold text-xs text-white">{t.name}</h4>
-                    <p className="text-[10px] text-slate-500 font-medium">{t.role}</p>
+                    <h4 className="font-extrabold text-xs text-[var(--fn-text-primary)]">{t.name}</h4>
+                    <p className="text-[10px] text-[var(--fn-text-secondary)] font-medium">{t.role}</p>
                   </div>
                 </div>
-                <p className="text-[11px] text-slate-300 leading-relaxed italic">"{t.quote}"</p>
+                <p className="text-[11px] text-[var(--fn-text-primary)] leading-relaxed italic">"{t.quote}"</p>
                 <div className="flex items-center gap-1 text-amber-500">
                   {[...Array(5)].map((_, idx) => (
                     <Star key={idx} className="h-3 w-3 fill-current" />

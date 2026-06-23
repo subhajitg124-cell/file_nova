@@ -116,18 +116,18 @@ export function UserProfileDropdown() {
       {user ? (
         <button
           onClick={() => setDropdownOpen(!dropdownOpen)}
-          className="inline-flex items-center gap-2 rounded-xl border border-border bg-card hover:bg-muted/50 px-3.5 py-2 text-xs font-bold text-foreground transition duration-300 cursor-pointer shadow-sm select-none whitespace-nowrap"
+          className="inline-flex items-center gap-2 fn-neu !rounded-full border border-[var(--fn-border)] px-3.5 py-2 text-xs font-bold text-[var(--fn-text-primary)] hover:bg-[var(--fn-surface-elevated)] transition duration-300 cursor-pointer select-none whitespace-nowrap"
         >
-          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-primary shrink-0">
+          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--fn-accent-primary)]/10 text-[var(--fn-accent-primary)] shrink-0">
             <User className="h-3 w-3" />
           </div>
           <span className="max-w-[100px] truncate">{user.name || user.email}</span>
-          <ChevronDown className={`h-3 w-3 text-muted-foreground transition-transform duration-300 shrink-0 ${dropdownOpen ? "rotate-180" : ""}`} />
+          <ChevronDown className={`h-3 w-3 text-[var(--fn-text-secondary)] transition-transform duration-300 shrink-0 ${dropdownOpen ? "rotate-180" : ""}`} />
         </button>
       ) : (
         <button
           onClick={openLoginModal}
-          className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 px-4 py-2 text-xs font-black text-white transition-all duration-300 cursor-pointer shadow-glow whitespace-nowrap shrink-0 border border-indigo-500/30 hover:scale-[1.02] active:scale-95"
+          className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 px-4 py-2 text-xs font-black text-white transition-all duration-300 cursor-pointer shadow-glow whitespace-nowrap shrink-0 border border-indigo-500/30 hover:scale-[1.02] active:scale-95"
         >
           <Key className="h-3.5 w-3.5 shrink-0" />
           <span>Sign In</span>
@@ -136,7 +136,7 @@ export function UserProfileDropdown() {
 
       {/* Dropdown Menu */}
       {dropdownOpen && user && (
-        <div className="absolute right-0 top-full mt-2 w-72 rounded-2xl border border-border bg-card/95 backdrop-blur-xl shadow-premium p-4 z-50 animate-scale-in">
+        <div className="absolute right-0 top-full mt-2 w-72 rounded-2xl fn-glass shadow-[var(--fn-shadow-elevated)] p-4 z-[9999] animate-scale-in text-[var(--fn-text-primary)]">
           {/* User info */}
           <div className="border-b border-border pt-1 pb-3.5 mb-3.5">
             <p className="text-xs font-black text-foreground truncate">{user.name || "FileNova User"}</p>

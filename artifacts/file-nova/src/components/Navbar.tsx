@@ -46,8 +46,10 @@ export function Navbar({ showSearch = true }: NavbarProps) {
         transition={{ type: "spring", stiffness: 260, damping: 20 }}
         className="sticky top-0 z-40 w-full bg-transparent py-3 px-3 sm:px-4 transition-all duration-300"
       >
-        <div className="max-w-6xl mx-auto h-14 px-4 sm:px-6 flex items-center justify-between gap-2 rounded-full border border-border/60 bg-background/70 backdrop-blur-xl shadow-premium relative overflow-hidden group/nav">
-          <div className="absolute inset-0 bg-gradient-to-r from-brand-primary/0 via-brand-primary/10 to-brand-primary/0 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-500 pointer-events-none" />
+        <div className="max-w-6xl mx-auto h-14 px-4 sm:px-6 flex items-center justify-between gap-2 rounded-full border border-border/60 relative group/nav">
+          {/* Backdrop layers to avoid creating parent stacking context */}
+          <div className="absolute inset-0 bg-background/70 backdrop-blur-xl shadow-premium rounded-full -z-20 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-r from-brand-primary/0 via-brand-primary/10 to-brand-primary/0 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-500 pointer-events-none rounded-full -z-10" />
 
           <Link href="/" className="flex items-center gap-2.5 shrink-0 relative z-10">
             <img src="/logo.png" alt="FileNova logo" className="h-8 w-auto" />
@@ -64,7 +66,7 @@ export function Navbar({ showSearch = true }: NavbarProps) {
             <div className="relative hidden md:block">
               <button
                 onClick={() => setSettingsOpen(!settingsOpen)}
-                className="flex items-center justify-center p-2 rounded-lg text-muted-foreground hover:text-foreground hover:fn-neu-pressed transition-all cursor-pointer"
+                className="flex items-center justify-center p-2 rounded-full text-muted-foreground hover:text-foreground hover:fn-neu-pressed transition-all cursor-pointer border border-transparent hover:border-[var(--fn-border)]"
                 aria-label="Settings"
                 title="Settings"
               >
@@ -77,7 +79,7 @@ export function Navbar({ showSearch = true }: NavbarProps) {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
                     transition={{ duration: 0.15, ease: "easeOut" }}
-                    className="absolute right-0 top-full mt-3 fn-glass rounded-xl shadow-[var(--fn-shadow-elevated)] p-4 space-y-4 z-50 min-w-[200px] text-[var(--fn-text-primary)]"
+                    className="absolute right-0 top-full mt-3 fn-glass rounded-xl shadow-[var(--fn-shadow-elevated)] p-4 space-y-4 z-[9999] min-w-[200px] text-[var(--fn-text-primary)]"
                   >
                     <div>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">{tText("Theme")}</p>
@@ -92,17 +94,17 @@ export function Navbar({ showSearch = true }: NavbarProps) {
               </AnimatePresence>
             </div>
 
-            <div className="hidden xl:flex items-center gap-1">
+            <div className="hidden xl:flex items-center gap-2">
               <PopularToolsDropdown />
-              <Link href="/india-tools" className="flex items-center gap-1 text-[11px] text-emerald-500 hover:text-emerald-400 font-bold py-1.5 px-2.5 rounded-lg border border-emerald-500/25 bg-emerald-500/5 hover:bg-emerald-500/10 transition-all whitespace-nowrap">
+              <Link href="/india-tools" className="flex items-center gap-1.5 text-sm text-[var(--fn-text-primary)] font-medium py-1.5 px-3 rounded-full border border-[var(--fn-border)] hover:bg-[var(--fn-surface-elevated)] transition-colors duration-150 whitespace-nowrap">
                 🇮🇳 {tText("India Tools")}
               </Link>
-              <Link href="/workflows" className="flex items-center gap-1 text-[11px] text-indigo-500 hover:text-indigo-400 font-bold py-1.5 px-2.5 rounded-lg border border-indigo-500/25 bg-indigo-500/5 hover:bg-indigo-500/10 transition-all whitespace-nowrap">
-                <Zap className="h-3.5 w-3.5" />
+              <Link href="/workflows" className="flex items-center gap-1.5 text-sm text-[var(--fn-text-primary)] font-medium py-1.5 px-3 rounded-full border border-[var(--fn-border)] hover:bg-[var(--fn-surface-elevated)] transition-colors duration-150 whitespace-nowrap">
+                <Zap className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />
                 {tText("Workflows")}
               </Link>
-              <Link href="/workspace" className="flex items-center gap-1 text-[11px] text-foreground hover:text-primary font-bold py-1.5 px-2.5 rounded-lg border border-border bg-card hover:fn-neu-pressed transition-all whitespace-nowrap">
-                <FileText className="h-3.5 w-3.5" />
+              <Link href="/workspace" className="flex items-center gap-1.5 text-sm text-[var(--fn-text-primary)] font-medium py-1.5 px-3 rounded-full border border-[var(--fn-border)] hover:bg-[var(--fn-surface-elevated)] transition-colors duration-150 whitespace-nowrap">
+                <FileText className="h-3.5 w-3.5 text-[var(--fn-text-secondary)]" />
                 {tText("Workspace")}
               </Link>
             </div>
@@ -110,7 +112,7 @@ export function Navbar({ showSearch = true }: NavbarProps) {
             <div className="hidden lg:block xl:hidden relative">
               <button
                 onClick={() => setMoreMenuOpen(!moreMenuOpen)}
-                className="flex items-center gap-1 text-[11px] font-bold text-foreground py-1.5 px-2.5 rounded-lg border border-border bg-card hover:bg-accent/60 transition-all cursor-pointer whitespace-nowrap"
+                className="flex items-center gap-1.5 text-sm text-[var(--fn-text-primary)] font-medium py-1.5 px-3 rounded-full border border-[var(--fn-border)] hover:bg-[var(--fn-surface-elevated)] transition-colors duration-150 cursor-pointer whitespace-nowrap"
               >
                 <Menu className="h-3.5 w-3.5" />
                 {tText("Menu")}
@@ -122,7 +124,7 @@ export function Navbar({ showSearch = true }: NavbarProps) {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
                     transition={{ duration: 0.15, ease: "easeOut" }}
-                    className="absolute right-0 top-full mt-3 fn-glass rounded-xl shadow-[var(--fn-shadow-elevated)] p-2 z-50 min-w-[190px] space-y-0.5 text-[var(--fn-text-primary)]"
+                    className="absolute right-0 top-full mt-3 fn-glass rounded-xl shadow-[var(--fn-shadow-elevated)] p-2 z-[9999] min-w-[190px] space-y-0.5 text-[var(--fn-text-primary)]"
                   >
                     <div className="px-2 py-1.5"><PopularToolsDropdown /></div>
                     <Link href="/india-tools" onClick={() => setMoreMenuOpen(false)} className="flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-bold text-emerald-500 hover:bg-accent/60 transition-colors">
@@ -139,7 +141,7 @@ export function Navbar({ showSearch = true }: NavbarProps) {
               </AnimatePresence>
             </div>
 
-            <Link href="/pricing" className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-black text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 px-3 py-2 rounded-lg transition-all shadow-sm whitespace-nowrap shrink-0 active:scale-95">
+            <Link href="/pricing" className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-black text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 px-3.5 py-2 rounded-full transition-all shadow-md hover:shadow-lg hover:scale-[1.02] whitespace-nowrap shrink-0 active:scale-95">
               <Crown className="h-3.5 w-3.5 fill-current" />
               {tText("Premium")}
             </Link>
@@ -153,7 +155,7 @@ export function Navbar({ showSearch = true }: NavbarProps) {
               ) : (
                 <Link
                   href="/login"
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-brand-primary hover:bg-brand-primary-dark px-3 py-2 text-[11px] font-black text-white transition-all duration-300 shadow-sm whitespace-nowrap shrink-0 border border-brand-primary/30 hover:scale-[1.02] active:scale-95"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-brand-primary hover:bg-brand-primary-dark px-3.5 py-2 text-[11px] font-black text-white transition-all duration-300 shadow-md whitespace-nowrap shrink-0 border border-brand-primary/30 hover:scale-[1.02] active:scale-95"
                 >
                   {tText("Login")}
                 </Link>

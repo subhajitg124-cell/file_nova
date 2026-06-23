@@ -12,6 +12,7 @@ import { TestingNotice } from "@/components/TestingNotice";
 import { useAdmin } from "@/lib/admin";
 import { useAuthStore } from "@/store/useAuthStore";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
+import { Navbar } from "@/components/Navbar";
 import { AuthModal } from "@/components/AuthModal";
 import { OTPVerificationModal } from "@/components/OTPVerificationModal";
 import { toast } from "sonner";
@@ -70,7 +71,7 @@ function SpotlightCard({
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={handleMouseLeave}
-      className={`relative overflow-hidden rounded-3xl border transition-all duration-300 bg-card/45 backdrop-blur-md perspective-1000 preserve-3d ${
+      className={`relative overflow-hidden rounded-3xl border transition-all duration-300 backdrop-blur-md perspective-1000 preserve-3d ${
         isActive ? "spatial-active-ring" : ""
       } ${className}`}
       style={{
@@ -145,65 +146,125 @@ function PlanCard({
   const midPoint = Math.ceil(features.length / 2);
   const firstHalf = features.slice(0, midPoint);
   const secondHalf = features.slice(midPoint);
-  const displayFeaturesGrid = isPro || isElite;
+  const displayFeaturesGrid = isPro; // ONLY Pro has the split features layout, Elite is unified vertical!
 
   const textPrimaryClass = id === "pro" ? "text-white" : "text-[var(--fn-text-primary)] dark:text-white";
   const textSecondaryClass = id === "pro" ? "text-white/80" : "text-[var(--fn-text-secondary)]";
 
+  const getFeatureIconClass = () => {
+    if (id === "pro") return "stroke-indigo-200 text-transparent fill-indigo-200/20";
+    if (id === "elite") return "stroke-[var(--fn-accent-elite)] text-transparent fill-[var(--fn-accent-elite)]/20";
+    if (id === "free") return "stroke-[var(--fn-text-tertiary)] text-transparent fill-[var(--fn-text-tertiary)]/20";
+    return "stroke-[var(--fn-accent-india)] text-transparent fill-[var(--fn-accent-india)]/20";
+  };
+
+  const getCtaButton = () => {
+    if (isCurrent) {
+      if (id === "pro") {
+        return (
+          <button disabled className="w-full py-2.5 px-6 rounded-full bg-white/20 text-white text-sm font-semibold cursor-default mt-auto">
+            Current Plan
+          </button>
+        );
+      }
+      if (id === "elite") {
+        return (
+          <button disabled className="w-full py-2.5 px-6 rounded-full border border-[var(--fn-accent-elite)]/45 text-[var(--fn-accent-elite)]/80 text-sm font-semibold cursor-default mt-auto">
+            Current Plan
+          </button>
+        );
+      }
+      return (
+        <button disabled className="w-full py-2.5 px-6 rounded-full fn-neu-pressed text-[var(--fn-text-secondary)] text-sm font-semibold cursor-default mt-auto">
+          Current Plan
+        </button>
+      );
+    }
+
+    if (loading) {
+      return (
+        <button disabled className="w-full py-2.5 px-6 rounded-full bg-[var(--fn-surface-elevated)] border border-[var(--fn-border)] text-[var(--fn-text-secondary)] text-sm font-semibold flex items-center justify-center gap-2 mt-auto">
+          <Loader className="h-4 w-4 animate-spin text-[var(--fn-accent-primary)]" />
+          Connecting...
+        </button>
+      );
+    }
+
+    if (id === "pro") {
+      return (
+        <button
+          onClick={onSelect}
+          className="w-full py-2.5 px-6 rounded-full bg-white text-indigo-600 font-semibold text-sm hover:bg-indigo-50 transition-colors mt-auto"
+        >
+          {ctaText}
+        </button>
+      );
+    }
+
+    if (id === "elite") {
+      return (
+        <button
+          onClick={onSelect}
+          className="w-full py-2.5 px-6 rounded-full border border-[var(--fn-accent-elite)] text-[var(--fn-accent-elite)] hover:bg-[var(--fn-accent-elite)]/10 font-semibold text-sm transition-colors mt-auto"
+        >
+          {ctaText}
+        </button>
+      );
+    }
+
+    if (id === "basic") {
+      return (
+        <button
+          onClick={onSelect}
+          className="w-full py-2.5 px-6 rounded-full bg-[var(--fn-accent-primary)] text-white hover:opacity-90 font-semibold text-sm transition-opacity mt-auto"
+        >
+          {ctaText}
+        </button>
+      );
+    }
+
+    return (
+      <button
+        onClick={onSelect}
+        className="w-full py-2.5 px-6 rounded-full bg-[var(--fn-surface-elevated)] border border-[var(--fn-border)] text-[var(--fn-text-primary)] hover:bg-[var(--fn-surface)] font-semibold text-sm transition-colors mt-auto"
+      >
+        {ctaText}
+      </button>
+    );
+  };
+
   const cardContent = (
-    <div className={`p-6 sm:p-8 flex flex-col justify-between h-full relative z-10 ${isPro ? 'animated-lines-bg' : ''}`}>
+    <div className={`p-6 flex flex-col h-full relative z-10 ${isPro ? 'animated-lines-bg' : ''}`}>
       {isPopular && (
-        <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white text-[10px] font-black uppercase tracking-wider px-4 py-1 rounded-full shadow-glow">
-          <Sparkles className="h-3 w-3 text-amber-300 animate-spin-slow" />
+        <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-400 to-purple-400 text-white text-xs font-bold rounded-full px-4 py-1 whitespace-nowrap z-20">
           Most Popular
         </span>
       )}
 
-      <div className={`flex flex-col h-full ${displayFeaturesGrid ? 'lg:grid lg:grid-cols-12 lg:gap-8 lg:items-stretch' : 'gap-5'}`}>
-        <div className={`${displayFeaturesGrid ? 'lg:col-span-5 flex flex-col justify-between h-full' : 'flex flex-col'}`}>
-          <div>
+      <div className={`flex flex-col h-full ${displayFeaturesGrid ? 'lg:grid lg:grid-cols-12 lg:gap-8 lg:items-stretch' : 'gap-5 flex-1'}`}>
+        <div className={`${displayFeaturesGrid ? 'lg:col-span-5 flex flex-col justify-between h-full' : 'flex flex-col h-full'}`}>
+          <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2">
               <h3 className={`${isPopular ? "text-2xl sm:text-3xl" : "text-xl"} font-black ${textPrimaryClass}`}>{title}</h3>
               {isElite && (
-                <span className="text-[9px] bg-violet-500/15 text-violet-400 font-bold px-2 py-0.5 rounded-full border border-violet-500/20">
+                <span className="text-[9px] bg-[var(--fn-accent-elite)]/10 text-[var(--fn-accent-elite)] font-bold px-2 py-0.5 rounded-full border border-[var(--fn-accent-elite)]/30">
                   Console Mode
                 </span>
               )}
             </div>
-            <p className={`text-xs ${textSecondaryClass} mt-2 leading-relaxed min-h-8`}>
+            <p className={`text-xs ${textSecondaryClass} leading-relaxed min-h-8`}>
               {description}
             </p>
-            <div className="mt-4 flex items-baseline gap-1">
+            <div className="flex items-baseline gap-1 mt-1">
               {price}
               {period && <span className={`text-xs font-semibold ${textSecondaryClass}`}>/{period}</span>}
             </div>
-            <div className={`mt-2 text-xs font-bold ${id === "pro" ? "text-white/90" : "text-[var(--fn-accent-primary)] dark:text-white"}`}>{limit}</div>
+            <div className={`text-xs font-bold ${id === "pro" ? "text-indigo-200" : "text-[var(--fn-accent-primary)] dark:text-white"}`}>{limit}</div>
           </div>
 
-          <div className="mt-6">
-            <div className={isPaidPlan && !isCurrent ? "grid grid-cols-1 gap-2.5 xl:grid-cols-2" : ""}>
-              <button
-                onClick={onSelect}
-                disabled={isCurrent || loading}
-                className={`w-full py-3 text-sm font-black transition flex items-center justify-center gap-2 cursor-pointer ${
-                  isCurrent
-                    ? "fn-neu border border-[var(--fn-border)] text-[var(--fn-text-secondary)] dark:text-white rounded-full cursor-default"
-                    : id === "pro"
-                      ? "bg-white text-[var(--fn-accent-primary)] hover:bg-white/90 rounded-full shadow-[var(--fn-shadow-elevated)]"
-                      : "bg-[var(--fn-accent-primary)] text-white hover:bg-[var(--fn-accent-primary)]/90 rounded-full"
-                }`}
-              >
-                {loading && !isCurrent ? (
-                  <>
-                    <Loader className="h-4 w-4 animate-spin" />
-                    Connecting…
-                  </>
-                ) : isCurrent ? (
-                  "Current Plan"
-                ) : (
-                  ctaText
-                )}
-              </button>
+          <div className="mt-auto pt-6 w-full">
+            <div className={isPaidPlan && !isCurrent ? "flex flex-col gap-2 w-full" : "w-full"}>
+              {getCtaButton()}
               {isPaidPlan && !isCurrent && (
                 <UpiPaymentBox plan={id} amount={amount} userEmail={userEmail} />
               )}
@@ -211,36 +272,32 @@ function PlanCard({
           </div>
         </div>
 
-        {displayFeaturesGrid && (
-          <div className="hidden lg:block lg:col-span-1 border-r border-border/20 self-stretch my-1" />
-        )}
-
         <div className={`${
           displayFeaturesGrid 
             ? `lg:col-span-6 mt-6 lg:mt-0 flex flex-col justify-center p-6 rounded-2xl border ${
                 id === "pro" 
                   ? "bg-white/10 border-white/10" 
-                  : "bg-[var(--fn-surface-elevated)] dark:bg-slate-950 border-[var(--fn-border)]"
+                  : "bg-[var(--fn-surface-elevated)] border-[var(--fn-border)]"
               }` 
-            : 'mt-4 border-t border-border pt-4'
+            : 'mt-6 border-t border-[var(--fn-border)] pt-4 flex-1'
         }`}>
-          <p className={`text-[10px] uppercase font-black tracking-wider ${id === "pro" ? "text-white/80" : "text-[var(--fn-text-tertiary)]"} mb-3`}>
+          <p className={`text-[10px] uppercase font-black tracking-wider ${id === "pro" ? "text-indigo-200" : "text-[var(--fn-text-tertiary)]"} mb-3`}>
             Features Unlocked:
           </p>
           {displayFeaturesGrid ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
               <ul className="space-y-2.5">
                 {firstHalf.map((feat) => (
-                  <li key={feat} className={`flex items-start gap-2.5 ${id === "pro" ? "text-white" : "text-[var(--fn-text-secondary)]"} font-medium text-xs`}>
-                    <CheckCircle2 className={`h-4 w-4 shrink-0 mt-0.5 ${id === "pro" ? "stroke-white text-transparent fill-white/20" : "stroke-[var(--fn-accent-india)] text-transparent fill-[var(--fn-accent-india)]/20"}`} />
+                  <li key={feat} className="flex items-start gap-2.5 text-white font-medium text-xs">
+                    <CheckCircle2 className={`h-4 w-4 shrink-0 mt-0.5 ${getFeatureIconClass()}`} />
                     <span>{feat}</span>
                   </li>
                 ))}
               </ul>
               <ul className="space-y-2.5">
                 {secondHalf.map((feat) => (
-                  <li key={feat} className={`flex items-start gap-2.5 ${id === "pro" ? "text-white" : "text-[var(--fn-text-secondary)]"} font-medium text-xs`}>
-                    <CheckCircle2 className={`h-4 w-4 shrink-0 mt-0.5 ${id === "pro" ? "stroke-white text-transparent fill-white/20" : "stroke-[var(--fn-accent-india)] text-transparent fill-[var(--fn-accent-india)]/20"}`} />
+                  <li key={feat} className="flex items-start gap-2.5 text-white font-medium text-xs">
+                    <CheckCircle2 className={`h-4 w-4 shrink-0 mt-0.5 ${getFeatureIconClass()}`} />
                     <span>{feat}</span>
                   </li>
                 ))}
@@ -250,7 +307,7 @@ function PlanCard({
             <ul className="space-y-2.5">
               {features.map((feat) => (
                 <li key={feat} className="flex items-start gap-2.5 text-[var(--fn-text-secondary)] font-medium text-xs">
-                  <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5 stroke-[var(--fn-accent-india)] text-transparent fill-[var(--fn-accent-india)]/20" />
+                  <CheckCircle2 className={`h-4 w-4 shrink-0 mt-0.5 ${getFeatureIconClass()}`} />
                   <span>{feat}</span>
                 </li>
               ))}
@@ -259,12 +316,14 @@ function PlanCard({
         </div>
       </div>
     </div>
-  );  if (id === "pro") {
+  );
+
+  if (id === "pro") {
     return (
       <div className={`neon-sweep-wrapper shadow-neon-pro h-full group transition-all duration-300 ${isActive ? "spatial-active-ring" : "hover:scale-[1.01]"}`}>
         <div className="neon-sweep-bg" />
         <SpotlightCard
-          className="neon-sweep-content bg-[var(--fn-accent-primary)] text-white rounded-2xl shadow-[var(--fn-shadow-elevated)] h-full border-none"
+          className="neon-sweep-content bg-indigo-600 dark:bg-indigo-950 dark:border dark:border-indigo-500/30 text-white rounded-2xl shadow-[var(--fn-shadow-elevated)] h-full border-none"
           spotlightColor="rgba(255, 255, 255, 0.2)"
           borderColor="transparent"
           defaultBorder="transparent"
@@ -279,10 +338,10 @@ function PlanCard({
   if (id === "elite") {
     return (
       <SpotlightCard
-        className="fn-clay border-[var(--fn-accent-elite)] h-full transition-transform duration-300"
-        spotlightColor="rgba(139, 92, 246, 0.2)"
+        className="fn-clay border border-[var(--fn-accent-elite)]/30 h-full transition-transform duration-300"
+        spotlightColor="rgba(245, 158, 11, 0.15)"
         borderColor="var(--fn-accent-elite)"
-        defaultBorder="var(--fn-accent-elite)"
+        defaultBorder="var(--fn-accent-elite)/30"
         isActive={isActive}
       >
         {cardContent}
@@ -294,7 +353,7 @@ function PlanCard({
     return (
       <SpotlightCard
         className="fn-glass h-full transition-all duration-300"
-        spotlightColor="rgba(16, 185, 129, 0.15)"
+        spotlightColor="rgba(99, 102, 241, 0.15)"
         borderColor="var(--fn-border-strong)"
         defaultBorder="var(--fn-border)"
         isActive={isActive}
@@ -532,56 +591,156 @@ export default function PricingPage() {
   const getPayableAmount = (planId: PremiumTier, original: number) => (planId === "free" ? 0 : Math.round(original * (1 - appliedDiscount / 100)));
 
   return (
-    <div className={`min-h-screen fn-aurora-bg text-foreground flex flex-col ${themeClass}`}>
+    <div className={`min-h-screen fn-aurora-bg text-[var(--fn-text-primary)] flex flex-col ${themeClass}`}>
       <TestingNotice />
-      <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-          <Link href="/" className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-bold"><ChevronLeft className="h-4 w-4" /> Home</Link>
-          <UserProfileDropdown />
-        </div>
-      </header>
-      <main className="flex-1 mx-auto max-w-7xl px-4 py-12 space-y-12 pb-24">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3.5 py-1.5 text-xs font-black text-primary"><Zap className="h-3 w-3 animate-pulse" /> Upgrade Workspace</div>
-          <h1 className="text-4xl sm:text-5xl font-black tracking-tight leading-tight font-display">Flexible premium plans</h1>
+      <Navbar />
+      <main className="flex-1 mx-auto max-w-7xl px-4 py-12 space-y-12 pb-24 w-full">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center max-w-3xl mx-auto space-y-6">
+          <div className="fn-glass rounded-3xl px-8 py-4 inline-block shadow-sm">
+            <span className="text-xs font-black text-[var(--fn-accent-primary)] uppercase tracking-wider">Simple, transparent pricing</span>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold text-[var(--fn-text-primary)] tracking-tight leading-tight font-display">Flexible premium plans</h1>
           {usersServedToday && (
-            <div className="mx-auto flex justify-center pt-2"><div className="inline-flex items-center gap-2 rounded-full bg-slate-900/60 border border-border/80 px-4 py-1.5 text-xs text-muted-foreground font-semibold">Live: <strong className="text-foreground">{usersServedToday.toLocaleString()}</strong> served today</div></div>
+            <div className="mx-auto flex justify-center pt-2">
+              <div className="inline-flex items-center gap-2 fn-glass rounded-full px-4 py-2 text-sm text-[var(--fn-text-secondary)] font-semibold shadow-sm">
+                <span className="flex h-2 w-2 relative shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span>Live: <strong className="text-[var(--fn-text-primary)]">{usersServedToday.toLocaleString()}</strong> served today</span>
+              </div>
+            </div>
           )}
         </motion.div>
-        <motion.div initial="hidden" animate="visible" variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 pt-4 max-w-6xl mx-auto">
+
+        <motion.div 
+          initial="hidden" 
+          animate="visible" 
+          variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }} 
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto items-stretch"
+        >
           {plans.map((p, idx) => (
-            <motion.div key={p.id} variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0 } }} className={p.id === "pro" ? "sm:col-span-2 lg:col-span-2 lg:row-span-2" : p.id === "elite" ? "sm:col-span-2 lg:col-span-2" : ""}>
-              <PlanCard id={p.id} title={p.title} price={getPlanPrice(p.id, p.originalPrice)} period={p.period} limit={p.limit} description={p.description} features={p.features} accent={p.accent} isPopular={p.isPopular} ctaText={getPlanCta(p.id, p.ctaText)} onSelect={() => handleSelectPlan(p.id)} currentTier={premiumTier} loading={loading} amount={getPayableAmount(p.id, p.originalPrice)} userEmail={user?.email} isActive={hudActiveIndex === idx} />
+            <motion.div 
+              key={p.id} 
+              variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0 } }} 
+              className="flex flex-col h-full"
+            >
+              <PlanCard 
+                id={p.id} 
+                title={p.title} 
+                price={getPlanPrice(p.id, p.originalPrice)} 
+                period={p.period} 
+                limit={p.limit} 
+                description={p.description} 
+                features={p.features} 
+                accent={p.accent} 
+                isPopular={p.isPopular} 
+                ctaText={getPlanCta(p.id, p.ctaText)} 
+                onSelect={() => handleSelectPlan(p.id)} 
+                currentTier={premiumTier} 
+                loading={loading} 
+                amount={getPayableAmount(p.id, p.originalPrice)} 
+                userEmail={user?.email} 
+                isActive={hudActiveIndex === idx} 
+              />
             </motion.div>
           ))}
         </motion.div>
-        <motion.div initial="hidden" animate="visible" variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1 } } }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-6xl mx-auto">
-          <motion.div variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }}>
-            <SpotlightCard className="fn-glass p-6 flex flex-col justify-between h-full text-[var(--fn-text-primary)]" isActive={hudActiveIndex === 4}>
-              <div><h3 className="text-base font-black font-display text-[var(--fn-text-primary)]">24-Hour Pass</h3><p className="text-xs text-[var(--fn-text-secondary)] mt-2">Access to all premium tools for 24h.</p></div>
-              <div className="pt-4 border-t border-[var(--fn-border)] mt-4"><div className="flex items-baseline gap-1 mb-2"><span className="text-2xl font-black text-[var(--fn-text-primary)]">₹9</span></div><div className="grid grid-cols-2 gap-2"><button onClick={() => handleSelectPlan("pass_24h")} className="py-2 bg-[var(--fn-accent-primary)] text-white rounded-full text-xs font-black cursor-pointer">Buy</button><UpiPaymentBox plan="pass_24h" amount={9} /></div></div>
-            </SpotlightCard>
+
+        {/* Compact Passes Section */}
+        <div className="space-y-4 pt-8">
+          <h2 className="text-xl font-bold text-center text-[var(--fn-text-primary)] font-display">Day Passes</h2>
+          <motion.div 
+            initial="hidden" 
+            animate="visible" 
+            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1 } } }} 
+            className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto"
+          >
+            <motion.div variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }}>
+              <SpotlightCard className="fn-glass rounded-2xl p-6 flex flex-col justify-between h-full text-[var(--fn-text-primary)]" isActive={hudActiveIndex === 4}>
+                <div>
+                  <h3 className="text-base font-bold font-display text-[var(--fn-text-primary)]">24-Hour Pass</h3>
+                  <p className="text-xs text-[var(--fn-text-secondary)] mt-2">Access to all premium tools for 24 hours.</p>
+                </div>
+                <div className="pt-4 border-t border-[var(--fn-border)] mt-4">
+                  <div className="flex items-baseline gap-1 mb-3">
+                    <span className="text-2xl font-bold text-[var(--fn-text-primary)]">₹9</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button onClick={() => handleSelectPlan("pass_24h")} className="py-2 bg-[var(--fn-accent-primary)] text-white rounded-full text-xs font-black cursor-pointer hover:opacity-90 transition-opacity">Buy</button>
+                    <UpiPaymentBox plan="pass_24h" amount={9} />
+                  </div>
+                </div>
+              </SpotlightCard>
+            </motion.div>
+
+            <motion.div variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }}>
+              <SpotlightCard className="fn-glass rounded-2xl p-6 flex flex-col justify-between h-full text-[var(--fn-text-primary)]" isActive={hudActiveIndex === 5}>
+                <div>
+                  <h3 className="text-base font-bold font-display text-[var(--fn-text-primary)]">Weekly Pass</h3>
+                  <p className="text-xs text-[var(--fn-text-secondary)] mt-2">Perfect for 7-day high volume cycles.</p>
+                </div>
+                <div className="pt-4 border-t border-[var(--fn-border)] mt-4">
+                  <div className="flex items-baseline gap-1 mb-3">
+                    <span className="text-2xl font-bold text-[var(--fn-text-primary)]">₹29</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button onClick={() => handleSelectPlan("pass_7d")} className="py-2 bg-[var(--fn-accent-primary)] text-white rounded-full text-xs font-black cursor-pointer hover:opacity-90 transition-opacity">Buy</button>
+                    <UpiPaymentBox plan="pass_7d" amount={29} />
+                  </div>
+                </div>
+              </SpotlightCard>
+            </motion.div>
           </motion.div>
-          <motion.div variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }}>
-            <SpotlightCard className="fn-glass p-6 flex flex-col justify-between h-full text-[var(--fn-text-primary)]" isActive={hudActiveIndex === 5}>
-              <div><h3 className="text-base font-black font-display text-[var(--fn-text-primary)]">Weekly Pass</h3><p className="text-xs text-[var(--fn-text-secondary)] mt-2">Perfect for 7-day cycles.</p></div>
-              <div className="pt-4 border-t border-[var(--fn-border)] mt-4"><div className="flex items-baseline gap-1 mb-2"><span className="text-2xl font-black text-[var(--fn-text-primary)]">₹29</span></div><div className="grid grid-cols-2 gap-2"><button onClick={() => handleSelectPlan("pass_7d")} className="py-2 bg-purple-600 text-white rounded-full text-xs font-black cursor-pointer">Buy</button><UpiPaymentBox plan="pass_7d" amount={29} /></div></div>
+        </div>
+
+        {/* Coupon + Secure Checkout Row */}
+        <motion.div 
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto mt-6"
+        >
+          <div>
+            <SpotlightCard className="fn-glass rounded-2xl p-4 flex flex-col gap-3 h-full text-[var(--fn-text-primary)] justify-center">
+              <p className="text-sm font-bold text-[var(--fn-text-primary)]">Have a coupon?</p>
+              <div className="flex gap-2">
+                <input 
+                  value={couponCode} 
+                  onChange={(e) => setCouponCode(e.target.value)} 
+                  placeholder="Coupon Code" 
+                  title="Coupon Code" 
+                  aria-label="Coupon Code" 
+                  className="w-full rounded-full border border-[var(--fn-border)] bg-[var(--fn-surface-elevated)] px-4 py-2 text-xs text-[var(--fn-text-primary)] outline-none focus:border-[var(--fn-accent-primary)] font-semibold" 
+                />
+                <button 
+                  onClick={handleValidateCoupon} 
+                  title="Apply Coupon" 
+                  aria-label="Apply Coupon" 
+                  className="px-4 py-2 bg-[var(--fn-accent-india)] text-white rounded-full text-xs font-bold cursor-pointer hover:opacity-90 transition-opacity whitespace-nowrap"
+                >
+                  Apply
+                </button>
+              </div>
+              {couponError && <p className="text-[10px] text-red-500 font-bold px-1">{couponError}</p>}
+              {couponSuccess && <p className="text-[10px] text-emerald-500 font-bold px-1">{couponSuccess}</p>}
             </SpotlightCard>
-          </motion.div>
-          <motion.div variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }}>
-            <SpotlightCard className="fn-clay p-5 flex flex-col gap-3 h-full text-[var(--fn-text-primary)]">
-              <p className="text-sm font-black text-[var(--fn-text-primary)]">Have a coupon?</p>
-              <div className="flex gap-2"><input value={couponCode} onChange={(e) => setCouponCode(e.target.value)} placeholder="Coupon Code (e.g. STUDENT20)" title="Coupon Code" aria-label="Coupon Code" className="w-full rounded-xl border border-[var(--fn-border)] bg-background px-3 py-2 text-xs text-[var(--fn-text-primary)]" /><button onClick={handleValidateCoupon} title="Apply Coupon" aria-label="Apply Coupon" className="px-4 py-2 bg-[var(--fn-accent-primary)] text-white rounded-xl text-xs font-black cursor-pointer">Apply</button></div>
+          </div>
+
+          <div>
+            <SpotlightCard className="fn-glass rounded-2xl p-4 flex items-center gap-3 h-full text-[var(--fn-text-primary)] justify-center">
+              <div className="h-10 w-10 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+                <ShieldCheck className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-[var(--fn-text-primary)]">Secure Checkout</p>
+                <p className="text-[11px] text-[var(--fn-text-secondary)] mt-0.5">100% encrypted & protected payments.</p>
+              </div>
             </SpotlightCard>
-          </motion.div>
-          <motion.div variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }}>
-            <SpotlightCard className="fn-glass p-5 flex flex-col justify-center h-full text-[var(--fn-text-primary)]">
-              <p className="text-sm font-black text-[var(--fn-text-primary)]">Secure Checkout</p>
-              <p className="text-[11px] text-[var(--fn-text-secondary)] mt-1">100% encrypted & protected.</p>
-            </SpotlightCard>
-          </motion.div>
+          </div>
         </motion.div>
       </main>
+
       <OTPVerificationModal
         isOpen={otpOpen}
         onClose={() => {
@@ -598,35 +757,6 @@ export default function PricingPage() {
         }}
       />
       <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
-
-      {/* Spatial Key HUD */}
-      <div className="sr-only">
-        <div className="glass px-5 py-3 rounded-full border border-white/10 shadow-2xl flex items-center gap-6 text-[11px] font-bold text-muted-foreground backdrop-blur-xl spatial-hud-glow">
-          <div className="flex items-center gap-1.5">
-            <span className="spatial-keycap px-2 py-1 rounded text-[10px] font-sans font-black shadow-sm mr-1">←</span>
-            <span className="spatial-keycap px-2 py-1 rounded text-[10px] font-sans font-black shadow-sm mr-1">→</span>
-            <span className="text-white/80 font-black tracking-wider uppercase text-[10px]">Navigate</span>
-          </div>
-          <div className="h-4 border-r border-white/10" />
-          <div className="flex items-center gap-1.5">
-            <span className="spatial-keycap px-2.5 py-1 rounded text-[10px] font-sans font-black shadow-sm mr-1">Enter</span>
-            <span className="text-white/80 font-black tracking-wider uppercase text-[10px]">Select</span>
-          </div>
-          <div className="h-4 border-r border-white/10" />
-          <div className="flex items-center gap-1.5">
-            <span className="spatial-keycap px-2.5 py-1 rounded text-[10px] font-sans font-black shadow-sm mr-1">Esc</span>
-            <span className="text-white/80 font-black tracking-wider uppercase text-[10px]">Clear</span>
-          </div>
-          {hudActiveIndex !== null && (
-            <>
-              <div className="h-4 border-r border-white/10" />
-              <div className="text-[10px] font-black text-indigo-400 uppercase tracking-widest animate-pulse">
-                Focused: {hudActiveIndex === 0 ? "Free" : hudActiveIndex === 1 ? "Basic" : hudActiveIndex === 2 ? "Pro" : hudActiveIndex === 3 ? "Elite" : hudActiveIndex === 4 ? "24H Pass" : "Weekly Pass"}
-              </div>
-            </>
-          )}
-        </div>
-      </div>
     </div>
   );
 }

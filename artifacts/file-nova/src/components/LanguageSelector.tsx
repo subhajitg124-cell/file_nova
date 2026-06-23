@@ -87,7 +87,7 @@ export function LanguageSelector({
             exit={{ opacity: 0, y: -10, scale: 0.94 }}
             transition={{ duration: 0.2, type: "spring", stiffness: 400, damping: 25 }}
             role="listbox"
-            className="absolute right-0 top-full mt-2.5 z-50 w-56 fn-glass rounded-xl shadow-[var(--fn-shadow-elevated)] overflow-hidden text-[var(--fn-text-primary)]"
+            className="absolute right-0 top-full mt-2.5 z-[9999] w-56 fn-glass rounded-xl shadow-[var(--fn-shadow-elevated)] overflow-hidden text-[var(--fn-text-primary)]"
             style={{ fontFamily: "'Inter', 'Outfit', sans-serif" }}
           >
             <div className="px-4 pt-3 pb-2 border-b border-border/50">
