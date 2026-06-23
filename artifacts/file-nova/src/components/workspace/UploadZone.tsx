@@ -4,6 +4,7 @@ import { Upload, AlertCircle, Loader2, FileText, Image, Video, FileSpreadsheet, 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFileStore } from '@/store/useFileStore';
 import { useAuthStore, type UserProfile, type UserSubscription } from '@/store/useAuthStore';
+import { useCheckoutStore } from '@/store/useCheckoutStore';
 import { useTranslation } from '@/lib/i18n';
 import { useAdmin } from '@/lib/admin';
 import { apiClient, apiMock } from '@/lib/api';
@@ -354,7 +355,11 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setSizeLimitModal(null)}>Cancel</Button>
-            <Button onClick={() => { window.location.href = '/pricing'; }}>Upgrade Now</Button>
+            <Button onClick={() => {
+              const target = sizeLimitModal?.plan === 'free' ? 'basic' : sizeLimitModal?.plan === 'basic' ? 'pro' : 'elite';
+              setSizeLimitModal(null);
+              useCheckoutStore.getState().openCheckout(target);
+            }}>Upgrade Now</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -369,7 +374,10 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setBulkUpgradeOpen(false)}>Cancel</Button>
-            <Button onClick={() => { window.location.href = '/pricing'; }}>Upgrade to Pro</Button>
+            <Button onClick={() => {
+              setBulkUpgradeOpen(false);
+              useCheckoutStore.getState().openCheckout('pro');
+            }}>Upgrade to Pro</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

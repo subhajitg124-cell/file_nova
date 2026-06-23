@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useSubscription, type PremiumTier } from "@/hooks/useSubscription";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useCheckoutStore } from "@/store/useCheckoutStore";
 import { toast } from "sonner";
 import { BACKEND_URL } from "@/lib/api";
 
@@ -270,10 +271,13 @@ export default function DashboardPage() {
             )}
 
             {premiumTier === "free" && (
-              <Link href="/pricing" className="w-full py-3 inline-flex items-center justify-center gap-2 rounded-xl border border-indigo-500/10 bg-indigo-500/5 hover:bg-indigo-500/10 text-indigo-400 transition text-xs font-black relative z-10">
+              <button
+                onClick={() => useCheckoutStore.getState().openCheckout("pro")}
+                className="w-full py-3 inline-flex items-center justify-center gap-2 rounded-xl border border-indigo-500/10 bg-indigo-500/5 hover:bg-indigo-500/10 text-indigo-400 transition text-xs font-black relative z-10"
+              >
                 <Sparkles className="h-4 w-4 text-amber-500 animate-pulse" />
                 Upgrade to Basic or Pro for more daily actions
-              </Link>
+              </button>
             )}
           </div>
 
@@ -347,10 +351,13 @@ export default function DashboardPage() {
                 Downgrade Subscription to Free
               </button>
             ) : (
-              <Link href="/pricing" className="w-full py-3.5 bg-gradient-to-r from-primary to-indigo-650 hover:opacity-95 text-white font-black text-xs rounded-xl shadow-premium shadow-glow hover:-translate-y-0.5 transition duration-200 cursor-pointer flex items-center justify-center gap-2 relative z-10">
+              <button
+                onClick={() => useCheckoutStore.getState().openCheckout("pro")}
+                className="w-full py-3.5 bg-gradient-to-r from-primary to-indigo-650 hover:opacity-95 text-white font-black text-xs rounded-xl shadow-premium shadow-glow hover:-translate-y-0.5 transition duration-200 cursor-pointer flex items-center justify-center gap-2 relative z-10"
+              >
                 <Sparkles className="h-4 w-4 text-amber-300 animate-pulse" />
                 Explore Premium Billing Plans
-              </Link>
+              </button>
             )}
           </div>
         </section>

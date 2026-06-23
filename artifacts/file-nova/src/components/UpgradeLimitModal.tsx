@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { Sparkles, ShieldAlert, X, ChevronRight, Share2, Youtube, Instagram, Facebook } from "lucide-react";
 import { FILENOVA_UPI_ID } from "@/lib/upi";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useCheckoutStore } from "@/store/useCheckoutStore";
 import { toast } from "sonner";
 
 interface UpgradeLimitModalProps {
@@ -45,7 +46,7 @@ export function UpgradeLimitModal({ isOpen, onClose, limit = 3, usage = 3 }: Upg
 
   const handlePricingRedirect = () => {
     onClose();
-    setLocation("/pricing");
+    useCheckoutStore.getState().openCheckout("pro");
   };
 
   const handleReferralRedirect = () => {

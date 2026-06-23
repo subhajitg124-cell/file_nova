@@ -1,4 +1,4 @@
-export const FILENOVA_UPI_ID = "9064560741@slc";
+export const FILENOVA_UPI_ID = "9064560741@upi";
 export const FILENOVA_PAYEE_NAME = "Subhajit Ghosh";
 
 export function createUpiLink(amount: number, note: string) {

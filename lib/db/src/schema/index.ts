@@ -188,13 +188,10 @@ export const insertProcessingJobSchema = createInsertSchema(processingJobsTable)
 
 export type User = typeof usersTable.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
-export type EventRule = typeof eventRulesTable.$inferSelect;
 export type InsertEventRule = z.infer<typeof insertEventRuleSchema>;
 export type DocumentRule = typeof documentRulesTable.$inferSelect;
 export type ProcessingJob = typeof processingJobsTable.$inferSelect;
 export type Session = typeof sessionsTable.$inferSelect;
-export type FileHistory = typeof fileHistoryTable.$inferSelect;
-
 // Premium features exports
 export * from "./premium";
 export {
@@ -212,7 +209,6 @@ export {
 } from "./premium";
 
 export * from "./subscriptions";
-export { subscriptionsTable, upiPaymentsTable } from "./subscriptions";
+export { subscriptionsTable, upiPaymentsTable, referralRewardsTable, referralRewardsRelations } from "./subscriptions";
 export * from "./coupons";
 export { discountCodesTable, discountCodeUsagesTable } from "./coupons";
-

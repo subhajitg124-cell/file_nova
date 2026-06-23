@@ -1,79 +1,51 @@
-import { Router, type NextFunction, type Request, type Response } from "express";
-import crypto from "node:crypto";
+import { Router, type Response } from "express";
 import { z } from "zod";
-import Razorpay from "razorpay";
-import { db, usersTable, subscriptionsTable, upiPaymentsTable } from "@workspace/db";
+import { db, subscriptionsTable, upiPaymentsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { logger } from "../lib/logger";
 import { authMiddleware, requireAuth, type AuthRequest } from "../middlewares/auth";
-import { handleUserReferrerUpgradeReward } from "../services/referralService";
+import { PaymentService } from "../services/PaymentService";
+import { SubscriptionService } from "../services/SubscriptionService";
+import { WebhookService } from "../services/WebhookService";
+import { InvoiceService } from "../services/InvoiceService";
 
 const router = Router();
 
-const getRazorpayInstance = () => {
-  const key_id = process.env.RAZORPAY_KEY_ID;
-  const key_secret = process.env.RAZORPAY_KEY_SECRET;
-  if (!key_id || !key_secret) {
-    return null;
-  }
-  // @ts-ignore
-  return new Razorpay({ key_id, key_secret });
-};
+const planSchema = z.enum(["basic", "pro", "elite", "pass_24h", "pass_7d"]);
 
 // POST /create-order
 router.post("/create-order", authMiddleware, requireAuth, async (req: AuthRequest, res: Response) => {
   try {
     const { plan, amount, coupon } = z.object({
-      plan: z.enum(["basic", "pro", "elite", "pass_24h", "pass_7d"]),
+      plan: planSchema,
       amount: z.number().int().positive(),
       coupon: z.string().optional(),
     }).parse(req.body);
 
     const user = req.user!;
-    const rp = getRazorpayInstance();
-    let orderId = `order_mock_${crypto.randomBytes(8).toString("hex")}`;
+    
+    // Create order using central PaymentService
+    const orderDetails = await PaymentService.createOrder(user.id, plan, amount, coupon);
 
-    if (rp) {
-      try {
-        const order = await rp.orders.create({
-          amount,
-          currency: "INR",
-          receipt: `receipt_${Date.now()}`,
-          notes: {
-            userId: user.id,
-            plan,
-            coupon: coupon || "",
-          },
-        });
-        orderId = order.id;
-      } catch (err) {
-        logger.error({ err }, "Razorpay order creation failed, using mock fallback order id");
-      }
-    }
-
-    // Insert pending subscription in DB
-    try {
-      await db.insert(subscriptionsTable).values({
-        userId: user.id,
-        plan,
-        status: "pending",
-        amount,
-        currency: "INR",
-        razorpayOrderId: orderId,
-      });
-    } catch (e) {
-      logger.error("DB error creating subscription row in payments router");
-    }
+    // Create pending subscription record using central SubscriptionService
+    await SubscriptionService.createPendingSubscription(
+      user.id,
+      plan,
+      amount,
+      orderDetails.id,
+      coupon
+    );
 
     res.json({
       success: true,
-      orderId,
+      orderId: orderDetails.id,
       amount,
-      currency: "INR",
+      currency: orderDetails.currency,
       plan,
-      keyId: process.env.RAZORPAY_KEY_ID || "rzp_test_mockkey",
+      keyId: orderDetails.keyId,
     });
   } catch (err: any) {
+    logger.error({ err }, "Failed to create order in payments router");
     res.status(500).json({ error: err.message || "Failed to create order" });
   }
 });
@@ -85,71 +57,40 @@ router.post("/verify", authMiddleware, requireAuth, async (req: AuthRequest, res
       razorpay_order_id: z.string(),
       razorpay_payment_id: z.string(),
       razorpay_signature: z.string().optional(),
-      plan: z.enum(["basic", "pro", "elite", "pass_24h", "pass_7d"]),
+      plan: planSchema,
     }).parse(req.body);
 
     const user = req.user!;
-    const rp = getRazorpayInstance();
-    let verified = true;
+    
+    // Verify signature using central PaymentService
+    const isSignatureValid = PaymentService.verifySignature(
+      body.razorpay_order_id,
+      body.razorpay_payment_id,
+      body.razorpay_signature || ""
+    );
 
-    if (rp && body.razorpay_signature) {
-      const generated_signature = crypto
-        .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET || "")
-        .update(`${body.razorpay_order_id}|${body.razorpay_payment_id}`)
-        .digest("hex");
-
-      if (generated_signature !== body.razorpay_signature) {
-        verified = false;
-        return res.status(400).json({ success: false, error: "Payment verification failed" });
-      }
+    if (!isSignatureValid) {
+      return res.status(400).json({ success: false, error: "Payment verification signature mismatch" });
     }
 
-    if (verified) {
-      try {
-        const expiresAt = new Date();
-        if (body.plan === "pass_24h") {
-          expiresAt.setHours(expiresAt.getHours() + 24);
-        } else if (body.plan === "pass_7d") {
-          expiresAt.setDate(expiresAt.getDate() + 7);
-        } else {
-          expiresAt.setDate(expiresAt.getDate() + 30); // 30 days default
-        }
+    // Activate subscription using central SubscriptionService
+    const activated = await SubscriptionService.activateSubscription(
+      body.razorpay_order_id,
+      body.razorpay_payment_id,
+      body.plan
+    );
 
-        // Update subscriptions table status
-        await db
-          .update(subscriptionsTable)
-          .set({
-            status: "active",
-            razorpayPaymentId: body.razorpay_payment_id,
-            currentPeriodStart: new Date(),
-            currentPeriodEnd: expiresAt,
-            updatedAt: new Date(),
-          })
-          .where(eq(subscriptionsTable.razorpayOrderId, body.razorpay_order_id));
-
-        // Update user tier
-        await db
-          .update(usersTable)
-          .set({
-            premiumTier: body.plan,
-            premiumEnabled: true,
-            updatedAt: new Date(),
-          })
-          .where(eq(usersTable.id, user.id));
-
-        // Trigger referrer upgrade rewards check
-        await handleUserReferrerUpgradeReward(user.id);
-      } catch (e) {
-        logger.error({ err: e }, "DB error in verification handler in payments router");
-      }
-
-      res.json({
-        success: true,
-        plan: body.plan,
-        message: `🎉 Welcome to Pro! Your account is now upgraded.`,
-      });
+    if (!activated) {
+      return res.status(500).json({ success: false, error: "Could not activate subscription on verification" });
     }
+
+    res.json({
+      success: true,
+      plan: body.plan,
+      message: `🎉 Welcome to Pro/Premium! Your account is now upgraded.`,
+    });
   } catch (err: any) {
+    logger.error({ err }, "Failed to verify payment in payments router");
     res.status(500).json({ error: err.message || "Failed to verify payment" });
   }
 });
@@ -159,13 +100,13 @@ router.get("/history", authMiddleware, requireAuth, async (req: AuthRequest, res
   try {
     const user = req.user!;
 
-    // 1. Fetch from subscriptionsTable
+    // Fetch subscriptions
     const subs = await db
       .select()
       .from(subscriptionsTable)
       .where(eq(subscriptionsTable.userId, user.id));
 
-    // 2. Fetch from upiPaymentsTable
+    // Fetch UPI payments
     let upiPayments: any[] = [];
     if (user.email) {
       upiPayments = await db
@@ -176,7 +117,7 @@ router.get("/history", authMiddleware, requireAuth, async (req: AuthRequest, res
 
     const history = [];
 
-    // Add subscriptions
+    // Add subscription payments
     for (const sub of subs) {
       history.push({
         id: sub.razorpayPaymentId || sub.razorpayOrderId || sub.id,
@@ -187,7 +128,7 @@ router.get("/history", authMiddleware, requireAuth, async (req: AuthRequest, res
       });
     }
 
-    // Add pending UPI payments (approved ones are already in subscriptions)
+    // Add pending UPI payments (approved ones are already converted to active subscriptions)
     for (const upi of upiPayments) {
       if (upi.status === "pending") {
         history.push({
@@ -200,7 +141,7 @@ router.get("/history", authMiddleware, requireAuth, async (req: AuthRequest, res
       }
     }
 
-    // Sort by date descending
+    // Sort descending by date
     history.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
     res.json({
@@ -210,6 +151,73 @@ router.get("/history", authMiddleware, requireAuth, async (req: AuthRequest, res
   } catch (err: any) {
     logger.error({ err }, "Failed to fetch payment history");
     res.status(500).json({ success: false, error: err.message || "Failed to fetch payment history" });
+  }
+});
+
+// POST /webhook (Razorpay Webhook verification endpoint)
+router.post("/webhook", async (req: any, res: Response) => {
+  const signature = req.headers["x-razorpay-signature"] as string;
+  const secret = process.env.RAZORPAY_WEBHOOK_SECRET || "";
+
+  logger.info({ body: req.body }, "Received Razorpay webhook request in payments router");
+
+  // Validate webhook signature if secret and signature are provided
+  if (secret && signature) {
+    const rawBody = req.rawBody || JSON.stringify(req.body);
+    const verified = WebhookService.verifySignature(rawBody, signature, secret);
+    
+    if (!verified) {
+      logger.error("Invalid Razorpay webhook signature verified in WebhookService");
+      return res.status(400).json({ success: false, error: "Invalid signature" });
+    }
+  }
+
+  try {
+    const event = req.body?.event;
+    const payload = req.body?.payload;
+
+    if (event) {
+      await WebhookService.processEvent(event, payload);
+    }
+    res.json({ received: true });
+  } catch (err: any) {
+    logger.error({ err }, "Error processing webhook in payments router");
+    res.status(500).json({ error: "Internal webhook error" });
+  }
+});
+
+// GET /invoice/:id (Fetch detailed invoice for a subscription)
+router.get("/invoice/:id", authMiddleware, requireAuth, async (req: AuthRequest, res: Response) => {
+  try {
+    const subId = req.params.id;
+    if (typeof subId !== "string") {
+      return res.status(400).json({ success: false, error: "Invalid subscription ID." });
+    }
+    
+    // Fetch the subscription first to verify ownership
+    const [sub] = await db
+      .select()
+      .from(subscriptionsTable)
+      .where(eq(subscriptionsTable.id, subId))
+      .limit(1);
+
+    if (!sub) {
+      return res.status(404).json({ success: false, error: "Subscription record not found." });
+    }
+
+    if (sub.userId !== req.user!.id) {
+      return res.status(403).json({ success: false, error: "Unauthorized access to this invoice." });
+    }
+
+    const invoice = await InvoiceService.generateInvoiceForSubscription(subId);
+    if (!invoice) {
+      return res.status(500).json({ success: false, error: "Failed to generate invoice details." });
+    }
+
+    res.json({ success: true, invoice });
+  } catch (err: any) {
+    logger.error({ err, subId: req.params.id }, "Failed to fetch invoice");
+    res.status(500).json({ success: false, error: err.message || "Failed to retrieve invoice." });
   }
 });
 

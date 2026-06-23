@@ -23,6 +23,7 @@ import { BACKEND_URL, HAS_BACKEND } from "@/lib/api";
 import { EditingWindow } from "@/components/EditingWindow";
 import { apiClient, apiMock } from "@/lib/api";
 import { setupFetchInterceptor } from "@/lib/fetchInterceptor";
+import { CheckoutModal } from "@/components/CheckoutModal";
 
 const queryClient = new QueryClient();
 
@@ -282,6 +283,7 @@ function App({ ssrPath }: { ssrPath?: string } = {}) {
                       limit={modalLimit}
                       usage={modalUsage}
                     />
+                    <CheckoutModal />
                     {editorOpen && editorFile && (
                       <EditingWindow
                         file={editorFile}

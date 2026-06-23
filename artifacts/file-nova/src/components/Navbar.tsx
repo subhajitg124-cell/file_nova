@@ -10,6 +10,7 @@ import { LanguageSelector } from "@/components/LanguageSelector";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { PlanBadge } from "@/components/PlanBadge";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useCheckoutStore } from "@/store/useCheckoutStore";
 import { PopularToolsDropdown } from "@/components/PopularToolsDropdown";
 import { SmartSearchBar } from "@/components/SmartSearchBar";
 
@@ -145,10 +146,10 @@ export function Navbar({ showSearch = true }: NavbarProps) {
               </AnimatePresence>
             </div>
 
-            <Link href="/pricing" className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-black text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 px-3.5 py-2 rounded-full transition-all shadow-md hover:shadow-lg hover:scale-[1.02] whitespace-nowrap shrink-0 active:scale-95">
+            <button onClick={() => useCheckoutStore.getState().openCheckout("pro")} className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-black text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 px-3.5 py-2 rounded-full transition-all shadow-md hover:shadow-lg hover:scale-[1.02] whitespace-nowrap shrink-0 active:scale-95">
               <Crown className="h-3.5 w-3.5 fill-current" />
               {tText("Premium")}
-            </Link>
+            </button>
 
             <div className="flex items-center gap-1.5 shrink-0">
               <div className="hidden sm:block">
@@ -193,10 +194,10 @@ export function Navbar({ showSearch = true }: NavbarProps) {
               </div>
             )}
             <div className="flex flex-col gap-2 pt-2 border-t border-border">
-              <Link onClick={() => setMobileMenuOpen(false)} href="/pricing" className="flex items-center justify-center gap-2 text-sm font-black text-white bg-gradient-to-r from-amber-500 to-orange-600 py-2.5 rounded-lg">
+              <button onClick={() => { setMobileMenuOpen(false); useCheckoutStore.getState().openCheckout("pro"); }} className="flex items-center justify-center gap-2 text-sm font-black text-white bg-gradient-to-r from-amber-500 to-orange-600 py-2.5 rounded-lg">
                 <Crown className="h-4 w-4 fill-current" />
                 {tText("Premium Suite")}
-              </Link>
+              </button>
               <Link onClick={() => setMobileMenuOpen(false)} href="/workspace" className="text-center text-sm bg-card border border-border text-foreground font-bold py-2 rounded-lg">
                 <FileText className="h-4 w-4 inline-block mr-1.5" />{tText("Open Document Workspace")}
               </Link>

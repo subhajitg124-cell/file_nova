@@ -187,14 +187,20 @@ export async function handleUserReferrerUpgradeReward(userId: string) {
       .limit(1);
 
     if (referral) {
-      // Grant referrer 7 days Pro reward
-      await grantReferralReward(referral.referrerUserId, 7);
-      
-      // Update the referral record so we don't grant it again
-      await db
-        .update(referralsTable)
-        .set({ upgradeRewardGiven: true })
-        .where(eq(referralsTable.id, referral.id));
+      // Find the user's latest active subscription to get subscriptionId and amountPaid
+      const [latestSub] = await db
+        .select()
+        .from(subscriptionsTable)
+        .where(and(eq(subscriptionsTable.userId, userId), eq(subscriptionsTable.status, "active")))
+        .orderBy(desc(subscriptionsTable.createdAt))
+        .limit(1);
+
+      const subId = latestSub ? latestSub.id : "unknown";
+      const amountPaid = latestSub ? latestSub.amount : 0;
+
+      // Dynamically import ReferralRewardService to prevent circular dependency
+      const { ReferralRewardService } = await import("./ReferralRewardService");
+      await ReferralRewardService.processReferralUpgrade(userId, subId, amountPaid);
     }
   } catch (err) {
     // Ignore database errors, don't crash the request

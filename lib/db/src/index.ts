@@ -70,6 +70,10 @@ const mockDb: Record<string, Map<string, any>> = {
   file_history: new Map(),
   upi_payments: new Map(),
   ip_usage: new Map(),
+  discount_codes: new Map(),
+  discount_code_usages: new Map(),
+  referrals: new Map(),
+  referral_rewards: new Map(),
 };
 
 // Pre-seed default super_admin and test user
@@ -166,6 +170,26 @@ export function simulateSqlQuery(sql: string, params: any[] = []): { rows: any[]
     const refCodeVal = getParamForField(sql, "referral_code", params);
     if (refCodeVal !== null) {
       results = results.filter(r => String(r.referralCode) === String(refCodeVal));
+    }
+
+    const codeVal = getParamForField(sql, "code", params);
+    if (codeVal !== null) {
+      results = results.filter(r => String(r.code).toUpperCase() === String(codeVal).toUpperCase());
+    }
+
+    const referredEmailVal = getParamForField(sql, "referred_email", params) || getParamForField(sql, "referredEmail", params);
+    if (referredEmailVal !== null) {
+      results = results.filter(r => String(r.referredEmail || r.referred_email).toLowerCase() === String(referredEmailVal).toLowerCase());
+    }
+
+    const referrerUserIdVal = getParamForField(sql, "referrer_user_id", params) || getParamForField(sql, "referrerUserId", params);
+    if (referrerUserIdVal !== null) {
+      results = results.filter(r => String(r.referrerUserId || r.referrer_user_id) === String(referrerUserIdVal));
+    }
+
+    const utrIdVal = getParamForField(sql, "utr_id", params) || getParamForField(sql, "utrId", params);
+    if (utrIdVal !== null) {
+      results = results.filter(r => String(r.utrId || r.utr_id) === String(utrIdVal));
     }
     
     if (sqlLower.includes("order by") && sqlLower.includes("created_at") && sqlLower.includes("desc")) {

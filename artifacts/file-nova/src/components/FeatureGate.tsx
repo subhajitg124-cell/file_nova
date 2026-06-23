@@ -7,6 +7,7 @@ import React, { useState } from "react";
 import { useLocation } from "wouter";
 import { Lock, Sparkles, AlertTriangle } from "lucide-react";
 import { useSubscription, type PremiumTier } from "@/hooks/useSubscription";
+import { useCheckoutStore } from "@/store/useCheckoutStore";
 import { AdGateModal } from "./AdGateModal";
 import { toast } from "sonner";
 
@@ -46,7 +47,7 @@ export function FeatureGate({
       e.preventDefault();
       e.stopPropagation();
       toast.info(`The ${featureName} tool requires a ${requiredPlan.toUpperCase()} subscription.`);
-      setLocation("/pricing");
+      useCheckoutStore.getState().openCheckout(requiredPlan as any);
       return;
     }
 
@@ -58,7 +59,7 @@ export function FeatureGate({
       toast.error(
         `Daily limit of ${dailyMax} operations reached on your ${premiumTier.toUpperCase()} plan. Upgrade to a higher plan to continue.`
       );
-      setLocation("/pricing");
+      useCheckoutStore.getState().openCheckout(premiumTier === "basic" ? "pro" : "basic");
       return;
     }
 

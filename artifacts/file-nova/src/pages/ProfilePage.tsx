@@ -3,9 +3,11 @@ import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { 
   ChevronLeft, User, Phone, Mail, Lock, ShieldAlert, 
-  Trash2, Save, X, Edit3, KeyRound, Award, History 
+  Trash2, Save, X, Edit3, KeyRound, Award, History,
+  CreditCard, Download, Loader2
 } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
+import { apiClient, apiMock, HAS_BACKEND } from "@/lib/api";
 import { toast } from "sonner";
 
 export default function ProfilePage() {
@@ -24,6 +26,166 @@ export default function ProfilePage() {
 
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const [paymentHistory, setPaymentHistory] = useState<any[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [downloadingInvoiceId, setDownloadingInvoiceId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      fetchPaymentHistory();
+    }
+  }, [user]);
+
+  const fetchPaymentHistory = async () => {
+    setLoadingHistory(true);
+    try {
+      const client = HAS_BACKEND ? apiClient : apiMock;
+      const res = await client.getPaymentHistory();
+      if (res.success) {
+        setPaymentHistory(res.history || []);
+      }
+    } catch (err: any) {
+      console.error("Failed to fetch payment history:", err);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
+
+  const handleDownloadInvoice = async (subId: string) => {
+    if (subId.startsWith("upi_")) {
+      toast.info("Invoices for manual UPI payments are available once approved by admin.");
+      return;
+    }
+    setDownloadingInvoiceId(subId);
+    try {
+      const client = HAS_BACKEND ? apiClient : apiMock;
+      const res = await client.getInvoice(subId);
+      if (res.success && res.invoice) {
+        const inv = res.invoice;
+        const printWindow = window.open("", "_blank");
+        if (printWindow) {
+          printWindow.document.write(`
+            <html>
+              <head>
+                <title>Invoice ${inv.invoiceNumber}</title>
+                <style>
+                  body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; padding: 40px; line-height: 1.5; background: #ffffff; }
+                  .invoice-box { max-width: 800px; margin: auto; border: 1px solid #e2e8f0; padding: 40px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); }
+                  .header { display: flex; justify-content: space-between; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px; margin-bottom: 30px; }
+                  .logo { font-size: 24px; font-weight: 800; color: #4f46e5; letter-spacing: -0.025em; }
+                  .invoice-details { text-align: right; font-size: 13px; color: #64748b; }
+                  .invoice-details h2 { margin: 0; font-size: 20px; font-weight: 800; color: #0f172a; }
+                  .details-grid { display: grid; grid-template-cols: 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+                  .details-block h4 { margin: 0 0 8px 0; text-transform: uppercase; font-size: 10px; font-weight: 800; tracking-wider; color: #94a3b8; }
+                  .details-block p { margin: 0 0 4px 0; font-size: 13px; font-weight: 600; color: #334155; }
+                  .table { width: 100%; border-collapse: collapse; margin-bottom: 40px; }
+                  .table th { background: #f8fafc; padding: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; color: #64748b; text-align: left; border-bottom: 1px solid #e2e8f0; }
+                  .table td { padding: 16px 12px; font-size: 13px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+                  .totals-container { display: flex; justify-content: flex-end; }
+                  .totals { width: 300px; font-size: 13px; color: #475569; }
+                  .totals-row { display: flex; justify-content: space-between; padding: 8px 0; }
+                  .totals-row.grand { border-top: 2px solid #f1f5f9; padding-top: 12px; font-size: 16px; font-weight: 850; color: #0f172a; }
+                  .footer { border-top: 1px solid #f1f5f9; padding-top: 20px; margin-top: 60px; font-size: 11px; color: #94a3b8; text-align: center; line-height: 1.6; }
+                  @media print {
+                    body { padding: 0; }
+                    .invoice-box { border: none; box-shadow: none; padding: 0; }
+                  }
+                </style>
+              </head>
+              <body>
+                <div class="invoice-box">
+                  <div class="header">
+                    <div>
+                      <div class="logo">FileNova</div>
+                      <p style="font-size: 12px; color: #64748b; margin: 4px 0 0 0;">Premium Document Productivity Platform</p>
+                    </div>
+                    <div class="invoice-details">
+                      <h2>TAX INVOICE</h2>
+                      <p style="margin: 4px 0 0 0; color: #334155;"><strong>No: ${inv.invoiceNumber}</strong></p>
+                      <p style="margin: 2px 0 0 0;">Date: ${new Date(inv.invoiceDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                    </div>
+                  </div>
+
+                  <div class="details-grid">
+                    <div class="details-block">
+                      <h4>Billed To</h4>
+                      <p>${inv.customerName}</p>
+                      <p>${inv.customerEmail}</p>
+                    </div>
+                    <div class="details-block" style="text-align: right;">
+                      <h4>Payment Details</h4>
+                      <p>Method: ${inv.paymentMethod}</p>
+                      <p>Transaction ID: ${inv.transactionId}</p>
+                      <p>Currency: ${inv.currency}</p>
+                    </div>
+                  </div>
+
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Item Description</th>
+                        <th style="text-align: right;">Taxable Value</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>
+                          <strong>FileNova ${inv.planName} SaaS Access</strong><br/>
+                          <span style="font-size: 11px; color: #64748b;">Cloud document processing, templates and tools activation.</span>
+                        </td>
+                        <td style="text-align: right;">₹${(inv.baseAmount / 100).toFixed(2)}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                  <div class="totals-container">
+                    <div class="totals">
+                      <div class="totals-row">
+                        <span>Taxable Subtotal</span>
+                        <span>₹${(inv.baseAmount / 100).toFixed(2)}</span>
+                      </div>
+                      <div class="totals-row">
+                        <span>CGST (9%)</span>
+                        <span>₹${(inv.cgstAmount / 100).toFixed(2)}</span>
+                      </div>
+                      <div class="totals-row">
+                        <span>SGST (9%)</span>
+                        <span>₹${(inv.sgstAmount / 100).toFixed(2)}</span>
+                      </div>
+                      <div class="totals-row grand">
+                        <span>Total (Incl. Tax)</span>
+                        <span>₹${(inv.netAmount / 100).toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="footer">
+                    <p>Thank you for subscribing to FileNova Premium! Your billing transaction is processed securely.</p>
+                    <p>For support and queries, please email us at <strong>${inv.supportEmail}</strong>.</p>
+                    <p style="font-size: 9px; margin-top: 15px;">* This is a computer-generated tax invoice that complies with SaaS digital transaction rules. No signature required.</p>
+                  </div>
+                </div>
+                <script>
+                  window.onload = function() {
+                    window.print();
+                    setTimeout(function() { window.close(); }, 500);
+                  }
+                </script>
+              </body>
+            </html>
+          `);
+          printWindow.document.close();
+        }
+      } else {
+        toast.error("Failed to load invoice details.");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to download invoice.");
+    } finally {
+      setDownloadingInvoiceId(null);
+    }
+  };
 
   useEffect(() => {
     if (!user) {
@@ -385,6 +547,89 @@ export default function ProfilePage() {
                 <p className="text-xs text-slate-500 leading-relaxed">
                   Regular password resets protect your data. If you log in via Google authentication, password changes are handled inside your Google Account settings.
                 </p>
+              )}
+            </div>
+
+            {/* Billing & Payment History */}
+            <div className="bg-slate-900/30 border border-slate-900 rounded-3xl p-6 backdrop-blur-xl shadow-xl">
+              <h3 className="font-extrabold text-sm text-white uppercase tracking-wider flex items-center gap-2 mb-6">
+                <CreditCard className="h-4.5 w-4.5 text-indigo-400" />
+                Billing & Payment History
+              </h3>
+
+              {loadingHistory ? (
+                <div className="flex flex-col items-center justify-center py-8 gap-2">
+                  <Loader2 className="h-6 w-6 text-indigo-500 animate-spin" />
+                  <span className="text-xs text-slate-500">Loading your transactions...</span>
+                </div>
+              ) : paymentHistory.length === 0 ? (
+                <div className="text-center py-8 border border-dashed border-slate-800 rounded-2xl bg-slate-950/20">
+                  <History className="h-8 w-8 text-slate-600 mx-auto mb-2" />
+                  <p className="text-xs text-slate-400 font-semibold">No transactions found</p>
+                  <p className="text-[11px] text-slate-500 mt-1">Upgrade to Premium to see your billing history here.</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-900/60 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                        <th className="pb-3 pr-2">Plan</th>
+                        <th className="pb-3 px-2">Date</th>
+                        <th className="pb-3 px-2">Amount</th>
+                        <th className="pb-3 px-2">Status</th>
+                        <th className="pb-3 pl-2 text-right">Invoice</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-900/40">
+                      {paymentHistory.map((item) => (
+                        <tr key={item.id} className="text-slate-300 hover:text-white transition-colors">
+                          <td className="py-3.5 pr-2 font-bold capitalize">
+                            {item.plan}
+                          </td>
+                          <td className="py-3.5 px-2 text-slate-400">
+                            {new Date(item.createdAt).toLocaleDateString('en-IN', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric'
+                            })}
+                          </td>
+                          <td className="py-3.5 px-2 font-semibold">
+                            ₹{(item.amount / 100).toFixed(2)}
+                          </td>
+                          <td className="py-3.5 px-2">
+                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
+                              item.status === 'active' || item.status === 'completed'
+                                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/25'
+                                : item.status.includes('pending')
+                                ? 'bg-amber-500/10 text-amber-400 border border-amber-500/25'
+                                : 'bg-slate-500/10 text-slate-400 border border-slate-500/25'
+                            }`}>
+                              {item.status}
+                            </span>
+                          </td>
+                          <td className="py-3.5 pl-2 text-right">
+                            {item.status.includes('pending') ? (
+                              <span className="text-[10px] text-slate-500 italic">Pending approval</span>
+                            ) : (
+                              <button
+                                onClick={() => handleDownloadInvoice(item.id)}
+                                disabled={downloadingInvoiceId === item.id}
+                                className="inline-flex items-center gap-1.5 py-1 px-2 bg-slate-900 hover:bg-slate-850 border border-slate-850 rounded-lg text-[11px] font-bold text-slate-300 hover:text-white hover:border-slate-800 transition-all cursor-pointer disabled:opacity-50"
+                              >
+                                {downloadingInvoiceId === item.id ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <Download className="h-3 w-3" />
+                                )}
+                                PDF
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </div>
 

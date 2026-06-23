@@ -123,6 +123,120 @@ export const apiClient = {
 
   getDownloadUrl(jobId: string): string {
     return `${BACKEND_URL}/api/v1/download/${jobId}`;
+  },
+
+  async createSubscriptionOrder(plan: string, coupon?: string): Promise<any> {
+    const res = await fetch(`${BACKEND_URL}/api/v1/premium/subscription/order`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ plan, coupon }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to create subscription order');
+    }
+    return res.json();
+  },
+
+  async verifySubscriptionPayment(payload: {
+    razorpay_order_id: string;
+    razorpay_payment_id: string;
+    razorpay_signature?: string;
+    plan: string;
+  }): Promise<any> {
+    const res = await fetch(`${BACKEND_URL}/api/v1/premium/subscription/verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Payment verification failed');
+    }
+    return res.json();
+  },
+
+  async validateCoupon(coupon: string, plan: string): Promise<any> {
+    const res = await fetch(`${BACKEND_URL}/api/v1/premium/subscription/coupons/validate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ coupon, plan }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Coupon validation failed');
+    }
+    return res.json();
+  },
+
+  async submitUpiPayment(payload: {
+    utrId: string;
+    email: string;
+    plan: string;
+    amount: number;
+  }): Promise<any> {
+    const res = await fetch(`${BACKEND_URL}/api/upi-payment-verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'UPI transaction submission failed');
+    }
+    return res.json();
+  },
+
+  async getPaymentHistory(): Promise<any> {
+    const res = await fetch(`${BACKEND_URL}/api/payments/history`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to fetch payment history');
+    }
+    return res.json();
+  },
+
+  async cancelSubscription(): Promise<any> {
+    const res = await fetch(`${BACKEND_URL}/api/v1/premium/subscription/cancel`, {
+      method: 'POST',
+      credentials: 'include',
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Subscription cancellation failed');
+    }
+    return res.json();
+  },
+
+  async getSubscriptionStatus(): Promise<any> {
+    const res = await fetch(`${BACKEND_URL}/api/v1/premium/subscription/status`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to fetch subscription status');
+    }
+    return res.json();
+  },
+
+  async getInvoice(subId: string): Promise<any> {
+    const res = await fetch(`${BACKEND_URL}/api/payments/invoice/${subId}`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to fetch invoice details');
+    }
+    return res.json();
   }
 };
 
@@ -197,5 +311,112 @@ export const apiMock = {
       }
     }, 180);
     return () => clearInterval(interval);
+  },
+
+  async createSubscriptionOrder(plan: string, coupon?: string) {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return {
+      success: true,
+      orderId: `order_mock_${Math.random().toString(36).substring(7)}`,
+      amount: plan === 'basic' ? 4900 : plan === 'pro' ? 9900 : 19900,
+      currency: 'INR',
+      plan,
+      keyId: 'rzp_test_mockkey',
+    };
+  },
+
+  async verifySubscriptionPayment(payload: any) {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return {
+      success: true,
+      plan: payload.plan,
+      message: 'Subscription activated (Mock Mode)',
+    };
+  },
+
+  async validateCoupon(coupon: string, plan: string) {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    const code = coupon.toUpperCase().trim();
+    if (['STUDENT20', 'CYBER50', 'FIRST30', 'WB10'].includes(code)) {
+      const discount = code === 'STUDENT20' ? 20 : code === 'CYBER50' ? 50 : code === 'FIRST30' ? 30 : 10;
+      return {
+        success: true,
+        valid: true,
+        discountPercentage: discount,
+        message: `${discount}% discount applied!`,
+      };
+    }
+    return {
+      success: true,
+      valid: false,
+      discountPercentage: 0,
+      message: 'Invalid coupon code in mock mode.',
+    };
+  },
+
+  async submitUpiPayment(payload: any) {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return {
+      success: true,
+      message: 'Payment received! Your account will be upgraded within 2-4 hours after verification.',
+    };
+  },
+
+  async getPaymentHistory() {
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    return {
+      success: true,
+      history: [
+        {
+          id: 'pay_mock_123',
+          plan: 'pro',
+          amount: 9900,
+          status: 'active',
+          createdAt: new Date().toISOString(),
+        }
+      ],
+    };
+  },
+
+  async cancelSubscription() {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return { success: true, message: 'Subscription cancelled successfully.' };
+  },
+
+  async getSubscriptionStatus() {
+    return {
+      success: true,
+      premiumTier: 'free',
+      premiumEnabled: false,
+      usageToday: 0,
+      limit: 3,
+      subscription: null,
+      usersServedToday: 3847,
+    };
+  },
+
+  async getInvoice(subId: string) {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    return {
+      success: true,
+      invoice: {
+        invoiceNumber: `INV-${subId.substring(0, 8).toUpperCase()}-${new Date().getFullYear()}`,
+        invoiceDate: new Date().toISOString(),
+        customerName: 'Mock User',
+        customerEmail: 'mock@filenova.in',
+        planName: 'PRO',
+        paymentMethod: 'Razorpay Checkout',
+        transactionId: 'pay_mock_' + subId,
+        currency: 'INR',
+        originalAmount: 9900,
+        discountAmount: 0,
+        netAmount: 9900,
+        gstRate: 18,
+        baseAmount: 8390,
+        cgstAmount: 755,
+        sgstAmount: 755,
+        supportEmail: 'support@filenova.in',
+      }
+    };
   }
 };

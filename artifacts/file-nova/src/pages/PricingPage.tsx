@@ -11,6 +11,7 @@ import { useSubscription, type PremiumTier, isTestingPeriodActive } from "@/hook
 import { TestingNotice } from "@/components/TestingNotice";
 import { useAdmin } from "@/lib/admin";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useCheckoutStore } from "@/store/useCheckoutStore";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
 import { Navbar } from "@/components/Navbar";
 import { BackHomeBar } from "@/components/BackHomeBar";
@@ -253,11 +254,8 @@ function PlanCard({
           </div>
 
           <div className="mt-auto pt-6 w-full">
-            <div className={isPaidPlan && !isCurrent ? "flex flex-col gap-2 w-full" : "w-full"}>
+            <div className="w-full">
               {getCtaButton()}
-              {isPaidPlan && !isCurrent && (
-                <UpiPaymentBox plan={id} amount={amount} userEmail={userEmail} />
-              )}
             </div>
           </div>
         </div>
@@ -458,7 +456,8 @@ function UpiPaymentBox({
 }
 
 export default function PricingPage() {
-  const { premiumTier, startCheckout, cancelSubscription, loading, activeOffer, usersServedToday } = useSubscription();
+  const { premiumTier, cancelSubscription, loading, activeOffer, usersServedToday } = useSubscription();
+  const { openCheckout } = useCheckoutStore();
   const { user } = useAuthStore();
   const [authModalOpen, setAuthModalOpen] = React.useState(false);
   const [otpOpen, setOtpOpen] = React.useState(false);
@@ -542,7 +541,7 @@ export default function PricingPage() {
     if (plan === "free") { if (premiumTier !== "free" && confirm("Confirm cancellation?")) cancelSubscription(); return; }
     if (!user) return;
     if (!user.phoneVerified) { setPendingPlan(plan); setOtpOpen(true); return; }
-    startCheckout(plan as Exclude<PremiumTier, "free">, appliedDiscount > 0 ? couponCode.trim().toUpperCase() : undefined);
+    openCheckout(plan as any, appliedDiscount > 0 ? couponCode.trim().toUpperCase() : undefined);
   };
 
   const getPlanPrice = (planId: PremiumTier, original: number) => {
@@ -635,9 +634,8 @@ export default function PricingPage() {
                   <div className="flex items-baseline gap-1 mb-3">
                     <span className="text-2xl font-bold text-[var(--fn-text-primary)]">₹9</span>
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button onClick={() => handleSelectPlan("pass_24h")} className="py-2 bg-[var(--fn-accent-primary)] text-white rounded-full text-xs font-black cursor-pointer hover:opacity-90 transition-opacity">Buy</button>
-                    <UpiPaymentBox plan="pass_24h" amount={9} />
+                  <div className="w-full">
+                    <button onClick={() => handleSelectPlan("pass_24h")} className="w-full py-2 bg-[var(--fn-accent-primary)] text-white rounded-full text-xs font-black cursor-pointer hover:opacity-90 transition-opacity">Buy Pass</button>
                   </div>
                 </div>
               </SpotlightCard>
@@ -653,9 +651,8 @@ export default function PricingPage() {
                   <div className="flex items-baseline gap-1 mb-3">
                     <span className="text-2xl font-bold text-[var(--fn-text-primary)]">₹29</span>
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button onClick={() => handleSelectPlan("pass_7d")} className="py-2 bg-[var(--fn-accent-primary)] text-white rounded-full text-xs font-black cursor-pointer hover:opacity-90 transition-opacity">Buy</button>
-                    <UpiPaymentBox plan="pass_7d" amount={29} />
+                  <div className="w-full">
+                    <button onClick={() => handleSelectPlan("pass_7d")} className="w-full py-2 bg-[var(--fn-accent-primary)] text-white rounded-full text-xs font-black cursor-pointer hover:opacity-90 transition-opacity">Buy Pass</button>
                   </div>
                 </div>
               </SpotlightCard>
@@ -720,7 +717,7 @@ export default function PricingPage() {
           if (pendingPlan && pendingPlan !== "free") {
             const couponDiscount = getDynamicCouponDiscount(pendingPlan, couponCode);
             const activeCoupon = couponDiscount > 0 ? couponCode.trim().toUpperCase() : undefined;
-            startCheckout(pendingPlan as Exclude<PremiumTier, "free">, activeCoupon);
+            openCheckout(pendingPlan as any, activeCoupon);
             setPendingPlan(null);
           }
         }}

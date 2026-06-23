@@ -1,9 +1,9 @@
 import { Router, type Request, type Response } from "express";
 import { z } from "zod";
-import { db, subscriptionsTable, upiPaymentsTable, usersTable } from "@workspace/db";
-import { desc, eq } from "drizzle-orm";
+import { db, upiPaymentsTable } from "@workspace/db";
 import { adminAuth } from "../middlewares/adminAuth";
 import { logger } from "../lib/logger";
+import { AdminPaymentService } from "../services/AdminPaymentService";
 
 const router = Router();
 
@@ -16,6 +16,7 @@ const upiVerifySchema = z.object({
   amount: z.number().int().positive(),
 });
 
+// POST /upi-payment-verify (Public endpoint for submitting UTR)
 router.post("/upi-payment-verify", async (req: Request, res: Response) => {
   try {
     const payload = upiVerifySchema.parse(req.body);
@@ -43,14 +44,10 @@ router.post("/upi-payment-verify", async (req: Request, res: Response) => {
   }
 });
 
+// GET /upi-payments (Admin-only list of pending UPI checkouts)
 router.get("/upi-payments", adminAuth, async (_req: Request, res: Response) => {
   try {
-    const payments = await db
-      .select()
-      .from(upiPaymentsTable)
-      .where(eq(upiPaymentsTable.status, "pending"))
-      .orderBy(desc(upiPaymentsTable.createdAt));
-
+    const payments = await AdminPaymentService.getPendingUpiPayments();
     res.json({ success: true, payments });
   } catch (err: any) {
     logger.error({ err }, "Failed to fetch pending UPI payments");
@@ -58,68 +55,37 @@ router.get("/upi-payments", adminAuth, async (_req: Request, res: Response) => {
   }
 });
 
+// POST /upi-payments/:id/approve (Admin-only approve endpoint)
 router.post("/upi-payments/:id/approve", adminAuth, async (req: Request, res: Response) => {
   try {
     const paymentId = String(req.params.id);
-    const [payment] = await db
-      .select()
-      .from(upiPaymentsTable)
-      .where(eq(upiPaymentsTable.id, paymentId))
-      .limit(1);
-
-    if (!payment) {
-      return res.status(404).json({ success: false, error: "UPI payment not found." });
+    const approved = await AdminPaymentService.approveUpiPayment(paymentId);
+    
+    if (approved) {
+      res.json({ success: true, message: "UPI payment approved and subscriber upgraded successfully." });
+    } else {
+      res.status(400).json({ success: false, error: "Failed to approve UPI payment." });
     }
-
-    if (payment.status !== "pending") {
-      return res.status(400).json({ success: false, error: "UPI payment is already processed." });
-    }
-
-    const [user] = await db
-      .select()
-      .from(usersTable)
-      .where(eq(usersTable.email, payment.email))
-      .limit(1);
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        error: "No FileNova user exists for this email. Ask the customer to sign up first.",
-      });
-    }
-
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 30);
-
-    await db.insert(subscriptionsTable).values({
-      userId: user.id,
-      plan: payment.plan,
-      status: "active",
-      amount: payment.amount * 100,
-      currency: "INR",
-      razorpayPaymentId: `upi_${payment.utrId}`,
-      currentPeriodStart: new Date(),
-      currentPeriodEnd: expiresAt,
-    });
-
-    await db
-      .update(usersTable)
-      .set({
-        premiumTier: payment.plan,
-        premiumEnabled: true,
-        updatedAt: new Date(),
-      })
-      .where(eq(usersTable.id, user.id));
-
-    await db
-      .update(upiPaymentsTable)
-      .set({ status: "approved", updatedAt: new Date() })
-      .where(eq(upiPaymentsTable.id, payment.id));
-
-    res.json({ success: true, message: `Approved ${payment.plan} subscription for ${payment.email}.` });
   } catch (err: any) {
-    logger.error({ err }, "Failed to approve UPI payment");
+    logger.error({ err }, "Failed to approve UPI payment in route");
     res.status(500).json({ success: false, error: err.message || "Failed to approve UPI payment." });
+  }
+});
+
+// POST /upi-payments/:id/reject (Admin-only reject endpoint)
+router.post("/upi-payments/:id/reject", adminAuth, async (req: Request, res: Response) => {
+  try {
+    const paymentId = String(req.params.id);
+    const rejected = await AdminPaymentService.rejectUpiPayment(paymentId);
+    
+    if (rejected) {
+      res.json({ success: true, message: "UPI payment request has been rejected successfully." });
+    } else {
+      res.status(400).json({ success: false, error: "Failed to reject UPI payment." });
+    }
+  } catch (err: any) {
+    logger.error({ err }, "Failed to reject UPI payment in route");
+    res.status(500).json({ success: false, error: err.message || "Failed to reject UPI payment." });
   }
 });
 
