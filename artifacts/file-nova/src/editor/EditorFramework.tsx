@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { EditorSkeleton } from "./components/EditorSkeleton";
 import { AnimatePresence, motion } from "framer-motion";
 import * as pdfjsLib from "pdfjs-dist";
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
@@ -17,9 +18,10 @@ interface EditorFrameworkProps {
   onClose: () => void;
   onDone: (result: Blob) => void;
   totalPages?: number;
+  loading?: boolean;
 }
 
-const EditorFramework: React.FC<EditorFrameworkProps> = ({ file, fileType, plugin, onClose, onDone, totalPages: _totalPages }) => {
+const EditorFramework: React.FC<EditorFrameworkProps> = ({ file, fileType, plugin, onClose, onDone, totalPages: _totalPages, loading = false }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const annotationCanvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -58,7 +60,8 @@ const EditorFramework: React.FC<EditorFrameworkProps> = ({ file, fileType, plugi
     onBusy: setBusy,
     disabled: busy,
     mode,
-  }), [file, fileType, config, onConfigChange, busy, mode]);
+    loading,
+  }), [file, fileType, config, onConfigChange, busy, mode, loading]);
 
   useEffect(() => {
     if (file && fileType === "pdf") {
@@ -78,6 +81,33 @@ const EditorFramework: React.FC<EditorFrameworkProps> = ({ file, fileType, plugi
       setActiveSection(plugin.sections[0].id);
     }
   }, [plugin.sections]);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (showPresets) { setShowPresets(false); return; }
+        if (mobileSheetOpen) { setMobileSheetOpen(false); return; }
+        onClose();
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault();
+        if (!busy && file) handleDone();
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === "z") {
+        e.preventDefault();
+        if (annotations.length > 0) {
+          const removed = annotations[annotations.length - 1];
+          setAnnotations((prev) => { const next = prev.slice(0, -1); setConfig((c) => ({ ...c, annotations: next })); return next; });
+          setStatusMessage(`Undo: removed ${removed.type} annotation`);
+        }
+        return;
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onClose, showPresets, mobileSheetOpen, busy, file, annotations]);
 
   const renderPage = async (doc: any, pageNum: number) => {
     if (!canvasRef.current) return;
@@ -354,7 +384,14 @@ const EditorFramework: React.FC<EditorFrameworkProps> = ({ file, fileType, plugi
         {/* ── Left Editing Panel (desktop) ── */}
         <aside className="hidden lg:flex w-[280px] shrink-0 flex-col border-r border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 overflow-y-auto">
           <div className="p-3 space-y-2.5">
-            {visibleSections.map((section) => {
+            {loading ? (
+              <EditorSkeleton sectionCount={visibleSections.length || 3} />
+            ) : visibleSections.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-slate-400 dark:text-slate-500">
+                <FileText className="h-8 w-8 mb-2" />
+                <p className="text-xs font-bold">No settings available</p>
+              </div>
+            ) : visibleSections.map((section) => {
               const isOpen = activeSection === section.id;
               const SectionComponent = section.component;
               return (
@@ -401,7 +438,9 @@ const EditorFramework: React.FC<EditorFrameworkProps> = ({ file, fileType, plugi
         {/* ── Center Live Preview ── */}
         <main className="flex-1 flex flex-col min-w-0 bg-slate-100/50 dark:bg-slate-950">
           <div className="flex-1 flex items-center justify-center overflow-auto p-4">
-            {fileType === "image" ? (
+            {plugin.previewComponent ? (
+              <plugin.previewComponent file={file} config={config} onDone={onDone} onClose={onClose} />
+            ) : fileType === "image" ? (
               <div className="relative max-w-full" style={{ transform: `scale(${zoom})` }}>
                 <canvas ref={canvasRef} className="block max-w-full rounded-2xl shadow-xl dark:shadow-2xl dark:shadow-black/20" />
               </div>

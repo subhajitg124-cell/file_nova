@@ -1,6 +1,6 @@
 import React from "react";
-import { Zap, FileSymlink, Image, FileText } from "lucide-react";
-import type { EditorPlugin, SectionProps } from "../types";
+import { Zap, FileSymlink, Image, FileText, Rocket, Scale, FileDown } from "lucide-react";
+import type { EditorPlugin, SectionProps, PresetDefinition } from "../types";
 import { BentoCard } from "../components/BentoCard";
 import { SettingRow } from "../components/SettingRow";
 import { PresetChips } from "../components/PresetChips";
@@ -64,9 +64,16 @@ const CompressSection: React.FC<SectionProps> = ({ config, onConfigChange, mode,
   </div>
 );
 
+const compressPresets: PresetDefinition[] = [
+  { id: "fast", label: "Fast Compression", description: "Minimal size reduction", icon: <Rocket className="h-4 w-4" />, config: { compressionLevel: "low", quality: 0.8 } },
+  { id: "balanced", label: "Balanced", description: "Good quality & size tradeoff", icon: <Scale className="h-4 w-4" />, config: { compressionLevel: "medium", quality: 0.65 } },
+  { id: "maximum", label: "Maximum", description: "Smallest file size", icon: <FileDown className="h-4 w-4" />, config: { compressionLevel: "high", quality: 0.3 } },
+];
+
 export const compressPlugin: EditorPlugin = {
   id: "compress",
   name: "Compress PDF",
+  presets: compressPresets,
   sections: [
     { id: "compress", label: "Compression Settings", description: "Size & quality balance", icon: <Zap className="h-4 w-4" />, component: CompressSection, defaultOpen: true },
   ],

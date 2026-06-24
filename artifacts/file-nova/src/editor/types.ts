@@ -40,6 +40,7 @@ export interface SectionProps {
   onBusy: (busy: boolean) => void;
   disabled?: boolean;
   mode?: "beginner" | "advanced";
+  loading?: boolean;
 }
 
 export interface ToolMetadata {
@@ -60,6 +61,7 @@ export interface EditorPlugin {
   presets?: PresetDefinition[];
   rightPanel?: React.ComponentType<SectionProps>;
   previewType?: "image" | "pdf" | "auto";
+  previewComponent?: React.ComponentType<{ file: File | null; config: Record<string, any>; onDone?: (result: Blob) => void; onClose?: () => void }>;
   defaultMode?: "beginner" | "advanced";
   onSave?: (file: File, config: Record<string, any>, annotations: Annotation[], canvasRef?: React.RefObject<HTMLCanvasElement | null>) => Promise<Blob>;
   onProcessAction?: (file: File, config: Record<string, any>, onStatus: (msg: string) => void, onBusy: (b: boolean) => void) => Promise<Blob>;

@@ -1,6 +1,6 @@
 import React from "react";
-import { Share2, Image, FileImage, FileType, FileText } from "lucide-react";
-import type { EditorPlugin, SectionProps } from "../types";
+import { Share2, Image, FileImage, FileType, FileText, Globe, Printer, File } from "lucide-react";
+import type { EditorPlugin, SectionProps, PresetDefinition } from "../types";
 import { BentoCard } from "../components/BentoCard";
 import { SettingRow } from "../components/SettingRow";
 import { PresetChips } from "../components/PresetChips";
@@ -43,9 +43,16 @@ const ExportSection: React.FC<SectionProps> = ({ config, onConfigChange, disable
   </div>
 );
 
+const exportPresets: PresetDefinition[] = [
+  { id: "web", label: "Web Optimized", description: "Fast loading for web", icon: <Globe className="h-4 w-4" />, config: { exportFormat: "jpg", exportQuality: 80 } },
+  { id: "print", label: "Print Quality", description: "Highest quality output", icon: <Printer className="h-4 w-4" />, config: { exportFormat: "png", exportQuality: 100 } },
+  { id: "document", label: "Document", description: "PDF with standard quality", icon: <File className="h-4 w-4" />, config: { exportFormat: "pdf", exportQuality: 90 } },
+];
+
 export const exportPlugin: EditorPlugin = {
   id: "export",
   name: "Export & Share",
+  presets: exportPresets,
   sections: [
     { id: "export", label: "Export Settings", description: "Format & quality", icon: <Share2 className="h-4 w-4" />, component: ExportSection, defaultOpen: true },
   ],

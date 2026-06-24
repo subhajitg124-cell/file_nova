@@ -1,6 +1,6 @@
 import React from "react";
-import { Droplets, Type, AlignCenter, AlignStartHorizontal, AlignEndHorizontal, AlignStartVertical, AlignEndVertical, Grid3x3 } from "lucide-react";
-import type { EditorPlugin, SectionProps } from "../types";
+import { Droplets, Type, AlignCenter, AlignStartHorizontal, AlignEndHorizontal, AlignStartVertical, AlignEndVertical, Grid3x3, ShieldAlert, FileWarning, FileCog } from "lucide-react";
+import type { EditorPlugin, SectionProps, PresetDefinition } from "../types";
 import { BentoCard } from "../components/BentoCard";
 import { SettingRow } from "../components/SettingRow";
 import { HintCard } from "../components/HintCard";
@@ -87,9 +87,16 @@ const WatermarkSection: React.FC<SectionProps> = ({ config, onConfigChange, mode
   </div>
 );
 
+const watermarkPresets: PresetDefinition[] = [
+  { id: "confidential", label: "Confidential", description: "Red confidential overlay", icon: <ShieldAlert className="h-4 w-4" />, config: { watermarkText: "CONFIDENTIAL", watermarkOpacity: 30, watermarkRotation: -30, watermarkScale: 120, watermarkPosition: "center" } },
+  { id: "draft", label: "Draft", description: "Light draft indicator", icon: <FileWarning className="h-4 w-4" />, config: { watermarkText: "DRAFT", watermarkOpacity: 20, watermarkRotation: 0, watermarkScale: 100, watermarkPosition: "center" } },
+  { id: "topsecret", label: "Top Secret", description: "Bold security marking", icon: <FileCog className="h-4 w-4" />, config: { watermarkText: "TOP SECRET", watermarkOpacity: 50, watermarkRotation: 0, watermarkScale: 150, watermarkPosition: "center" } },
+];
+
 export const watermarkPlugin: EditorPlugin = {
   id: "watermark",
   name: "Watermark PDF",
+  presets: watermarkPresets,
   sections: [
     { id: "watermark", label: "Watermark Settings", description: "Add text overlays", icon: <Droplets className="h-4 w-4" />, component: WatermarkSection, defaultOpen: true },
   ],
