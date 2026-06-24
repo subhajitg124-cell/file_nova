@@ -6,7 +6,7 @@ import {
 import { motion } from "framer-motion";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useFileStore } from "@/store/useFileStore";
-import { ToolWorkspaceProps } from "./ToolWorkspace";
+import { ToolWorkspaceProps, TOOL_THEMES } from "./ToolWorkspace";
 
 interface WorkspaceHeaderProps {
   toolName: string;
@@ -44,7 +44,6 @@ export function WorkspaceHeader({
   onToggleHelp,
 }: WorkspaceHeaderProps) {
   const [, setLocation] = useLocation();
-  const { TOOL_THEMES } = require("./ToolWorkspace");
   const theme = TOOL_THEMES[accentColor] || TOOL_THEMES.violet;
 
   return (
