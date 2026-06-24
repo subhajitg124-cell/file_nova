@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://filenova.in/</loc>
+    <image:image>
+      <image:loc>https://filenova.in/opengraph.jpg</image:loc>
+      <image:title>FileNova – Free Online PDF &amp; Image Tools</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://filenova.in/</loc>
+    <image:image>
+      <image:loc>https://filenova.in/logo.png</image:loc>
+      <image:title>FileNova Logo</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://filenova.in/</loc>
+    <image:image>
+      <image:loc>https://filenova.in/logo.svg</image:loc>
+      <image:title>FileNova Logo SVG</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://filenova.in/aadhaar-mask-pdf</loc>
+    <image:image>
+      <image:loc>https://filenova.in/aadhaar_mask_mockup.png</image:loc>
+      <image:title>Aadhaar Masking Tool Preview</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://filenova.in/pan-card-resize</loc>
+    <image:image>
+      <image:loc>https://filenova.in/portal_photo_resize_guide.png</image:loc>
+      <image:title>PAN Card Photo Resizer Preview</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://filenova.in/resize-photo</loc>
+    <image:image>
+      <image:loc>https://filenova.in/photo_resize_mockup.png</image:loc>
+      <image:title>Resize Photo for Scholarship Form Preview</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://filenova.in/remove-background</loc>
+    <image:image>
+      <image:loc>https://filenova.in/document_processing_mockup.png</image:loc>
+      <image:title>AI Background Remover Preview</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://filenova.in/compress-image</loc>
+    <image:image>
+      <image:loc>https://filenova.in/photo_resize_mockup.png</image:loc>
+      <image:title>Compress Image Online Preview</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://filenova.in/aadhaar-mask-pdf</loc>
+    <image:image>
+      <image:loc>https://filenova.in/aadhaar_privacy_guide.png</image:loc>
+      <image:title>Aadhaar Privacy Guide</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://filenova.in/pricing</loc>
+    <image:image>
+      <image:loc>https://filenova.in/upi-qr.png</image:loc>
+      <image:title>UPI QR Code – FileNova Payment</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://filenova.in/pricing</loc>
+    <image:image>
+      <image:loc>https://filenova.in/upi-qr.jpeg</image:loc>
+      <image:title>UPI QR Code – FileNova Payment</image:title>
+    </image:image>
+  </url>
+</urlset>

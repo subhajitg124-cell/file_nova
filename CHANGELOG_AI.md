@@ -4,6 +4,58 @@
 
 ---
 
+## 2026-06-24 — Crawling & Indexing Overhaul
+
+**Agent:** Opencode
+**Scope:** robots.txt, scripts/update-sitemap.js, vite.config.ts, CHANGELOG_AI.md
+**Issue:** Single monolithic sitemap with duplicate URL (`/compress-image` appeared twice), missing ~40+ prerendered tool pages, no image sitemap, outdated robots.txt still referencing non-existent `/og-default.png`, admin pages not fully blocked, missing sitemap references.
+
+### Changes
+- **Replaced monolithic sitemap with sitemap index + 3 sub-sitemaps:**
+  - `sitemap.xml` — index pointing to all sub-sitemaps
+  - `sitemap-tools.xml` — 66 tool pages (primary + extended `/tools/*`) with priorities 0.75–1.0
+  - `sitemap-pages.xml` — 23 pages (homepage, categories, static info, blog posts)
+  - `sitemap-images.xml` — 11 image entries mapped to their parent pages
+  - No duplicate URLs across any sitemap
+- **Rewrote `scripts/update-sitemap.js`:**
+  - Generates all 4 sitemaps dynamically from a centralized data model
+  - Writes to both `public/` and `dist/`
+  - Eliminated the older regex-based `lastmod`‑only update approach
+- **Updated `vite.config.ts`:**
+  - Replaced inline sitemap `lastmod` update with a call to the new `scripts/update-sitemap.js`
+  - Removed `fs` import (no longer needed inline)
+- **Rewrote `public/robots.txt`:**
+  - Blocks private paths: `/api/`, `/admin/`, `/nova-control/`, `/nova-login/`, `/dashboard/`, `/workspace/`, `/history`, `/profile`, `/settings`, `/operator-dashboard`, `/beta-test`, `/ref/`, `/checkout/`
+  - Blocks AI crawlers (GPTBot, Claude-Web, CCBot)
+  - Lists all 4 sitemaps in the `Sitemap:` directives
+  - Removed stale `/og-default.png` reference
+  - Simplified by leveraging `Allow: /` as catch-all for public pages
+- **Canonical URLs verified:** Every toolMeta.ts entry has a unique canonical; `ToolSEO.tsx` sets `rel="canonical"` globally; `BlogPostPage.tsx` sets its own per‑post canonical.
+- **Orphan page audit:** All 82 prerendered routes are covered in the sitemaps. No orphan pages.
+- **Internal crawlability:** Every page is reachable via homepage → category → tool or footer → static page links.
+- **Verified:** `pnpm typecheck` passes, `pnpm build` succeeds with 82 pages prerendered.
+
+## 2026-06-24 — OG Image 404 Fix (All References Pointing to Non-Existent Files)
+
+**Agent:** Opencode
+**Scope:** index.html, ToolSEO.tsx, toolMeta.ts
+**Issue:** Every OG image URL referenced `og-default.png` or `og/*.png` — none of which exist. Only `opengraph.jpg` exists in `public/`.
+
+### Changes
+- Modified `src/seo/toolMeta.ts`:
+  - Removed unused OG category constants (`OG_PDF`, `OG_INDIA`, `OG_IMAGE`, `OG_OCR`, `OG_AI`, `OG_DOC`)
+  - Collapsed all OG references to single `OG_DEFAULT` pointing to `/opengraph.jpg`
+- Modified `artifacts/file-nova/index.html`:
+  - Updated `og:image` → `https://filenova.in/opengraph.jpg`
+  - Updated `twitter:image` → `https://filenova.in/opengraph.jpg`
+  - Added `og:image:type` (`image/jpeg`)
+- Modified `src/seo/ToolSEO.tsx`:
+  - Updated OG fallback from `/og-default.png` → `/opengraph.jpg`
+  - Updated Twitter fallback from `/og-default.png` → `/opengraph.jpg`
+  - Added `og:image:type` and `og:image:alt` meta tags for richer OG rendering
+- Verified: no remaining `og-default` references in `src/`
+- Verified: `pnpm typecheck` and `pnpm build` both pass
+
 ## 2026-06-23 — Production-Grade Schema.org Structured Data
 
 **Agent:** Opencode (AI Lead Architect)

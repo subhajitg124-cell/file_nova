@@ -1,51 +1,73 @@
 # FileNova robots.txt
 # Production: https://filenova.in/robots.txt
+# Last updated: 2026-06-24
 
+# ── Default rule: allow all public pages ──────────────────────────
 User-agent: *
 Allow: /
-Allow: /tools/
-Allow: /blog/
-Allow: /pdf-tools/
-Allow: /image-tools/
-Allow: /video-tools/
-Allow: /document-tools/
-Allow: /pricing
-Allow: /contact
-Allow: /resources
-Allow: /student-offer
-Allow: /india-tools
-Allow: /workflows
-Allow: /privacy
-Allow: /terms
-Allow: /cookie-policy
+
+# ── Private / authenticated pages (blocked from indexing) ─────────
 Disallow: /api/
 Disallow: /admin/
-Disallow: /dashboard/
-Disallow: /workspace/
 Disallow: /nova-control/
 Disallow: /nova-login/
-Disallow: /ref/
-Disallow: /profile
+Disallow: /dashboard/
+Disallow: /workspace/
 Disallow: /history
+Disallow: /profile
+Disallow: /settings
+Disallow: /operator-dashboard
+Disallow: /beta-test
+Disallow: /ref/
+Disallow: /checkout/
 
+# ── Googlebot-specific ─────────────────────────────────────────────
 User-agent: Googlebot
 Allow: /
 Disallow: /api/
 Disallow: /admin/
 Disallow: /nova-control/
+Disallow: /nova-login/
+Disallow: /dashboard/
+Disallow: /workspace/
+Disallow: /operator-dashboard/
+Disallow: /beta-test
 
+# Googlebot-Image — allow all images
 User-agent: Googlebot-Image
 Allow: /
 
+# Googlebot-Video — allow all videos
+User-agent: Googlebot-Video
+Allow: /
+
+# Googlebot-News — not applicable, but allow
+User-agent: Googlebot-News
+Disallow: /
+
+# ── Bingbot ────────────────────────────────────────────────────────
 User-agent: Bingbot
 Crawl-delay: 10
 Allow: /
 Disallow: /api/
 Disallow: /admin/
+Disallow: /nova-control/
+Disallow: /dashboard/
+Disallow: /workspace/
+Disallow: /operator-dashboard/
 
-User-agent: Twitterbot
-Allow: /
-Allow: /og-default.png
-Allow: /logo.png
+# ── Other bots ─────────────────────────────────────────────────────
+User-agent: GPTBot
+Disallow: /
 
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+# ── Sitemaps ───────────────────────────────────────────────────────
 Sitemap: https://filenova.in/sitemap.xml
+Sitemap: https://filenova.in/sitemap-tools.xml
+Sitemap: https://filenova.in/sitemap-pages.xml
+Sitemap: https://filenova.in/sitemap-images.xml

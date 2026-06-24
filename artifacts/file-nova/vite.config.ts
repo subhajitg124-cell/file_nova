@@ -1,8 +1,8 @@
 
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
-import fs from 'fs';
 import path from 'path';
+import {execSync} from 'child_process';
 import {defineConfig} from 'vite';
 import { vitePrerenderPlugin } from 'vite-prerender-plugin';
 import { VitePWA } from 'vite-plugin-pwa';
@@ -174,26 +174,14 @@ export default defineConfig(() => {
         ]
       }),
       {
-        name: 'vite-plugin-force-exit',
+        name: 'vite-plugin-postbuild',
         closeBundle() {
           console.log("=== VITE BUILD COMPLETED SUCCESSFULLY ===");
           try {
-            console.log("Running sitemap update...");
-            const today = new Date().toISOString().split("T")[0];
-            const updateFile = (filePath: string) => {
-              if (fs.existsSync(filePath)) {
-                const xml = fs.readFileSync(filePath, "utf8");
-                const updated = xml.replace(/<lastmod>.*?<\/lastmod>/g, `<lastmod>${today}</lastmod>`);
-                fs.writeFileSync(filePath, updated, "utf8");
-                console.log(`Updated lastmod in ${filePath} → ${today}`);
-              } else {
-                console.log(`Skipping ${filePath} (not found)`);
-              }
-            };
-            updateFile(path.resolve(__dirname, "public/sitemap.xml"));
-            updateFile(path.resolve(__dirname, "dist/sitemap.xml"));
+            console.log("Generating all sitemaps...");
+            execSync("node scripts/update-sitemap.js", { stdio: "inherit", cwd: __dirname });
           } catch (e) {
-            console.error("Sitemap update failed:", e);
+            console.error("Sitemap generation failed:", e);
           }
           console.log("Forcing process exit to prevent hanging...");
           setTimeout(() => {
