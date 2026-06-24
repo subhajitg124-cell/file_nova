@@ -114,7 +114,7 @@ export const ExportCenter: React.FC<ExportCenterProps> = ({
 
       {showQr && (
         <div className="p-3 bg-slate-950/80 border border-white/5 rounded-2xl flex flex-col items-center gap-2 animate-fade-up">
-          <img src={qrCodeUrl} alt="Download QR Code" className="h-32 w-32 rounded bg-white p-1" />
+          <img src={qrCodeUrl} alt="Download QR Code" className="h-32 w-32 rounded bg-white p-1" width="200" height="200" loading="lazy" />
           <span className="text-[9px] text-slate-500 font-mono">Scan QR to download on another device</span>
         </div>
       )}

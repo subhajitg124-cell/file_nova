@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { ToolWorkspace } from "@/components/workspace/ToolWorkspace";
 import { useToolProcessor } from "@/hooks/useToolProcessor";
 import { FileArchive, CheckCircle, AlertTriangle, Upload, HelpCircle } from "lucide-react";
-import JSZip from "jszip";
 import { toast } from "sonner";
 
 interface DocSlot {
@@ -86,6 +85,7 @@ export const ScholarshipZIPWorkspace: React.FC = () => {
 
   const handleProcess = async () => {
     try {
+      const JSZip = (await import("jszip")).default;
       const zip = new JSZip();
       
       for (const slot of slots) {

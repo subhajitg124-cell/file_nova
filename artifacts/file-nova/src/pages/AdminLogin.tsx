@@ -64,7 +64,7 @@ export default function AdminLogin() {
         {/* Lock Shield Header */}
         <div className="flex flex-col items-center text-center mb-8">
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20 mb-4 animate-pulse-glow">
-            <img src={logoUrl} alt="FileNova Admin Console" className="h-10 w-auto" />
+            <img src={logoUrl} alt="FileNova Admin Console" className="h-10 w-auto" width="40" height="40" loading="lazy" />
           </div>
           <div className="inline-flex items-center gap-1 bg-amber-500/10 text-amber-500 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border border-amber-500/20 mb-2">
             <ShieldAlert className="h-3 w-3" />

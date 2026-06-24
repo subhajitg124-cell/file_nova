@@ -80,6 +80,7 @@ export const BeforeAfterComparison: React.FC<BeforeAfterComparisonProps> = ({
             src={beforeUrl}
             alt="Before"
             className="absolute inset-0 w-full h-full object-contain bg-white dark:bg-slate-950"
+            width="400" height="300" loading="lazy"
             draggable={false}
           />
 
@@ -92,6 +93,7 @@ export const BeforeAfterComparison: React.FC<BeforeAfterComparisonProps> = ({
               src={downloadUrl || beforeUrl}
               alt="After"
               className="absolute inset-0 w-full h-full object-contain bg-white dark:bg-slate-950"
+              width="400" height="300" loading="lazy"
               style={{ clipPath: `inset(0 0 0 ${sliderPosition}%)` }}
               draggable={false}
             />

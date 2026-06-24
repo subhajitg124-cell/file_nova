@@ -170,7 +170,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
             <span className="text-[10px] text-slate-400">Preview overlay watermark active</span>
           </div>
           {pdfPages.length > 0 && (
-            <img src={pdfPages[0]} alt="pdf locked preview" className="opacity-20 max-h-[200px] object-contain" />
+            <img src={pdfPages[0]} alt="pdf locked preview" className="opacity-20 max-h-[200px] object-contain" width="400" height="300" loading="lazy" />
           )}
         </div>
       );
@@ -405,7 +405,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
           <div className="relative border border-white/10 rounded-2xl bg-white overflow-hidden p-2 flex justify-center shadow-xl">
             {pdfPages.length > 0 ? (
               <div className="relative">
-                <img src={pdfPages[0]} alt="aadhaar mask preview" className="max-h-[300px] object-contain select-none" />
+                <img src={pdfPages[0]} alt="aadhaar mask preview" className="max-h-[300px] object-contain select-none" width="400" height="300" loading="lazy" />
                 
                 {/* Mock Redacted Aadhaar Overlay (typically middle section of card) */}
                 <div className="absolute top-[68%] left-[28%] right-[28%] h-[8%] flex items-center justify-center gap-2 pointer-events-none select-none">
@@ -455,6 +455,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
               src={pdfPages[currentPage - 1] || pdfPages[0]} 
               alt="pdf page preview" 
               className="max-h-[350px] object-contain pointer-events-none origin-center" 
+              width="400" height="300" loading="lazy"
             />
           ) : (
             <div className="py-20 text-slate-400 text-center"><FileText className="h-12 w-12 mx-auto mb-2 text-slate-500" /></div>
@@ -507,7 +508,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
       return (
         <div className="relative max-w-md mx-auto p-4 border border-white/10 rounded-2xl bg-slate-900 overflow-hidden min-h-[250px] flex items-center justify-center">
           <div className="absolute inset-0 bg-[linear-gradient(45deg,#334155_25%,transparent_25%),linear-gradient(-45deg,#334155_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#334155_75%),linear-gradient(-45deg,transparent_75%,#334155_75%)] bg-[size:16px_16px] bg-[position:0_0,0_8px,8px_-8px,8px_0px] opacity-25" />
-          <img src={objectUrl} alt="transparent background" className="max-h-[300px] object-contain rounded-lg shadow-2xl relative z-10" />
+          <img src={objectUrl} alt="transparent background" className="max-h-[300px] object-contain rounded-lg shadow-2xl relative z-10" width="400" height="300" loading="lazy" />
         </div>
       );
     }
@@ -539,6 +540,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
             src={objectUrl} 
             alt="uploaded preview" 
             className="max-h-[300px] object-contain rounded-lg shadow-xl pointer-events-none origin-center" 
+            width="400" height="300" loading="lazy"
           />
           {(slug === "pan-card-resize" || slug === "resize-photo" || slug === "resize-image") && renderResizeGuidelines()}
           

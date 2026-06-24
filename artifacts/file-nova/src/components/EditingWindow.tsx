@@ -1263,7 +1263,7 @@ export const EditingWindow: React.FC<EditingWindowProps> = ({ file, fileType, on
                       {qrShareLink && (
                         <div className="rounded-xl border border-white/[0.05] bg-slate-950 px-4 py-3 text-xs text-slate-300">
                           <span className="font-bold text-slate-100">Share QR</span>
-                          <img src={qrShareLink} alt="Share QR" className="mt-2.5 w-full rounded-xl border border-white/10 bg-white p-1" />
+                          <img src={qrShareLink} alt="Share QR" className="mt-2.5 w-full rounded-xl border border-white/10 bg-white p-1" width="200" height="200" loading="lazy" />
                         </div>
                       )}
                     </div>

@@ -68,6 +68,7 @@ export function UpiSupportModal({ isOpen, onClose, amount, note }: UpiSupportMod
                 src={qrUrl} 
                 alt="UPI QR Code" 
                 className="w-full h-full object-contain"
+                width="200" height="200" loading="lazy"
                 onError={(e) => {
                   // Fallback if the upiqr api is down
                   (e.target as HTMLImageElement).src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(payLink)}`;

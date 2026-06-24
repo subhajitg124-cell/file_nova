@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { memo, useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { Link } from "wouter";
 import { useActiveEvent } from "./EventProvider";
@@ -37,7 +37,7 @@ function useCountdown(target?: string): string | null {
   return remaining;
 }
 
-export function NoticeBar() {
+export const NoticeBar = memo(function NoticeBar() {
   const { activeEvent, isDismissed, dismiss } = useActiveEvent();
   const countdown = useCountdown(activeEvent?.notice.showCountdownTo);
 
@@ -84,4 +84,4 @@ export function NoticeBar() {
       )}
     </div>
   );
-}
+});

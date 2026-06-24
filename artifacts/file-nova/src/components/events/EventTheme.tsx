@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { memo, useEffect } from "react";
 import { useActiveEvent } from "./EventProvider";
 
 /**
@@ -6,7 +6,7 @@ import { useActiveEvent } from "./EventProvider";
  * Components can opt into themed colors via var(--event-primary, fallback).
  * Renders nothing — side-effect only.
  */
-export function EventTheme() {
+export const EventTheme = memo(function EventTheme() {
   const { activeEvent } = useActiveEvent();
 
   useEffect(() => {
@@ -27,4 +27,4 @@ export function EventTheme() {
   }, [activeEvent]);
 
   return null;
-}
+});

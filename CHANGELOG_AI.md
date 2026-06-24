@@ -4,6 +4,33 @@
 
 ---
 
+## 2026-06-24 — Core Web Vitals Optimization
+
+**Agent:** Opencode
+**Scope:** Bundle optimization, dynamic imports, React.memo, font/image optimization, preload/preconnect, index.html
+
+### Changes
+- **Bundle reduction:** Main App chunk dropped from 2,123 KB → 1,670 KB (~453 KB raw, ~95 KB gzip savings)
+- **Dynamic imports for heavy libraries:**
+  - `tesseract.js` (~2MB) — moved from eager import to dynamic `await import()` in OCRScanWorkspace.tsx
+  - `jszip` (~400KB) — moved to dynamic import in BulkProcessor.tsx, ScholarshipZIPWorkspace.tsx, ScholarshipZIPMaker.tsx
+  - `lottie-react` (~50KB) — moved from eager top-level import to dynamic `useEffect().then()` in AnimatedBanner.tsx
+  - `pptxgenjs` — confirmed already dynamically imported; left unchanged
+- **React.memo on shell components:** Wrapped 12 components (Navbar, Footer, ScrollToTop, ThemeEffects, ConnectionStatusIndicator, ToolSEO, NewsTicker, NoticeBar, EventTheme, AdSenseUnit, LoadingScreen, UserProfileDropdown) with `memo()` to prevent re-renders on route changes
+- **Font optimization:**
+  - Subset Inter to weights 400,500,600,700,800,900 (dropped unused weight 300)
+  - Subset Lexend to weights 600,700,800,900 (dropped unused weights 400,500)
+  - Added `preload` for Inter font CSS, Inter variable font, Lexend font CSS
+- **Preload/preconnect/DNS-prefetch in index.html:**
+  - Preload: Inter CSS, Inter variable font, Lexend CSS, logo-dark.svg, logo-light.svg, filenova-hero.webp, filenova-hero-compare.webp
+  - Preconnect: `accounts.google.com`, `pagead2.googlesyndication.com`
+  - DNS-prefetch: `fonts.googleapis.com`, `pagead2.googlesyndication.com`
+  - Deferred: Google AdSense script (removed `async`, added `defer` + `data-defer="true"`)
+- **Image CLS fixes:** Added explicit `width`/`height` attributes + `loading="lazy"` to 22+ `<img>` tags (logo, previews, thumbnails, comparison images, QR codes, screenshots, etc.); kept above-fold logo as `eager`
+- **Verified:** `pnpm typecheck` passes, `pnpm build` succeeds with 82 pages prerendered
+
+---
+
 ## 2026-06-24 — Crawling & Indexing Overhaul
 
 **Agent:** Opencode

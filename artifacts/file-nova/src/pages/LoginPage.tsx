@@ -224,7 +224,7 @@ const isValidationError = (err: string): boolean => {
         <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
         <div className="relative z-10 flex items-center gap-2.5">
           <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-primary/10 border border-primary/20">
-            <img src="/logo.png" alt="FileNova - AI PDF & Image Tools" className="h-6 w-auto" />
+            <img src="/logo.png" alt="FileNova - AI PDF & Image Tools" className="h-6 w-auto" width="24" height="24" loading="lazy" />
           </div>
           <div>
             <span className="font-extrabold text-base tracking-tight text-white">FileNova AI</span>
@@ -274,7 +274,7 @@ const isValidationError = (err: string): boolean => {
         <div className="max-w-md w-full bg-card/45 backdrop-blur-md border border-border/80 rounded-3xl shadow-premium p-8 relative animate-scale-in">
           <div className="flex items-center gap-2 mb-6 md:hidden">
             <div className="h-8 w-8 flex items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
-              <img src="/logo.png" alt="FileNova logo" className="h-5 w-auto" />
+              <img src="/logo.png" alt="FileNova logo" className="h-5 w-auto" width="20" height="20" loading="lazy" />
             </div>
             <span className="font-extrabold text-sm tracking-tight">FileNova AI</span>
           </div>

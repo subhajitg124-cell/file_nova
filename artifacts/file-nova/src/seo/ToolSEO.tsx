@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { useHead } from "@unhead/react";
 import { useLocation } from "wouter";
 import { TOOL_META } from "./toolMeta";
@@ -52,7 +53,7 @@ function extractName(title: string): string {
   return title.split("–")[0].split("|")[0].trim();
 }
 
-export function ToolSEO() {
+export const ToolSEO = memo(function ToolSEO() {
   const [pathname] = useLocation();
   const meta = lookupMeta(pathname);
   const indexable = shouldIndex(pathname);
@@ -238,4 +239,4 @@ export function ToolSEO() {
   });
 
   return null;
-}
+});

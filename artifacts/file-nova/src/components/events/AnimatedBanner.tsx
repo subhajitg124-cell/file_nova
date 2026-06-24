@@ -1,5 +1,4 @@
 import { useActiveEvent } from "./EventProvider";
-import Lottie from "lottie-react";
 import { useEffect, useState } from "react";
 
 function usePrefersReducedMotion(): boolean {
@@ -23,6 +22,11 @@ export function AnimatedBanner({ placement }: AnimatedBannerProps) {
   const { activeEvent } = useActiveEvent();
   const reducedMotion = usePrefersReducedMotion();
   const [lottieData, setLottieData] = useState<object | null>(null);
+  const [Lottie, setLottie] = useState<any>(null);
+
+  useEffect(() => {
+    import("lottie-react").then(m => setLottie(() => m.default));
+  }, []);
 
   const banner = activeEvent?.banner;
   const shouldRender = banner?.enabled && banner.placement === placement;
@@ -58,7 +62,7 @@ export function AnimatedBanner({ placement }: AnimatedBannerProps) {
       if (!lottieData) return null;
       return (
         <div role="img" aria-label={banner.altText} className="pointer-events-none w-full max-w-md mx-auto">
-          <Lottie animationData={lottieData} loop autoplay />
+          {Lottie ? <Lottie animationData={lottieData} loop autoplay /> : <div className="w-full h-48 bg-muted/20 animate-pulse rounded-lg" />}
         </div>
       );
 

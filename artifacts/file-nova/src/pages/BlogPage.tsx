@@ -8,7 +8,7 @@ export default function BlogPage() {
       <header className="border-b border-border bg-card/70 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4">
           <Link href="/" className="flex items-center gap-2">
-            <img src="/logo.png" alt="FileNova logo" className="h-8 w-auto" />
+            <img src="/logo.png" alt="FileNova logo" className="h-8 w-auto" width="32" height="32" loading="lazy" />
             <span className="text-sm font-black">FileNova</span>
           </Link>
           <div className="flex items-center gap-2">
@@ -36,7 +36,7 @@ export default function BlogPage() {
           {blogPosts.map((post) => (
             <Link key={post.slug} href={`/blog/${post.slug}`} className="group overflow-hidden rounded-lg border border-border bg-card transition hover:border-primary/50 hover:shadow-premium">
               <div className="aspect-[16/9] overflow-hidden bg-muted">
-                <img src={post.thumbnail} alt={`${post.title} - FileNova Blog`} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" loading="lazy" />
+                <img src={post.thumbnail} alt={`${post.title} - FileNova Blog`} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" width="1200" height="630" loading="lazy" />
               </div>
               <div className="space-y-3 p-5">
                 <div className="flex flex-wrap items-center gap-3 text-[11px] font-bold text-muted-foreground">

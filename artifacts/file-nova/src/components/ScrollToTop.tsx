@@ -1,7 +1,7 @@
-import { useEffect } from "react";
+import { memo, useEffect } from "react";
 import { useLocation } from "wouter";
 
-export function ScrollToTop() {
+export const ScrollToTop = memo(function ScrollToTop() {
   const [location] = useLocation();
 
   useEffect(() => {
@@ -9,4 +9,4 @@ export function ScrollToTop() {
   }, [location]);
 
   return null;
-}
+});

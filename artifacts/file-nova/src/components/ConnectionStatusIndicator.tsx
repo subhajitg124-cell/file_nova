@@ -1,12 +1,12 @@
 import { Wifi, WifiOff, AlertCircle, RefreshCw } from "lucide-react";
-import { useState, useEffect, useCallback } from "react";
+import { memo, useState, useEffect, useCallback } from "react";
 
 interface ConnectionStatusIndicatorProps {
   status: "online" | "offline" | "checking";
   onRetry?: () => void;
 }
 
-export function ConnectionStatusIndicator({ status, onRetry }: ConnectionStatusIndicatorProps) {
+export const ConnectionStatusIndicator = memo(function ConnectionStatusIndicator({ status, onRetry }: ConnectionStatusIndicatorProps) {
   const [isNavigatorOnline, setIsNavigatorOnline] = useState(() => typeof navigator !== "undefined" ? navigator.onLine : true);
   const [retryCount, setRetryCount] = useState(0);
 
@@ -127,4 +127,4 @@ export function ConnectionStatusIndicator({ status, onRetry }: ConnectionStatusI
       </div>
     </div>
   );
-}
+});

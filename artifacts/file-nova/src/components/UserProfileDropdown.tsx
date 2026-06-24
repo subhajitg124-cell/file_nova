@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { memo, useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { User, LogOut, Zap, Sparkles, Clock, CreditCard, ChevronDown, Key, Gift, Sliders } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -6,7 +6,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { AuthModal } from "./AuthModal";
 import { toast } from "sonner";
 
-export function UserProfileDropdown() {
+export const UserProfileDropdown = memo(function UserProfileDropdown() {
   const { user, subscription, fetchMe, logout, isLoginModalOpen, openLoginModal, closeLoginModal } = useAuthStore();
   const { cancelSubscription, loading: subLoading, premiumTier } = useSubscription();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -257,4 +257,4 @@ export function UserProfileDropdown() {
       />
     </div>
   );
-}
+});

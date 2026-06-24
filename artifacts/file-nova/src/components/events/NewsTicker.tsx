@@ -1,7 +1,7 @@
-import React from "react";
+import React, { memo } from "react";
 import { Megaphone, Sparkles } from "lucide-react";
 
-export function NewsTicker() {
+export const NewsTicker = memo(function NewsTicker() {
   return (
     <>
       <style>{`
@@ -82,4 +82,4 @@ export function NewsTicker() {
       </div>
     </>
   );
-}
+});

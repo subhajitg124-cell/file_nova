@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { memo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "wouter";
 import {
@@ -18,7 +18,7 @@ interface NavbarProps {
   showSearch?: boolean;
 }
 
-export function Navbar({ showSearch = true }: NavbarProps) {
+export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
   const { tText } = useTranslation();
   const { user } = useAuthStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -225,4 +225,4 @@ export function Navbar({ showSearch = true }: NavbarProps) {
       </AnimatePresence>
     </>
   );
-}
+});

@@ -174,7 +174,7 @@ export const PassportPhotoEditor: React.FC = () => {
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(0,0,0,0.04),_transparent_32%)] pointer-events-none" />
             <div className="h-[420px] w-full overflow-hidden rounded-[1.5rem] bg-[#f9fafb] border border-border/70 flex items-center justify-center">
               {previewUrl ? (
-                <img src={previewUrl} alt="Passport preview" className="h-full w-auto max-w-full object-contain" />
+                <img src={previewUrl} alt="Passport preview" className="h-full w-auto max-w-full object-contain" width="300" height="400" loading="lazy" />
               ) : (
                 <div className="flex h-full w-full flex-col items-center justify-center gap-3 text-center text-sm text-muted-foreground px-4">
                   <Camera className="h-8 w-8" />

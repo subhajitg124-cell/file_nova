@@ -6,7 +6,6 @@ import {
   Sparkles, FileText, Image as ImageIcon, RefreshCw, ArrowLeft, ArrowUpRight
 } from "lucide-react";
 import { toast } from "sonner";
-import JSZip from "jszip";
 import { useSubscription } from "@/hooks/useSubscription";
 
 interface DocumentField {
@@ -262,6 +261,7 @@ export default function ScholarshipZIPMaker({ isEmbedded = false }: { isEmbedded
     toast.loading("Compiling submission-ready ZIP archive...", { id: "pack-zip" });
 
     try {
+      const JSZip = (await import("jszip")).default;
       const zip = new JSZip();
       
       // Add each file to the zip
@@ -411,7 +411,7 @@ export default function ScholarshipZIPMaker({ isEmbedded = false }: { isEmbedded
                           <>
                             {uploaded.previewUrl && (
                               <div className="h-12 w-12 rounded-lg border border-slate-700 overflow-hidden bg-slate-800 relative group">
-                                <img src={uploaded.previewUrl} alt="Preview" className="h-full w-full object-cover" />
+                                <img src={uploaded.previewUrl} alt="Preview" className="h-full w-full object-cover" width="48" height="48" loading="lazy" />
                               </div>
                             )}
                             <button
@@ -734,7 +734,7 @@ export default function ScholarshipZIPMaker({ isEmbedded = false }: { isEmbedded
                         <div className="flex items-center gap-3 my-2">
                           {uploaded.previewUrl ? (
                             <div className="h-16 w-16 rounded border border-slate-800 overflow-hidden bg-slate-900 shrink-0">
-                              <img src={uploaded.previewUrl} alt="Preview" className="h-full w-full object-cover" />
+                              <img src={uploaded.previewUrl} alt="Preview" className="h-full w-full object-cover" width="64" height="64" loading="lazy" />
                             </div>
                           ) : (
                             <div className="h-16 w-16 rounded border border-slate-800 bg-slate-900 shrink-0 flex items-center justify-center text-slate-500">

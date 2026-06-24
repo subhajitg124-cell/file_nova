@@ -3,7 +3,6 @@ import { ToolWorkspace } from "@/components/workspace/ToolWorkspace";
 import { PreviewPanel } from "@/components/workspace/PreviewPanel";
 import { useToolProcessor } from "@/hooks/useToolProcessor";
 import { Search, Sliders, CheckCircle, FileText } from "lucide-react";
-import { createWorker } from "tesseract.js";
 import { toast } from "sonner";
 
 export const OCRScanWorkspace: React.FC = () => {
@@ -58,6 +57,7 @@ export const OCRScanWorkspace: React.FC = () => {
     
     try {
       const file = rawFiles[0];
+      const { createWorker } = await import("tesseract.js");
       const worker = await createWorker(languages.join("+"));
       setLocalProgress(50);
       const { data: { text } } = await worker.recognize(file);

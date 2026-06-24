@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { Link } from "wouter";
 import SocialMediaLinks from "./SocialMediaLinks";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -69,7 +69,7 @@ const WhatsAppContact: React.FC = () => {
   );
 };
 
-const Footer: React.FC = () => {
+const Footer: React.FC = memo(() => {
   const { tText } = useTranslation();
   const [upiOpen, setUpiOpen] = React.useState(false);
   const [upiAmount, setUpiAmount] = React.useState(10);
@@ -92,7 +92,7 @@ const Footer: React.FC = () => {
           {/* Brand */}
           <div className="col-span-1 sm:col-span-2 lg:col-span-1">
             <div className="flex items-center gap-3 mb-4">
-              <img src="/logo.png" alt="FileNova - AI PDF & Image Tools" className="w-9 h-9 rounded-xs" loading="lazy" />
+              <img src="/logo.png" alt="FileNova - AI PDF & Image Tools" className="w-9 h-9 rounded-xs" width="36" height="36" loading="lazy" />
               <span className="text-foreground font-bold text-lg">FileNova</span>
             </div>
             <p className="text-muted-foreground text-sm mb-4">
@@ -262,7 +262,7 @@ const Footer: React.FC = () => {
       </div>
     </footer>
   );
-};
+});
 
 export { Footer };
 export default Footer;

@@ -212,7 +212,7 @@ export const PreviewCanvas: React.FC = () => {
 
                 {file.previewUrl ? (
                   <div className="h-11 w-11 rounded-lg overflow-hidden bg-background border border-border shrink-0">
-                    <img src={file.previewUrl} alt={file.name} className="h-full w-full object-cover" />
+                    <img src={file.previewUrl} alt={file.name} className="h-full w-full object-cover" width="44" height="44" loading="lazy" />
                   </div>
                 ) : isPdfFile(file.type, file.name) && rawFile ? (
                   <div className="h-11 w-11 rounded-lg overflow-hidden bg-white border border-border shrink-0 flex items-center justify-center">

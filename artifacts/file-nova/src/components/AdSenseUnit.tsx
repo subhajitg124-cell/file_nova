@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { memo, useEffect, useRef } from "react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useAdmin } from "@/lib/admin";
 import { Sparkles, ArrowRight, Zap } from "lucide-react";
@@ -9,7 +9,7 @@ interface AdSenseUnitProps {
   className?: string;
 }
 
-export function AdSenseUnit({ type = "display", className = "" }: AdSenseUnitProps) {
+export const AdSenseUnit = memo(function AdSenseUnit({ type = "display", className = "" }: AdSenseUnitProps) {
   const { premiumEnabled } = useSubscription();
   const { settings } = useAdmin();
   const altContainerRef = useRef<HTMLDivElement>(null);
@@ -78,6 +78,7 @@ export function AdSenseUnit({ type = "display", className = "" }: AdSenseUnitPro
               src={settings.customBannerImg} 
               alt="Sponsored Banner" 
               className="w-full h-auto object-cover max-h-[150px] rounded-2xl"
+              width="400" height="300" loading="lazy"
             />
           </a>
         </div>
@@ -135,4 +136,4 @@ export function AdSenseUnit({ type = "display", className = "" }: AdSenseUnitPro
       )}
     </div>
   );
-}
+});

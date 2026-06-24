@@ -381,7 +381,7 @@ const ScanToPdfPanel: React.FC<{ onCapture: (file: File) => void }> = ({ onCaptu
           </div>
         )}
         {(state === 'active') && <video ref={videoRef} className="w-full h-full object-cover" muted playsInline />}
-        {state === 'captured' && capturedUrl && <img src={capturedUrl} className="w-full h-full object-contain" alt="Captured" />}
+        {state === 'captured' && capturedUrl && <img src={capturedUrl} className="w-full h-full object-contain" alt="Captured" width="400" height="300" loading="lazy" />}
         <canvas ref={canvasRef} className="hidden" />
         {state === 'active' && (
           <button onClick={capturePhoto}

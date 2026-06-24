@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { memo, useEffect, useRef } from "react";
 import { useAdmin } from "@/lib/admin";
 import { useLocation } from "wouter";
 
@@ -16,7 +16,7 @@ interface Particle {
   extra?: any;
 }
 
-export function ThemeEffects() {
+export const ThemeEffects = memo(function ThemeEffects() {
   const { settings } = useAdmin();
   const [location] = useLocation();
   const activeTheme = settings.eventTheme || "none";
@@ -571,4 +571,4 @@ export function ThemeEffects() {
       style={{ pointerEvents: "none" }}
     />
   );
-}
+});

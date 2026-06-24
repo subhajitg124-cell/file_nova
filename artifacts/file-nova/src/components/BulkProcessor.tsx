@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import JSZip from "jszip";
 import {
   CheckCircle2, Crown, Download, FileArchive, Loader2,
   Lock, Play, Square, XCircle, AlertTriangle
@@ -88,6 +87,7 @@ export function BulkProcessor() {
 
     setProcessing(true);
     setZipUrl(null);
+    const JSZip = (await import("jszip")).default;
     const zip = new JSZip();
     let successCount = 0;
     let failCount = 0;

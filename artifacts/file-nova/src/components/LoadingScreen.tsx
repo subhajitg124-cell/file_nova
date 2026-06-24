@@ -1,7 +1,7 @@
-import React from "react";
+import React, { memo } from "react";
 import { motion } from "framer-motion";
 
-export const LoadingScreen: React.FC = () => {
+export const LoadingScreen: React.FC = memo(() => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white font-sans overflow-hidden relative">
       {/* Premium ambient glows */}
@@ -36,7 +36,7 @@ export const LoadingScreen: React.FC = () => {
             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
             className="w-16 h-16 rounded-2xl bg-slate-900/90 border border-white/10 backdrop-blur-md flex items-center justify-center shadow-2xl shadow-indigo-950/50"
           >
-            <img src="/logo.png" alt="FileNova - AI PDF & Image Tools" className="w-10 h-10 object-contain" />
+            <img src="/logo.png" alt="FileNova - AI PDF & Image Tools" className="w-10 h-10 object-contain" width="40" height="40" />
           </motion.div>
         </div>
 
@@ -72,6 +72,6 @@ export const LoadingScreen: React.FC = () => {
       </motion.div>
     </div>
   );
-};
+});
 
 export default LoadingScreen;
