@@ -18,7 +18,7 @@ function lookupMeta(pathname: string) {
 const NON_INDEXABLE_PATHS = new Set([
   "/beta-test", "/operator-dashboard", "/ref", "/nova-control",
   "/nova-login", "/admin/analytics", "/admin/upi-payments",
-  "/admin/coupons", "/admin/discount-codes",
+  "/admin/coupons", "/admin/discount-codes", "/dashboard", "/history",
 ]);
 
 function shouldIndex(pathname: string) {
@@ -52,6 +52,46 @@ function isToolOrCategoryPage(pathname: string) {
 function extractName(title: string): string {
   return title.split("–")[0].split("|")[0].trim();
 }
+
+const CATEGORY_ITEMS_MAP: Record<string, Array<{ name: string; url: string; description: string }>> = {
+  "/pdf-tools": [
+    { name: "Merge PDF", url: "https://filenova.in/merge-pdf", description: "Combine multiple PDF documents into one online free." },
+    { name: "Split PDF", url: "https://filenova.in/split-pdf", description: "Extract pages or split a PDF into separate files." },
+    { name: "Compress PDF", url: "https://filenova.in/compress-pdf", description: "Reduce PDF file size locally in your browser." },
+    { name: "Rotate PDF", url: "https://filenova.in/rotate-pdf", description: "Fix layout orientation of PDF document pages." },
+    { name: "Protect PDF", url: "https://filenova.in/protect-pdf", description: "Add password protection to secure your PDF." },
+    { name: "Unlock PDF", url: "https://filenova.in/unlock-pdf", description: "Remove password restrictions from protected PDFs." },
+    { name: "PDF to Word", url: "https://filenova.in/pdf-to-word", description: "Convert PDF documents to editable Microsoft Word files." },
+    { name: "PDF to JPG", url: "https://filenova.in/pdf-to-jpg", description: "Extract PDF pages as clean JPG images." },
+  ],
+  "/image-tools": [
+    { name: "Compress Image", url: "https://filenova.in/compress-image", description: "Reduce photo file size under 50KB or 20KB." },
+    { name: "Resize Image", url: "https://filenova.in/resize-photo", description: "Resize image dimensions online free." },
+    { name: "Remove Background", url: "https://filenova.in/remove-background", description: "AI background remover with transparent PNG output." },
+    { name: "JPG to PDF", url: "https://filenova.in/jpg-to-pdf", description: "Convert images or scans to high-quality PDF files." },
+  ],
+  "/document-tools": [
+    { name: "Word to PDF", url: "https://filenova.in/word-to-pdf", description: "Convert Word DOCX files to standard PDFs." },
+    { name: "Compress Doc", url: "https://filenova.in/compress-doc", description: "Shrink office Word documents size free." },
+    { name: "AI PPT Maker", url: "https://filenova.in/ai-ppt-maker", description: "Generate beautiful presentation slides with AI." },
+    { name: "OCR scan-to-text", url: "https://filenova.in/ocr", description: "Extract editable text from scanned pages and images." },
+    { name: "AI PDF Summarizer", url: "https://filenova.in/ai-pdf-summary", description: "Summarize PDF documents in a few bullet points." },
+  ],
+  "/video-tools": [
+    { name: "Trim Video", url: "https://filenova.in/trim", description: "Trim and cut video clips online free." },
+    { name: "Compress Video", url: "https://filenova.in/compress-video", description: "Reduce MP4 and WebM video size free." },
+    { name: "Extract Audio", url: "https://filenova.in/video-to-audio", description: "Turn videos into high-quality MP3 audio files." },
+    { name: "Video to GIF", url: "https://filenova.in/video-to-gif", description: "Convert videos to animated GIFs online free." },
+    { name: "Compress Audio", url: "https://filenova.in/compress-audio", description: "Compress MP3, M4A, or WAV audio files online free." },
+  ],
+  "/india-tools": [
+    { name: "Mask Aadhaar PDF", url: "https://filenova.in/aadhaar-mask-pdf", description: "Mask first 8 digits of Aadhaar UIDAI compliant." },
+    { name: "PAN Card Resize", url: "https://filenova.in/pan-card-resize", description: "Resize photo & signature for NSDL/UTI application." },
+    { name: "Government Form Fill", url: "https://filenova.in/government-form-fill", description: "Fill common government and exam portal PDF forms." },
+    { name: "Compress for Upload", url: "https://filenova.in/compress-pdf-for-upload", description: "Shrink PDFs to exact portal limits like 100KB or 200KB." },
+    { name: "Scholarship ZIP Maker", url: "https://filenova.in/scholarship-zip", description: "Bundle files into SVMCM/OASIS portal-ready ZIP files." },
+  ],
+};
 
 export const ToolSEO = memo(function ToolSEO() {
   const [pathname] = useLocation();
@@ -130,7 +170,7 @@ export const ToolSEO = memo(function ToolSEO() {
       description: meta.description,
       url: meta.canonical,
       applicationCategory: "UtilitiesApplication",
-      operatingSystem: "Web Browser",
+      operatingSystem: "Windows, macOS, Linux, Android, iOS, ChromeOS",
       inLanguage: ["en-IN", "hi-IN", "bn-IN"],
       isAccessibleForFree: true,
       offers: {
@@ -189,6 +229,44 @@ export const ToolSEO = memo(function ToolSEO() {
         },
       ],
     });
+  }
+
+  // ── 6. ItemList (Category Pages Schema) ────────────────────────────
+  if (indexable) {
+    if (CATEGORY_ITEMS_MAP[pathname]) {
+      ld({
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        name: meta.schemaName ?? extractName(meta.title),
+        description: meta.description,
+        url: meta.canonical,
+        numberOfItems: CATEGORY_ITEMS_MAP[pathname].length,
+        itemListElement: CATEGORY_ITEMS_MAP[pathname].map((item, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          url: item.url,
+          name: item.name,
+          description: item.description,
+        })),
+      });
+    } else if (pathname === "/tools") {
+      const allTools = Object.values(CATEGORY_ITEMS_MAP).flat();
+      ld({
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        name: "FileNova Tools Directory",
+        description: meta.description,
+        url: meta.canonical,
+        numberOfItems: allTools.length,
+        itemListElement: allTools.map((item, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          url: item.url,
+          name: item.name,
+          description: item.description,
+        })),
+      });
+    }
   }
 
   // ── robots / meta ──────────────────────────────────────────────────

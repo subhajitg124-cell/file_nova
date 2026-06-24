@@ -611,4 +611,71 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogDescription: "Compress PAN card photo and signature to exact KB size for NEET, NSP, railway portals. 100% browser-based.",
     schemaName: "PAN Card Photo Compressor",
   },
+
+  "/tools": {
+    title: "All Document, PDF & Image Tools Online | FileNova",
+    description: "Browse 30+ free online document, PDF, and image processing tools. Secure, browser-based, and no signup needed. Built for Indian students and CSC centers.",
+    canonical: "https://filenova.in/tools",
+    keywords: "filenova tools directory, free pdf tools, online image tools, document conversion, csc operator tools",
+    ogImage: OG_DEFAULT,
+    ogTitle: "All Document, PDF & Image Tools Online | FileNova",
+    ogDescription: "Explore 30+ secure, fast, and free PDF, image, and document tools. Local browser-based processing.",
+  },
+
+  "/pdf-tools": {
+    title: "PDF Tools Suite – Merge, Compress, Split & Convert | FileNova",
+    description: "Complete online PDF toolkit. Merge PDF, compress PDF, split pages, protect, unlock, or convert PDFs to Word/JPG. Fast, secure, browser-based and free.",
+    canonical: "https://filenova.in/pdf-tools",
+    keywords: "free pdf tools, merge pdf online, compress pdf free, split pdf pages, pdf converter, secure pdf editor",
+    ogImage: OG_DEFAULT,
+    ogTitle: "PDF Tools Suite – Merge, Compress, Split & Convert | FileNova",
+    ogDescription: "Fast, secure, and free online PDF tools. Combine, compress, split, convert, and protect documents locally.",
+    jsonLdFaq: [
+      { question: "Are these PDF tools completely free to use?", answer: "Yes, all core tools in the PDF Suite are free to use. Premium plans are available for larger file size limits and batch processing." },
+      { question: "Are my PDF files safe from leakage?", answer: "Yes. FileNova processes documents client-side inside your browser. Your files are never uploaded to any remote server." },
+      { question: "Can I use these PDF tools on my mobile phone?", answer: "Yes. All FileNova PDF tools are fully optimized for mobile browsers on Android and iOS devices." }
+    ],
+  },
+
+  "/image-tools": {
+    title: "Image Lab Suite – Compress, Resize, Remove BG | FileNova",
+    description: "Optimize and edit images online free. Compress images under 50KB, resize photos, and remove background with AI. 100% private, browser-based processing.",
+    canonical: "https://filenova.in/image-tools",
+    keywords: "free image tools, compress image online, resize photo free, ai background remover, image converter",
+    ogImage: OG_DEFAULT,
+    ogTitle: "Image Lab Suite – Compress, Resize, Remove BG | FileNova",
+    ogDescription: "Optimize, resize, and edit photos online free. High-quality AI background removal and image compression.",
+    jsonLdFaq: [
+      { question: "How do I compress images for Indian government portals?", answer: "Use the Compress Image tool. Select standard presets like under 50KB or 20KB for passport photos and signatures to match portal requirements." },
+      { question: "What formats does the Image Lab support?", answer: "The Image Lab supports all common formats including JPEG, PNG, WebP, and SVG." }
+    ],
+  },
+
+  "/document-tools": {
+    title: "Document Tools Suite – Word, Excel, PPT Converter | FileNova",
+    description: "Convert, merge, and clean office documents online free. Convert Word to PDF, Excel to CSV, and create AI PPT slides. 100% secure, browser-based.",
+    canonical: "https://filenova.in/document-tools",
+    keywords: "document tools online, word to pdf free, convert docx, clean docx online, excel to csv converter, ai ppt maker",
+    ogImage: OG_DEFAULT,
+    ogTitle: "Document Tools Suite – Word, Excel, PPT Converter | FileNova",
+    ogDescription: "Convert and clean Word, Excel, and PowerPoint documents online free. Local browser-based conversion.",
+    jsonLdFaq: [
+      { question: "Can I convert Docx to PDF without formatting issues?", answer: "Yes. FileNova's converter preserves formatting, styles, and tables when converting Word documents to PDF." },
+      { question: "Is my document data private?", answer: "Absolutely. All conversions happen securely inside your browser Sandbox using client-side libraries." }
+    ],
+  },
+
+  "/video-tools": {
+    title: "Video Studio Suite – Trim, Compress, Convert GIF | FileNova",
+    description: "Edit and optimize video and audio online free. Trim video clips, compress MP4, extract audio to MP3, and convert video to GIF. 100% local processing.",
+    canonical: "https://filenova.in/video-tools",
+    keywords: "free video tools, trim video online, compress mp4 free, video to gif converter, extract audio mp3",
+    ogImage: OG_DEFAULT,
+    ogTitle: "Video Studio Suite – Trim, Compress, Convert GIF | FileNova",
+    ogDescription: "Trim, compress, and convert video and audio files online free. Quick browser-based processing.",
+    jsonLdFaq: [
+      { question: "What formats can I compress with the Video Studio?", answer: "You can compress and optimize MP4, WebM, and other popular video formats directly in your browser." },
+      { question: "Can I extract MP3 audio from a video?", answer: "Yes. Use our Extract Audio tool to instantly turn any video file into a download-ready MP3 file." }
+    ],
+  },
 };
