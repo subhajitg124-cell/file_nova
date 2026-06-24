@@ -480,6 +480,28 @@ Every AI agent (Kilo Code, Codex, Claude Code, Gemini CLI, future agents) MUST:
 - `src/data/toolContent.ts` — ToolContent interface + features/useCases/steps for all 21 tools
 - `src/components/ToolPageLayout.tsx` — Features section, Use Cases section, improved CTA, universal workflow banner
 
+---
+
+## 2026-06-24 — AI Search Optimization
+
+**Agent:** Opencode
+**Scope:** llms.txt, llms-full.txt, structured FAQ schema, semantic headings, AI-citable content
+
+### Changes
+- **Created `public/llms.txt`:** AI-readable site overview following the llmstxt community standard — key pages, top tools with URLs, core facts (browser-based processing, no account needed, multi-language support), sitemap references
+- **Created `public/llms-full.txt`:** Comprehensive AI-readable documentation covering all 21+ tools organized by category (PDF Tools, India-Exclusive Tools, Image Tools, OCR & AI Tools), each with purpose, capabilities, steps, use cases, and related tools. Also includes platform features, premium plans, and FAQs. Optimized for citation by ChatGPT, Gemini, Claude, Perplexity, and Copilot
+- **Enhanced FAQPage structured data (ToolStructuredData.tsx):** Added supplemental `FAQPage` schema from `toolContent.faqs` data — deduplicates against existing `ToolSEO.jsonLdFaq` entries to avoid overlap while ensuring ALL tool FAQs appear as JSON-LD structured data
+- **Semantic heading hierarchy (ToolPageLayout.tsx):** Converted all content sections from `<div>` to semantic `<section>` elements with `aria-labelledby` attributes for accessibility. Updated headings to include tool name context (e.g., "Key Features of {toolName}", "Common Use Cases for {toolName}", "Suggested Next Step After {toolName}", "Popular Tools on FileNova", "Frequently Asked Questions — {toolName}")
+- **AI citation optimization:** All tool documentation in llms-full.txt follows consistent format (URL, Purpose, Capabilities, Steps, Use Cases) making it easy for AI assistants to extract and cite accurate information about each tool
+
+### Files Created
+- `public/llms.txt` — AI-readable site overview
+- `public/llms-full.txt` — Comprehensive AI-readable tool documentation
+
+### Files Modified
+- `src/seo/ToolStructuredData.tsx` — Supplemental FAQPage schema from toolContent.faqs
+- `src/components/ToolPageLayout.tsx` — Semantic `<section>` elements with `aria-labelledby`, descriptive heading text
+
 1. **Always read AGENTS.md first** — it contains the master instruction file
 2. **Read PROJECT_CONTEXT.md before writing code** — understand the architecture
 3. **Check TASKS.md** — see what needs to be done

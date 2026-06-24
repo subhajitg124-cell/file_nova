@@ -1,0 +1,241 @@
+# FileNova — Complete AI Documentation
+
+> FileNova is a free, browser-based document productivity platform purpose-built for Indian users. All 30+ tools work entirely in your browser using WebAssembly — your files never leave your device. No account, signup, or payment required.
+
+---
+
+## Platform Information
+
+- **URL:** https://filenova.in
+- **Languages:** English (en-IN), Hindi (hi-IN), Bengali (bn-IN)
+- **Technology:** WebAssembly, React, TypeScript, Vite
+- **Processing:** 100% client-side in browser — zero server uploads
+- **Pricing:** Free (all core tools) + Premium plans ₹49/mo–₹199/mo
+- **Target Users:** Indian students, CSC operators, cyber cafes, professionals, government form applicants
+- **Accessibility:** Mobile-friendly (Android, iOS), keyboard-navigable, screen-reader compatible
+
+---
+
+## Tool Category: PDF Tools
+
+### Merge PDF
+- **URL:** https://filenova.in/merge-pdf
+- **Purpose:** Combine multiple PDF files into one document
+- **Capabilities:** Up to 5 files free (unlimited with Pro), drag-and-drop reordering, instant download
+- **Steps:** Upload files → Arrange order → Merge and download
+- **Use Cases:** Combine Aadhaar + PAN + income proof for scholarship/loan applications; merge multiple invoices for client billing
+- **Related:** Split PDF, Compress PDF, PDF to Word
+
+### Split PDF
+- **URL:** https://filenova.in/split-pdf
+- **Purpose:** Divide a single PDF into multiple files or extract specific pages
+- **Capabilities:** Three split modes (every page, by range, custom pages), ZIP bulk download, lossless extraction
+- **Steps:** Upload PDF → Choose split mode → Download files
+- **Use Cases:** Extract specific pages from a large report; split a combined marksheet into individual certificates
+- **Related:** Merge PDF, Compress PDF, Rotate PDF
+
+### Compress PDF
+- **URL:** https://filenova.in/compress-pdf
+- **Purpose:** Reduce PDF file size without significant quality loss
+- **Capabilities:** Three compression levels (Low/Medium/High), real-time size preview, preserves text readability
+- **Steps:** Upload PDF → Choose level → Compress and download
+- **Use Cases:** Shrink documents for scholarship portal uploads (under 200KB); reduce size for WhatsApp/email sharing
+- **Related:** Compress for Upload, Merge PDF, Resize PDF
+
+### PDF to Word
+- **URL:** https://filenova.in/pdf-to-word
+- **Purpose:** Convert PDF to editable DOCX format
+- **Capabilities:** Preserves tables, lists, headings; supports Hindi and regional language fonts; scanned PDF OCR support
+- **Steps:** Upload PDF → Convert to DOCX → Download Word file
+- **Use Cases:** Edit scanned government letters; repurpose PDF report content into editable documents
+- **Related:** OCR PDF, PDF to JPG, Merge PDF
+
+### PDF to JPG
+- **URL:** https://filenova.in/pdf-to-jpg
+- **Purpose:** Convert PDF pages to high-quality JPG or PNG images
+- **Capabilities:** 72 DPI (web) or 300 DPI (print) resolution; select specific pages; individual or ZIP download
+- **Steps:** Upload PDF → Choose settings → Convert and download
+- **Use Cases:** Extract certificate pages for image-only portals; embed PDF slides in presentations
+- **Related:** JPG to PDF, Remove Background, Compress Image
+
+### JPG to PDF
+- **URL:** https://filenova.in/jpg-to-pdf
+- **Purpose:** Convert images (JPG, PNG, WebP, BMP) to PDF
+- **Capabilities:** Combine multiple images into one PDF; reorder images; A4/Letter/auto-fit page sizes
+- **Steps:** Upload images → Arrange and configure → Convert to PDF
+- **Use Cases:** Submit handwritten assignment photos as a single PDF; create product photo catalogs
+- **Related:** PDF to JPG, Merge PDF, Compress PDF
+
+### Word to PDF
+- **URL:** https://filenova.in/word-to-pdf
+- **Purpose:** Convert DOC/DOCX files to PDF preserving formatting
+- **Capabilities:** Preserves fonts, images, tables, layout; works with MS Word, Google Docs, LibreOffice files
+- **Steps:** Upload Word document → Convert to PDF → Download PDF
+- **Use Cases:** Convert resumes for job portals; deliver client reports in professional PDF format
+- **Related:** PDF to Word, Merge PDF, Compress PDF
+
+### Rotate PDF
+- **URL:** https://filenova.in/rotate-pdf
+- **Purpose:** Fix page orientation in PDF documents
+- **Capabilities:** Rotate individual pages or all pages; 90°, 180°, 270° support; no quality loss
+- **Steps:** Upload PDF → Select pages and direction → Rotate and download
+- **Use Cases:** Fix phone-scanned documents captured sideways; standardize mixed portrait/landscape orientations
+- **Related:** Merge PDF, Split PDF, Compress PDF
+
+### Protect PDF
+- **URL:** https://filenova.in/protect-pdf
+- **Purpose:** Add password protection to PDF documents
+- **Capabilities:** AES 128-bit encryption; open password + permissions password; restrict printing/copying/editing
+- **Steps:** Upload PDF → Set password and permissions → Download protected PDF
+- **Use Cases:** Secure salary slips before emailing; restrict editing on legal agreements
+- **Related:** Unlock PDF, Aadhaar Mask, Compress PDF
+
+### Unlock PDF
+- **URL:** https://filenova.in/unlock-pdf
+- **Purpose:** Remove password protection from PDF documents
+- **Capabilities:** Removes open and permissions passwords; works with bank, government, and DigiLocker PDFs
+- **Steps:** Upload PDF → Enter password → Download unlocked PDF
+- **Use Cases:** Remove password from bank statements for printing; unlock government-issued PDFs for editing
+- **Related:** Protect PDF, Compress PDF, PDF to Word
+
+### Resize PDF
+- **URL:** https://filenova.in/resize-pdf
+- **Purpose:** Change PDF page size to standard or custom dimensions
+- **Capabilities:** Convert to A4, A3, Letter, Legal, or custom sizes; proportional content scaling
+- **Steps:** Upload PDF → Select target page size → Resize and download
+- **Use Cases:** Convert web-exported PDFs to A4 for printing; standardize mixed-size documents for binding
+- **Related:** Compress PDF, Rotate PDF, Merge PDF
+
+### Compress for Upload
+- **URL:** https://filenova.in/compress-pdf-for-upload
+- **Purpose:** Compress PDF to an exact target file size for portal uploads
+- **Capabilities:** Set exact target (100KB, 200KB, 500KB, 1MB); portal-specific presets (DigiLocker, NSP, IRCTC)
+- **Steps:** Upload PDF → Set target size → Download optimized PDF
+- **Use Cases:** Compress income certificate to under 200KB for NSP; reduce documents to under 100KB for IRCTC concession
+- **Related:** Compress PDF, Merge PDF, Scholarship ZIP
+
+---
+
+## Tool Category: India-Exclusive Tools
+
+### Mask Aadhaar PDF
+- **URL:** https://filenova.in/aadhaar-mask-pdf
+- **Purpose:** Mask the first 8 digits of Aadhaar number in PDF for safe sharing
+- **Badge:** India Exclusive
+- **Capabilities:** Automatic Aadhaar number detection and masking; UIDAI-compliant XXXXXXXX format; 100% offline browser processing
+- **Steps:** Upload Aadhaar PDF → Auto-mask applied → Download masked PDF
+- **Use Cases:** Share masked Aadhaar with employer verification portals; submit masked Aadhaar for rental agreement KYC
+- **Related:** PAN Card Resize, Protect PDF, Government Form Fill
+
+### PAN Card Photo Resize
+- **URL:** https://filenova.in/pan-card-resize
+- **Purpose:** Resize photos to exact PAN card application dimensions
+- **Badge:** India Exclusive
+- **Capabilities:** Exact 3.5cm × 2.5cm (276 × 354 pixel) dimensions; live preview; works from selfies or scanned photos
+- **Steps:** Upload photo → Adjust crop → Download resized photo
+- **Use Cases:** Prepare photo for NSDL PAN card application; resize for duplicate PAN card request
+- **Related:** Aadhaar Mask PDF, JPG to PDF, Government Form Fill
+
+### Government Form Fill
+- **URL:** https://filenova.in/government-form-fill
+- **Purpose:** Fill Indian government PDF forms digitally in browser
+- **Badge:** India Exclusive
+- **Capabilities:** Type directly into fillable PDF fields; pre-loaded library of common government forms; Hindi and regional language text input
+- **Steps:** Upload form → Fill in fields → Save and download
+- **Use Cases:** Fill Aadhaar update/ correction form; complete PAN correction form online
+- **Related:** Aadhaar Mask PDF, PAN Card Resize, Compress for Upload
+
+### Scholarship ZIP Maker
+- **URL:** https://filenova.in/scholarship-zip
+- **Purpose:** Bundle scholarship application documents into a single ZIP file
+- **Badge:** India Exclusive
+- **Capabilities:** Auto-rename files to NSP standard format; pack multiple documents into one ZIP; 100% browser-side processing
+- **Steps:** Upload documents → Auto-rename and organize → Download ZIP bundle
+- **Use Cases:** Bundle Aadhaar, marksheet, income certificate for NSP scholarship; organize KYC documents for education loan
+- **Related:** Aadhaar Mask PDF, Compress for Upload, Government Form Fill
+
+---
+
+## Tool Category: Image Tools
+
+### Remove Background
+- **URL:** https://filenova.in/remove-background
+- **Purpose:** Remove image backgrounds using AI
+- **Capabilities:** AI-powered automatic background detection; transparent PNG or white background output; instant processing
+- **Steps:** Upload photo → AI processes background → Download result
+- **Use Cases:** Create white-background passport photos for PAN/Aadhaar; clean up product images for e-commerce
+- **Related:** PAN Card Resize, JPG to PDF, Compress Image
+
+### Resize Image
+- **URL:** https://filenova.in/resize-image
+- **Purpose:** Resize photos to custom dimensions
+- **Capabilities:** Custom pixel dimensions; aspect ratio lock prevents distortion; supports JPG, PNG, WebP
+- **Steps:** Upload image → Set dimensions → Download resized image
+- **Use Cases:** Resize photos for social media platform dimensions; scale down high-res photos for website upload
+- **Related:** PAN Card Resize, Remove Background, Compress Image
+
+### Compress Image
+- **URL:** https://filenova.in/compress-image
+- **Purpose:** Reduce image file size while maintaining quality
+- **Capabilities:** Three quality presets plus manual slider; in-browser Canvas API processing (private); format conversion included
+- **Steps:** Upload image → Configure compression → Download optimized file
+- **Use Cases:** Compress signature to under 50KB for form upload; optimize photos for email attachment
+- **Related:** Resize Image, PAN Card Resize, JPG to PDF
+
+---
+
+## Tool Category: OCR & AI Tools
+
+### OCR PDF
+- **URL:** https://filenova.in/ocr
+- **Purpose:** Convert scanned PDFs to searchable, copyable text
+- **Capabilities:** Optical Character Recognition; supports English, Hindi, Bengali, Tamil, Telugu; produces searchable PDF output
+- **Steps:** Upload scanned PDF → Select language → Extract text and download
+- **Use Cases:** Digitize old contracts and records; extract text from Hindi government documents
+- **Related:** PDF to Word, AI PDF Summary, Compress PDF
+
+### AI PDF Summary
+- **URL:** https://filenova.in/ai-pdf-summary
+- **Purpose:** Summarize long PDF documents using AI
+- **Capabilities:** AI extracts key points automatically; structured chapter-by-chapter summaries; up to 50 pages free (200 pages Pro)
+- **Steps:** Upload PDF → AI analyzes → Read your summary
+- **Use Cases:** Summarize research papers for literature review; get quick overview of lengthy government reports
+- **Related:** OCR PDF, PDF to Word, Merge PDF
+
+### AI PPT Maker
+- **URL:** https://filenova.in/ai-ppt-maker
+- **Purpose:** Generate presentation slides with AI
+- **Capabilities:** AI-generated slide content and design; multiple template themes; export as PPTX
+- **Use Cases:** Create presentation from text prompt; generate slides for college projects and office meetings
+
+---
+
+## Platform Features
+
+- **100% Private:** All processing happens locally in your browser using WebAssembly. Files never leave your device.
+- **Instant Results:** No queues or server wait times. Processing completes in seconds.
+- **Mobile Friendly:** Optimized for Android and iOS browsers. No app download needed.
+- **Completely Free:** No account, signup, email, or credit card required for any tool.
+- **Multi-Language:** Interface and OCR support for English, Hindi, Bengali, Tamil, Telugu.
+- **No Watermarks:** Output files are clean — no branding, no watermarks, no file size tricks.
+
+## Premium Plans
+
+- **Free:** All core tools with standard file size and count limits
+- **Basic Desk (₹49/mo):** Higher file limits, batch processing
+- **Pro Desk (₹99/mo):** Unlimited processing, priority support, advanced features
+- **Elite Console (₹199/mo):** Unlimited everything, API access, workflow automation
+
+## Frequently Asked Questions
+
+### General
+- **Is FileNova free?** Yes, all core tools are completely free with no account required.
+- **Is FileNova safe for sensitive documents?** Yes. All processing is done in your browser via WebAssembly. Files are never uploaded to any server. This is especially important for Aadhaar, PAN, and other identity documents.
+- **Does FileNova work on mobile?** Yes, FileNova is fully optimized for Android and iOS mobile browsers.
+- **Do I need to create an account?** No. All tools work without any account, login, or email.
+
+### Technical
+- **How are files processed?** Using WebAssembly compiled from native libraries (PDF tools use pdf-lib and WASM builds of Poppler/ImageMagick; image tools use Canvas API).
+- **Are my files deleted after processing?** Files are never stored on servers — they exist only in browser memory and are cleared when you close the tab.
+- **What browsers are supported?** Chrome, Firefox, Safari, Edge — latest two versions.
+- **Do tools work offline?** Most image tools work fully offline after initial page load. PDF tools require the WASM binary download on first use.

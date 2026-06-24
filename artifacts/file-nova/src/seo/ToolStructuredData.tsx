@@ -103,6 +103,32 @@ export function ToolStructuredData() {
     });
   }
 
+  // 3. FAQPage schema from toolContent.faqs (supplements ToolSEO jsonLdFaq)
+  if (content?.faqs && content.faqs.length > 0) {
+    const existingFaqKeys = new Set(
+      (meta.jsonLdFaq ?? []).map((f) => f.question.trim().toLowerCase())
+    );
+    const missingFaqs = content.faqs.filter(
+      (f) => !existingFaqKeys.has(f.q.trim().toLowerCase())
+    );
+    if (missingFaqs.length > 0) {
+      const faqSchema = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: missingFaqs.map((faq) => ({
+          "@type": "Question",
+          name: faq.q,
+          acceptedAnswer: { "@type": "Answer", text: faq.a },
+        })),
+      };
+      scripts.push({
+        key: "ld-faq-content",
+        type: "application/ld+json",
+        innerHTML: JSON.stringify(faqSchema),
+      });
+    }
+  }
+
   useHead({
     script: scripts,
   });

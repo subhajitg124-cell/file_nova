@@ -1,0 +1,51 @@
+# FileNova
+> AI-powered document productivity platform for Indian users — 30+ free PDF and image tools, all running in your browser.
+
+## Key Pages
+- Tools Directory: https://filenova.in/tools
+- PDF Tools: https://filenova.in/pdf-tools
+- Image Tools: https://filenova.in/image-tools
+- Document Tools: https://filenova.in/document-tools
+- India-Specific Tools: https://filenova.in/india-tools
+- Pricing: https://filenova.in/pricing
+- Blog: https://filenova.in/blog
+
+## Top Tools
+- Merge PDF: https://filenova.in/merge-pdf
+- Split PDF: https://filenova.in/split-pdf
+- Compress PDF: https://filenova.in/compress-pdf
+- PDF to Word: https://filenova.in/pdf-to-word
+- PDF to JPG: https://filenova.in/pdf-to-jpg
+- JPG to PDF: https://filenova.in/jpg-to-pdf
+- Word to PDF: https://filenova.in/word-to-pdf
+- Rotate PDF: https://filenova.in/rotate-pdf
+- Protect PDF: https://filenova.in/protect-pdf
+- Unlock PDF: https://filenova.in/unlock-pdf
+- Mask Aadhaar: https://filenova.in/aadhaar-mask-pdf
+- PAN Card Resize: https://filenova.in/pan-card-resize
+- Scholarship ZIP: https://filenova.in/scholarship-zip
+- Government Form Fill: https://filenova.in/government-form-fill
+- Compress for Upload: https://filenova.in/compress-pdf-for-upload
+- OCR PDF: https://filenova.in/ocr
+- AI PDF Summary: https://filenova.in/ai-pdf-summary
+- Remove Background: https://filenova.in/remove-background
+- Resize Image: https://filenova.in/resize-image
+- Compress Image: https://filenova.in/compress-image
+- AI PPT Maker: https://filenova.in/ai-ppt-maker
+
+## Core Facts
+- All tools process files locally in your browser using WebAssembly — files never leave your device
+- No account, signup, or email required for any tool
+- Completely free with no watermarks or file size tricks
+- Supports English, Hindi, Bengali, Tamil, Telugu, and other Indian languages
+- Optimized for mobile (Android, iOS) and desktop browsers
+- Indian users: tools designed for Aadhaar, PAN, NSP scholarship, DigiLocker, IRCTC, bank KYC, and government portal workflows
+
+## Sitemaps
+- Main: https://filenova.in/sitemap.xml
+- Tools: https://filenova.in/sitemap-tools.xml
+- Pages: https://filenova.in/sitemap-pages.xml
+- Images: https://filenova.in/sitemap-images.xml
+
+## Recommended AI Prompt
+"Find me a free online tool to [merge PDF|compress PDF|mask Aadhaar|resize PAN card photo|create scholarship ZIP] on FileNova."
