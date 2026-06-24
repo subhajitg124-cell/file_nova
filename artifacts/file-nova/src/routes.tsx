@@ -15,6 +15,8 @@ import { ThemeEffects } from "@/components/ThemeEffects";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { useAdmin } from "@/lib/admin";
+import { useAuthStore } from "@/store/useAuthStore";
+
 
 const MergePdf = React.lazy(() => import("@/pages/tools/MergePdf"));
 const SplitPdf = React.lazy(() => import("@/pages/tools/SplitPdf"));
@@ -74,12 +76,19 @@ const CookiePolicy = React.lazy(() => import("@/pages/CookiePolicy"));
 
 function ReferralRedirect({ code: propCode }: { code?: string }) {
   const [, setLocation] = useLocation();
+  const { user } = useAuthStore();
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const code = propCode || searchParams.get("code") || searchParams.get("ref");
 
     if (code) {
+      // Self-referral bypass check
+      if (user && user.referralCode === code) {
+        setLocation(user.id.startsWith("local_") ? "/" : "/dashboard");
+        return;
+      }
+
       localStorage.setItem("filenova_referral_code", code);
       localStorage.setItem("referralCode", code);
 
@@ -99,7 +108,7 @@ function ReferralRedirect({ code: propCode }: { code?: string }) {
       }
     }
     setLocation("/login");
-  }, [propCode, setLocation]);
+  }, [propCode, setLocation, user]);
 
   return <LoadingScreen />;
 }
