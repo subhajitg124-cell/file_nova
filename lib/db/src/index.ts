@@ -187,6 +187,11 @@ export function simulateSqlQuery(sql: string, params: any[] = []): { rows: any[]
       results = results.filter(r => String(r.referrerUserId || r.referrer_user_id) === String(referrerUserIdVal));
     }
 
+    const ipAddressVal = getParamForField(sql, "ip_address", params) || getParamForField(sql, "ipAddress", params);
+    if (ipAddressVal !== null) {
+      results = results.filter(r => String(r.ipAddress || r.ip_address) === String(ipAddressVal));
+    }
+
     const utrIdVal = getParamForField(sql, "utr_id", params) || getParamForField(sql, "utrId", params);
     if (utrIdVal !== null) {
       results = results.filter(r => String(r.utrId || r.utr_id) === String(utrIdVal));

@@ -8,6 +8,7 @@ import path from "path";
 import { db, usersTable } from "@workspace/db";
 import { eq, and, lt } from "drizzle-orm";
 import { checkAndSendRenewalNotifications } from "./services/subscriptionNotificationService";
+import { backfillMissingReferralCodes } from "./services/referralService";
 
 // ── Startup environment checks ────────────────────────────────────────────────
 if (!process.env["DATABASE_URL"]) {
@@ -57,6 +58,9 @@ const accountCleanupTimer = setInterval(() => {
   cleanupInactiveFreeAccounts().catch(() => {});
 }, 24 * 60 * 60 * 1000); // 24 hours
 accountCleanupTimer.unref();
+
+// Run backfill for missing referral codes on start
+backfillMissingReferralCodes().catch(() => {});
 
 // Run subscription renewal notifications check immediately on start, then once every 24 hours
 checkAndSendRenewalNotifications().catch(() => {});

@@ -39,6 +39,7 @@ async function createSession(userId: string, res: Response) {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
+    path: "/",
     maxAge: SESSION_DURATION_MS,
   });
 
@@ -132,7 +133,14 @@ router.post("/signup", async (req, res): Promise<void> => {
       })
       .returning();
 
-    await completeReferral(parsed.referralCode, newUser.id, newUser.email, parsed.referralTrackingId ?? undefined);
+    await completeReferral(
+      parsed.referralCode,
+      newUser.id,
+      newUser.email,
+      parsed.referralTrackingId ?? undefined,
+      req.ip || undefined,
+      req.headers["user-agent"] || undefined
+    );
     const token = await createSession(newUser.id, res);
 
     sendJson(res, {
@@ -285,7 +293,14 @@ router.post("/google", async (req, res): Promise<void> => {
         })
         .returning();
       user = newUser;
-      await completeReferral(parsed.referralCode, user.id, user.email, parsed.referralTrackingId ?? undefined);
+      await completeReferral(
+        parsed.referralCode,
+        user.id,
+        user.email,
+        parsed.referralTrackingId ?? undefined,
+        req.ip || undefined,
+        req.headers["user-agent"] || undefined
+      );
     }
 
     const token = await createSession(user.id, res);

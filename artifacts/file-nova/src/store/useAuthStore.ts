@@ -142,6 +142,106 @@ const setLocalSession = (user: UserProfile) => {
   localStorage.setItem(SESSION_TOKEN_KEY, `local_${Date.now()}`);
 };
 
+const simulateMockReferral = (referredUser: UserProfile) => {
+  try {
+    const refCode = localStorage.getItem('filenova_referral_code');
+    if (!refCode) return;
+
+    // Find referrer in local users
+    const localUsers = getLocalUsers();
+    let referrer: UserProfile | null = null;
+    let referrerKey = "";
+    for (const [key, val] of Object.entries(localUsers)) {
+      if (val.user.referralCode === refCode) {
+        referrer = val.user;
+        referrerKey = key;
+        break;
+      }
+    }
+
+    if (!referrer || referrer.id === referredUser.id) return;
+
+    // Save completed referral record
+    const referralsRaw = localStorage.getItem('filenova_mock_referrals');
+    const referrals = referralsRaw ? JSON.parse(referralsRaw) : [];
+    
+    // Check if duplicate referred email
+    const duplicate = referrals.find((r: any) => r.referredEmail?.toLowerCase() === referredUser.email.toLowerCase() && r.status === "completed");
+    if (duplicate) return;
+
+    const newRef = {
+      id: `mock_ref_${Date.now()}`,
+      referrerUserId: referrer.id,
+      referredEmail: referredUser.email,
+      status: "completed",
+      rewardGiven: true,
+      createdAt: new Date().toISOString()
+    };
+    referrals.push(newRef);
+    localStorage.setItem('filenova_mock_referrals', JSON.stringify(referrals));
+
+    // Save reward records
+    const rewardsRaw = localStorage.getItem('filenova_mock_rewards');
+    const rewards = rewardsRaw ? JSON.parse(rewardsRaw) : [];
+
+    // Referrer reward
+    rewards.push({
+      id: `mock_rw_${Date.now()}_1`,
+      referrerUserId: referrer.id,
+      referredUserId: referredUser.id,
+      rewardType: "bonus_days",
+      rewardValue: 3,
+      status: "approved",
+      notes: `Referral signup credit for ${referredUser.email}`,
+      createdAt: new Date().toISOString()
+    });
+
+    // Referred user reward
+    rewards.push({
+      id: `mock_rw_${Date.now()}_2`,
+      referrerUserId: referrer.id,
+      referredUserId: referredUser.id,
+      rewardType: "bonus_days",
+      rewardValue: 3,
+      status: "approved",
+      notes: `Signup bonus matching invite from ${referrer.email}`,
+      createdAt: new Date().toISOString()
+    });
+
+    // Update referrer premium info
+    referrer.premiumEnabled = true;
+    referrer.premiumTier = referrer.premiumTier === "free" ? "pro" : referrer.premiumTier;
+    localUsers[referrerKey].user = referrer;
+    localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(localUsers));
+
+    // Count referrals to trigger milestones
+    const referrerCompletedCount = referrals.filter((r: any) => r.referrerUserId === referrer?.id && r.status === "completed").length;
+    const milestone = [
+      { target: 5, reward: 7, name: "Bronze Advocate" },
+      { target: 10, reward: 15, name: "Silver Promoter" },
+      { target: 20, reward: 30, name: "Gold Ambassador" },
+      { target: 50, reward: 100, name: "Diamond Elite" },
+    ].find(m => m.target === referrerCompletedCount);
+
+    if (milestone) {
+      // Add milestone reward record
+      rewards.push({
+        id: `mock_ms_${Date.now()}`,
+        referrerUserId: referrer.id,
+        referredUserId: null,
+        rewardType: "bonus_days",
+        rewardValue: milestone.reward,
+        status: "approved",
+        notes: `Milestone Reward: Reached ${milestone.target} referrals (${milestone.name})`,
+        createdAt: new Date().toISOString()
+      });
+    }
+
+    localStorage.setItem('filenova_mock_rewards', JSON.stringify(rewards));
+
+  } catch (_) {}
+};
+
 const getLocalSession = (): UserProfile | null => {
   try {
     const raw = localStorage.getItem(LOCAL_USER_KEY);
@@ -364,6 +464,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         localUsers[key] = { user, password };
         localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(localUsers));
         const processedUser = processUser(user);
+        simulateMockReferral(processedUser!);
         setLocalSession(processedUser!);
         localStorage.removeItem('filenova_referral_code');
         localStorage.removeItem('filenova_referral_tracking_id');
@@ -417,6 +518,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         }
         const user = createLocalUser(profile.email, profile.name || profile.email.split('@')[0]);
         const processedUser = processUser(user);
+        simulateMockReferral(processedUser!);
         setLocalSession(processedUser!);
         localStorage.removeItem('filenova_referral_code');
         localStorage.removeItem('filenova_referral_tracking_id');

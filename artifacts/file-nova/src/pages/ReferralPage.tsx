@@ -126,12 +126,11 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
   );
 }
 
-// Milestone targets: 3, 7, 15, 30, 50
+// Milestone targets: 5, 10, 20, 50
 const milestones = [
-  { target: 3, reward: 5, name: "Bronze Advocate" },
-  { target: 7, reward: 10, name: "Silver Promoter" },
-  { target: 15, reward: 30, name: "Gold Ambassador" },
-  { target: 30, reward: 60, name: "Platinum Partner" },
+  { target: 5, reward: 7, name: "Bronze Advocate" },
+  { target: 10, reward: 15, name: "Silver Promoter" },
+  { target: 20, reward: 30, name: "Gold Ambassador" },
   { target: 50, reward: 100, name: "Diamond Elite" },
 ];
 
@@ -188,8 +187,81 @@ export default function ReferralPage() {
     }
 
     if (isLocalUser) {
-      setLoading(false);
-      setError("Please sign in with a registered account to view your referral dashboard.");
+      // Simulate referral data loading in standalone/mock mode
+      setLoading(true);
+      setError(null);
+      try {
+        const referralsRaw = localStorage.getItem('filenova_mock_referrals');
+        const allReferrals = referralsRaw ? JSON.parse(referralsRaw) : [];
+        const myReferrals = allReferrals.filter((r: any) => r.referrerUserId === user.id);
+
+        const rewardsRaw = localStorage.getItem('filenova_mock_rewards');
+        const allRewards = rewardsRaw ? JSON.parse(rewardsRaw) : [];
+        const myRewards = allRewards.filter((r: any) => r.referrerUserId === user.id);
+
+        const totalReferred = myReferrals.length;
+        const successfulSignups = myReferrals.filter((r: any) => r.status === "completed").length;
+        const verifiedUsers = successfulSignups; 
+        const premiumConversions = myReferrals.filter((r: any) => r.premiumEnabled).length;
+        
+        const conversionRate = totalReferred > 0 ? Math.round((successfulSignups / totalReferred) * 100) : 0;
+        
+        const totalProDaysEarned = myRewards
+          .filter((r: any) => r.rewardType === "bonus_days")
+          .reduce((sum: number, r: any) => sum + r.rewardValue, 0);
+
+        const equivalentInrSaved = totalProDaysEarned * 3.30;
+
+        const pendingRewardsCash = myRewards
+          .filter((r: any) => r.rewardType === "commission" && r.status === "pending")
+          .reduce((sum: number, r: any) => sum + r.rewardValue, 0);
+
+        const availableRewardsCash = myRewards
+          .filter((r: any) => r.rewardType === "commission" && r.status === "approved")
+          .reduce((sum: number, r: any) => sum + r.rewardValue, 0);
+
+        const paidRewardsCash = myRewards
+          .filter((r: any) => r.rewardType === "commission" && r.status === "paid")
+          .reduce((sum: number, r: any) => sum + r.rewardValue, 0);
+
+        setStats({
+          totalReferred,
+          successfulSignups,
+          verifiedUsers,
+          premiumConversions,
+          conversionRate,
+          rewardsEarned: totalProDaysEarned,
+          equivalentInrSaved,
+          pendingRewards: pendingRewardsCash,
+          availableRewards: availableRewardsCash,
+          paidRewards: paidRewardsCash,
+        });
+
+        const referralListFormatted = myReferrals.map((r: any) => ({
+          id: r.id,
+          email: r.referredEmail,
+          friendName: r.referredEmail.split('@')[0],
+          status: r.status,
+          phoneVerified: true,
+          premiumEnabled: r.premiumEnabled || false,
+          rewardGiven: r.rewardGiven,
+          upgradeRewardGiven: r.upgradeRewardGiven,
+          createdAt: r.createdAt,
+          signupDate: r.createdAt,
+        }));
+
+        setReferralList(referralListFormatted);
+        setRewardsList(myRewards);
+
+        if (user.referralCode) {
+          setReferralCode(user.referralCode);
+          setReferralLink(`https://filenova.in/ref?code=${user.referralCode}`);
+        }
+      } catch (e) {
+        setError("Failed to load local simulation stats");
+      } finally {
+        setLoading(false);
+      }
       return;
     }
 

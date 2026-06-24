@@ -55,6 +55,8 @@ export const referralsTable = pgTable("referrals", {
   status: varchar("status", { length: 50 }).notNull().default("pending"),
   rewardGiven: boolean("reward_given").notNull().default(false),
   upgradeRewardGiven: boolean("upgrade_reward_given").notNull().default(false),
+  ipAddress: varchar("ip_address", { length: 45 }),
+  userAgent: text("user_agent"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
