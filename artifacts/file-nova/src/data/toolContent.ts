@@ -30,6 +30,8 @@ export interface ToolContent {
   steps?: StepByStepItem[];    // Step-by-step guide for HowTo schema
   howToName?: string;          // Name for HowTo schema
   toolCategory?: 'pdf' | 'image' | 'video' | 'audio' | 'document' | 'ocr' | 'form';
+  features?: { icon: string; title: string; description: string }[];
+  useCases?: { title: string; description: string }[];
 }
 
 export const toolContentMap: Record<string, ToolContent> = {
@@ -79,6 +81,15 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
       { label: "PDF to Word", slug: "pdf-to-word", icon: "file-word" },
       { label: "Rotate PDF", slug: "rotate-pdf", icon: "rotate" },
+    ],
+    features: [
+      { icon: "files", title: "Combine Up to 5 Files", description: "Upload and merge up to 5 PDF files in one task. Pro users get unlimited merging with no file count restrictions." },
+      { icon: "move", title: "Drag-and-Drop Reordering", description: "Arrange your PDFs in any order using intuitive drag-and-drop. The first file becomes the first page of the merged document." },
+      { icon: "zap", title: "Instant Processing", description: "No queues, no waiting. Your merged PDF is ready to download within seconds, even for large documents." },
+    ],
+    useCases: [
+      { title: "Government Document Submission", description: "Combine Aadhaar, PAN, income proof, and address proof into a single PDF for scholarship applications, loan applications, or college admissions." },
+      { title: "Business Invoice Consolidation", description: "Merge multiple monthly invoices into one PDF for client billing, audit trails, or accounting record-keeping." },
     ],
     steps: [
       { title: "Upload your PDF files", description: "Click the upload area or drag and drop multiple PDF files you want to merge. You can upload up to 5 files for free, or unlimited with Pro.", icon: "upload" },
@@ -131,6 +142,15 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Rotate PDF", slug: "rotate-pdf", icon: "rotate" },
       { label: "PDF to JPG", slug: "pdf-to-jpg", icon: "photo" },
     ],
+    features: [
+      { icon: "scissors", title: "Three Split Methods", description: "Split every page into separate PDFs, extract by page range, or pick custom individual pages. Choose what works for your task." },
+      { icon: "file-archive", title: "ZIP Bulk Download", description: "Download all split files individually or get a single ZIP archive containing every extracted page for convenience." },
+      { icon: "copy", title: "Lossless Splitting", description: "Pages are extracted without re-rendering or quality loss — text, images, and formatting remain identical to the original." },
+    ],
+    useCases: [
+      { title: "Share Specific Pages from a Report", description: "Extract only relevant pages from a large PDF report before sharing with colleagues instead of sending the entire document." },
+      { title: "Extract Certificate from Marksheet", description: "Split a combined marksheet PDF to separate each semester or board certificate into individual files for different applications." },
+    ],
     steps: [
       { title: "Upload your PDF", description: "Select or drag and drop the PDF file you want to split.", icon: "upload" },
       { title: "Choose split mode", description: "Pick how you want to split: every page into separate files, by page range, or extract specific pages.", icon: "configure" },
@@ -181,6 +201,15 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Compress for Upload", slug: "compress-pdf-for-upload", icon: "cloud-upload" },
       { label: "PDF to JPG", slug: "pdf-to-jpg", icon: "photo" },
       { label: "Resize PDF", slug: "resize-pdf", icon: "resize" },
+    ],
+    features: [
+      { icon: "gauge", title: "Three Compression Levels", description: "Choose Low for maximum quality, Medium for balanced output, or High for the smallest file size. Preview the estimated size before downloading." },
+      { icon: "file-text", title: "Preserves Readability", description: "Text remains sharp and readable at every compression level. Only images are optimized — your document content stays intact." },
+      { icon: "eye", title: "Real-Time Size Preview", description: "See the estimated file size before you download. No trial-and-error — pick the compression level that meets your portal's limit." },
+    ],
+    useCases: [
+      { title: "Compress for Portal Upload", description: "Reduce a scanned document from 3MB to under 200KB for scholarship, DigiLocker, or IRCTC uploads that have strict file size caps." },
+      { title: "Shrink for Instant Messaging", description: "Compress large PDFs before sending over WhatsApp or email where file size limits often cause failed deliveries." },
     ],
     steps: [
       { title: "Upload your PDF", description: "Select the PDF file you want to compress. Larger files may take slightly longer to process.", icon: "upload" },
@@ -233,6 +262,15 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
       { label: "OCR PDF", slug: "ocr", icon: "scan" },
     ],
+    features: [
+      { icon: "file-text", title: "Preserves Tables and Layout", description: "Advanced layout analysis keeps multi-column text, tables, bullet points, and heading hierarchy intact in the output Word document." },
+      { icon: "languages", title: "Regional Language Support", description: "Works with Hindi, Bengali, Tamil, Telugu, and other Unicode-supported Indian language PDFs. Converted files open in MS Word or Google Docs." },
+      { icon: "scan", title: "Scanned PDF Support", description: "Upload scanned PDFs too — the tool applies OCR to extract text from images before converting to an editable Word format." },
+    ],
+    useCases: [
+      { title: "Edit Government Letters", description: "Convert a scanned government notice letter to Word format to edit and repurpose the content instead of retyping from scratch." },
+      { title: "Repurpose Report Content", description: "Extract text and tables from a PDF report into an editable Word document for reuse in presentations, emails, or new documents." },
+    ],
     steps: [
       { title: "Upload your PDF", description: "Select the PDF file you want to convert to Word. Supports scanned PDFs with OCR.", icon: "upload" },
       { title: "Convert to DOCX", description: "Click 'Convert to Word'. FileNova extracts text, tables, and formatting into a DOCX file.", icon: "process" },
@@ -280,6 +318,15 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
       { label: "Remove Background", slug: "remove-background", icon: "eraser" },
     ],
+    features: [
+      { icon: "sliders-horizontal", title: "Choose Output Resolution", description: "Select 72 DPI for web-friendly images or 300 DPI for print-quality output. Higher DPI gives sharper images for certificates and documents." },
+      { icon: "layers", title: "Select Specific Pages", description: "Convert all pages or pick only the ones you need. Each page becomes a separate JPG or PNG image with full control." },
+      { icon: "file-archive", title: "Individual or Bulk Download", description: "Download each page image separately or get all pages packaged in a single ZIP file for convenience." },
+    ],
+    useCases: [
+      { title: "Upload Certificate Images to Portals", description: "Convert a PDF certificate page to JPG for uploading to forms and portals that accept only image file formats, not PDFs." },
+      { title: "Extract Slides for Presentations", description: "Convert each slide of a PDF presentation to high-quality images for embedding in PowerPoint, Google Slides, or social media posts." },
+    ],
     steps: [
       { title: "Upload your PDF", description: "Select the PDF whose pages you want to extract as images.", icon: "upload" },
       { title: "Choose output settings", description: "Select resolution (72 DPI for web, 300 DPI for print) and image format.", icon: "configure" },
@@ -326,6 +373,15 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
       { label: "Remove Background", slug: "remove-background", icon: "eraser" },
     ],
+    features: [
+      { icon: "layers", title: "Combine Multiple Images", description: "Upload several JPG, PNG, WebP, or BMP images and combine them all into a single PDF — one image per page." },
+      { icon: "move", title: "Drag-and-Drop Reordering", description: "Rearrange the order of images before converting. Drag thumbnails to set the sequence you want in the output PDF." },
+      { icon: "file-text", title: "Multiple Page Size Options", description: "Choose A4, Letter, or auto-fit page size. Auto-fit adjusts the PDF canvas to match each image's native dimensions." },
+    ],
+    useCases: [
+      { title: "Submit Handwritten Assignments", description: "Convert photos of handwritten assignment pages into a single PDF for submission to online learning portals." },
+      { title: "Combine Product Photos for Catalog", description: "Merge multiple product images into one PDF catalog to share with clients or upload to e-commerce platforms." },
+    ],
     steps: [
       { title: "Upload your images", description: "Upload JPG, PNG, WebP, or BMP files. You can upload multiple images at once.", icon: "upload" },
       { title: "Arrange and configure", description: "Drag to reorder images. Choose output page size: A4, Letter, or auto-fit to image dimensions.", icon: "configure" },
@@ -367,6 +423,15 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Split PDF", slug: "split-pdf", icon: "scissors" },
       { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
       { label: "PDF to JPG", slug: "pdf-to-jpg", icon: "photo" },
+    ],
+    features: [
+      { icon: "rotate-cw", title: "Individual or Global Rotation", description: "Rotate every page in one click or select specific pages and rotate each independently in different directions." },
+      { icon: "refresh-cw", title: "Full Direction Support", description: "Rotate 90° clockwise, 90° counter-clockwise, or 180° upside-down. Covers every possible orientation fix you might need." },
+      { icon: "copy", title: "No Quality Loss", description: "Rotation is applied at the metadata level without re-encoding the document, so your PDF content stays perfectly intact." },
+    ],
+    useCases: [
+      { title: "Fix Phone-Scanned Documents", description: "Correct pages captured sideways or upside-down when you scan physical documents using your phone camera instead of a scanner." },
+      { title: "Standardize Mixed Orientations", description: "Fix PDFs that combine landscape and portrait originals, making all pages consistent before printing or binding." },
     ],
     steps: [
       { title: "Upload your PDF", description: "Select the PDF file with pages that need rotation.", icon: "upload" },
