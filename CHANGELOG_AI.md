@@ -4,6 +4,51 @@
 
 ---
 
+## 2026-06-23 — Production-Grade Schema.org Structured Data
+
+**Agent:** Opencode (AI Lead Architect)
+**Scope:** ToolSEO.tsx, ToolStructuredData.tsx, toolMeta.ts, CHANGELOG_AI.md
+**Issue:** Fake ratings injected in JSON-LD (no genuine review data), missing WebPage schema, incorrect schemas on non-tool pages, website name inconsistency
+
+### Changes
+- Modified `src/seo/toolMeta.ts`:
+  - Removed all `ratingValue`, `ratingCount`, `schemaCategory` fields (fake data)
+  - Cleaned `ToolMeta` interface — only genuine fields remain
+- Modified `src/seo/ToolSEO.tsx`:
+  - Added `WebPage` schema to every indexable page
+  - `Organization` schema with `contactPoint` + `sameAs` on homepage
+  - `WebSite` + `SearchAction` on homepage
+  - `SoftwareApplication` only for tool/category pages with genuine data (no aggregateRating)
+  - `BreadcrumbList` on all indexable sub-pages
+  - `FAQPage` for pages with defined FAQ data
+  - Website name unified to `"FileNova"` throughout
+  - Extracted `SITE_URL`, `SITE_NAME` constants
+- Modified `src/seo/ToolStructuredData.tsx`:
+  - Removed fake `aggregateRating` from Product schema on `/pricing`
+  - Added `url` field to each Offer
+  - HowTo schema kept clean
+- Verified: no `ratingValue`, `ratingCount`, `aggregateRating`, or `schemaCategory` references remain in `src/`
+
+### Schemas Implemented
+| Schema | Pages | Notes |
+|--------|-------|-------|
+| `WebPage` | All indexable pages | `isAccessibleForFree: true` |
+| `Organization` | `/` (homepage) | contactPoint, sameAs, logo |
+| `WebSite` | `/` (homepage) | SearchAction with `tools?q=` template |
+| `SoftwareApplication` | Tool/category pages | No fake ratings, genuine `price: "0"` |
+| `BreadcrumbList` | Non-home indexable pages | Home → Current page |
+| `FAQPage` | Pages with `jsonLdFaq` | Genuine Q&A only |
+| `Product` | `/pricing` | No aggregateRating, genuine offers |
+| `HowTo` | Tools with `toolContentMap` steps | Via ToolStructuredData.tsx |
+
+### Verification
+- [x] TypeScript compiles (`pnpm typecheck` passes)
+- [x] Fake `ratingValue`/`ratingCount` completely removed from codebase
+- [x] Website name set to `"FileNova"` (not `filenova.in`)
+- [ ] Production build verified
+
+---
+
 ## 2026-06-23 — Technical SEO Audit & Complete Fix
 
 **Agent:** Opencode (AI Lead Architect)
@@ -213,6 +258,18 @@ Every AI agent (Kilo Code, Codex, Claude Code, Gemini CLI, future agents) MUST:
 - Added missing pages to sitemap: `/compress-image`, `/premium`, `/referral`, `/tools/compress-pan-card`
 - Added custom OG image for `/rotate-pdf`
 
+### Structured Data (Schema.org)
+- Removed all fake `ratingValue`/`ratingCount` from toolMeta.ts (no genuine review data exists)
+- Added `WebPage` schema to every indexable page with `isAccessibleForFree`
+- Added `Organization` schema to homepage with contactPoint and sameAs
+- Added `WebSite` + `SearchAction` to homepage
+- `SoftwareApplication` schema now only on real tool pages with genuine data only (no fake aggregate ratings)
+- `BreadcrumbList` on all indexable non-home pages
+- `FAQPage` on pages that define FAQ data
+- `Product` + `Offer` on `/pricing` with genuine pricing info (no fake aggregateRating)
+- Website name set to `FileNova` (not `filenova.in`) throughout all schemas
+- All JSON-LD generated client-side via `@unhead/react` for SPA compatibility
+
 ### Dependency Updates
 *(None yet)*
 
@@ -253,6 +310,7 @@ Every AI agent (Kilo Code, Codex, Claude Code, Gemini CLI, future agents) MUST:
 | 2026-06-23 | Opencode | Add discount code generator: schema, backend CRUD + validation, admin UI | ✅ Completed |
 | 2026-06-23 | Opencode | Fix referral system: handle server unreachable, local mock user fallback, 401 errors, duplicate authMiddleware | ✅ Completed |
 | 2026-06-23 | Opencode | Technical SEO audit + complete fix: dedup titles, fix dual SEO conflict, add missing pages, fix robots.txt, add OG images, fix sitemap | ✅ Completed |
+| 2026-06-23 | Opencode | Production-grade structured data: WebPage, Organization, WebSite, SearchAction, SoftwareApplication, BreadcrumbList, FAQPage, Product, Offer schemas — no fake ratings | ✅ Completed |
 
 ---
 

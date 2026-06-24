@@ -2,6 +2,9 @@ import { useHead } from "@unhead/react";
 import { useLocation } from "wouter";
 import { TOOL_META } from "./toolMeta";
 
+const SITE_URL = "https://filenova.in";
+const SITE_NAME = "FileNova";
+
 function lookupMeta(pathname: string) {
   if (TOOL_META[pathname]) return TOOL_META[pathname];
   if (pathname.startsWith("/tools/")) {
@@ -11,16 +14,16 @@ function lookupMeta(pathname: string) {
   return TOOL_META["/"];
 }
 
-const NON_INDEXABLE_PATHS = [
+const NON_INDEXABLE_PATHS = new Set([
   "/beta-test", "/operator-dashboard", "/ref", "/nova-control",
   "/nova-login", "/admin/analytics", "/admin/upi-payments",
   "/admin/coupons", "/admin/discount-codes",
-];
+]);
 
 function shouldIndex(pathname: string) {
   if (pathname.startsWith("/admin") || pathname.startsWith("/nova")) return false;
-  if (NON_INDEXABLE_PATHS.includes(pathname)) return false;
-  if (pathname.startsWith("/ref/") || pathname.startsWith("/ref")) return false;
+  if (NON_INDEXABLE_PATHS.has(pathname)) return false;
+  if (pathname.startsWith("/ref/") || pathname === "/ref") return false;
   return true;
 }
 
@@ -45,23 +48,87 @@ function isToolOrCategoryPage(pathname: string) {
   return false;
 }
 
+function extractName(title: string): string {
+  return title.split("–")[0].split("|")[0].trim();
+}
+
 export function ToolSEO() {
   const [pathname] = useLocation();
   const meta = lookupMeta(pathname);
-
-  const siteName = "FileNova";
+  const indexable = shouldIndex(pathname);
 
   const jsonLdScripts: Record<string, unknown>[] = [];
 
-  // 1. SoftwareApplication schema (only for actual tool/category pages)
-  if (isToolOrCategoryPage(pathname) && meta.schemaName) {
-    jsonLdScripts.push({
+  // Helper: push a script
+  const ld = (obj: Record<string, unknown>) => jsonLdScripts.push(obj);
+
+  // ── 1. WebPage (every indexable page) ──────────────────────────────
+  if (indexable) {
+    ld({
       "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      name: meta.schemaName ?? meta.title.split("–")[0].split("|")[0].trim(),
+      "@type": "WebPage",
+      name: meta.title,
       description: meta.description,
       url: meta.canonical,
-      applicationCategory: meta.schemaCategory ?? "UtilitiesApplication",
+      inLanguage: ["en-IN", "hi-IN", "bn-IN"],
+      isAccessibleForFree: true,
+      provider: {
+        "@type": "Organization",
+        name: SITE_NAME,
+        url: SITE_URL,
+      },
+    });
+  }
+
+  // ── 2. Organization (homepage) ─────────────────────────────────────
+  if (pathname === "/") {
+    ld({
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: SITE_NAME,
+      alternateName: "FileNova AI",
+      url: SITE_URL,
+      logo: `${SITE_URL}/logo.png`,
+      description: "Free online PDF and image tools built for India — Aadhaar masking, PAN resize, scholarship ZIP, OCR, AI PDF tools.",
+      contactPoint: {
+        "@type": "ContactPoint",
+        contactType: "customer support",
+        availableLanguage: ["English", "Hindi", "Bengali"],
+      },
+      sameAs: [
+        "https://twitter.com/filenovaapp",
+        "https://www.linkedin.com/company/filenova",
+      ],
+    });
+
+    ld({
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: SITE_NAME,
+      alternateName: "FileNova AI",
+      url: SITE_URL,
+      description: "Free online PDF and image tools for Indian students and professionals.",
+      inLanguage: ["en-IN", "hi-IN", "bn-IN"],
+      potentialAction: {
+        "@type": "SearchAction",
+        target: {
+          "@type": "EntryPoint",
+          urlTemplate: `${SITE_URL}/tools?q={search_term_string}`,
+        },
+        "query-input": "required name=search_term_string",
+      },
+    });
+  }
+
+  // ── 3. SoftwareApplication (only for actual tool/category pages) ───
+  if (isToolOrCategoryPage(pathname) && meta.schemaName) {
+    ld({
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      name: meta.schemaName,
+      description: meta.description,
+      url: meta.canonical,
+      applicationCategory: "UtilitiesApplication",
       operatingSystem: "Web Browser",
       inLanguage: ["en-IN", "hi-IN", "bn-IN"],
       isAccessibleForFree: true,
@@ -71,18 +138,11 @@ export function ToolSEO() {
         priceCurrency: "INR",
         availability: "https://schema.org/InStock",
       },
-      aggregateRating: meta.ratingValue && meta.ratingCount ? {
-        "@type": "AggregateRating",
-        ratingValue: meta.ratingValue,
-        ratingCount: meta.ratingCount,
-        bestRating: "5",
-        worstRating: "1",
-      } : undefined,
       provider: {
         "@type": "Organization",
-        name: "FileNova",
-        url: "https://filenova.in",
-        logo: "https://filenova.in/logo.png",
+        name: SITE_NAME,
+        url: SITE_URL,
+        logo: `${SITE_URL}/logo.png`,
         sameAs: [
           "https://twitter.com/filenovaapp",
           "https://www.linkedin.com/company/filenova",
@@ -91,9 +151,9 @@ export function ToolSEO() {
     });
   }
 
-  // 2. FAQPage schema
+  // ── 4. FAQPage ─────────────────────────────────────────────────────
   if (meta.jsonLdFaq && meta.jsonLdFaq.length > 0) {
-    jsonLdScripts.push({
+    ld({
       "@context": "https://schema.org",
       "@type": "FAQPage",
       mainEntity: meta.jsonLdFaq.map((faq) => ({
@@ -107,72 +167,30 @@ export function ToolSEO() {
     });
   }
 
-  // 3. BreadcrumbList (skip for redirect stubs)
+  // ── 5. BreadcrumbList ──────────────────────────────────────────────
   const pathParts = pathname.split("/").filter(Boolean);
-  if (pathParts.length > 0 && pathname !== "/" && shouldIndex(pathname)) {
-    const breadcrumbItems = [
-      {
-        "@type": "ListItem",
-        position: 1,
-        name: "FileNova",
-        item: "https://filenova.in",
-      },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: meta.schemaName ?? meta.title.split("–")[0].split("|")[0].trim(),
-        item: meta.canonical,
-      },
-    ];
-    jsonLdScripts.push({
+  if (pathParts.length > 0 && pathname !== "/" && indexable) {
+    ld({
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
-      itemListElement: breadcrumbItems,
-    });
-  }
-
-  // 4. WebSite schema with SearchAction (homepage only for unique schema)
-  if (pathname === "/") {
-    jsonLdScripts.push({
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      name: "FileNova",
-      alternateName: "FileNova AI",
-      url: "https://filenova.in",
-      description: "Free online PDF and image tools for Indian students and professionals.",
-      inLanguage: ["en-IN", "hi-IN", "bn-IN"],
-      potentialAction: {
-        "@type": "SearchAction",
-        target: {
-          "@type": "EntryPoint",
-          urlTemplate: "https://filenova.in/tools?q={search_term_string}",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: SITE_NAME,
+          item: SITE_URL,
         },
-        "query-input": "required name=search_term_string",
-      },
-    });
-
-    jsonLdScripts.push({
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      name: "FileNova",
-      alternateName: "FileNova AI",
-      url: "https://filenova.in",
-      logo: "https://filenova.in/logo.png",
-      description: "Free online PDF and image tools built for India — Aadhaar masking, PAN resize, scholarship ZIP, OCR, AI PDF tools.",
-      contactPoint: {
-        "@type": "ContactPoint",
-        contactType: "customer support",
-        availableLanguage: ["English", "Hindi", "Bengali"],
-      },
-      sameAs: [
-        "https://twitter.com/filenovaapp",
-        "https://www.linkedin.com/company/filenova",
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: meta.schemaName ?? extractName(meta.title),
+          item: meta.canonical,
+        },
       ],
     });
   }
 
-  // Determine index/follow rules
-  const indexable = shouldIndex(pathname);
+  // ── robots / meta ──────────────────────────────────────────────────
   const robotsContent = indexable
     ? "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
     : "noindex, nofollow";
@@ -193,8 +211,8 @@ export function ToolSEO() {
       { property: "og:description", content: meta.ogDescription ?? meta.description },
       { property: "og:url", content: meta.canonical },
       { property: "og:type", content: pathname.startsWith("/blog/") ? "article" : "website" },
-      { property: "og:site_name", content: siteName },
-      { property: "og:image", content: meta.ogImage ?? "https://filenova.in/og-default.png" },
+      { property: "og:site_name", content: SITE_NAME },
+      { property: "og:image", content: meta.ogImage ?? `${SITE_URL}/og-default.png` },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
       { property: "og:locale", content: "en_IN" },
@@ -203,7 +221,7 @@ export function ToolSEO() {
       { name: "twitter:site", content: "@filenovaapp" },
       { name: "twitter:title", content: meta.ogTitle ?? meta.title },
       { name: "twitter:description", content: meta.ogDescription ?? meta.description },
-      { name: "twitter:image", content: meta.ogImage ?? "https://filenova.in/og-default.png" },
+      { name: "twitter:image", content: meta.ogImage ?? `${SITE_URL}/og-default.png` },
     ],
     link: [
       { rel: "canonical", href: meta.canonical },

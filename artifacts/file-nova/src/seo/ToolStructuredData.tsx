@@ -3,6 +3,8 @@ import { useLocation } from "wouter";
 import { TOOL_META } from "./toolMeta";
 import { toolContentMap } from "@/data/toolContent";
 
+const SITE_URL = "https://filenova.in";
+
 export function ToolStructuredData() {
   const [pathname] = useLocation();
   const meta = TOOL_META[pathname] ?? TOOL_META["/"];
@@ -21,8 +23,8 @@ export function ToolStructuredData() {
 
   const scripts: any[] = [];
 
-  // HowTo schema from toolContentMap if present
-  if (content && content.steps && content.steps.length > 0) {
+  // 1. HowTo schema from toolContentMap if present
+  if (content?.steps?.length) {
     const howToSchema = {
       "@context": "https://schema.org",
       "@type": "HowTo",
@@ -43,7 +45,7 @@ export function ToolStructuredData() {
     });
   }
 
-  // Product/Offer schema for pricing pages
+  // 2. Product schema for pricing page (genuine data, no fake aggregate ratings)
   if (pathname === "/pricing") {
     const productSchema = {
       "@context": "https://schema.org",
@@ -60,39 +62,38 @@ export function ToolStructuredData() {
           name: "Free",
           price: "0",
           priceCurrency: "INR",
+          priceValidUntil: "2027-12-31",
           availability: "https://schema.org/InStock",
+          url: `${SITE_URL}/pricing`,
         },
         {
           "@type": "Offer",
           name: "Basic Desk",
           price: "49",
           priceCurrency: "INR",
-          availability: "https://schema.org/InStock",
           priceValidUntil: "2027-12-31",
+          availability: "https://schema.org/InStock",
+          url: `${SITE_URL}/pricing`,
         },
         {
           "@type": "Offer",
           name: "Pro Desk",
           price: "99",
           priceCurrency: "INR",
-          availability: "https://schema.org/InStock",
           priceValidUntil: "2027-12-31",
+          availability: "https://schema.org/InStock",
+          url: `${SITE_URL}/pricing`,
         },
         {
           "@type": "Offer",
           name: "Elite Console",
           price: "199",
           priceCurrency: "INR",
-          availability: "https://schema.org/InStock",
           priceValidUntil: "2027-12-31",
+          availability: "https://schema.org/InStock",
+          url: `${SITE_URL}/pricing`,
         },
       ],
-      aggregateRating: {
-        "@type": "AggregateRating",
-        ratingValue: "4.8",
-        ratingCount: "5200",
-        bestRating: "5",
-      },
     };
 
     scripts.push({

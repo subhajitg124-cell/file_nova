@@ -10,9 +10,6 @@ export interface ToolMeta {
   ogDescription?: string;
   jsonLdFaq?: FAQItem[];
   schemaName?: string;
-  schemaCategory?: string;
-  ratingValue?: string;
-  ratingCount?: string;
 }
 
 const OG_PDF   = "https://filenova.in/og/pdf-tools.png";
@@ -52,9 +49,6 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogTitle: "Mask Aadhaar Card Online Free – UIDAI Compliant | FileNova",
     ogDescription: "Hide first 8 digits of your Aadhaar PDF instantly. UIDAI-compliant masking. 100% browser-based, files never uploaded. Free and secure.",
     schemaName: "Aadhaar Masking Tool",
-    schemaCategory: "UtilitiesApplication",
-    ratingValue: "4.9",
-    ratingCount: "2140",
     jsonLdFaq: [
       { question: "Is Aadhaar masking legal in India?", answer: "Yes. UIDAI officially recommends masking the first 8 digits of the 12-digit Aadhaar number when sharing for non-KYC purposes. FileNova's masking is UIDAI-compliant." },
       { question: "Does FileNova upload my Aadhaar file to a server?", answer: "No. Your Aadhaar PDF is processed entirely inside your browser using WebAssembly. It is never uploaded, stored, or transmitted to any server." },
@@ -72,8 +66,6 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogTitle: "Aadhaar Number Mask Online | FileNova",
     ogDescription: "Hide first 8 digits of your Aadhaar number. UIDAI-compliant masking. Files never uploaded.",
     schemaName: "Aadhaar Masking Tool",
-    ratingValue: "4.9",
-    ratingCount: "2140",
   },
 
   "/pan-card-resize": {
@@ -85,8 +77,6 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogTitle: "PAN Card Photo Resize Free – NEET, NSP, Railway | FileNova",
     ogDescription: "Resize PAN card photos for NEET, JEE, NSP, and railway portals. Exact pixel dimensions and file size. 100% private browser-based tool.",
     schemaName: "PAN Card Photo Resizer",
-    ratingValue: "4.8",
-    ratingCount: "1870",
     jsonLdFaq: [
       { question: "What is the correct PAN card photo size for NEET 2025?", answer: "NEET 2025 requires a passport-size photograph of 200x230 pixels or 35x45mm at 200 DPI in JPEG format, under 40KB. Use FileNova's NEET preset to resize automatically." },
       { question: "What is the PAN card photo size for NSP scholarship?", answer: "NSP (National Scholarship Portal) requires a recent passport-size photo of 200x250 pixels in JPEG format, not exceeding 50KB." },
@@ -103,8 +93,6 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogTitle: "Scholarship ZIP Maker Free – NSP, OASIS, Mahadbt | FileNova",
     ogDescription: "Create scholarship ZIP files for NSP, OASIS, Mahadbt portals. Auto-rename documents per portal specs. Free and easy to use.",
     schemaName: "Scholarship ZIP Maker",
-    ratingValue: "4.9",
-    ratingCount: "986",
     jsonLdFaq: [
       { question: "What documents are required for NSP scholarship application?", answer: "NSP (National Scholarship Portal) typically requires: Student Photograph (JPEG, max 50KB), Signature (JPEG, max 30KB), Aadhaar Card, Bank Passbook, Marksheet, and Caste Certificate (if applicable). FileNova's Scholarship ZIP Maker pre-configures all these slots." },
       { question: "What is the OASIS West Bengal scholarship document format?", answer: "OASIS WB requires documents in JPEG or PDF format, each under 200KB. The ZIP file should contain photo (50KB max), signature (30KB max), marksheet, and income certificate." },
@@ -122,8 +110,6 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogTitle: "Compress PDF Online Free – Reduce Size Locally | FileNova",
     ogDescription: "Compress PDF files online free in your browser. Reduce to 200KB for scholarship portals. No upload, 100% private. Fast and secure PDF compression.",
     schemaName: "PDF Compressor",
-    ratingValue: "4.8",
-    ratingCount: "3420",
     jsonLdFaq: [
       { question: "How to compress PDF to under 200KB for scholarship portal?", answer: "Upload your PDF on FileNova, select the 'Custom Target Size' preset, enter 200KB, and click Compress PDF. The tool will automatically find the best quality setting to hit your target size." },
       { question: "Is it safe to compress Aadhaar PDF online?", answer: "Yes — FileNova compresses your PDF entirely in your browser using WebAssembly. Your Aadhaar PDF is never uploaded to any server." },
@@ -138,8 +124,6 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogImage: OG_PDF,
     ogTitle: "Compress PDF to Target Size – 100KB 200KB | FileNova",
     ogDescription: "Compress PDF to exact target file size (100KB, 200KB, 500KB). Perfect for NSP, OASIS scholarship portals with strict file size limits.",
-    ratingValue: "4.8",
-    ratingCount: "1520",
     jsonLdFaq: [
       { question: "How to compress PDF to exactly 200KB?", answer: "Use FileNova's Custom Target Size mode. Enter 200 in the KB field. The compressor will automatically adjust image quality to hit your exact target." },
       { question: "Which portals have 200KB PDF size limit?", answer: "NSP (National Scholarship Portal), OASIS West Bengal, Mahadbt Maharashtra, and many state scholarship portals restrict PDF uploads to 200KB or less." },
@@ -155,8 +139,6 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogTitle: "Merge PDF Files Online Free | FileNova",
     ogDescription: "Combine multiple PDF files into one online free. Merge marksheets, certificates, and government documents. No account required.",
     schemaName: "PDF Merger",
-    ratingValue: "4.9",
-    ratingCount: "4120",
     jsonLdFaq: [
       { question: "How to merge multiple PDFs into one free online?", answer: "Go to FileNova's Merge PDF tool, upload all your PDF files, drag to reorder them, and click Merge PDF. Download the combined PDF instantly — no account or email required." },
       { question: "Can I merge Aadhaar and PAN card in one PDF?", answer: "Yes. Upload both PDFs on FileNova's Merge PDF tool, arrange in order (Aadhaar first, then PAN), and click Merge. The combined PDF is ready to download in seconds." },
@@ -172,8 +154,6 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogTitle: "Split PDF Online Free – Extract Pages | FileNova",
     ogDescription: "Split PDF into separate pages or extract specific pages online free. Perfect for government documents and marksheets.",
     schemaName: "PDF Splitter",
-    ratingValue: "4.7",
-    ratingCount: "2830",
     jsonLdFaq: [
       { question: "How to extract one page from a PDF free?", answer: "On FileNova's Split PDF tool, upload your PDF, choose 'Custom Extraction', type the page number, and click Split. Download just that page as a new PDF." },
       { question: "How to split a multi-page admit card PDF?", answer: "Upload the admit card PDF, select 'Extract All Pages' to get each page as a separate file, or use 'Custom Extraction' to extract specific pages." },
@@ -189,8 +169,6 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogTitle: "Password Protect PDF Free Online | FileNova",
     ogDescription: "Add password protection to PDF files with 256-bit AES encryption. Secure government documents and bank statements in your browser.",
     schemaName: "PDF Protector",
-    ratingValue: "4.8",
-    ratingCount: "1640",
     jsonLdFaq: [
       { question: "How to add password to PDF free online in India?", answer: "Upload your PDF on FileNova's Protect PDF tool, enter a password, confirm it, set permissions, and click Protect PDF. The encrypted PDF downloads instantly." },
       { question: "What encryption does FileNova use for PDF passwords?", answer: "FileNova uses 256-bit AES encryption — the same standard used by banks and government systems." },
@@ -206,8 +184,6 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogTitle: "Remove PDF Password Free Online | FileNova",
     ogDescription: "Unlock password-protected PDFs online free. Remove passwords from DigiLocker documents, bank statements, and certificates.",
     schemaName: "PDF Password Remover",
-    ratingValue: "4.7",
-    ratingCount: "2210",
     jsonLdFaq: [
       { question: "How to remove password from PDF free online?", answer: "Upload the password-protected PDF on FileNova's Unlock PDF tool, enter the correct password, and click Unlock PDF. The unlocked PDF downloads immediately." },
       { question: "Can I unlock a DigiLocker PDF on FileNova?", answer: "Yes. DigiLocker-issued PDFs (Aadhaar, driving licence, marksheets) can be unlocked on FileNova. You need the correct document password to proceed." },
@@ -223,8 +199,6 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogTitle: "Rotate PDF Pages Online Free | FileNova",
     ogDescription: "Rotate PDF pages 90°, 180° online free. Fix inverted scanned documents and certificates in your browser instantly.",
     schemaName: "PDF Page Rotator",
-    ratingValue: "4.6",
-    ratingCount: "1190",
   },
 
   // ─── PDF CONVERSION TOOLS ─────────────────────────────────────────────────
@@ -237,8 +211,6 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogImage: OG_PDF,
     ogTitle: "PDF to Word Free Online | FileNova",
     ogDescription: "Convert PDF to editable Word DOCX online free. Preserves formatting and tables. No account required.",
-    ratingValue: "4.7",
-    ratingCount: "3100",
     jsonLdFaq: [
       { question: "How to convert PDF to Word online free in India?", answer: "Upload your PDF on FileNova's PDF to Word tool and click Convert. The tool extracts text, tables, and formatting and generates a DOCX file you can download and edit in Microsoft Word or Google Docs." },
     ],
@@ -252,8 +224,6 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogImage: OG_PDF,
     ogTitle: "PDF to JPG Converter Free Online | FileNova",
     ogDescription: "Convert PDF pages to JPG or PNG images online free. Extract pages as images for certificates and portal uploads.",
-    ratingValue: "4.6",
-    ratingCount: "1940",
   },
 
   "/jpg-to-pdf": {
@@ -264,8 +234,6 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogImage: OG_PDF,
     ogTitle: "JPG to PDF Converter Free Online | FileNova",
     ogDescription: "Convert JPG images to PDF online free. Combine multiple photos into one PDF for scholarship and government portal submission.",
-    ratingValue: "4.7",
-    ratingCount: "2540",
     jsonLdFaq: [
       { question: "How to convert multiple photos to one PDF free online?", answer: "Upload all your JPG/PNG images on FileNova's JPG to PDF tool, drag to reorder them, and click Convert to PDF. Download the combined PDF instantly." },
       { question: "How to scan documents and combine into PDF free?", answer: "Take photos of each page with your phone camera, upload all images on FileNova's JPG to PDF tool, and merge them into a single PDF." },
@@ -280,8 +248,6 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogImage: OG_PDF,
     ogTitle: "Word to PDF Converter Free Online | FileNova",
     ogDescription: "Convert Word DOCX to PDF online free. Preserve fonts, tables, and formatting. No email required.",
-    ratingValue: "4.8",
-    ratingCount: "2760",
   },
 
   "/resize-pdf": {
@@ -305,8 +271,6 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogTitle: "Resize Photo Online Free | FileNova",
     ogDescription: "Resize photos for scholarship forms, passports, NEET, JEE. Exact pixel dimensions guaranteed. 100% browser-based.",
     schemaName: "Photo Resizer for India Portals",
-    ratingValue: "4.9",
-    ratingCount: "3650",
     jsonLdFaq: [
       { question: "How to resize photo for scholarship form online free?", answer: "Go to FileNova's Resize Photo tool, upload your photo, choose the 'Scholarship Portal' preset, and click Resize. Download your resized photo instantly — no account needed." },
       { question: "What is the correct passport photo size for India?", answer: "Indian passport photos must be 35x45mm (equivalent to 413x531px at 300 DPI) in JPEG format with a white background." },
@@ -333,8 +297,6 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogTitle: "Compress Image Online Free | FileNova",
     ogDescription: "Compress JPEG, PNG, WebP images online free. Reduce photo size below 50KB for scholarship portals and job applications.",
     schemaName: "Image Compressor",
-    ratingValue: "4.7",
-    ratingCount: "2180",
     jsonLdFaq: [
       { question: "How to compress image to 50KB online free in India?", answer: "Upload your image on FileNova, select 'Custom Target Size', set 50KB, and click Compress. The tool uses a binary-search quality algorithm to hit your exact target." },
       { question: "How to reduce photo size for scholarship portal?", answer: "Upload your photo on FileNova's Compress Image tool, use 'Web Small' preset or set a custom target like 50KB, download the compressed photo." },
@@ -349,8 +311,6 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogImage: OG_IMAGE,
     ogTitle: "Remove Image Background Online Free – AI | FileNova",
     ogDescription: "Remove photo background online free using AI. Get transparent or white background for passports and ID cards. No upload needed.",
-    ratingValue: "4.8",
-    ratingCount: "2910",
     jsonLdFaq: [
       { question: "How to remove background from photo free online in India?", answer: "Upload your photo on FileNova's AI Background Remover, choose Transparent or White background, and click Remove Background. The result downloads as PNG in seconds." },
       { question: "Can I get a white background for passport photo free?", answer: "Yes. FileNova's background remover has a 'Solid White' option that replaces any background with pure white — perfect for passport, visa, and ID card photos." },
@@ -368,8 +328,6 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogTitle: "OCR Hindi Bengali English Free Online | FileNova",
     ogDescription: "Extract text from scanned PDFs and images. Supports Hindi, Bengali, Tamil, Telugu, Kannada, English OCR. Browser-based, no upload.",
     schemaName: "Multilingual OCR Tool",
-    ratingValue: "4.7",
-    ratingCount: "1430",
     jsonLdFaq: [
       { question: "How to extract text from Hindi PDF online free?", answer: "Upload your Hindi PDF or scanned image on FileNova's OCR tool, select Hindi from the language options, and click Process. The extracted text appears immediately." },
       { question: "Does FileNova OCR support Bengali?", answer: "Yes. FileNova OCR supports Bengali, Hindi, Tamil, Telugu, Kannada, and English. You can select multiple languages simultaneously for mixed-language documents." },
@@ -386,8 +344,6 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogImage: OG_DOC,
     ogTitle: "Compress Word Excel PPT Free Online | FileNova",
     ogDescription: "Compress Word, Excel, and PowerPoint files online free. Reduce DOCX, XLSX, PPTX sizes for email attachments.",
-    ratingValue: "4.6",
-    ratingCount: "780",
   },
 
   // ─── AI TOOLS ─────────────────────────────────────────────────────────────
@@ -401,8 +357,6 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogTitle: "AI PPT Maker Free – Topic to Slides | FileNova",
     ogDescription: "Generate PowerPoint presentations from any topic using AI. Choose themes and tone. Perfect for school and college projects. Free to use.",
     schemaName: "AI PowerPoint Maker",
-    ratingValue: "4.8",
-    ratingCount: "1720",
     jsonLdFaq: [
       { question: "How to make a PowerPoint presentation from topic using AI free?", answer: "Enter your topic on FileNova's AI PPT Maker, choose number of slides and writing tone, and click Generate. A complete themed PowerPoint presentation is ready to download in seconds." },
       { question: "Can I make PPT from my notes using AI for free?", answer: "Yes. Paste your notes or syllabus points, select a theme, and the AI generates structured slides with headings, bullet points, and formatting automatically." },
@@ -417,8 +371,6 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogImage: OG_AI,
     ogTitle: "AI PDF Summarizer Free | FileNova",
     ogDescription: "Summarize long PDF documents using AI. Get bullet-point summaries and key insights from textbooks and research papers.",
-    ratingValue: "4.7",
-    ratingCount: "940",
   },
 
   // ─── GOVERNMENT & FORM TOOLS ─────────────────────────────────────────────
@@ -431,8 +383,6 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogImage: OG_INDIA,
     ogTitle: "Fill Government PDF Forms Online Free | FileNova",
     ogDescription: "Fill Aadhaar, PAN, passport, and scholarship PDF forms online. Type directly on PDFs, add signature. No account required.",
-    ratingValue: "4.6",
-    ratingCount: "1120",
   },
 
   // ─── STATIC PAGES ─────────────────────────────────────────────────────────
@@ -666,8 +616,5 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogTitle: "Compress PAN Card Photo Free Online | FileNova",
     ogDescription: "Compress PAN card photo and signature to exact KB size for NEET, NSP, railway portals. 100% browser-based.",
     schemaName: "PAN Card Photo Compressor",
-    schemaCategory: "UtilitiesApplication",
-    ratingValue: "4.7",
-    ratingCount: "630",
   },
 };
