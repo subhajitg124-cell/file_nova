@@ -455,8 +455,26 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
            ))}
          </div>
 
-         {/* How It Works / Step-by-Step Guide */}
-         {content.steps && content.steps.length > 0 && (
+          {/* Features Section */}
+          {content.features && content.features.length > 0 && (
+            <div className="border-t border-border/60 pt-12 mb-12">
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white mb-6">
+                Key Features
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {content.features.map((feature, i) => (
+                  <div key={i} className="bg-card/40 border border-border/80 rounded-xs p-5 hover:border-primary/30 hover:shadow-sm transition-all duration-300">
+                    <div className="text-2xl mb-3">{ICON_MAP[feature.icon] ?? "✨"}</div>
+                    <h3 className="font-extrabold text-sm text-foreground mb-1.5">{feature.title}</h3>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{feature.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* How It Works / Step-by-Step Guide */}
+          {content.steps && content.steps.length > 0 && (
            <div className="mb-12">
              <StepByStepGuide 
                title={content.howToName || `How to ${content.toolName}`}
@@ -560,7 +578,31 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
           </div>
         </div>
 
-        {/* FAQ Section */}
+          {/* Use Cases Section */}
+          {content.useCases && content.useCases.length > 0 && (
+            <div className="border-t border-border/60 pt-12 mb-12">
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white mb-6">
+                Common Use Cases
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {content.useCases.map((uc, i) => (
+                  <div key={i} className="bg-card/40 border border-border/80 rounded-xs p-5 hover:border-amber-500/30 transition-all duration-300">
+                    <div className="flex items-start gap-4">
+                      <div className="h-10 w-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-lg shrink-0 mt-0.5">
+                        <CheckCircle2 className="h-5 w-5 text-amber-500" />
+                      </div>
+                      <div>
+                        <h3 className="font-extrabold text-sm text-foreground mb-1">{uc.title}</h3>
+                        <p className="text-xs text-muted-foreground leading-relaxed">{uc.description}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* FAQ Section */}
         {content.faqs && content.faqs.length > 0 && (
           <div className="border-t border-border/60 pt-12 mb-12 max-w-3xl mx-auto animate-fade-up">
             <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white mb-6 text-center">
@@ -697,13 +739,37 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
           </div>
         </div>
 
+        {/* CTA Section */}
+        <div className="border-t border-border/60 pt-12 pb-4">
+          <div className="bg-gradient-to-br from-indigo-500/5 via-violet-500/5 to-indigo-500/5 border border-indigo-500/10 rounded-xs p-8 text-center">
+            <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white mb-3">
+              Ready to {typeof content.h1 === 'string' ? content.h1.replace(/^(Merge|Split|Compress|Rotate|Unlock|Protect|Resize|Convert|Fill|Mask|Remove|Summarize|Bundle|Add)\s+/i, '').trim() : 'get started'}?
+            </h2>
+            <p className="text-sm text-muted-foreground max-w-xl mx-auto mb-6">
+              Try FileNova's {content.toolName} now — no signup, no watermark, completely free. 
+              Your files stay private, processed in your browser.
+            </p>
+            <a
+              href="#workspace-area"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('workspace-area')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-xl hover:opacity-90 transition shadow-glow"
+            >
+              <Zap className="h-4 w-4" />
+              Get Started Free
+            </a>
+          </div>
+        </div>
+
       </main>
 
       {/* Workflow Suggestion Banner */}
-      {['compress-pdf', 'merge-pdf', 'resize-photo', 'aadhaar-mask', 'compress-image', 'protect-pdf'].includes(slug) && (
+      {WORKFLOW_CHAINS[slug] && (
         <div className="max-w-6xl mx-auto px-4 mb-8">
           <Link
-            href="/workflows"
+            href={`/${WORKFLOW_CHAINS[slug].slug}`}
             className="flex items-center gap-4 bg-gradient-to-r from-indigo-500/10 via-violet-500/10 to-indigo-500/10 border border-indigo-500/20 rounded-2xl p-5 hover:border-indigo-500/40 hover:from-indigo-500/15 hover:via-violet-500/15 hover:to-indigo-500/15 transition-all group"
           >
             <div className="h-12 w-12 rounded-xl bg-indigo-500/15 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
@@ -711,14 +777,14 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold text-foreground">
-                Combine this with other tools →
+                Next: Try {WORKFLOW_CHAINS[slug].label} →
               </p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Build a workflow: compress + resize + protect — all in one click. No code, no signup.
+                Combine with related tools — no code, no signup, free.
               </p>
             </div>
             <span className="text-xs text-indigo-500 font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 shrink-0">
-              Open Workflows <ChevronRight className="h-3.5 w-3.5" />
+              Open Tool <ChevronRight className="h-3.5 w-3.5" />
             </span>
           </Link>
         </div>

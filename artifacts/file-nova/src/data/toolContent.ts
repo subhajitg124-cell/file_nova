@@ -479,6 +479,15 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
       { label: "PDF to Word", slug: "pdf-to-word", icon: "file-word" },
     ],
+    features: [
+      { icon: "lock-open", title: "Remove Both Password Types", description: "Removes both 'open' passwords (required to view) and 'permissions' passwords (restricting printing or editing) from protected PDFs." },
+      { icon: "shield", title: "Legal and Secure", description: "Decrypts files you're authorized to access — bank statements, salary slips, and government letters. No password cracking or brute-force is performed." },
+      { icon: "zap", title: "Instant Decryption", description: "Once you provide the correct password, the PDF is decrypted and ready to download in seconds. No waiting for server-side processing." },
+    ],
+    useCases: [
+      { title: "Remove Bank Statement Password", description: "Bank PDFs often come password-protected. Unlock them once so you can print, archive, or email copies without re-entering the password." },
+      { title: "Unlock Government Letters for Editing", description: "Some government-issued PDFs are locked against editing. Unlock them legally with the correct password to fill forms or add signatures." },
+    ],
     steps: [
       { title: "Upload your PDF", description: "Select the password-protected PDF you want to unlock.", icon: "upload" },
       { title: "Enter the password", description: "Type the correct password for the PDF. FileNova will use it to decrypt the file.", icon: "configure" },
@@ -521,6 +530,15 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
       { label: "Aadhaar Mask", slug: "aadhaar-mask-pdf", icon: "id-badge" },
     ],
+    features: [
+      { icon: "lock", title: "Dual Password Protection", description: "Set an 'open' password to control who can view the file, plus a separate 'permissions' password to restrict printing, copying, or editing." },
+      { icon: "shield-alert", title: "AES 128-Bit Encryption", description: "Bank-grade encryption used by financial institutions and government portals across India. Your document is secured with industry-standard protection." },
+      { icon: "settings", title: "Granular Permission Controls", description: "Choose exactly what users can do — allow printing only, allow viewing only, or restrict all actions except viewing." },
+    ],
+    useCases: [
+      { title: "Secure Salary Slips Before Emailing", description: "Password-protect salary slips and confidential HR documents before sharing over email or messaging apps to prevent unauthorized access." },
+      { title: "Restrict Editing on Legal Agreements", description: "Send legal contracts with editing and copying restrictions while allowing clients to view and print the document." },
+    ],
     steps: [
       { title: "Upload your PDF", description: "Select the PDF you want to password-protect.", icon: "upload" },
       { title: "Set password and permissions", description: "Choose an open password and optionally set permissions to restrict printing, copying, or editing.", icon: "configure" },
@@ -562,6 +580,15 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Rotate PDF", slug: "rotate-pdf", icon: "rotate" },
       { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
       { label: "Compress for Upload", slug: "compress-pdf-for-upload", icon: "cloud-upload" },
+    ],
+    features: [
+      { icon: "maximize", title: "Multiple Standard Sizes", description: "Convert PDF pages to A4, A3, Letter, Legal, or enter custom dimensions. Pick the exact size required by your portal or printer." },
+      { icon: "crop", title: "Intelligent Content Scaling", description: "Choose to scale content proportionally to fit the new page size or keep content at its original size with repositioning." },
+      { icon: "copy", title: "Preserves Content Quality", description: "Resizing adjusts only the page canvas — your text, images, and vector graphics remain at their original resolution." },
+    ],
+    useCases: [
+      { title: "Standardize for Printing", description: "Convert web-exported PDFs with odd dimensions to standard A4 or Letter size so they print correctly without cutting off content." },
+      { title: "Meet Portal Submission Requirements", description: "Government portals often require documents in specific page sizes. Resize your PDF to match the prescribed format before uploading." },
     ],
     steps: [
       { title: "Upload your PDF", description: "Select the PDF whose page size you want to change.", icon: "upload" },
@@ -619,6 +646,15 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
       { label: "Government Form Fill", slug: "government-form-fill", icon: "clipboard" },
     ],
+    features: [
+      { icon: "credit-card", title: "Exact PAN Card Dimensions", description: "Automatically crops and resizes to the precise 3.5cm × 2.5cm (276 × 354 pixel) specification required by NSDL and UTIITSL." },
+      { icon: "eye", title: "Live Preview Before Download", description: "See exactly how your photo will look in the PAN card frame before downloading. Adjust the crop area in real-time." },
+      { icon: "smartphone", title: "Works from Any Photo Source", description: "Upload selfies, scanned photographs, or studio photos. The tool adjusts any image to meet the official PAN card photo requirements." },
+    ],
+    useCases: [
+      { title: "NSDL PAN Card Application", description: "Prepare the correct-size photo for a new PAN card application without visiting a photography studio. Works with selfies from any phone." },
+      { title: "Duplicate PAN Card Request", description: "When applying for a duplicate or corrected PAN card, resize your photo to the exact specifications to avoid application rejection." },
+    ],
     steps: [
       { title: "Upload your photo", description: "Select a photo from your device — a selfie, scanned photo, or existing image.", icon: "upload" },
       { title: "Adjust the crop", description: "Drag and zoom the image to fit exactly within the PAN card photo frame (3.5cm × 2.5cm).", icon: "configure" },
@@ -671,6 +707,15 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
       { label: "Government Form Fill", slug: "government-form-fill", icon: "clipboard" },
     ],
+    features: [
+      { icon: "id-badge", title: "Automatic Number Detection", description: "The tool automatically identifies the 12-digit Aadhaar number in your PDF and masks the first 8 digits — no manual selection required." },
+      { icon: "shield", title: "100% Offline Processing", description: "All Aadhaar masking happens directly in your browser. Your sensitive personal data never reaches any server — zero transmission risk." },
+      { icon: "check-circle", title: "UIDAI-Compliant Format", description: "Output follows UIDAI's official masked Aadhaar format with 'XXXX XXXX' replacing the first 8 digits. Accepted at banks, portals, and KYC checks." },
+    ],
+    useCases: [
+      { title: "Share Aadhaar with Employer", description: "Mask your Aadhaar before submitting it to employer portals, HR systems, or verification platforms for background checks." },
+      { title: "Upload to Rental or Service Portals", description: "Property rental agreements, broadband connections, and utility providers ask for Aadhaar proof. Share only a masked version to protect your identity." },
+    ],
     steps: [
       { title: "Upload your Aadhaar PDF", description: "Select the Aadhaar card PDF you want to mask. Your file is processed locally in your browser.", icon: "upload" },
       { title: "Auto-mask applied", description: "FileNova automatically detects and masks the first 8 digits of your Aadhaar number with XXXX-XXXX.", icon: "process" },
@@ -718,6 +763,15 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "PAN Card Resize", slug: "pan-card-resize", icon: "credit-card" },
       { label: "Compress for Upload", slug: "compress-pdf-for-upload", icon: "cloud-upload" },
       { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
+    ],
+    features: [
+      { icon: "pen-tool", title: "Browser-Based Form Filling", description: "Type directly into any fillable PDF form field in your browser. No Adobe Acrobat license or software installation required." },
+      { icon: "library", title: "Pre-Loaded Form Templates", description: "Access a library of common government forms — Aadhaar update, PAN correction, passport renewal — ready to fill without hunting for the right PDF." },
+      { icon: "languages", title: "Regional Language Input", description: "Supports Hindi, Bengali, Tamil, Telugu, and other Indian languages using Unicode text input. Fill forms in your preferred language." },
+    ],
+    useCases: [
+      { title: "Complete Aadhaar Update Form", description: "Fill the Aadhaar correction/enrolment update form online without needing paid PDF editing software. Download and submit at the nearest Aadhaar center." },
+      { title: "Prepare PAN Correction Form", description: "Edit and complete the PAN card correction form digitally, save as a print-ready PDF, and submit to NSDL or UTIITSL without handwritten errors." },
     ],
     steps: [
       { title: "Upload a form", description: "Upload any fillable PDF form — Aadhaar update, PAN correction, passport, railway, or scholarship form.", icon: "upload" },
@@ -767,6 +821,15 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Government Form Fill", slug: "government-form-fill", icon: "clipboard" },
       { label: "Aadhaar Mask PDF", slug: "aadhaar-mask-pdf", icon: "id-badge" },
     ],
+    features: [
+      { icon: "crosshair", title: "Set Exact Target Size", description: "Enter your target file size — 100KB, 200KB, 500KB, or 1MB. The tool automatically finds the optimal compression to hit your target." },
+      { icon: "gauge", title: "No More Trial-and-Error", description: "Skip the frustration of adjusting compression manually and rechecking. Set your target once and let the tool dial in the right settings." },
+      { icon: "upload-cloud", title: "Portal-Specific Presets", description: "Built-in presets for common Indian portals: DigiLocker (1MB), NSP scholarship (200KB), IRCTC (100KB), and bank KYC (varies)." },
+    ],
+    useCases: [
+      { title: "Scholarship Portal Compliance", description: "Compress income certificates and caste certificates to under 200KB for National Scholarship Portal (NSP) and state scholarship applications." },
+      { title: "IRCTC Concession Application", description: "Reduce scanned documents to under 100KB for IRCTC railway concession applications for students and senior citizens." },
+    ],
     steps: [
       { title: "Upload your PDF", description: "Select the PDF you want to compress for a specific upload limit.", icon: "upload" },
       { title: "Set target size", description: "Enter your target size — e.g., 100KB, 200KB, 500KB, or 1MB. FileNova finds the right compression automatically.", icon: "configure" },
@@ -809,6 +872,15 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
       { label: "AI PDF Summary", slug: "ai-pdf-summary", icon: "sparkles" },
     ],
+    features: [
+      { icon: "scan", title: "Converts Images to Text", description: "Transforms scanned PDF pages — which are just images — into documents with selectable, searchable, and copy-paste-friendly text." },
+      { icon: "languages", title: "Multi-Language Support", description: "Recognize text in English, Hindi, Bengali, Tamil, Telugu, and more. Works with printed and clear typewritten documents." },
+      { icon: "search", title: "Searchable Output", description: "The OCR output PDF lets you search for keywords, copy paragraphs, and extract text — turning a static scan into a usable digital document." },
+    ],
+    useCases: [
+      { title: "Digitize Old Contracts and Records", description: "Scan paper contracts, agreements, or school records and convert them to searchable PDFs for easy digital archiving and quick retrieval." },
+      { title: "Extract Text from Hindi Documents", description: "Convert scanned Hindi language textbooks, government notifications, or legal documents into editable and searchable text." },
+    ],
     steps: [
       { title: "Upload your scanned PDF", description: "Select the scanned PDF document you want to make searchable.", icon: "upload" },
       { title: "Select language and pages", description: "Choose the document language (English, Hindi, etc.) and optionally select specific pages.", icon: "configure" },
@@ -849,6 +921,15 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "JPG to PDF", slug: "jpg-to-pdf", icon: "file-text" },
       { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
       { label: "PDF to JPG", slug: "pdf-to-jpg", icon: "photo" },
+    ],
+    features: [
+      { icon: "wand", title: "AI-Powered Background Removal", description: "The AI automatically identifies the subject and separates it from the background in seconds. No manual selection or masking tools needed." },
+      { icon: "image", title: "Transparent or White Output", description: "Download your result as a transparent PNG for design use, or as a JPEG with a clean white background for official document photos." },
+      { icon: "zap", title: "Instant Processing", description: "Background removal completes in seconds for most images. Batch process multiple photos at once with a Pro subscription." },
+    ],
+    useCases: [
+      { title: "Create Passport-Style Photos", description: "Remove background from selfies to create white-background passport photos for PAN card, passport, Aadhaar, or college application forms." },
+      { title: "Clean Up Product Images for E-Commerce", description: "Remove distracting backgrounds from product photos to create clean, professional listings for e-commerce platforms and marketplaces." },
     ],
     steps: [
       { title: "Upload your photo", description: "Select the image you want to remove the background from — portrait, product photo, ID photo, etc.", icon: "upload" },
@@ -891,6 +972,20 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
       { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
     ],
+    features: [
+      { icon: "sparkles", title: "AI-Powered Summarization", description: "Advanced AI reads your entire document and extracts the most important points, arguments, and conclusions in seconds." },
+      { icon: "book-open", title: "Structured Chapter Summary", description: "Get a section-by-section breakdown with key takeaways from each part of your document — ideal for textbooks and research papers." },
+      { icon: "clock", title: "Saves Hours of Reading", description: "Summarize a 50-page report in under a minute. Focus on what matters instead of spending hours reading every word." },
+    ],
+    useCases: [
+      { title: "Research Paper Literature Review", description: "Quickly summarize multiple research papers to identify relevant studies without reading each one in full. Extract key findings and methodology." },
+      { title: "Government Report Overview", description: "Get a concise summary of lengthy government reports, budget documents, or policy papers to quickly understand the key implications." },
+    ],
+    steps: [
+      { title: "Upload your PDF", description: "Select the PDF document you want to summarize. Supports up to 50 pages for free users, 200 pages for Pro.", icon: "upload" },
+      { title: "AI analyzes the document", description: "FileNova's AI reads your document and identifies key points, sections, and conclusions. Processing time depends on document length.", icon: "process" },
+      { title: "Read your summary", description: "View the structured summary with key takeaways. Download or copy the summary for use in your work.", icon: "download" },
+    ],
     toolCategory: "document",
   },
 
@@ -930,6 +1025,15 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Compress for Upload", slug: "compress-pdf-for-upload", icon: "cloud-upload" },
       { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
       { label: "Government Form Fill", slug: "government-form-fill", icon: "clipboard" },
+    ],
+    features: [
+      { icon: "file-archive", title: "Smart File Renaming", description: "Documents are automatically renamed to the standard format expected by NSP and other scholarship portals — no manual renaming needed." },
+      { icon: "package", title: "One-Click Bundling", description: "Upload all required documents and get a single ZIP file. No need to individually upload each document to the portal." },
+      { icon: "lock", title: "100% Browser-Based", description: "All file packaging happens locally in your browser. Your sensitive scholarship documents never leave your device." },
+    ],
+    useCases: [
+      { title: "NSP Scholarship Application", description: "Bundle Aadhaar, marksheet, income certificate, caste certificate, and bank passbook into one ZIP for National Scholarship Portal submission." },
+      { title: "Bank Loan Document Organization", description: "Organize all KYC and income documents required for education loans into a single, well-named ZIP file for bank submission." },
     ],
     steps: [
       { title: "Upload your documents", description: "Upload all required scholarship documents: Aadhaar, marksheet, income certificate, caste certificate, etc.", icon: "upload" },
@@ -977,6 +1081,15 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "JPG to PDF", slug: "jpg-to-pdf", icon: "file-text" },
       { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
     ],
+    features: [
+      { icon: "maximize", title: "Custom Pixel Dimensions", description: "Set exact width and height in pixels. The aspect ratio lock prevents distortion when you need to maintain proportions." },
+      { icon: "image", title: "Multiple Format Support", description: "Works with JPG, PNG, and WebP input formats. Download your resized image in any of these output formats." },
+      { icon: "sliders-horizontal", title: "Quality Control", description: "Adjust output quality with a slider to balance file size against visual fidelity. Preview the result before downloading." },
+    ],
+    useCases: [
+      { title: "Social Media Profile Photos", description: "Resize photos to exact dimensions required by different social media platforms — LinkedIn, Instagram, Facebook, Twitter." },
+      { title: "Website Image Optimization", description: "Scale down high-resolution camera photos to web-friendly dimensions before uploading to your website or blog." },
+    ],
     steps: [
       { title: "Upload your image", description: "Select the JPG, PNG, or WebP image you want to resize.", icon: "upload" },
       { title: "Set dimensions", description: "Enter the target width and height in pixels. Toggle aspect ratio lock to prevent distortion.", icon: "configure" },
@@ -1023,6 +1136,15 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Remove Background", slug: "remove-background", icon: "eraser" },
       { label: "JPG to PDF", slug: "jpg-to-pdf", icon: "photo" },
     ],
+    features: [
+      { icon: "gauge", title: "Three Quality Presets", description: "Choose Low, Medium, or High compression preset, or fine-tune with the manual quality slider for exact control over the output." },
+      { icon: "lock", title: "Private Browser Processing", description: "All image compression runs locally using the Canvas API — your photos never leave your device. Safe for sensitive documents." },
+      { icon: "refresh-cw", title: "Format Conversion Included", description: "Compress and convert between JPEG, PNG, and WebP in one step. Reduce file size while changing to a more efficient format." },
+    ],
+    useCases: [
+      { title: "Compress Signature for Forms", description: "Reduce a scanned signature image to under 50KB for uploading to online application forms with strict file size limits." },
+      { title: "Optimize Photos for Email", description: "Compress high-resolution holiday or product photos before emailing, to keep attachments small enough to send without cloud links." },
+    ],
     steps: [
       { title: "Upload your image", description: "Select or drag and drop your JPEG, PNG, or WebP photo into the workspace.", icon: "upload" },
       { title: "Configure compression", description: "Choose a balanced quality preset, change the target format, or limit max pixel dimensions.", icon: "configure" },
@@ -1068,6 +1190,15 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
       { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
       { label: "PDF to JPG", slug: "pdf-to-jpg", icon: "photo" },
+    ],
+    features: [
+      { icon: "file-text", title: "Formatting Preservation", description: "Fonts, images, tables, headers, footers, and page layout are preserved exactly. The output PDF looks identical to your original Word document." },
+      { icon: "file", title: "Multi-Source Compatibility", description: "Works with DOCX files from Microsoft Word, Google Docs, LibreOffice Writer, WPS Office, and any word processor that exports DOCX format." },
+      { icon: "zap", title: "One-Click Conversion", description: "Upload and convert in one click. No software installation, no account creation, no hidden limits for most document sizes." },
+    ],
+    useCases: [
+      { title: "Professional Resume Submission", description: "Convert your Word-format resume to PDF before submitting to job portals. Ensures recruiters see your formatting exactly as intended." },
+      { title: "Client Report Delivery", description: "Convert internal Word reports to professional PDF format for client delivery, preserving all formatting, charts, and branding." },
     ],
     steps: [
       { title: "Upload your Word document", description: "Select your DOC or DOCX file from your device.", icon: "upload" },

@@ -458,7 +458,27 @@ Every AI agent (Kilo Code, Codex, Claude Code, Gemini CLI, future agents) MUST:
 
 ---
 
-## Notes for Future Agents
+## 2026-06-24 — Tool Page Content Quality Improvement
+
+**Agent:** Opencode
+**Scope:** All 21 tool pages — new Features and Use Cases sections, toolContent.ts enrichment, ToolPageLayout.tsx layout enhancement, improved CTA
+
+### Changes
+- **ToolContent interface expanded:** Added `features` (array of `{icon, title, description}`) and `useCases` (array of `{title, description}`) optional fields to enable structured content rendering
+- **Unique content written for all 21 tools:**
+  - 3 tool-specific features per tool (63 total) covering unique capabilities like "Drag-and-Drop Reordering", "AES 128-Bit Encryption", "UIADI-Compliant Format", "Pre-Loaded Form Templates"
+  - 2 real-world use cases per tool (42 total) solving actual Indian user problems — scholarship submissions, PAN applications, bank KYC, government portal uploads
+  - Missing `steps` added to `ai-pdf-summary` tool entry for schema compliance
+- **ToolPageLayout.tsx — 3 new sections:**
+  - **Features section** added between Benefits grid and Step-by-Step guide: 3-column card grid rendering `content.features` with emoji icons and hover effects — unique content per tool, no duplicate text
+  - **Use Cases section** added between SEO Content and FAQ: 2-column card grid with amber accent icons (`CheckCircle2`) and tool-specific real-world scenarios — reinforces keyword relevance naturally
+  - **CTA section** added after Popular Tools: Gradient banner with dynamic heading (derived from tool h1), descriptive subtext name-checking the tool, and "Get Started Free" button scrolling to workspace — shown on every tool page
+- **Workflow banner updated:** Now renders for ALL tools that have a `WORKFLOW_CHAINS` entry (previously only 6 hardcoded slugs). Links directly to the next workflow tool and displays dynamically generated "Next: Try [Tool Name] →" text
+- **No existing sections removed:** Benefits grid (platform-level), breadcrumb, StepByStepGuide, workspace, SEO content block, FAQ, Related Tools, Suggested Next Tool, More Category Tools, Popular Tools all preserved
+
+### Files Modified
+- `src/data/toolContent.ts` — ToolContent interface + features/useCases/steps for all 21 tools
+- `src/components/ToolPageLayout.tsx` — Features section, Use Cases section, improved CTA, universal workflow banner
 
 1. **Always read AGENTS.md first** — it contains the master instruction file
 2. **Read PROJECT_CONTEXT.md before writing code** — understand the architecture
