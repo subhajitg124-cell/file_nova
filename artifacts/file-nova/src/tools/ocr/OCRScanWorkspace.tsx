@@ -207,7 +207,7 @@ export const OCRScanWorkspace: React.FC = () => {
   return (
     <ToolWorkspace
       toolName="OCR Scan to Text"
-      toolDescription="Extract text from scanned PDF documents or camera images with multilingual Hindi and Bengali support."
+      toolDescription="Extract text from scanned PDF documents or camera images with multilingual support for Hindi, Bengali, Tamil, Telugu, Kannada, and English."
       toolIcon={<Search className="h-5 w-5" />}
       accentColor="purple"
       configPanel={configPanel}

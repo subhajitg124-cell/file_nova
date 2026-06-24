@@ -16,6 +16,7 @@ import {
   MousePointer2,
   Menu,
   Pencil,
+  Pen,
   RotateCcw,
   RotateCw,
   Save,
@@ -24,6 +25,7 @@ import {
   Sparkles,
   Share2,
   Shield,
+  Type,
   Zap,
   X,
 } from "lucide-react";
@@ -102,7 +104,7 @@ export const EditingWindow: React.FC<EditingWindowProps> = ({ file, fileType, on
     if (["compress", "merge", "split", "rotate", "protect", "unlock"].includes(toolType)) return "pdf";
     return "crop";
   });
-  const [sidebarTab, setSidebarTab] = useState<"adjust" | "smart" | "export">(() => {
+  const [sidebarTab, setSidebarTab] = useState<"adjust" | "annotate" | "smart" | "export">(() => {
     if (toolType === "aadhaar-mask" || toolType === "pan-resize") return "smart";
     if (["compress", "merge", "split", "rotate", "protect", "unlock"].includes(toolType)) return "export";
     return "adjust";
@@ -123,6 +125,16 @@ export const EditingWindow: React.FC<EditingWindowProps> = ({ file, fileType, on
   const [aadhaarAutoDetect, setAadhaarAutoDetect] = useState(false);
   const [aadhaarMaskFormat, setAadhaarMaskFormat] = useState("XXXX-XXXX-1234");
   const [aadhaarResult, setAadhaarResult] = useState<string>("");
+
+  const [annotating, setAnnotating] = useState(false);
+  const [activeMode, setActiveMode] = useState<'select' | 'draw' | 'text'>('select');
+  const [drawColor, setDrawColor] = useState('#000000');
+  const [annotations, setAnnotations] = useState<any[]>([]);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [currentPath, setCurrentPath] = useState<any[]>([]);
+  const [annotationTextInput, setAnnotationTextInput] = useState('');
+  const annotationCanvasRef = useRef<HTMLCanvasElement>(null);
+  const [annotationOverlaySize, setAnnotationOverlaySize] = useState({ width: 0, height: 0 });
 
   const [ocrLanguage, setOcrLanguage] = useState("English");
   const [ocrText, setOcrText] = useState("");
@@ -426,6 +438,11 @@ export const EditingWindow: React.FC<EditingWindowProps> = ({ file, fileType, on
   };
 
   const handleDone = async () => {
+    if (annotations.length > 0 && file) {
+      const blob = await embedAnnotationsInPdf(file);
+      onDone(blob);
+      return;
+    }
     if (fileType !== "image" || !ready) {
       if (file) {
         onDone(file);
@@ -434,6 +451,179 @@ export const EditingWindow: React.FC<EditingWindowProps> = ({ file, fileType, on
     }
     const resultBlob = await exportAs(exportFormat);
     onDone(resultBlob);
+  };
+
+  const startAnnotation = () => {
+    setAnnotating(true);
+    if (pdfDoc) {
+      const canvas = canvasRef.current;
+      if (canvas) {
+        setAnnotationOverlaySize({ width: canvas.width, height: canvas.height });
+      }
+    }
+  };
+
+  const stopAnnotation = () => {
+    setAnnotating(false);
+    setActiveMode('select');
+    setIsDrawing(false);
+    const oc = annotationCanvasRef.current;
+    if (oc) {
+      const ctx = oc.getContext('2d');
+      if (ctx) ctx.clearRect(0, 0, oc.width, oc.height);
+    }
+  };
+
+  const getAnnotationCanvasPoint = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    const canvas = annotationCanvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    if ('touches' in e) {
+      const touch = e.touches[0] || (e as React.TouchEvent).changedTouches[0];
+      return { x: (touch.clientX - rect.left) * scaleX, y: (touch.clientY - rect.top) * scaleY };
+    }
+    return { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY };
+  };
+
+  const handleAnnotationPointerDown = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    if (activeMode === 'select') return;
+    const pt = getAnnotationCanvasPoint(e);
+    if (activeMode === 'draw') {
+      setIsDrawing(true);
+      setCurrentPath([pt]);
+    } else if (activeMode === 'text') {
+      const text = prompt('Enter annotation text:');
+      if (text && text.trim()) {
+        const newAnnot: any = { type: 'text', color: drawColor, text: text.trim(), x: pt.x, y: pt.y, fontSize: 16 };
+        setAnnotations((prev) => [...prev, newAnnot]);
+        redrawAnnotationOverlay();
+      }
+    }
+  };
+
+  const handleAnnotationPointerMove = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    if (activeMode !== 'draw' || !isDrawing) return;
+    const pt = getAnnotationCanvasPoint(e);
+    setCurrentPath((prev) => [...prev, pt]);
+    const oc = annotationCanvasRef.current;
+    if (!oc) return;
+    const ctx = oc.getContext('2d');
+    if (!ctx) return;
+    const prevPt = currentPath[currentPath.length - 1];
+    if (prevPt) {
+      ctx.beginPath();
+      ctx.moveTo(prevPt.x, prevPt.y);
+      ctx.lineTo(pt.x, pt.y);
+      ctx.strokeStyle = drawColor;
+      ctx.lineWidth = 3;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+    }
+  };
+
+  const handleAnnotationPointerUp = () => {
+    if (activeMode !== 'draw' || !isDrawing) return;
+    setIsDrawing(false);
+    if (currentPath.length > 1) {
+      const newAnnot: any = { type: 'path', color: drawColor, width: 3, points: [...currentPath] };
+      setAnnotations((prev) => [...prev, newAnnot]);
+    }
+    setCurrentPath([]);
+  };
+
+  const redrawAnnotationOverlay = () => {
+    const oc = annotationCanvasRef.current;
+    if (!oc) return;
+    const ctx = oc.getContext('2d');
+    if (!ctx) return;
+    ctx.clearRect(0, 0, oc.width, oc.height);
+    for (const ann of annotations) {
+      if (ann.type === 'path') {
+        ctx.beginPath();
+        ctx.moveTo(ann.points[0].x, ann.points[0].y);
+        for (let i = 1; i < ann.points.length; i++) {
+          ctx.lineTo(ann.points[i].x, ann.points[i].y);
+        }
+        ctx.strokeStyle = ann.color;
+        ctx.lineWidth = ann.width;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.stroke();
+      } else if (ann.type === 'text') {
+        ctx.font = `${ann.fontSize || 16}px sans-serif`;
+        ctx.fillStyle = ann.color;
+        ctx.fillText(ann.text, ann.x, ann.y);
+      }
+    }
+  };
+
+  const clearAnnotations = () => {
+    setAnnotations([]);
+    setCurrentPath([]);
+    const oc = annotationCanvasRef.current;
+    if (oc) {
+      const ctx = oc.getContext('2d');
+      if (ctx) ctx.clearRect(0, 0, oc.width, oc.height);
+    }
+  };
+
+  const embedAnnotationsInPdf = async (sourceFile: File): Promise<Blob> => {
+    if (annotations.length === 0) return sourceFile;
+    try {
+      const { PDFDocument, rgb } = await import('pdf-lib');
+      const arrayBuffer = await sourceFile.arrayBuffer();
+      const pdfDoc = await PDFDocument.load(arrayBuffer);
+      const pages = pdfDoc.getPages();
+      const targetPage = Math.min(pdfPage - 1, pages.length - 1);
+      const page = pages[targetPage];
+      const { width: pageWidth, height: pageHeight } = page.getSize();
+      const canvas = canvasRef.current;
+      if (!canvas) return sourceFile;
+      const scaleX = pageWidth / canvas.width;
+      const scaleY = pageHeight / canvas.height;
+      for (const ann of annotations) {
+        if (ann.type === 'path' && ann.points.length > 1) {
+          const pdfPoints = ann.points.map((p: any) => ({
+            x: p.x * scaleX,
+            y: pageHeight - p.y * scaleY,
+          }));
+          const operators: any[] = [];
+          operators.push({ cmd: 'm', args: [{ x: pdfPoints[0].x, y: pdfPoints[0].y }] });
+          for (let i = 1; i < pdfPoints.length; i++) {
+            operators.push({ cmd: 'l', args: [{ x: pdfPoints[i].x, y: pdfPoints[i].y }] });
+          }
+          const pathColor = rgb(
+            parseInt(ann.color.slice(1, 3), 16) / 255,
+            parseInt(ann.color.slice(3, 5), 16) / 255,
+            parseInt(ann.color.slice(5, 7), 16) / 255,
+          );
+          page.drawSvgPath(
+            pdfPoints.map((p: any, i: number) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' '),
+            { color: pathColor, borderColor: pathColor, borderWidth: ann.width * scaleX }
+          );
+        } else if (ann.type === 'text') {
+          page.drawText(ann.text, {
+            x: ann.x * scaleX,
+            y: pageHeight - ann.y * scaleY,
+            size: (ann.fontSize || 16) * scaleX,
+            color: rgb(
+              parseInt(ann.color.slice(1, 3), 16) / 255,
+              parseInt(ann.color.slice(3, 5), 16) / 255,
+              parseInt(ann.color.slice(5, 7), 16) / 255,
+            ),
+          });
+        }
+      }
+      const pdfBytes = await pdfDoc.save();
+      stopAnnotation();
+      const pdfBuffer = pdfBytes.buffer.slice(0, pdfBytes.byteLength) as ArrayBuffer;
+      return new Blob([pdfBuffer], { type: 'application/pdf' });
+    } catch {
+      return sourceFile;
+    }
   };
 
   const activeHeading = (label: string, icon: React.ReactNode, sectionKey: string) => (
@@ -480,6 +670,7 @@ export const EditingWindow: React.FC<EditingWindowProps> = ({ file, fileType, on
         <div className="flex border border-white/[0.06] bg-slate-950/40 p-1 mx-4 mt-4 rounded-2xl gap-1 backdrop-blur-md shadow-inner shrink-0">
           {[
             { id: "adjust", label: "Edit", icon: <Scissors className="h-3.5 w-3.5" /> },
+            { id: "annotate", label: "Annotate", icon: <Pen className="h-3.5 w-3.5" /> },
             { id: "smart", label: "Smart Tools", icon: <Sparkles className="h-3.5 w-3.5" /> },
             { id: "export", label: "Export", icon: <Share2 className="h-3.5 w-3.5" /> }
           ].map(tab => (
@@ -489,8 +680,9 @@ export const EditingWindow: React.FC<EditingWindowProps> = ({ file, fileType, on
               onClick={() => {
                 setSidebarTab(tab.id as any);
                 if (tab.id === "adjust") setActiveSection("crop");
+                else if (tab.id === "annotate") { setActiveSection("crop"); startAnnotation(); }
                 else if (tab.id === "smart") setActiveSection(toolType === "aadhaar-mask" ? "aadhaar" : "crop");
-                else if (tab.id === "export") setActiveSection("pdf");
+                else if (tab.id === "export") { setActiveSection("pdf"); stopAnnotation(); }
               }}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-200 cursor-pointer ${
                 sidebarTab === tab.id 
@@ -844,6 +1036,86 @@ export const EditingWindow: React.FC<EditingWindowProps> = ({ file, fileType, on
             </>
           )}
 
+          {sidebarTab === "annotate" && (
+            <>
+              <div className="space-y-4 px-4 py-4">
+                <div className="space-y-4 rounded-2xl border border-white/[0.05] bg-slate-900/40 p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black uppercase tracking-wider text-slate-400">Annotation Tools</span>
+                    <span className="text-[9px] text-slate-500 font-mono">{annotations.length} placed</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { mode: 'select' as const, label: 'Select', icon: <MousePointer2 className="h-3.5 w-3.5" /> },
+                      { mode: 'draw' as const, label: 'Draw', icon: <Pencil className="h-3.5 w-3.5" /> },
+                      { mode: 'text' as const, label: 'Text', icon: <Type className="h-3.5 w-3.5" /> },
+                    ].map(({ mode, label, icon }) => (
+                      <button
+                        key={mode}
+                        type="button"
+                        onClick={() => setActiveMode(mode)}
+                        className={`flex flex-col items-center gap-1 rounded-xl border py-2 text-[10px] font-bold transition-all cursor-pointer ${
+                          activeMode === mode
+                            ? "border-emerald-500 bg-emerald-500/10 text-emerald-350 shadow-md"
+                            : "border-white/[0.08] bg-slate-950/60 hover:bg-slate-900 text-slate-400"
+                        }`}
+                      >
+                        {icon}
+                        <span>{label}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] uppercase tracking-wider text-slate-450 font-bold">Color</label>
+                    <div className="flex gap-2">
+                      {['#000000', '#0000ff', '#ff0000'].map((color) => (
+                        <button
+                          key={color}
+                          type="button"
+                          onClick={() => setDrawColor(color)}
+                          className={`h-8 w-8 rounded-full border-2 transition-all cursor-pointer ${
+                            drawColor === color ? 'border-emerald-500 scale-110' : 'border-white/20'
+                          }`}
+                          style={{ backgroundColor: color }}
+                          aria-label={`Annotation color ${color}`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={clearAnnotations}
+                    className="w-full rounded-xl border border-white/10 bg-slate-950 py-2 text-[10px] font-bold text-slate-300 hover:bg-slate-900 transition cursor-pointer"
+                  >
+                    Clear All Annotations
+                  </button>
+                </div>
+                {annotations.length > 0 && (
+                  <div className="space-y-2 rounded-2xl border border-white/[0.05] bg-slate-900/40 p-4">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Placed Annotations</span>
+                    <div className="max-h-48 overflow-y-auto space-y-1.5">
+                      {annotations.map((ann, i) => (
+                        <div key={i} className="flex items-center justify-between rounded-xl border border-white/[0.05] bg-slate-950/60 px-3 py-2 text-[10px] text-slate-300">
+                          <span>{ann.type === 'path' ? `✏️ Signature (${ann.points.length} pts)` : `📝 "${ann.text?.slice(0, 20)}"`}</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAnnotations((prev) => prev.filter((_, idx) => idx !== i));
+                              setTimeout(redrawAnnotationOverlay, 0);
+                            }}
+                            className="text-slate-500 hover:text-red-400 transition"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
           {sidebarTab === "smart" && (
             <>
               {activeHeading("🛡️ Aadhaar Masking", <Shield className="h-5 w-5" />, "aadhaar")}
@@ -910,6 +1182,9 @@ export const EditingWindow: React.FC<EditingWindowProps> = ({ file, fileType, on
                           <option>English</option>
                           <option>Hindi</option>
                           <option>Bengali</option>
+                          <option>Tamil</option>
+                          <option>Telugu</option>
+                          <option>Kannada</option>
                         </select>
                       </div>
                       <textarea
@@ -1376,6 +1651,21 @@ export const EditingWindow: React.FC<EditingWindowProps> = ({ file, fileType, on
               <div className="flex flex-col items-center gap-6 w-full">
                 <div className="relative max-w-full overflow-auto rounded-2xl bg-white shadow-2xl">
                   <canvas ref={canvasRef} className="block max-w-full h-auto" />
+                  {annotating && (
+                    <canvas
+                      ref={annotationCanvasRef}
+                      width={annotationOverlaySize.width || 800}
+                      height={annotationOverlaySize.height || 600}
+                      onMouseDown={handleAnnotationPointerDown}
+                      onMouseMove={handleAnnotationPointerMove}
+                      onMouseUp={handleAnnotationPointerUp}
+                      onTouchStart={handleAnnotationPointerDown}
+                      onTouchMove={handleAnnotationPointerMove}
+                      onTouchEnd={handleAnnotationPointerUp}
+                      className="absolute inset-0 w-full h-full cursor-crosshair"
+                      style={{ touchAction: 'none' }}
+                    />
+                  )}
                 </div>
                 
                 <div className="flex flex-wrap items-center justify-center gap-4 bg-slate-900/80 backdrop-blur-sm p-3 rounded-2xl border border-slate-800">

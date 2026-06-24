@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Sun, Moon } from "lucide-react";
+import { Sun, Moon, Contrast } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 import { useTheme } from "@/hooks/useTheme";
 
@@ -14,8 +14,8 @@ export function ThemeToggle() {
       whileTap={{ scale: 0.94 }}
       onClick={toggleTheme}
       className="h-8 w-8 flex items-center justify-center rounded-xl bg-card border border-border text-muted-foreground hover:text-foreground transition-colors cursor-pointer shadow-sm focus:outline-none shrink-0"
-      title={theme === "dark" ? tText("Switch to Light Mode") : tText("Switch to Dark Mode")}
-      aria-label={theme === "dark" ? tText("Switch to Light Mode") : tText("Switch to Dark Mode")}
+      title={theme === "dark" ? tText("Switch to Light Mode") : theme === "light" ? tText("Switch to High Contrast") : tText("Switch to Dark Mode")}
+      aria-label={theme === "dark" ? tText("Switch to Light Mode") : theme === "light" ? tText("Switch to High Contrast") : tText("Switch to Dark Mode")}
     >
       <motion.div
         key={theme}
@@ -27,6 +27,8 @@ export function ThemeToggle() {
       >
         {theme === "dark" ? (
           <Sun className="h-4 w-4 text-amber-400 fill-amber-400/10" />
+        ) : theme === "high-contrast" ? (
+          <Contrast className="h-4 w-4 text-white fill-white/20" />
         ) : (
           <Moon className="h-4 w-4 text-indigo-500 fill-indigo-500/10" />
         )}

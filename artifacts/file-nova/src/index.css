@@ -1603,6 +1603,121 @@ header[class*="sticky"] {
   animation-play-state: paused;
 }
 
+/* ── High-Contrast Theme ──────────────────────────────────────────────────── */
+.high-contrast {
+  --background:        #000000;
+  --foreground:        #ffffff;
+  --card:              #1a1a1a;
+  --card-foreground:   #ffffff;
+  --primary:           #ffff00;
+  --primary-foreground:#000000;
+  --secondary:         #333333;
+  --secondary-foreground: #ffffff;
+  --muted:             #222222;
+  --muted-foreground:  #cccccc;
+  --accent:            #444444;
+  --accent-foreground: #ffffff;
+  --border:            #ffffff;
+  --input:             #ffffff;
+  --ring:              #ffff00;
+  --destructive:       #ff4444;
+  --destructive-foreground: #ffffff;
+  --brand-primary:      #ffff00;
+  --brand-primary-dark: #cccc00;
+  --brand-accent:       #ff8800;
+  --brand-ink:          #000000;
+  --brand-paper:        #ffffff;
+  --fn-bg:              #000000;
+  --fn-surface:         #111111;
+  --fn-surface-elevated:#222222;
+  --fn-surface-glass:   rgba(0,0,0,0.9);
+  --fn-text-primary:    #ffffff;
+  --fn-text-secondary:  #dddddd;
+  --fn-text-tertiary:   #aaaaaa;
+  --fn-text-on-accent:  #000000;
+  --fn-border:          #ffffff;
+  --fn-border-strong:   #ffffff;
+  --fn-accent-primary:  #ffff00;
+  --fn-accent-india:    #00ff88;
+  --fn-accent-elite:    #ffaa00;
+  --fn-accent-danger:   #ff4444;
+  --fn-shadow-card:     none;
+  --fn-shadow-elevated: none;
+  --fn-shadow-glass:    none;
+  --fn-aurora:          none;
+  --card-border: #ffffff;
+  --card-active-shadow: 0 0 0 2px #ffff00;
+  color-scheme: dark;
+}
+
+.high-contrast * {
+  border-color: var(--border) !important;
+}
+
+.high-contrast button,
+.high-contrast a,
+.high-contrast input,
+.high-contrast select,
+.high-contrast textarea {
+  outline-width: 2px !important;
+  outline-style: solid !important;
+  outline-color: var(--ring) !important;
+  outline-offset: 2px !important;
+}
+
+.high-contrast button:focus-visible,
+.high-contrast a:focus-visible,
+.high-contrast input:focus-visible,
+.high-contrast select:focus-visible,
+.high-contrast textarea:focus-visible {
+  outline: 3px solid var(--ring) !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 4px rgba(255, 255, 0, 0.3) !important;
+}
+
+.high-contrast img {
+  filter: contrast(1.2) brightness(1.1);
+}
+
+.high-contrast .text-muted-foreground {
+  color: #cccccc !important;
+}
+
+.high-contrast .text-slate-400,
+.high-contrast .text-slate-300,
+.high-contrast .text-slate-200,
+.high-contrast .text-slate-100 {
+  color: #ffffff !important;
+}
+
+.high-contrast .bg-slate-950,
+.high-contrast .bg-slate-900,
+.high-contrast .bg-slate-900\/40,
+.high-contrast .bg-slate-900\/60,
+.high-contrast .bg-slate-950\/60,
+.high-contrast .bg-slate-950\/80,
+.high-contrast .bg-slate-950\/40 {
+  background-color: #000000 !important;
+}
+
+.high-contrast .bg-card {
+  background-color: #111111 !important;
+  border: 1px solid #ffffff !important;
+}
+
+.high-contrast .border-border {
+  border-color: #ffffff !important;
+}
+
+.high-contrast ::-webkit-scrollbar {
+  width: 12px;
+}
+
+.high-contrast ::-webkit-scrollbar-thumb {
+  background: #ffffff !important;
+  border: 2px solid #000000 !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
