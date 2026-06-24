@@ -426,7 +426,7 @@ export default function SimpleHome() {
   };
 
   return (
-    <div 
+    <main
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
@@ -445,7 +445,7 @@ export default function SimpleHome() {
           <button
             onClick={() => setShowUpgradeBanner(false)}
             className="absolute right-4 text-indigo-300 hover:text-white cursor-pointer"
-            title="Dismiss banner"
+            aria-label="Dismiss upgrade banner"
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -990,14 +990,14 @@ export default function SimpleHome() {
 
       {/* Tool Picker Modal */}
       {showPickerModal && droppedFile && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Choose a tool" onKeyDown={(e) => { if (e.key === "Escape") { setShowPickerModal(false); setDroppedFile(null); } }}>
           <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xs p-6 max-w-md w-full shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-border pb-3">
               <h3 className="font-extrabold text-sm text-foreground">{tText("Choose a Tool")}</h3>
               <button 
                 onClick={() => { setShowPickerModal(false); setDroppedFile(null); }}
                 className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-350 cursor-pointer"
-                title="Close dialog"
+                aria-label="Close dialog"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -1028,6 +1028,6 @@ export default function SimpleHome() {
           </div>
         </div>
       )}
-    </div>
+    </main>
   );
 }

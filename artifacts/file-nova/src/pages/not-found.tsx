@@ -4,7 +4,7 @@ import { AlertTriangle, Home, Sparkles } from "lucide-react";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col justify-center items-center p-6 bg-mesh relative font-sans">
+    <main className="min-h-screen bg-background text-foreground flex flex-col justify-center items-center p-6 bg-mesh relative font-sans">
       <div className="absolute top-1/4 left-1/4 w-[300px] h-[300px] bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-indigo-500/5 rounded-full blur-[100px] pointer-events-none" />
 
@@ -37,6 +37,6 @@ export default function NotFound() {
           </Link>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

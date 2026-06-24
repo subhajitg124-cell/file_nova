@@ -569,6 +569,7 @@ export const ThemeEffects = memo(function ThemeEffects() {
       ref={canvasRef}
       className="pointer-events-none fixed inset-0 z-10 opacity-35 mix-blend-screen"
       style={{ pointerEvents: "none" }}
+      aria-hidden="true"
     />
   );
 });

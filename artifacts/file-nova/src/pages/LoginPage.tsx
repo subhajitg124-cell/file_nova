@@ -209,18 +209,18 @@ const isValidationError = (err: string): boolean => {
   const hasGoogleClientId = googleClientId && googleClientId !== "your_google_client_id" && googleClientId !== "";
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col md:grid md:grid-cols-12 overflow-hidden bg-mesh relative">
+    <main className="min-h-screen bg-background text-foreground flex flex-col md:grid md:grid-cols-12 overflow-hidden bg-mesh relative">
       <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[140px] pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-indigo-500/5 rounded-full blur-[140px] pointer-events-none" />
 
       <div className="absolute top-6 left-6 z-20">
-        <Link href="/" className="inline-flex items-center gap-2 rounded-xl border border-border bg-card/65 backdrop-blur-md px-4 py-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-all hover:scale-105">
-          <ChevronLeft className="h-4 w-4" />
+        <Link href="/" className="inline-flex items-center gap-2 rounded-xl border border-border bg-card/65 backdrop-blur-md px-4 py-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-all hover:scale-105" aria-label="Back to home page">
+          <ChevronLeft className="h-4 w-4" aria-hidden="true" />
           Back Home
         </Link>
       </div>
 
-      <div className="hidden md:flex md:col-span-5 lg:col-span-4 bg-gradient-to-br from-indigo-950/80 via-slate-900/90 to-slate-950/90 border-r border-border p-12 flex-col justify-between relative overflow-hidden backdrop-blur-xl">
+      <div className="hidden md:flex md:col-span-5 lg:col-span-4 bg-gradient-to-br from-indigo-950/80 via-slate-900/90 to-slate-950/90 border-r border-border p-12 flex-col justify-between relative overflow-hidden backdrop-blur-xl" aria-hidden="true">
         <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
         <div className="relative z-10 flex items-center gap-2.5">
           <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-primary/10 border border-primary/20">
@@ -238,9 +238,9 @@ const isValidationError = (err: string): boolean => {
               <Sparkles className="h-3 w-3 text-amber-400" />
               Secure Document Engine
             </div>
-            <h2 className="text-3xl font-black text-white tracking-tight leading-tight">
+            <p className="text-3xl font-black text-white tracking-tight leading-tight">
               One account. <br />Infinite file utilities.
-            </h2>
+            </p>
             <p className="text-slate-400 text-xs leading-relaxed max-w-[280px]">
               Access custom Indian government templates, high-speed compressions, automated PDF conversions, and OCR tooling inside a single desk.
             </p>
@@ -293,11 +293,11 @@ const isValidationError = (err: string): boolean => {
             )}
           </div>
 
-          <div className="flex border border-border/60 bg-muted/40 p-1 rounded-full mb-6">
-            <button onClick={() => handleTabChange("login")} className={`flex-1 py-2 text-xs font-bold rounded-full transition cursor-pointer ${activeTab === "login" ? "bg-card text-foreground shadow-sm border border-border/40" : "text-muted-foreground hover:text-foreground"}`}>
+          <div className="flex border border-border/60 bg-muted/40 p-1 rounded-full mb-6" role="tablist" aria-label="Authentication method">
+            <button role="tab" aria-selected={activeTab === "login"} onClick={() => handleTabChange("login")} className={`flex-1 py-2 text-xs font-bold rounded-full transition cursor-pointer ${activeTab === "login" ? "bg-card text-foreground shadow-sm border border-border/40" : "text-muted-foreground hover:text-foreground"}`}>
               Sign In
             </button>
-            <button onClick={() => handleTabChange("signup")} className={`flex-1 py-2 text-xs font-bold rounded-full transition cursor-pointer ${activeTab === "signup" ? "bg-card text-foreground shadow-sm border border-border/40" : "text-muted-foreground hover:text-foreground"}`}>
+            <button role="tab" aria-selected={activeTab === "signup"} onClick={() => handleTabChange("signup")} className={`flex-1 py-2 text-xs font-bold rounded-full transition cursor-pointer ${activeTab === "signup" ? "bg-card text-foreground shadow-sm border border-border/40" : "text-muted-foreground hover:text-foreground"}`}>
               Create Account
             </button>
           </div>
@@ -326,8 +326,10 @@ const isValidationError = (err: string): boolean => {
             {activeTab === "login" ? (
               <form onSubmit={handleLoginSubmit} className="space-y-3.5" autoComplete="off">
                 <div className="relative">
-                  <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
+                  <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                  <label htmlFor="login-email" className="sr-only">Email or Phone Number</label>
                   <input
+                    id="login-email"
                     type="text"
                     placeholder="Email or Phone Number"
                     value={loginIdentifier}
@@ -342,11 +344,13 @@ const isValidationError = (err: string): boolean => {
                     className="w-full pl-10 pr-4 py-3 bg-background/40 backdrop-blur-sm border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-all"
                   />
                 </div>
-                {emailError && <p className="text-xs font-bold text-destructive px-1">{emailError}</p>}
+                {emailError && <p className="text-xs font-bold text-destructive px-1" role="alert">{emailError}</p>}
 
                 <div className="relative">
-                  <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
+                  <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                  <label htmlFor="login-password" className="sr-only">Password</label>
                   <input
+                    id="login-password"
                     type="password"
                     placeholder="Password"
                     value={loginPassword}
@@ -361,7 +365,7 @@ const isValidationError = (err: string): boolean => {
                     className="w-full pl-10 pr-4 py-3 bg-background/40 backdrop-blur-sm border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-all"
                   />
                 </div>
-                {passwordError && <p className="text-xs font-bold text-destructive px-1">{passwordError}</p>}
+                {passwordError && <p className="text-xs font-bold text-destructive px-1" role="alert">{passwordError}</p>}
 
                 <div className="text-right">
                   <button
@@ -373,7 +377,7 @@ const isValidationError = (err: string): boolean => {
                   </button>
                 </div>
 
-                {error && <p className="text-xs font-bold text-destructive px-1">{getFriendlyErrorMessage(error)}</p>}
+                {error && <p className="text-xs font-bold text-destructive px-1" role="alert">{getFriendlyErrorMessage(error)}</p>}
                 
                 <button
                   type="submit"
@@ -386,8 +390,10 @@ const isValidationError = (err: string): boolean => {
             ) : (
               <form onSubmit={handleSignupSubmit} className="space-y-3.5" autoComplete="off">
                 <div className="relative">
-                  <User className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
+                  <User className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                  <label htmlFor="signup-name" className="sr-only">Full Name</label>
                   <input
+                    id="signup-name"
                     type="text"
                     placeholder="Full Name"
                     value={signupName}
@@ -401,8 +407,10 @@ const isValidationError = (err: string): boolean => {
                 </div>
 
                 <div className="relative">
-                  <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
+                  <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                  <label htmlFor="signup-email" className="sr-only">Email Address</label>
                   <input
+                    id="signup-email"
                     type="email"
                     placeholder="Email Address"
                     value={signupEmail}
@@ -417,11 +425,13 @@ const isValidationError = (err: string): boolean => {
                     className="w-full pl-10 pr-4 py-3 bg-background/40 backdrop-blur-sm border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-all"
                   />
                 </div>
-                {emailError && <p className="text-xs font-bold text-destructive px-1">{emailError}</p>}
+                {emailError && <p className="text-xs font-bold text-destructive px-1" role="alert">{emailError}</p>}
 
                 <div className="relative">
-                  <Phone className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
+                  <Phone className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                  <label htmlFor="signup-phone" className="sr-only">Phone Number</label>
                   <input
+                    id="signup-phone"
                     type="tel"
                     placeholder="Phone (e.g. 9876543210)"
                     value={signupPhone}
@@ -435,8 +445,10 @@ const isValidationError = (err: string): boolean => {
                 </div>
 
                 <div className="relative">
-                  <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
+                  <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                  <label htmlFor="signup-password" className="sr-only">Password</label>
                   <input
+                    id="signup-password"
                     type="password"
                     placeholder="Password (min 8 characters)"
                     value={signupPassword}
@@ -451,9 +463,9 @@ const isValidationError = (err: string): boolean => {
                     className="w-full pl-10 pr-4 py-3 bg-background/40 backdrop-blur-sm border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-all"
                   />
                 </div>
-                {passwordError && <p className="text-xs font-bold text-destructive px-1">{passwordError}</p>}
+                {passwordError && <p className="text-xs font-bold text-destructive px-1" role="alert">{passwordError}</p>}
 
-                {error && <p className="text-xs font-bold text-destructive px-1">{getFriendlyErrorMessage(error)}</p>}
+                {error && <p className="text-xs font-bold text-destructive px-1" role="alert">{getFriendlyErrorMessage(error)}</p>}
                 
                 <button
                   type="submit"
@@ -467,6 +479,6 @@ const isValidationError = (err: string): boolean => {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

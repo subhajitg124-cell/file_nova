@@ -273,7 +273,7 @@ function App({ ssrPath }: { ssrPath?: string } = {}) {
                   <AdminProvider>
                     <EventProvider>
                       <GlobalNotice />
-                      <Router />
+                      <div id="main-content"><Router /></div>
                     </EventProvider>
                     <FileExpiryBar />
                     <Toaster closeButton position="top-right" richColors />

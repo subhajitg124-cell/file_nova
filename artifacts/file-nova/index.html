@@ -124,6 +124,26 @@
     </script>
   </head>
   <body>
+    <a href="#main-content" class="skip-link" tabindex="1">Skip to main content</a>
+    <style>
+      .skip-link {
+        position: absolute;
+        top: -9999px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 99999;
+        padding: 10px 20px;
+        background: var(--primary, #6366f1);
+        color: #fff;
+        font-size: 14px;
+        font-weight: 700;
+        border-radius: 0 0 8px 8px;
+        text-decoration: none;
+      }
+      .skip-link:focus {
+        top: 0;
+      }
+    </style>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script>

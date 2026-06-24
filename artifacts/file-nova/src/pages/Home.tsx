@@ -237,7 +237,7 @@ export default function Home() {
             </div>
           </button>
 
-          <div className="flex items-center gap-2.5 relative z-10">
+          <nav aria-label="Workspace navigation" className="flex items-center gap-2.5 relative z-10">
             <button
               onClick={() => { clearStore(); setLocation('/'); }}
               className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-foreground border border-border hover:border-primary/35 bg-card hover:bg-accent/50 py-1.5 px-2.5 rounded-lg transition-all whitespace-nowrap cursor-pointer"
@@ -266,7 +266,7 @@ export default function Home() {
             >
               {theme === 'dark' ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
             </button>
-          </div>
+          </nav>
         </div>
       </header>
 
@@ -329,11 +329,11 @@ export default function Home() {
                 29+ tools · Client-side processing · Zero storage
               </motion.div>
 
-              <h2 className="text-4xl sm:text-5xl font-black leading-tight tracking-tight text-balance">
+              <h1 className="text-4xl sm:text-5xl font-black leading-tight tracking-tight text-balance">
                 <span className="gradient-text">Secure, Instant</span>
                 <br />
                 <span className="text-foreground">File Processing</span>
-              </h2>
+              </h1>
               <p className="text-sm text-muted-foreground leading-relaxed max-w-md mx-auto">
                 All work happens client-side or in sandboxed environments.
                 Drop any file to auto-detect its type, or pick a workspace below.

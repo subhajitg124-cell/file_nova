@@ -180,13 +180,13 @@ export default function ToolsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans pb-24 relative">
+    <main className="min-h-screen bg-background text-foreground font-sans pb-24 relative">
       {/* Background Mesh Gradient */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-100/10 via-background to-background dark:from-indigo-950/20 dark:via-slate-950 dark:to-slate-950 pointer-events-none z-0" />
 
       {/* Header Navigation */}
       <header className="sticky top-0 z-30 border-b border-border dark:border-slate-900 bg-card/85 dark:bg-slate-950/80 backdrop-blur-xl py-4 px-6">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+        <nav aria-label="Tools directory" className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button 
               onClick={() => setLocation("/")}
@@ -204,7 +204,7 @@ export default function ToolsPage() {
           <Link href="/workspace" className="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-1.5 transition-all shadow-glow-indigo cursor-pointer">
             Open Workspace <ArrowUpRight className="h-3.5 w-3.5" />
           </Link>
-        </div>
+        </nav>
       </header>
 
       <div className="max-w-6xl mx-auto px-4 mt-12 relative z-10">
@@ -285,6 +285,6 @@ export default function ToolsPage() {
           </div>
         )}
       </div>
-    </div>
+    </main>
   );
 }

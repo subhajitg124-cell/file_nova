@@ -39,8 +39,19 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
       if (settingsOpen) setSettingsOpen(false);
       if (moreMenuOpen) setMoreMenuOpen(false);
     };
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMobileMenuOpen(false);
+        setSettingsOpen(false);
+        setMoreMenuOpen(false);
+      }
+    };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
   }, [mobileMenuOpen, settingsOpen, moreMenuOpen]);
 
   return (
@@ -99,7 +110,7 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
               </AnimatePresence>
             </div>
 
-            <div className="hidden xl:flex items-center gap-2">
+            <nav aria-label="Main navigation" className="hidden xl:flex items-center gap-2">
               <PopularToolsDropdown />
               <Link href="/india-tools" className="flex items-center gap-1.5 text-sm text-[var(--fn-text-primary)] font-medium py-1.5 px-3 rounded-full border border-[var(--fn-border)] hover:bg-[var(--fn-surface-elevated)] transition-colors duration-150 whitespace-nowrap">
                 🇮🇳 {tText("India Tools")}
@@ -112,7 +123,7 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
                 <FileText className="h-3.5 w-3.5 text-[var(--fn-text-secondary)]" />
                 {tText("Workspace")}
               </Link>
-            </div>
+            </nav>
 
             <div className="hidden lg:block xl:hidden relative">
               <button
@@ -186,6 +197,7 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.25, ease: "easeInOut" }}
+            role="dialog" aria-modal="true" aria-label="Mobile navigation menu"
             className="mobile-menu-panel lg:hidden border border-border/60 bg-background/95 backdrop-blur-xl p-4 space-y-3 rounded-2xl shadow-premium mt-2 mx-4 overflow-hidden relative z-30"
           >
             {showSearch && (

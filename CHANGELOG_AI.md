@@ -4,6 +4,39 @@
 
 ---
 
+## 2026-06-24 — Semantic HTML & Accessibility Audit
+
+**Agent:** Opencode
+**Scope:** All pages, components, index.html, Tailwind focus styles
+
+### Changes
+- **Skip link:** Added accessible skip-to-content link in `index.html` (WCAG 2.4.1) with `#main-content` target div in `App.tsx`
+- **Semantic landmarks:**
+  - `<main>`: Replaced root `<div>` with `<main>` in SimpleHome.tsx, ToolsPage.tsx, LoginPage.tsx, Home.tsx, not-found.tsx
+  - `<nav aria-label="...">`: Added landmark nav wrappers in Navbar.tsx (`Main navigation`), Home.tsx (`Workspace navigation`), ToolsPage.tsx (`Tools directory`); mobile menu panel got `role="dialog" aria-modal="true"`
+  - `<footer>`: Added `aria-label` + `aria-hidden="true"` on decorative SVG icons in social links
+- **Heading hierarchy:**
+  - Home.tsx: Changed `<h2>` (de facto page title) to `<h1>` ("Secure, Instant File Processing")
+  - LoginPage.tsx: Changed left-panel `<h2>` to `<p>` to fix h2-before-h1 DOM order violation
+- **ARIA roles:**
+  - LoginPage tabs: Added `role="tablist"` wrapper + `role="tab"` + `aria-selected` on auth mode buttons
+  - Decorative canvas: Added `aria-hidden="true"` to ThemeEffects.tsx particle canvas
+  - LoginPage icon decos: Added `aria-hidden="true"` to icon SVGs inside form fields
+- **Form labels (LoginPage):** Added `<label htmlFor="...">` elements (visually hidden via `sr-only`) to all 6 form inputs — replaces placeholder-only labels for screen readers
+- **Error messages:** Added `role="alert"` to all validation error messages
+- **Keyboard navigation:**
+  - Navbar dropdowns: Added Escape key handler to close open menus (WCAG 2.1.2)
+  - Tool picker modal: Added `onKeyDown` Escape handler + `role="dialog"` + `aria-modal="true"` + `aria-label`
+  - Settings/More/Mobile menus: Escape key now closes all simultaneously
+- **Button labels:**
+  - Footer social links: Replaced `title` with `aria-label` on Instagram/Facebook/LinkedIn
+  - SimpleHome dismiss banner: Changed `title` to `aria-label`
+  - SimpleHome tool picker close: Added `aria-label="Close dialog"`
+  - LoginPage back link: Added `aria-label="Back to home page"` + `aria-hidden` on chevron
+- **Verified:** `pnpm typecheck` passes, `pnpm build` succeeds with 82 pages prerendered
+
+---
+
 ## 2026-06-24 — Core Web Vitals Optimization
 
 **Agent:** Opencode
