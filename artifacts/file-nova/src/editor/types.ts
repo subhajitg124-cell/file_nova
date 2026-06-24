@@ -13,6 +13,14 @@ export interface Annotation {
   width?: number;
 }
 
+export interface PresetDefinition {
+  id: string;
+  label: string;
+  description?: string;
+  icon?: React.ReactNode;
+  config: Record<string, any>;
+}
+
 export interface EditorSection {
   id: string;
   label: string;
@@ -31,14 +39,28 @@ export interface SectionProps {
   onStatusMessage: (msg: string) => void;
   onBusy: (busy: boolean) => void;
   disabled?: boolean;
+  mode?: "beginner" | "advanced";
+}
+
+export interface ToolMetadata {
+  id: string;
+  name: string;
+  description: string;
+  category: "pdf" | "image" | "document" | "ai" | "convert" | "security" | "utility" | "ocr";
+  icon: React.ReactNode;
+  color: string;
 }
 
 export interface EditorPlugin {
   id: string;
   name: string;
+  description?: string;
+  metadata?: ToolMetadata;
   sections: EditorSection[];
+  presets?: PresetDefinition[];
   rightPanel?: React.ComponentType<SectionProps>;
   previewType?: "image" | "pdf" | "auto";
+  defaultMode?: "beginner" | "advanced";
   onSave?: (file: File, config: Record<string, any>, annotations: Annotation[], canvasRef?: React.RefObject<HTMLCanvasElement | null>) => Promise<Blob>;
   onProcessAction?: (file: File, config: Record<string, any>, onStatus: (msg: string) => void, onBusy: (b: boolean) => void) => Promise<Blob>;
 }
