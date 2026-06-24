@@ -855,6 +855,8 @@ export default function ReferralPage() {
               <img
                 src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(referralLink)}`}
                 alt="FileNova Invite QR Code"
+                width="192"
+                height="192"
                 className="h-48 w-48 object-contain"
               />
             </div>

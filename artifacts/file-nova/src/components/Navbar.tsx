@@ -68,7 +68,7 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
           <div className="absolute inset-0 bg-gradient-to-r from-brand-primary/0 via-brand-primary/10 to-brand-primary/0 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-500 pointer-events-none rounded-full -z-10" />
 
           <Link href="/" className="flex items-center gap-2.5 shrink-0 relative z-10">
-            <img src="/logo.png" alt="FileNova - AI PDF & Image Tools" className="h-8 w-auto" width="32" height="32" />
+            <img src="/logo.png" alt="FileNova - AI PDF & Image Tools" className="h-8 w-auto" width="32" height="32" fetchPriority="high" />
             <span className="font-extrabold text-sm text-foreground hidden sm:block">FileNova</span>
           </Link>
 

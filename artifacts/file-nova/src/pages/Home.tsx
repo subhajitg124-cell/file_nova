@@ -229,7 +229,7 @@ export default function Home() {
             aria-label="Back to home"
           >
             <div className="h-8 w-8 rounded-xl overflow-hidden border border-border shadow-sm group-hover:scale-105 transition-transform duration-200">
-              <img src="/logo.png" alt="FileNova - AI PDF and Image Tools" className="h-full w-full object-cover" width="32" height="32" />
+              <img src="/logo.png" alt="FileNova - AI PDF and Image Tools" className="h-full w-full object-cover" width="32" height="32" fetchPriority="high" />
             </div>
             <div className="leading-tight text-left">
               <span className="block text-sm font-extrabold tracking-tight text-foreground">FileNova</span>

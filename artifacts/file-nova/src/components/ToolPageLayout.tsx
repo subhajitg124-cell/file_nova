@@ -21,6 +21,9 @@ import { toolContentMap } from "@/data/toolContent";
 import ScholarshipZIPMaker from "@/pages/ScholarshipZIPMaker";
 import { ReactableGreeting } from "@/components/events/ReactableGreeting";
 import { Navbar } from "@/components/Navbar";
+import {
+  Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator
+} from "@/components/ui/breadcrumb";
 
 // Import Workspace components
 import { UploadZone } from "@/components/workspace/UploadZone";
@@ -95,6 +98,11 @@ const ICON_MAP: Record<string, string> = {
   scan: "🔍",
   eraser: "🧹",
   sparkles: "✨",
+  "file-zip-pdf": "🗜️",
+  passport: "🛂",
+  signature: "✍️",
+  crop: "✂️",
+  watermark: "💧",
 };
 
 const BENEFITS = [
@@ -119,6 +127,130 @@ const BENEFITS = [
     description: "No sign-up or registration required. Free forever for students and CSC operators."
   }
 ];
+
+const CATEGORY_PAGES: Record<string, { label: string; href: string }> = {
+  pdf: { label: "PDF Tools", href: "/pdf-tools" },
+  image: { label: "Image Tools", href: "/image-tools" },
+  video: { label: "Video Tools", href: "/video-tools" },
+  document: { label: "Document Tools", href: "/document-tools" },
+  ocr: { label: "OCR & AI Tools", href: "/document-tools" },
+  form: { label: "India Forms", href: "/india-tools" },
+  audio: { label: "Audio Tools", href: "/video-tools" },
+};
+
+const SLUG_CATEGORY: Record<string, string> = {
+  "merge-pdf": "pdf", "split-pdf": "pdf", "compress-pdf": "pdf", "rotate-pdf": "pdf",
+  "unlock-pdf": "pdf", "protect-pdf": "pdf", "resize-pdf": "pdf", "pdf-to-word": "pdf",
+  "pdf-to-jpg": "pdf", "jpg-to-pdf": "pdf", "word-to-pdf": "document",
+  "ocr": "ocr", "ai-pdf-summary": "document", "remove-background": "image",
+  "compress-image": "image", "resize-image": "image", "scholarship-zip": "form",
+  "aadhaar-mask-pdf": "form", "pan-card-resize": "form", "government-form-fill": "form",
+  "compress-pdf-for-upload": "pdf", "ai-ppt-maker": "document", "compress-doc": "document",
+};
+
+const POPULAR_TOOLS: { label: string; slug: string; icon: string }[] = [
+  { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
+  { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
+  { label: "Split PDF", slug: "split-pdf", icon: "scissors" },
+  { label: "PDF to Word", slug: "pdf-to-word", icon: "file-word" },
+  { label: "JPG to PDF", slug: "jpg-to-pdf", icon: "photo" },
+  { label: "Word to PDF", slug: "word-to-pdf", icon: "file-text" },
+  { label: "Mask Aadhaar", slug: "aadhaar-mask-pdf", icon: "id-badge" },
+  { label: "PAN Card Resize", slug: "pan-card-resize", icon: "credit-card" },
+  { label: "OCR", slug: "ocr", icon: "scan" },
+  { label: "AI Summary", slug: "ai-pdf-summary", icon: "sparkles" },
+  { label: "Remove Background", slug: "remove-background", icon: "eraser" },
+  { label: "Resize Image", slug: "resize-image", icon: "resize" },
+];
+
+const CATEGORY_TOOLS: Record<string, { label: string; slug: string; icon: string }[]> = {
+  pdf: [
+    { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
+    { label: "Split PDF", slug: "split-pdf", icon: "scissors" },
+    { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
+    { label: "Rotate PDF", slug: "rotate-pdf", icon: "rotate" },
+    { label: "Protect PDF", slug: "protect-pdf", icon: "lock" },
+    { label: "Unlock PDF", slug: "unlock-pdf", icon: "lock-open" },
+    { label: "PDF to Word", slug: "pdf-to-word", icon: "file-word" },
+    { label: "PDF to JPG", slug: "pdf-to-jpg", icon: "photo" },
+  ],
+  image: [
+    { label: "Compress Image", slug: "compress-image", icon: "file-zip" },
+    { label: "Resize Image", slug: "resize-image", icon: "resize" },
+    { label: "Remove Background", slug: "remove-background", icon: "eraser" },
+    { label: "JPG to PDF", slug: "jpg-to-pdf", icon: "photo" },
+  ],
+  form: [
+    { label: "Mask Aadhaar", slug: "aadhaar-mask-pdf", icon: "id-badge" },
+    { label: "PAN Card Resize", slug: "pan-card-resize", icon: "credit-card" },
+    { label: "Government Form Fill", slug: "government-form-fill", icon: "clipboard" },
+    { label: "Scholarship ZIP", slug: "scholarship-zip", icon: "file-zip" },
+  ],
+  document: [
+    { label: "Word to PDF", slug: "word-to-pdf", icon: "file-word" },
+    { label: "Compress Doc", slug: "compress-doc", icon: "file-zip" },
+    { label: "AI PPT Maker", slug: "ai-ppt-maker", icon: "sparkles" },
+  ],
+  ocr: [
+    { label: "OCR", slug: "ocr", icon: "scan" },
+    { label: "AI PDF Summary", slug: "ai-pdf-summary", icon: "sparkles" },
+  ],
+};
+
+const WORKFLOW_CHAINS: Record<string, { slug: string; label: string; icon: string }> = {
+  "compress-pdf": { slug: "merge-pdf", label: "Merge PDFs", icon: "files" },
+  "merge-pdf": { slug: "compress-pdf", label: "Compress PDF", icon: "file-zip" },
+  "jpg-to-pdf": { slug: "compress-pdf", label: "Compress PDF", icon: "file-zip" },
+  "pdf-to-word": { slug: "compress-doc", label: "Compress Document", icon: "file-zip" },
+  "word-to-pdf": { slug: "compress-pdf", label: "Compress PDF", icon: "file-zip" },
+  "split-pdf": { slug: "merge-pdf", label: "Merge PDFs", icon: "files" },
+  "remove-background": { slug: "jpg-to-pdf", label: "Convert to PDF", icon: "photo" },
+  "resize-image": { slug: "compress-image", label: "Compress Image", icon: "file-zip" },
+  "compress-image": { slug: "jpg-to-pdf", label: "Convert to PDF", icon: "photo" },
+  "protect-pdf": { slug: "unlock-pdf", label: "Unlock PDF", icon: "lock-open" },
+  "unlock-pdf": { slug: "protect-pdf", label: "Protect PDF", icon: "lock" },
+  "aadhaar-mask-pdf": { slug: "pan-card-resize", label: "PAN Card Resize", icon: "credit-card" },
+  "pan-card-resize": { slug: "aadhaar-mask-pdf", label: "Mask Aadhaar", icon: "id-badge" },
+  "ocr": { slug: "ai-pdf-summary", label: "AI PDF Summary", icon: "sparkles" },
+  "ai-pdf-summary": { slug: "ocr", label: "OCR PDF", icon: "scan" },
+  "government-form-fill": { slug: "compress-pdf-for-upload", label: "Compress for Upload", icon: "file-zip" },
+  "scholarship-zip": { slug: "compress-pdf-for-upload", label: "Compress for Upload", icon: "file-zip" },
+  "compress-pdf-for-upload": { slug: "scholarship-zip", label: "Scholarship ZIP", icon: "file-zip" },
+  "rotate-pdf": { slug: "split-pdf", label: "Split PDF", icon: "scissors" },
+  "resize-pdf": { slug: "compress-pdf", label: "Compress PDF", icon: "file-zip" },
+};
+
+const RECENT_TOOLS_KEY = "filenova-recent-tool-pages";
+
+function trackRecentTool(slug: string) {
+  if (typeof window === "undefined") return;
+  try {
+    const stored = JSON.parse(localStorage.getItem(RECENT_TOOLS_KEY) || "[]");
+    const updated = [slug, ...stored.filter((s: string) => s !== slug)].slice(0, 6);
+    localStorage.setItem(RECENT_TOOLS_KEY, JSON.stringify(updated));
+  } catch { /* ignore */ }
+}
+
+function getRecentTools(): { label: string; slug: string; icon: string }[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const stored: string[] = JSON.parse(localStorage.getItem(RECENT_TOOLS_KEY) || "[]");
+    const all: Record<string, { label: string; slug: string; icon: string }> = {};
+    [...POPULAR_TOOLS, ...Object.values(CATEGORY_TOOLS).flat()].forEach(t => { all[t.slug] = t; });
+    return stored.map(s => all[s]).filter(Boolean).slice(0, 4);
+  } catch { return []; }
+}
+
+function LinkifiedText({ text }: { text: string }) {
+  const parts = text.split(/(\[[^\]]+\]\([^)]+\))/);
+  return parts.map((part, i) => {
+    const match = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+    if (match) {
+      return <Link key={i} href={`/${match[2]}`} className="text-primary hover:underline font-semibold">{match[1]}</Link>;
+    }
+    return <React.Fragment key={i}>{part}</React.Fragment>;
+  });
+}
 
 export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
   const content = toolContentMap[slug];
@@ -221,6 +353,7 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
       })();
     }
 
+    trackRecentTool(slug);
     setIsConfigured(true);
   }, [slug, content, setLocation]);
 
@@ -269,14 +402,30 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
            <BackHomeBar />
          </div>
 
-         {/* Visual Breadcrumb */}
-         <nav className="flex items-center gap-2 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-6" aria-label="Breadcrumb">
-           <Link href="/" className="hover:text-primary transition-colors">Home</Link>
-           <ChevronRight className="h-3 w-3 text-slate-600" />
-           <Link href="/tools" className="hover:text-primary transition-colors">All Tools</Link>
-           <ChevronRight className="h-3 w-3 text-slate-600" />
-           <span className="text-slate-800 dark:text-slate-200">{content.toolName}</span>
-         </nav>
+         {/* Breadcrumb with category context */}
+         <Breadcrumb aria-label="Breadcrumb" className="flex items-center gap-2 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-6">
+           <BreadcrumbList className="flex flex-wrap items-center gap-1.5 break-words text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">
+             <BreadcrumbItem>
+               <BreadcrumbLink href="/" className="hover:text-primary transition-colors">Home</BreadcrumbLink>
+             </BreadcrumbItem>
+             <BreadcrumbSeparator><ChevronRight className="h-3 w-3" /></BreadcrumbSeparator>
+             <BreadcrumbItem>
+               <BreadcrumbLink href="/tools" className="hover:text-primary transition-colors">All Tools</BreadcrumbLink>
+             </BreadcrumbItem>
+             {(() => {
+               const cat = SLUG_CATEGORY[slug] || (content.toolCategory as string);
+               const catPage = CATEGORY_PAGES[cat];
+               if (catPage) {
+                 return (<><BreadcrumbSeparator><ChevronRight className="h-3 w-3" /></BreadcrumbSeparator><BreadcrumbItem><BreadcrumbLink href={catPage.href} className="hover:text-primary transition-colors">{catPage.label}</BreadcrumbLink></BreadcrumbItem></>);
+               }
+               return null;
+             })()}
+             <BreadcrumbSeparator><ChevronRight className="h-3 w-3" /></BreadcrumbSeparator>
+             <BreadcrumbItem>
+               <BreadcrumbPage className="text-slate-800 dark:text-slate-200">{content.toolName}</BreadcrumbPage>
+             </BreadcrumbItem>
+           </BreadcrumbList>
+         </Breadcrumb>
 
          {/* Page Header (H1 + Intro) */}
          <div className="mb-10 text-left space-y-4">
@@ -405,8 +554,8 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
             About {content.toolName}
           </h2>
           <div className="space-y-4 max-w-4xl text-sm text-gray-600 dark:text-slate-350 leading-relaxed">
-            {content.seoBody.map((paragraph, i) => (
-              <p key={i}>{paragraph}</p>
+             {content.seoBody.map((paragraph, i) => (
+              <p key={i}><LinkifiedText text={paragraph} /></p>
             ))}
           </div>
         </div>
@@ -450,6 +599,103 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
             </div>
           </div>
         )}
+
+        {/* Suggested Next Tool */}
+        {WORKFLOW_CHAINS[slug] && (
+          <div className="border-t border-border/60 pt-12">
+            <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white mb-4">
+              Suggested Next Step
+            </h2>
+            <p className="text-xs text-muted-foreground mb-6 max-w-xl">
+              After using {content.toolName}, many users also need this tool:
+            </p>
+            <div className="max-w-sm">
+              <Link
+                href={`/${WORKFLOW_CHAINS[slug].slug}`}
+                className="group flex items-center gap-4 bg-card/40 hover:bg-card border border-border/80 hover:border-primary/30 rounded-xs p-5 transition-all shadow-sm hover:shadow-md"
+              >
+                <div className="h-12 w-12 rounded-xl bg-slate-50 dark:bg-slate-950 border border-border flex items-center justify-center text-2xl shrink-0 group-hover:scale-110 transition-transform">
+                  {ICON_MAP[WORKFLOW_CHAINS[slug].icon] ?? "🔧"}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-bold text-sm text-foreground group-hover:text-primary transition-colors truncate">{WORKFLOW_CHAINS[slug].label}</h3>
+                  <p className="text-xs text-muted-foreground mt-1">Continue your document workflow</p>
+                </div>
+                <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* More [Category] Tools */}
+        {(() => {
+          const cat = SLUG_CATEGORY[slug] || (content.toolCategory as string);
+          const tools = CATEGORY_TOOLS[cat];
+          if (!tools || tools.length === 0) return null;
+          const catPage = CATEGORY_PAGES[cat];
+          const otherTools = tools.filter(t => t.slug !== slug);
+          if (otherTools.length === 0) return null;
+          return (
+            <div className="border-t border-border/60 pt-12">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white">
+                  More {catPage ? catPage.label : "Tools"}
+                </h2>
+                {catPage && (
+                  <Link href={catPage.href} className="text-xs font-bold text-primary hover:underline">
+                    View all →
+                  </Link>
+                )}
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {otherTools.slice(0, 4).map((tool, i) => (
+                  <Link
+                    key={i}
+                    href={`/${tool.slug}`}
+                    className="group bg-card/40 hover:bg-card border border-border/80 hover:border-primary/30 rounded-xs p-5 transition-all duration-350 flex items-start gap-3.5 shadow-sm hover:shadow-md"
+                  >
+                    <div className="h-10 w-10 rounded-xl bg-slate-50 dark:bg-slate-950 border border-border flex items-center justify-center text-xl shrink-0">
+                      {ICON_MAP[tool.icon] ?? "🔧"}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-bold text-xs text-foreground group-hover:text-primary transition-colors truncate">{tool.label}</h3>
+                      <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2 mt-1">Open {tool.label}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* Popular Tools */}
+        <div className="border-t border-border/60 pt-12">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white">
+              Popular Tools
+            </h2>
+            <Link href="/tools" className="text-xs font-bold text-primary hover:underline">
+              Browse all →
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {POPULAR_TOOLS.filter(t => t.slug !== slug).slice(0, 8).map((tool, i) => (
+              <Link
+                key={i}
+                href={`/${tool.slug}`}
+                className="group bg-card/40 hover:bg-card border border-border/80 hover:border-primary/30 rounded-xs p-5 transition-all duration-350 flex items-start gap-3.5 shadow-sm hover:shadow-md"
+              >
+                <div className="h-10 w-10 rounded-xl bg-slate-50 dark:bg-slate-950 border border-border flex items-center justify-center text-xl shrink-0">
+                  {ICON_MAP[tool.icon] ?? "🔧"}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-bold text-xs text-foreground group-hover:text-primary transition-colors truncate">{tool.label}</h3>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2 mt-1">Open {tool.label}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
 
       </main>
 

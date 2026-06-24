@@ -134,14 +134,19 @@ const imageEntries = [
   { page: "/",         loc: "/logo.svg",                title: "FileNova Logo SVG" },
   // Tool mockups
   { page: "/aadhaar-mask-pdf",   loc: "/aadhaar_mask_mockup.png",      title: "Aadhaar Masking Tool Preview" },
+  { page: "/aadhaar-mask",       loc: "/aadhaar_mask_mockup.png",      title: "Aadhaar Masking Tool Preview" },
   { page: "/pan-card-resize",    loc: "/portal_photo_resize_guide.png", title: "PAN Card Photo Resizer Preview" },
   { page: "/resize-photo",       loc: "/photo_resize_mockup.png",       title: "Resize Photo for Scholarship Form Preview" },
-  { page: "/remove-background",  loc: "/document_processing_mockup.png", title: "AI Background Remover Preview" },
+  { page: "/resize-image",       loc: "/photo_resize_mockup.png",       title: "Resize Image Online Free Preview" },
   { page: "/compress-image",     loc: "/photo_resize_mockup.png",       title: "Compress Image Online Preview" },
+  { page: "/remove-background",  loc: "/document_processing_mockup.png", title: "AI Background Remover Preview" },
   { page: "/aadhaar-mask-pdf",   loc: "/aadhaar_privacy_guide.png",     title: "Aadhaar Privacy Guide" },
   // Payment/pricing
   { page: "/pricing",            loc: "/upi-qr.png",                    title: "UPI QR Code – FileNova Payment" },
   { page: "/pricing",            loc: "/upi-qr.jpeg",                   title: "UPI QR Code – FileNova Payment" },
+  // Blog and other
+  { page: "/blog/aadhaar-masking-privacy-india", loc: "/aadhaar_privacy_guide.png", title: "Aadhaar Privacy Guide" },
+  { page: "/blog/free-pdf-tools-students-india", loc: "/document_processing_mockup.png", title: "Free PDF Tools for Students" },
 ];
 
 // ── Generators ─────────────────────────────────────────────────────

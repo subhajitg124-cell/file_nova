@@ -47,6 +47,7 @@ const LazyImage: React.FC<{ src: string; alt: string; className?: string }> = ({
           className={`w-full h-full object-contain transition-opacity duration-300 ${
             isLoaded ? "opacity-100" : "opacity-0"
           }`}
+          loading="lazy"
         />
       ) : null}
       {!isLoaded && (

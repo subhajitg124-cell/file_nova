@@ -475,6 +475,8 @@ export function CheckoutModal() {
                       <img
                         src={createUpiQrUrl(discountedPrice)}
                         alt="UPI Payment QR Code"
+                        width="144"
+                        height="144"
                         className="w-36 h-36 border border-border rounded-lg shadow-sm"
                       />
                       <div className="text-center">

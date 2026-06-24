@@ -4,6 +4,38 @@
 
 ---
 
+## 2026-06-24 — Image Audit & Internal Linking Overhaul
+
+**Agent:** Opencode
+**Scope:** Image optimization across 20 components, toolContent.ts enrichment, per-tool OG images, seoBody cross-links, stale OG fix, image sitemap
+
+### Changes
+- **Fetchpriority optimization:** Added `fetchpriority="high"` to LCP-critical logo images in Navbar.tsx, LoadingScreen.tsx, and Home.tsx (hero area) for improved Largest Contentful Paint timing
+- **CLS fixes on dynamic images:**
+  - FileDropZone.tsx: Added `loading="lazy"` to PDF and image thumbnails
+  - PageThumbnailGrid.tsx: Added `loading="lazy"` to lazy-loaded page thumbnails
+  - AnimatedBanner.tsx: Added `loading="lazy"` to reduced-motion fallback image
+  - CheckoutModal.tsx: Added `width="144" height="144"` to UPI QR code image
+  - QRVerification.tsx: Added `width="192" height="192"` to generated QR code
+  - ReferralPage.tsx: Added `width="192" height="192"` to invite QR code image
+- **Stale OG image reference fixed:** `src/lib/seo.ts` changed from non-existent `og-image.png` to `opengraph.jpg`
+- **Per-tool custom OG images:** Added tool-specific `ogImage` fields to 7 toolMeta.ts entries using existing mockup images:
+  - `/aadhaar-mask-pdf`, `/aadhaar-mask` → `aadhaar_mask_mockup.png`
+  - `/pan-card-resize` → `portal_photo_resize_guide.png`
+  - `/resize-photo`, `/compress-image` → `photo_resize_mockup.png`
+  - `/remove-background` → `document_processing_mockup.png`
+  - `/pricing` → `upi-qr.png`
+- **seoBody internal linking (LinkifiedText):** Added `LinkifiedText` component in ToolPageLayout.tsx that converts `[Tool Name](tool-slug)` markdown syntax to clickable `<Link>` elements with `text-primary hover:underline` styling
+- **toolContent.ts enrichment:**
+  - Added seoBody cross-link sentences to all 21 tools using `[Tool Name](slug)` syntax (contextual internal links to related tools)
+  - Added `toolCategory: "document"` to `ai-pdf-summary` entry (was missing)
+  - Added 4th related tool to `compress-image` (JPG to PDF)
+  - Updated SLUG_CATEGORY map for `ai-pdf-summary` from `ocr` to `document`
+- **Image sitemap expanded:** Added 4 new entries to `scripts/update-sitemap.js` (`/aadhaar-mask`, `/resize-image`, blog entries)
+- **Verified:** `pnpm typecheck` passes, `pnpm build` succeeds with 82 pages prerendered
+
+---
+
 ## 2026-06-24 — Semantic HTML & Accessibility Audit
 
 **Agent:** Opencode

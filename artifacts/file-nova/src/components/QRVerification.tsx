@@ -203,6 +203,8 @@ function GenerateTab() {
               <img
                 src={qrCode.qrImage}
                 alt="Generated QR Code"
+                width="192"
+                height="192"
                 className="w-48 h-48 object-contain"
               />
             </div>

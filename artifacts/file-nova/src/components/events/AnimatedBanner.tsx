@@ -51,6 +51,7 @@ export function AnimatedBanner({ placement }: AnimatedBannerProps) {
         src={banner.reducedMotionFallback}
         alt={banner.altText}
         className="pointer-events-none select-none max-w-full h-auto mx-auto"
+        loading="lazy"
       />
     );
   }

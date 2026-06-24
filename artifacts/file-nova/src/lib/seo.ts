@@ -72,7 +72,7 @@ export function setPageMeta({ title, description, canonical, keywords, jsonLd }:
   upsertMeta("property", "og:description", description);
   upsertMeta("property", "og:type", "website");
   upsertMeta("property", "og:site_name", "FileNova");
-  upsertMeta("property", "og:image", "https://filenova.in/og-image.png");
+  upsertMeta("property", "og:image", "https://filenova.in/opengraph.jpg");
 
   // Twitter card
   upsertMeta("name", "twitter:card", "summary_large_image");

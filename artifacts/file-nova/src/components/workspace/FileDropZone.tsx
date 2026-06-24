@@ -79,6 +79,7 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
           src={pdfMeta[file.name].thumbnail!}
           alt="PDF thumb"
           className="h-full w-full object-cover rounded"
+          loading="lazy"
         />
       );
     }
@@ -88,6 +89,7 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
           src={URL.createObjectURL(file)}
           alt="Image thumb"
           className="h-full w-full object-cover rounded"
+          loading="lazy"
         />
       );
     }

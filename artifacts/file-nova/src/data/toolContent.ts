@@ -50,6 +50,7 @@ export const toolContentMap: Record<string, ToolContent> = {
       "FileNova's free PDF merger lets you upload multiple PDF files, arrange them in any order using drag-and-drop, and download the merged result instantly. No account creation, no watermarks, no file size tricks.",
       "This tool is especially useful for Indian users who need to combine documents for government portal submissions — like clubbing your Aadhaar, PAN, and income proof into a single PDF for scholarship or loan applications.",
       "All files are processed securely in your browser or on our encrypted servers, and permanently deleted after download. FileNova never stores your documents.",
+      "After merging, you might also need to [Compress PDF](compress-pdf) for reducing file size or [Split PDF](split-pdf) to extract specific pages from the combined file.",
     ],
     faqs: [
       {
@@ -104,6 +105,7 @@ export const toolContentMap: Record<string, ToolContent> = {
       "Choose from three split modes: split every page into a separate PDF, split by page ranges (e.g. pages 1–5, 6–12), or extract specific individual pages. Download all output files as a ZIP.",
       "This is especially handy for Indian students and professionals who receive combined mark sheets, certificates, or government letters in a single PDF and need to share specific pages separately.",
       "No installation required. Works entirely in your browser on any device — Android phone, iPhone, Windows PC, or Mac.",
+      "After splitting, you can [Merge PDF](merge-pdf) to combine relevant pages back together, or [Compress PDF](compress-pdf) to reduce individual file sizes.",
     ],
     faqs: [
       {
@@ -154,6 +156,7 @@ export const toolContentMap: Record<string, ToolContent> = {
       "FileNova's PDF compressor intelligently reduces file size by optimizing embedded images, removing redundant metadata, and compressing fonts — while preserving the readability of your document.",
       "You can choose your compression level: Low (best quality), Medium (balanced), or High (smallest file size). For most government document uploads, Medium compression will bring a 2–3MB PDF down to under 500KB.",
       "No watermarks. No quality surprise. No account needed. Just upload, compress, and download.",
+      "Need more file size control? Try [Compress for Upload](compress-pdf-for-upload) to hit an exact KB target, or [Merge PDF](merge-pdf) to combine multiple compressed files.",
     ],
     faqs: [
       {
@@ -204,6 +207,7 @@ export const toolContentMap: Record<string, ToolContent> = {
       "This is essential for editing scanned government letters, updating resume PDFs, or repurposing report content without retyping everything from scratch.",
       "FileNova uses advanced layout analysis to preserve multi-column layouts, embedded tables, bullet points, and headings — giving you a Word document that closely mirrors the original PDF structure.",
       "Works with Hindi and regional language PDFs too (Unicode-supported fonts). Converted files can be opened directly in MS Word, LibreOffice, or uploaded to Google Docs.",
+      "For scanned PDFs that need text extraction first, try our [OCR](ocr) tool, or [Compress PDF](compress-pdf) to reduce the converted file size.",
     ],
     faqs: [
       {
@@ -254,6 +258,7 @@ export const toolContentMap: Record<string, ToolContent> = {
       "FileNova converts each page of your PDF to a separate JPG or PNG image at your chosen resolution — 72 DPI for web use or 300 DPI for print-quality output.",
       "Indian users frequently need this for uploading signature pages, certificates, or photo IDs as image files for scholarship portals, bank KYC, or college admissions.",
       "All pages are converted in bulk and available as individual downloads or packaged in a ZIP file for convenience.",
+      "After converting to images, use [Remove Background](remove-background) to clean up photos, or [Compress Image](compress-image) to reduce file sizes for portal uploads.",
     ],
     faqs: [
       {
@@ -299,6 +304,7 @@ export const toolContentMap: Record<string, ToolContent> = {
       "Need to send multiple scanned photos or images as a single PDF document? FileNova's JPG to PDF converter lets you upload multiple images and combine them into one professional PDF in seconds.",
       "Supports JPG, PNG, WebP, and BMP formats. You can reorder the images before converting, and choose the output page size — A4, Letter, or auto-fit to image dimensions.",
       "This is the go-to tool for Indian students scanning handwritten assignments, or anyone needing to submit photo proofs as a single PDF to government portals, colleges, or employers.",
+      "After converting to PDF, use [Compress PDF](compress-pdf) to reduce the file size, or [Merge PDF](merge-pdf) to combine with other documents before submission.",
     ],
     faqs: [
       {
@@ -344,6 +350,7 @@ export const toolContentMap: Record<string, ToolContent> = {
       "Scanned documents often end up with pages rotated the wrong way. FileNova's Rotate PDF tool lets you fix any page orientation without converting or editing the content.",
       "Rotate all pages at once, or select individual pages to rotate in different directions. Supports 90°, 180°, and 270° rotations clockwise and counter-clockwise.",
       "Particularly useful when you've scanned physical documents using your phone camera and some pages are landscape while others are portrait.",
+      "After fixing the orientation, you may want to [Compress PDF](compress-pdf) to reduce file size or [Split PDF](split-pdf) to extract specific pages.",
     ],
     faqs: [
       {
@@ -385,6 +392,7 @@ export const toolContentMap: Record<string, ToolContent> = {
       "Received a password-protected PDF and need to save it without the password prompt? FileNova's Unlock PDF tool removes restrictions from PDFs once you provide the correct password.",
       "This is completely legal — you're simply decrypting a file you're authorized to access. Common use cases include bank statements, salary slips, and government letters that are automatically password-protected.",
       "Note: FileNova does not crack or brute-force unknown passwords. You must provide the correct password — we simply remove the lock so you don't have to enter it every time.",
+      "After unlocking, you can [Protect PDF](protect-pdf) with a new password or [Compress PDF](compress-pdf) to reduce the file size.",
     ],
     faqs: [
       {
@@ -430,6 +438,7 @@ export const toolContentMap: Record<string, ToolContent> = {
       "Need to share a sensitive document but want to control who can open it? FileNova's Protect PDF tool lets you add a password to any PDF so it can only be opened by people who know the password.",
       "You can set an 'open' password (required to view the file) and/or a permissions password (to restrict printing, copying, or editing). Ideal for salary slips, legal agreements, and personal documents.",
       "The encryption used is AES 128-bit, the same standard used by banks and government portals across India.",
+      "After protecting, you might also want to [Compress PDF](compress-pdf) to reduce size or [Unlock PDF](unlock-pdf) to remove protection when no longer needed.",
     ],
     faqs: [
       {
@@ -471,6 +480,7 @@ export const toolContentMap: Record<string, ToolContent> = {
       "PDF page size mismatches cause printing issues and look unprofessional when submitting documents. FileNova's Resize PDF tool lets you convert any PDF to a standard page size — A4, A3, Letter, or custom dimensions.",
       "This is particularly useful when you have a PDF exported from a web page or design tool with odd dimensions and need it in A4 format for printing or government submission.",
       "Content is automatically scaled or repositioned to fit the new page size. You can choose to scale content proportionally or maintain its original size within the new page.",
+      "After resizing, you can [Compress PDF](compress-pdf) to reduce file size or [Rotate PDF](rotate-pdf) to fix page orientation.",
     ],
     faqs: [
       {
@@ -514,6 +524,7 @@ export const toolContentMap: Record<string, ToolContent> = {
       "FileNova's PAN Card Photo Resizer lets you upload any photo and instantly crop and resize it to the exact PAN card specifications. You get a live preview before downloading, so you know exactly what you're submitting.",
       "This tool is especially useful for first-time PAN card applicants, name-change applications, and duplicate PAN card requests where fresh photos are needed. Works on Android phone photos, selfies, or scanned photographs.",
       "No photography studio visit needed. Upload your photo, adjust the crop, and download the correctly sized image — ready to attach to your PAN application form.",
+      "Need to also resize your signature or other documents? Try [Resize Image](resize-image) for custom dimensions or [Compress Image](compress-image) to meet file size limits.",
     ],
     faqs: [
       {
@@ -569,6 +580,7 @@ export const toolContentMap: Record<string, ToolContent> = {
       "FileNova's Aadhaar Masking tool automatically detects the Aadhaar number in your uploaded PDF and masks the first 8 digits as per UIDAI guidelines. The output is a UIDAI-compliant masked Aadhaar PDF that is safe to share with landlords, employers, portals, and third-party service providers.",
       "This tool is completely offline-processed in your browser — your Aadhaar data never leaves your device. There is zero risk of your Aadhaar number being logged or stored.",
       "Accepted at most Indian portals, banks, and KYC processes that ask for a 'masked Aadhaar' or 'partially masked Aadhaar' as identity proof.",
+      "After masking, [Compress PDF](compress-pdf) your Aadhaar for portal uploads, or use [Government Form Fill](government-form-fill) to fill supporting application forms.",
     ],
     faqs: [
       {
@@ -620,6 +632,7 @@ export const toolContentMap: Record<string, ToolContent> = {
       "FileNova's Government Form Fill tool lets you upload any fillable PDF form and type directly into the fields on your browser — no software download, no Acrobat license needed. Save and download the filled form as a PDF ready for submission.",
       "We also maintain a library of pre-loaded common government forms so you can start filling immediately without searching for the right form on government websites.",
       "Supports Hindi, Bengali, Tamil, Telugu, and other regional language forms with Unicode text input. Download filled forms as print-ready PDFs.",
+      "After filling your form, [Compress PDF](compress-pdf-for-upload) it to meet portal size limits, or use [Aadhaar Mask PDF](aadhaar-mask-pdf) to secure personal data before sharing.",
     ],
     faqs: [
       {
@@ -667,6 +680,7 @@ export const toolContentMap: Record<string, ToolContent> = {
       "FileNova's upload-focused compressor lets you set a target file size rather than a compression level. Just enter '200 KB' as your target, upload your PDF, and the tool will automatically find the right compression ratio to get your file under that threshold.",
       "This eliminates the frustrating trial-and-error of adjusting compression manually and re-uploading until your file meets the portal's limit.",
       "Supports all PDF types — scanned documents, photo collages, certificate PDFs, and text-heavy application forms.",
+      "After compressing, you can [Merge PDF](merge-pdf) multiple files into one or use [Scholarship ZIP](scholarship-zip) to bundle all documents for submission.",
     ],
     faqs: [
       {
@@ -712,6 +726,7 @@ export const toolContentMap: Record<string, ToolContent> = {
       "Scanned documents are images — they look like PDFs but the text inside them isn't selectable or searchable. OCR (Optical Character Recognition) solves this by analyzing the image and extracting actual text.",
       "FileNova's OCR tool processes your scanned PDF and returns a searchable, copy-paste-friendly PDF where the text is recognized and embedded as actual text characters.",
       "Supports English and a growing list of Indian regional languages including Hindi, Bengali, Tamil, and Telugu.",
+      "After extracting text, use [AI PDF Summary](ai-pdf-summary) to get a summary or [PDF to Word](pdf-to-word) to create an editable document from the recognized text.",
     ],
     faqs: [
       {
@@ -752,6 +767,7 @@ export const toolContentMap: Record<string, ToolContent> = {
     seoBody: [
       "Remove backgrounds from photos instantly — no Photoshop, no design skills needed. FileNova's AI-powered background remover works on portraits, product photos, ID photos, and more.",
       "Especially useful for creating passport-size photos with a white background for PAN card, passport, Aadhaar, or college admission applications.",
+      "After removing the background, [Resize Image](resize-image) to the right dimensions, or use [JPG to PDF](jpg-to-pdf) to convert to a PDF document.",
     ],
     faqs: [
       {
@@ -792,6 +808,7 @@ export const toolContentMap: Record<string, ToolContent> = {
     seoBody: [
       "Reading a 50-page PDF report? Let AI do it for you. FileNova's AI PDF Summary tool reads your document and returns a structured summary with the key points, arguments, and conclusions — saving you hours.",
       "Useful for students summarizing textbook chapters, professionals reading research papers, and anyone who needs the gist of a document fast.",
+      "After summarizing, use [OCR](ocr) to extract text from scanned PDFs or [PDF to Word](pdf-to-word) to create an editable document.",
     ],
     faqs: [
       {
@@ -809,6 +826,7 @@ export const toolContentMap: Record<string, ToolContent> = {
       { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
       { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
     ],
+    toolCategory: "document",
   },
 
   "scholarship-zip": {
@@ -826,6 +844,7 @@ export const toolContentMap: Record<string, ToolContent> = {
     seoBody: [
       "Scholarship portals like NSP (National Scholarship Portal), state scholarship portals, and private foundations often require you to upload multiple documents at once. FileNova's Scholarship ZIP tool bundles all your documents into a single ZIP file formatted for these portals.",
       "Upload your Aadhaar card, marksheets, income certificate, caste certificate, and bonafide certificate — FileNova renames and organizes them in the correct format and packages them into a download-ready ZIP.",
+      "After bundling, [Mask Aadhaar](aadhaar-mask-pdf) to protect your privacy or [Compress PDF](compress-pdf-for-upload) each document for portal size limits.",
     ],
     faqs: [
       {
@@ -871,6 +890,7 @@ export const toolContentMap: Record<string, ToolContent> = {
       "Whether you need to resize a photo for social media, shrink an image for a website, or reduce file size for email attachment, FileNova's image resizer handles it all in seconds.",
       "Upload any JPG, PNG, or WebP image and set custom dimensions. The aspect ratio lock ensures your image doesn't get distorted. You can also adjust quality to balance file size and visual fidelity.",
       "Perfect for Indian users who need passport-size photos, profile pictures, or documents resized for government portal uploads.",
+      "After resizing, [Compress Image](compress-image) to reduce file size or [Remove Background](remove-background) for a cleaner look.",
     ],
     faqs: [
       {
@@ -935,7 +955,8 @@ export const toolContentMap: Record<string, ToolContent> = {
     relatedTools: [
       { label: "Resize Image", slug: "resize-image", icon: "resize" },
       { label: "PAN Card Resize", slug: "pan-card-resize", icon: "credit-card" },
-      { label: "Remove Background", slug: "remove-background", icon: "eraser" }
+      { label: "Remove Background", slug: "remove-background", icon: "eraser" },
+      { label: "JPG to PDF", slug: "jpg-to-pdf", icon: "photo" },
     ],
     steps: [
       { title: "Upload your image", description: "Select or drag and drop your JPEG, PNG, or WebP photo into the workspace.", icon: "upload" },
@@ -961,6 +982,7 @@ export const toolContentMap: Record<string, ToolContent> = {
       "Need to share a Word document that looks the same on every device? FileNova's Word to PDF converter transforms your DOC or DOCX files into professional PDFs that preserve fonts, images, tables, and page layout exactly.",
       "This is essential for submitting resumes, assignments, reports, or government forms where you need guaranteed formatting. PDFs opened on any device look identical to the original.",
       "Works with files created in MS Word, Google Docs, LibreOffice Writer, or any word processor that exports DOCX. Batch convert multiple documents at once with Pro.",
+      "After converting to PDF, you can [Compress PDF](compress-pdf) to reduce size or [Merge PDF](merge-pdf) with other documents before submission.",
     ],
     faqs: [
       {
