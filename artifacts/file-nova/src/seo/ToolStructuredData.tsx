@@ -2,6 +2,7 @@ import { useHead } from "@unhead/react";
 import { useLocation } from "wouter";
 import { TOOL_META } from "./toolMeta";
 import { toolContentMap } from "@/data/toolContent";
+import { blogPosts } from "@/data/blogPosts";
 
 const SITE_URL = "https://filenova.in";
 
@@ -103,7 +104,31 @@ export function ToolStructuredData() {
     });
   }
 
-  // 3. FAQPage schema from toolContent.faqs (supplements ToolSEO jsonLdFaq)
+  // 3. Article schema for blog posts
+  if (pathname.startsWith("/blog/")) {
+    const post = blogPosts.find((p) => pathname === `/blog/${p.slug}`);
+    if (post) {
+      const articleSchema = {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: post.title,
+        description: post.description,
+        datePublished: post.date,
+        dateModified: post.date,
+        author: { "@type": "Organization", name: "FileNova", url: SITE_URL },
+        publisher: { "@type": "Organization", name: "FileNova", url: SITE_URL },
+        image: `${SITE_URL}${post.thumbnail}`,
+        mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE_URL}${pathname}` },
+      };
+      scripts.push({
+        key: "ld-article",
+        type: "application/ld+json",
+        innerHTML: JSON.stringify(articleSchema),
+      });
+    }
+  }
+
+  // 4. FAQPage schema from toolContent.faqs (supplements ToolSEO jsonLdFaq)
   if (content?.faqs && content.faqs.length > 0) {
     const existingFaqKeys = new Set(
       (meta.jsonLdFaq ?? []).map((f) => f.question.trim().toLowerCase())

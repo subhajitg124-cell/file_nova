@@ -58,6 +58,28 @@ app.use(
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(cookieParser());
 
+// ── SEO: HTTP → HTTPS redirect ──────────────────────────────────────────────────
+app.use((req, res, next) => {
+  if (process.env.NODE_ENV === "production" && req.headers["x-forwarded-proto"] !== "https" && req.protocol !== "https") {
+    return res.redirect(301, `https://${req.hostname}${req.originalUrl}`);
+  }
+  next();
+});
+
+// ── SEO: 301 redirects for legacy/alias URLs ────────────────────────────────────
+app.use((req, res, next) => {
+  const legacyMap: Record<string, string> = {
+    "/ocr-pdf": "/ocr",
+    "/pdf-merge": "/merge-pdf",
+    "/image-to-pdf": "/jpg-to-pdf",
+    "/pdf-to-image": "/pdf-to-jpg",
+    "/resize-image": "/resize-photo",
+  };
+  const target = legacyMap[req.path];
+  if (target) return res.redirect(301, target);
+  next();
+});
+
 // ── Health endpoints BEFORE authMiddleware (for load balancer probes) ───────────
 app.use("/api", healthRouter);
 app.use(sitemapRouter);

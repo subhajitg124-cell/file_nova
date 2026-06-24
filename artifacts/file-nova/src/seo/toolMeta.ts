@@ -282,6 +282,46 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogDescription: "Resize images to exact pixel dimensions for passports, scholarships, and government portals. No upload needed.",
   },
 
+  "/ocr-pdf": {
+    title: "OCR PDF Online Free – Extract Text from Scanned PDF | FileNova",
+    description: "Extract text from scanned PDF documents online free. Supports Hindi, Bengali, Tamil, English OCR. Browser-based, no upload needed.",
+    canonical: "https://filenova.in/ocr",
+    keywords: "ocr pdf online free, extract text from scanned pdf, pdf ocr free, hindi ocr pdf, bengali ocr",
+    ogImage: OG_DEFAULT,
+    ogTitle: "OCR PDF Online Free | FileNova",
+    ogDescription: "Extract text from scanned PDFs online free. Supports Hindi, Bengali, Tamil, English OCR.",
+  },
+
+  "/pdf-merge": {
+    title: "PDF Merge Free Online – Combine PDF Files | FileNova",
+    description: "Merge multiple PDF files into one online free. Combine marksheets, certificates, and documents instantly. No account required. Fast PDF merger.",
+    canonical: "https://filenova.in/merge-pdf",
+    keywords: "pdf merge free, combine pdf files online, merge pdf documents, pdf joiner free, combine marksheets",
+    ogImage: OG_DEFAULT,
+    ogTitle: "PDF Merge Free Online | FileNova",
+    ogDescription: "Merge multiple PDFs into one file free online. Combine certificates and documents instantly.",
+  },
+
+  "/image-to-pdf": {
+    title: "Image to PDF Converter Free Online | FileNova",
+    description: "Convert JPG, PNG images to PDF online free. Combine multiple photos into one PDF for scholarship and government portal submissions.",
+    canonical: "https://filenova.in/jpg-to-pdf",
+    keywords: "image to pdf free, convert photo to pdf, jpg to pdf online, multiple images to pdf, picture to pdf",
+    ogImage: OG_DEFAULT,
+    ogTitle: "Image to PDF Converter Free Online | FileNova",
+    ogDescription: "Convert JPG, PNG images to PDF online free. Combine photos into one PDF for portal submissions.",
+  },
+
+  "/pdf-to-image": {
+    title: "PDF to Image Converter Free Online | FileNova",
+    description: "Convert PDF pages to JPG or PNG images online free. Extract all pages or specific pages as separate image files for certificates and uploads.",
+    canonical: "https://filenova.in/pdf-to-jpg",
+    keywords: "pdf to image free, convert pdf to jpg, pdf page to png, extract pdf as image, pdf to picture converter",
+    ogImage: OG_DEFAULT,
+    ogTitle: "PDF to Image Converter Free Online | FileNova",
+    ogDescription: "Convert PDF pages to JPG or PNG images online free. Extract pages for certificates and portal uploads.",
+  },
+
   "/compress-image": {
     title: "Compress Image Online Free – Reduce Photo Size | FileNova",
     description: "Compress JPEG, PNG, WebP images online free in your browser. Reduce photo file size below 50KB or 100KB for scholarship portal, job application, or email. No upload needed.",

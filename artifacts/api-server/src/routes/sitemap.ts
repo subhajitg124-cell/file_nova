@@ -60,13 +60,24 @@ const SITEMAP_URLS: SitemapUrl[] = [
 
   // Static Pages
   { loc: "/pricing",                               changefreq: "weekly", priority: 0.9 },
+  { loc: "/premium",                               changefreq: "weekly", priority: 0.8 },
   { loc: "/blog",                                  changefreq: "daily",  priority: 0.85 },
   { loc: "/resources",                             changefreq: "weekly", priority: 0.8 },
   { loc: "/contact",                               changefreq: "monthly",priority: 0.7 },
   { loc: "/student-offer",                         changefreq: "weekly", priority: 0.8 },
+  { loc: "/referral",                              changefreq: "monthly",priority: 0.6 },
   { loc: "/privacy",                               changefreq: "monthly",priority: 0.5 },
   { loc: "/terms",                                 changefreq: "monthly",priority: 0.5 },
   { loc: "/cookie-policy",                         changefreq: "monthly",priority: 0.4 },
+
+  // Blog Posts
+  { loc: "/blog/compress-pdf-free-online",          changefreq: "monthly", priority: 0.7 },
+  { loc: "/blog/merge-pdf-files-online",            changefreq: "monthly", priority: 0.7 },
+  { loc: "/blog/image-to-pdf-mobile",               changefreq: "monthly", priority: 0.7 },
+  { loc: "/blog/free-pdf-tools-students-india",     changefreq: "monthly", priority: 0.7 },
+  { loc: "/blog/fill-aadhaar-form-online",          changefreq: "monthly", priority: 0.7 },
+  { loc: "/blog/aadhaar-masking-privacy-india",     changefreq: "monthly", priority: 0.7 },
+  { loc: "/blog/optimize-photos-indian-portals",    changefreq: "monthly", priority: 0.7 },
 ];
 
 function buildSitemapXml(urls: SitemapUrl[]): string {

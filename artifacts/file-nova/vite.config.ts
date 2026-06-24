@@ -170,7 +170,14 @@ export default defineConfig(() => {
           "/tools/video-to-gif",
           "/tools/compress-audio",
           "/tools/passport-photo",
-          "/tools/signature-resize"
+          "/tools/signature-resize",
+          "/blog/compress-pdf-free-online",
+          "/blog/merge-pdf-files-online",
+          "/blog/image-to-pdf-mobile",
+          "/blog/free-pdf-tools-students-india",
+          "/blog/fill-aadhaar-form-online",
+          "/blog/aadhaar-masking-privacy-india",
+          "/blog/optimize-photos-indian-portals"
         ]
       }),
       {
