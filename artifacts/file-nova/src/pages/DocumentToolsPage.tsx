@@ -6,6 +6,8 @@ import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { ChevronRight, ArrowRight, Shield, Lock, FileText } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n';
+import { ToolSEO } from '@/seo/ToolSEO';
+import { ToolStructuredData } from '@/seo/ToolStructuredData';
 
 const officeTools = TOOLS.filter(t => t.category === 'office');
 
@@ -14,6 +16,9 @@ export const DocumentToolsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen fn-aurora-bg text-foreground font-sans relative overflow-hidden">
+      <ToolSEO />
+      <ToolStructuredData />
+
       {/* Background grid and radial glow */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none z-0 opacity-70" />
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.06),transparent_65%)] pointer-events-none z-0" />
@@ -93,9 +98,9 @@ export const DocumentToolsPage: React.FC = () => {
                     <div className="h-12 w-12 rounded-xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform mb-4">
                       <Icon className="h-6 w-6" />
                     </div>
-                    <h2 className="font-bold text-sm text-foreground mb-1.5 group-hover:text-brand-primary transition-colors">
+                    <h3 className="font-bold text-sm text-foreground mb-1.5 group-hover:text-brand-primary transition-colors">
                       {tool.title}
-                    </h2>
+                    </h3>
                     <p className="text-xs text-muted-foreground leading-relaxed mb-4">
                       {tool.description}
                     </p>

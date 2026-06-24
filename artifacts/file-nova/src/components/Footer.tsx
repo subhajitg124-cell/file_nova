@@ -88,7 +88,7 @@ const Footer: React.FC = memo(() => {
   return (
     <footer className="bg-card text-card-foreground border-t border-border relative z-10">
       <div className="max-w-6xl mx-auto px-4 py-16">
-         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
           {/* Brand */}
           <div className="col-span-1 sm:col-span-2 lg:col-span-1">
             <div className="flex items-center gap-3 mb-4">
@@ -135,6 +135,38 @@ const Footer: React.FC = memo(() => {
                 </svg>
               </a>
             </div>
+          </div>
+
+          {/* Tool Categories */}
+          <div>
+            <h4 className="font-semibold mb-4 text-foreground">{tText("Tool Suites")}</h4>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link href="/pdf-tools" className="text-muted-foreground hover:text-primary transition-colors">
+                  {tText("PDF Suite")}
+                </Link>
+              </li>
+              <li>
+                <Link href="/image-tools" className="text-muted-foreground hover:text-primary transition-colors">
+                  {tText("Image Lab")}
+                </Link>
+              </li>
+              <li>
+                <Link href="/document-tools" className="text-muted-foreground hover:text-primary transition-colors">
+                  {tText("Document Suite")}
+                </Link>
+              </li>
+              <li>
+                <Link href="/video-tools" className="text-muted-foreground hover:text-primary transition-colors">
+                  {tText("Video Studio")}
+                </Link>
+              </li>
+              <li>
+                <Link href="/india-tools" className="text-muted-foreground hover:text-primary transition-colors">
+                  {tText("India Presets")}
+                </Link>
+              </li>
+            </ul>
           </div>
 
           {/* Quick Links */}

@@ -1,8 +1,11 @@
 import React, { useEffect } from "react";
 import { useFileStore } from "@/store/useFileStore";
 import CompressDocWorkspace from "@/tools/office/CompressDocWorkspace";
+import { ToolPageLayout } from "@/components/ToolPageLayout";
 
 export default function CompressDocPage() {
+  const { files } = useFileStore();
+
   useEffect(() => {
     const store = useFileStore.getState();
     if (!window.history.state?.droppedFile) {
@@ -12,5 +15,9 @@ export default function CompressDocPage() {
     store.setOperation("compress");
   }, []);
 
-  return <CompressDocWorkspace />;
+  if (files.length > 0) {
+    return <CompressDocWorkspace />;
+  }
+
+  return <ToolPageLayout slug="compress-doc" />;
 }

@@ -1,13 +1,15 @@
 import React from 'react';
 import { Link } from 'wouter';
-import { BackHomeBar } from '@/components/BackHomeBar';
 import { motion } from 'framer-motion';
 import {
   Fingerprint, CreditCard, FileCheck2, UploadCloud, GraduationCap,
   ArrowRight, Shield, Lock, ChevronRight
 } from 'lucide-react';
-import { useSEO } from '@/hooks/useSEO';
 import { useTranslation } from '@/lib/i18n';
+import { Navbar } from '@/components/Navbar';
+import { Footer } from '@/components/Footer';
+import { ToolSEO } from '@/seo/ToolSEO';
+import { ToolStructuredData } from '@/seo/ToolStructuredData';
 
 const indiaTools = [
   {
@@ -65,24 +67,18 @@ const indiaTools = [
 export default function IndiaToolsPage() {
   const { tText } = useTranslation();
 
-  useSEO({
-    title: 'Made for India – Aadhaar, PAN, Scholarship & Government PDF Tools | FileNova',
-    description: 'Free online PDF tools built for Indian government portals. Mask Aadhaar, resize PAN photos, fill government forms, compress for IRCTC/NSP, and create scholarship ZIP files — all processed in your browser.',
-    canonical: 'https://filenova.in/india-tools',
-    keywords: 'aadhaar mask pdf, pan card photo resize, government form fill, compress pdf for upload, scholarship zip, india pdf tools, nsdl photo size, svmcm zip, oasis portal, irctc upload',
-    isHomepage: false,
-  });
-
   return (
     <div className="min-h-screen fn-aurora-bg text-foreground font-sans relative overflow-hidden">
+      <ToolSEO />
+      <ToolStructuredData />
+
       {/* Background */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none z-0 opacity-70" />
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.08),transparent_65%)] pointer-events-none z-0" />
 
-      <main className="max-w-5xl mx-auto px-4 py-12 relative z-10 space-y-12">
-        {/* Back Navigation */}
-        <BackHomeBar />
+      <Navbar />
 
+      <main className="max-w-5xl mx-auto px-4 py-12 relative z-10 space-y-12">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider" aria-label="Breadcrumb">
           <Link href="/" className="hover:text-primary transition-colors">Home</Link>
@@ -162,9 +158,9 @@ export default function IndiaToolsPage() {
                       </span>
                     )}
                   </div>
-                  <h2 className="font-bold text-base text-foreground mb-1.5 group-hover:text-brand-primary transition-colors">
+                  <h3 className="font-bold text-base text-foreground mb-1.5 group-hover:text-brand-primary transition-colors">
                     {tool.title}
-                  </h2>
+                  </h3>
                   <p className="text-xs text-muted-foreground leading-relaxed mb-4">
                     {tool.description}
                   </p>
@@ -246,6 +242,8 @@ export default function IndiaToolsPage() {
           </div>
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 }

@@ -381,56 +381,6 @@ export const TOOL_META: Record<string, ToolMeta> = {
 
   // ─── STATIC PAGES ─────────────────────────────────────────────────────────
 
-  "/tools": {
-    title: "All Tools – 30+ Free Online Document Tools | FileNova",
-    description: "Browse all 30+ free online document tools by FileNova. PDF merge, compress, split, OCR, image editing, AI tools, and India-specific tools for Aadhaar, PAN, and scholarships.",
-    canonical: "https://filenova.in/tools",
-    keywords: "all tools, pdf tools, image tools, document tools, free online tools, aadhaar tools, india document tools, file tools",
-    ogImage: OG_DEFAULT,
-    ogTitle: "All Tools – 30+ Free Online Document Tools | FileNova",
-    ogDescription: "Browse 30+ free online document tools. PDF merge, compress, split, OCR, image editing, AI tools, and India-specific tools.",
-  },
-
-  "/pdf-tools": {
-    title: "PDF Tools – Merge, Compress, Convert PDF Online Free | FileNova",
-    description: "Free online PDF tools by FileNova. Merge PDF, compress PDF, split PDF, PDF to Word, JPG to PDF, protect PDF, unlock PDF, rotate PDF, and more. Browser-based, no upload.",
-    canonical: "https://filenova.in/pdf-tools",
-    keywords: "pdf tools, merge pdf, compress pdf, split pdf, pdf to word, pdf to jpg, jpg to pdf, protect pdf, unlock pdf, rotate pdf",
-    ogImage: OG_DEFAULT,
-    ogTitle: "PDF Tools – Merge, Compress, Convert PDF Online | FileNova",
-    ogDescription: "Free online PDF tools. Merge, compress, split, convert PDFs. Browser-based, no upload, no account required.",
-  },
-
-  "/image-tools": {
-    title: "Image Tools – Resize, Compress, Edit Images Free | FileNova",
-    description: "Free online image tools by FileNova. Resize photos, compress images, remove background, convert formats. Browser-based, files never uploaded. Perfect for passport photos and scholarships.",
-    canonical: "https://filenova.in/image-tools",
-    keywords: "image tools, resize image, compress image, remove background, photo editor, image converter, free image tools india",
-    ogImage: OG_DEFAULT,
-    ogTitle: "Image Tools – Resize, Compress, Edit Images Free | FileNova",
-    ogDescription: "Free online image tools. Resize, compress, remove background, convert formats. No upload needed. Perfect for passport photos.",
-  },
-
-  "/video-tools": {
-    title: "Video & Audio Tools – Trim, Compress, Convert Free | FileNova",
-    description: "Free online video and audio tools by FileNova. Trim videos, compress MP4, extract audio, convert video to GIF, compress audio files. Browser-based processing.",
-    canonical: "https://filenova.in/video-tools",
-    keywords: "video tools, audio tools, trim video, compress mp4, extract audio, video to gif, compress audio, free video editor online",
-    ogImage: OG_DEFAULT,
-    ogTitle: "Video & Audio Tools – Trim, Compress, Convert Free | FileNova",
-    ogDescription: "Free video and audio tools. Trim, compress, convert MP4, extract audio, video to GIF. Browser-based.",
-  },
-
-  "/document-tools": {
-    title: "Document Tools – Convert Word, Excel, PPT Free | FileNova",
-    description: "Free online document tools by FileNova. Convert DOCX to PDF, compress Word/Excel/PPT files, and more. Browser-based, no upload required.",
-    canonical: "https://filenova.in/document-tools",
-    keywords: "document tools, docx to pdf, word to pdf, compress docx, compress xlsx, compress pptx, office tools, free document converter",
-    ogImage: OG_DEFAULT,
-    ogTitle: "Document Tools – Convert Word, Excel, PPT Free | FileNova",
-    ogDescription: "Free online document tools. Convert DOCX to PDF, compress Word/Excel/PPT files. Browser-based, no upload needed.",
-  },
-
   "/pricing": {
     title: "FileNova Pricing – Affordable AI PDF Tools | ₹49/mo",
     description: "Choose the right FileNova plan for your needs. Free tier available. Basic ₹49/mo, Pro ₹99/mo, Elite ₹199/mo. Secure UPI and card payments. Bulk discounts for CSC and cyber cafes.",
@@ -579,6 +529,11 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogImage: OG_DEFAULT,
     ogTitle: "India-Specific Tools – Aadhaar, PAN, Scholarship | FileNova",
     ogDescription: "India-specific document tools. Mask Aadhaar, resize PAN, create scholarship ZIPs. Built for Indian students and professionals.",
+    jsonLdFaq: [
+      { question: "Which portals are these tools optimized for?", answer: "Our tools are pre-configured to match the exact file size, dimension, and formatting requirements of portals like NSDL PAN, NSP, SVMCM, OASIS, Mahadbt, IRCTC, and UIDAI." },
+      { question: "Does FileNova save my Aadhaar card number?", answer: "No. Aadhaar masking is executed entirely on your local machine using client-side WebAssembly. We never upload, transmit, view, or store any part of your Aadhaar card." },
+      { question: "How does the Scholarship ZIP Maker work?", answer: "It automatically names, checks, and organizes required documents (such as marksheets, income certificate, student photo, signature) into a single zip bundle matching specifications of the SVMCM, NSP, or OASIS portals." }
+    ],
   },
 
   "/workflows": {
@@ -620,6 +575,11 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogImage: OG_DEFAULT,
     ogTitle: "All Document, PDF & Image Tools Online | FileNova",
     ogDescription: "Explore 30+ secure, fast, and free PDF, image, and document tools. Local browser-based processing.",
+    jsonLdFaq: [
+      { question: "What tools does FileNova offer?", answer: "FileNova provides a comprehensive suite of 30+ document automation tools including PDF tools (Merge, Compress, Split, Convert), Image Lab (Resize, Compress, Background Removal), Document Suite (Word to PDF, AI PPT), Video Studio, and pre-configured India-specific tools." },
+      { question: "Are my files secure on FileNova?", answer: "Yes, 100%. FileNova uses local browser-based execution (via WebAssembly and Canvas APIs) to process your PDFs, images, and documents. Your confidential files never touch our servers." },
+      { question: "Do I need to pay or register an account?", answer: "No. All core features and utility tools are completely free to use with no account or registration required." }
+    ],
   },
 
   "/pdf-tools": {
