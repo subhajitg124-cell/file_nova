@@ -142,6 +142,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
 
   // Core UI States
   const [zoom, setZoom] = useState<number>(100);
+  const workspaceStartTime = useRef(Date.now());
   const [timelineLogs, setTimelineLogs] = useState<Array<{ time: string; text: string }>>([
     { time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), text: "Workspace initialized" }
   ]);
@@ -330,8 +331,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
       logAction(`Completed successfully. Output file: ${resultFile.name}`);
       toast.success("File processed successfully. Download ready!");
       
-      const startTime = timelineLogs[0]?.time ? new Date(`1970/01/01 ${timelineLogs[0].time}`).getTime() : Date.now();
-      const duration = Date.now() - startTime;
+      const duration = Date.now() - workspaceStartTime.current;
 
       trackEvent({ tool: slug, action: "process_complete", metadata: { duration } });
       
@@ -388,16 +388,6 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
         e.preventDefault();
         handleSaveSession();
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
-        e.preventDefault();
-        toast.info("Undo action triggered successfully.");
-        trackEvent({ tool: slug, action: "keyboard_undo" });
-      }
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "z") {
-        e.preventDefault();
-        toast.info("Redo action triggered successfully.");
-        trackEvent({ tool: slug, action: "keyboard_redo" });
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -1229,24 +1219,18 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                   <div className="flex items-center justify-between border-b border-border pb-3 text-xs text-muted-foreground shrink-0">
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => {
-                          toast.info("Undone");
-                          trackEvent({ tool: slug, action: "undo_click" });
-                        }}
-                        className="p-1 rounded hover:bg-muted transition cursor-pointer"
-                        title="Undo (Ctrl + Z)"
+                        className="p-1 rounded text-muted-foreground/30 cursor-not-allowed"
+                        title="Undo (Coming Soon)"
                         aria-label="Undo"
+                        disabled
                       >
                         <Undo2 className="h-3.5 w-3.5" />
                       </button>
                       <button
-                        onClick={() => {
-                          toast.info("Redone");
-                          trackEvent({ tool: slug, action: "redo_click" });
-                        }}
-                        className="p-1 rounded hover:bg-muted transition cursor-pointer"
-                        title="Redo (Ctrl + Shift + Z)"
+                        className="p-1 rounded text-muted-foreground/30 cursor-not-allowed"
+                        title="Redo (Coming Soon)"
                         aria-label="Redo"
+                        disabled
                       >
                         <Redo2 className="h-3.5 w-3.5" />
                       </button>
@@ -1636,10 +1620,18 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                         {/* Privacy badge in settings panel */}
                         <button
                           onClick={() => setPrivacyModalOpen(true)}
-                          className="w-full p-2.5 border border-emerald-500/20 rounded-xl bg-emerald-500/5 hover:bg-emerald-500/10 transition flex items-center gap-2 cursor-pointer"
+                          className={`w-full p-2.5 border rounded-xl transition flex items-center gap-2 cursor-pointer ${
+                            currentPlugin.capabilities.offlineReady
+                              ? "border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10"
+                              : "border-amber-500/20 bg-amber-500/5 hover:bg-amber-500/10"
+                          }`}
                         >
-                          <Shield className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                          <span className="text-[9px] font-bold text-emerald-400 text-left leading-tight">100% local processing — files never leave your browser</span>
+                          <Shield className={`h-3.5 w-3.5 shrink-0 ${currentPlugin.capabilities.offlineReady ? "text-emerald-400" : "text-amber-400"}`} />
+                          <span className={`text-[9px] font-bold text-left leading-tight ${currentPlugin.capabilities.offlineReady ? "text-emerald-400" : "text-amber-400"}`}>
+                            {currentPlugin.capabilities.offlineReady
+                              ? "100% local processing — files never leave your browser"
+                              : "Privacy notice — this tool uses server-side processing"}
+                          </span>
                         </button>
 
                         {/* Collapsible logs */}

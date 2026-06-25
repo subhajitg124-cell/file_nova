@@ -176,7 +176,7 @@ export const CompressPDFWorkspace: React.FC = () => {
 
     return [
       { label: "Original Size", value: originalStr },
-      { label: "Est. Output Size", value: resultStr },
+      { label: "Est. Output Size", value: `${resultStr} ~`, tone: "info" as const },
       { label: "Est. Saved %", value: savingsStr, tone: savingsTone }
     ];
   };

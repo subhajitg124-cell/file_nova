@@ -90,10 +90,12 @@ export const CompressImageWorkspace: React.FC = () => {
       else if (targetFormat === "png") mimeType = "image/png";
 
       const img = new Image();
-      img.src = URL.createObjectURL(file);
+      const objectUrl = URL.createObjectURL(file);
+      img.src = objectUrl;
 
       await new Promise<void>((resolve, reject) => {
         img.onload = () => {
+          URL.revokeObjectURL(objectUrl);
           const canvas = document.createElement("canvas");
           canvas.width = img.width;
           canvas.height = img.height;

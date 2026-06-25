@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ToolWorkspace } from "@/components/workspace/ToolWorkspace";
 import { PreviewPanel } from "@/components/workspace/PreviewPanel";
 import { useToolProcessor } from "@/hooks/useToolProcessor";
-import { FileText, ArrowRight } from "lucide-react";
+import { FileText } from "lucide-react";
 
 export const PdfToWordWorkspace: React.FC = () => {
   const {

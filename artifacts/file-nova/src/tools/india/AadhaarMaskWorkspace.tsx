@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { ToolWorkspace } from "@/components/workspace/ToolWorkspace";
 import { PreviewPanel } from "@/components/workspace/PreviewPanel";
 import { useToolProcessor } from "@/hooks/useToolProcessor";
-import { Shield, Eye, Settings, HelpCircle } from "lucide-react";
+import { Shield, Eye } from "lucide-react";
+import { toast } from "sonner";
 
 export const AadhaarMaskWorkspace: React.FC = () => {
   const {
@@ -44,9 +45,7 @@ export const AadhaarMaskWorkspace: React.FC = () => {
   };
 
   const handlePreviewPageClick = (pageIndex: number) => {
-    // Mock addition of manual mask on preview page click
-    toast.success(`Manual masking marker set on Page ${pageIndex}`);
-    setManualMasks((prev) => [...prev, { page: pageIndex, x: 100, y: 150, width: 250, height: 40 }]);
+    toast.success(`Manual masking area selected on Page ${pageIndex}. Draw a box over the area to mask.`);
   };
 
   const configPanel = (
@@ -158,7 +157,4 @@ export const AadhaarMaskWorkspace: React.FC = () => {
     />
   );
 };
-
-// Toast notification integration
-import { toast } from "sonner";
 export default AadhaarMaskWorkspace;

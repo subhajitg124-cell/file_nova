@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ToolWorkspace } from "@/components/workspace/ToolWorkspace";
 import { PreviewPanel } from "@/components/workspace/PreviewPanel";
 import { useToolProcessor } from "@/hooks/useToolProcessor";
-import { Sparkles, Languages, FileText } from "lucide-react";
+import { Sparkles, Languages } from "lucide-react";
 
 export const AiPdfSummaryWorkspace: React.FC = () => {
   const {

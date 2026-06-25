@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ToolWorkspace } from "@/components/workspace/ToolWorkspace";
 import { PreviewPanel } from "@/components/workspace/PreviewPanel";
 import { useToolProcessor } from "@/hooks/useToolProcessor";
-import { Image as ImageIcon, Sliders, Shield } from "lucide-react";
+import { Image as ImageIcon, Sliders } from "lucide-react";
 import { toast } from "sonner";
 
 export const PANCardResizeWorkspace: React.FC = () => {

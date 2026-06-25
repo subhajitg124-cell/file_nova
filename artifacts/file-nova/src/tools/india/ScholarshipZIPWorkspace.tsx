@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ToolWorkspace } from "@/components/workspace/ToolWorkspace";
 import { useToolProcessor } from "@/hooks/useToolProcessor";
-import { FileArchive, CheckCircle, AlertTriangle, Upload, HelpCircle } from "lucide-react";
+import { FileArchive, CheckCircle, AlertTriangle, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 interface DocSlot {

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ToolWorkspace } from "@/components/workspace/ToolWorkspace";
 import { PreviewPanel } from "@/components/workspace/PreviewPanel";
 import { useToolProcessor } from "@/hooks/useToolProcessor";
-import { FileText, ArrowRight, Settings2, Sparkles, Plus } from "lucide-react";
+import { FileText, ArrowRight, Settings2, Plus } from "lucide-react";
 import { useFileStore } from "@/store/useFileStore";
 
 export const MergePDFWorkspace: React.FC = () => {
@@ -150,7 +150,7 @@ export const MergePDFWorkspace: React.FC = () => {
       {/* Pages constraints per file */}
       <div className="space-y-4 pt-4 border-t border-border/50">
         <label className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-          <Settings2 className="h-3.5 w-3.5 text-violet-400" />
+          <Settings2 className="h-3.5 w-3.5 text-primary" />
           Page Selection Per File (Optional)
         </label>
         
