@@ -322,7 +322,7 @@ const EditorFramework: React.FC<EditorFrameworkProps> = ({ file, fileType, plugi
                           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-300">{p.icon}</span>
                           <div>
                             <p className="text-xs font-bold text-slate-700 dark:text-slate-200">{p.label}</p>
-                            {p.description && <p className="text-[9px] text-slate-400">{p.description}</p>}
+                            {p.description && <p className="text-[9px] text-slate-400 dark:text-slate-500">{p.description}</p>}
                           </div>
                         </button>
                       ))}
@@ -446,7 +446,7 @@ const EditorFramework: React.FC<EditorFrameworkProps> = ({ file, fileType, plugi
               </div>
             ) : fileType === "pdf" && pdfDoc ? (
               <div className="flex flex-col items-center gap-4 w-full">
-                <div className="relative max-w-full overflow-auto rounded-2xl bg-white shadow-xl dark:shadow-2xl dark:shadow-black/20">
+                <div className="relative max-w-full overflow-auto rounded-2xl bg-card shadow-xl dark:shadow-2xl dark:shadow-black/20">
                   <canvas ref={canvasRef} className="block max-w-full h-auto" />
                   {canAnnotate && (
                     <canvas

@@ -29,17 +29,17 @@ export function WorkspaceUploadHub({
         <Shield className="h-4 w-4 shrink-0" />
         <span className="text-[11px] font-bold">100% processed locally in your browser — files never leave your device</span>
       </div>
-      <div className="w-full bg-slate-900/40 border border-white/[0.08] rounded-3xl p-6 sm:p-10 shadow-2xl backdrop-blur-2xl text-center space-y-4">
-        <div className="flex justify-center gap-4 text-slate-400 text-xs font-bold mb-2">
-          <button title="Upload document" className="flex items-center gap-1 p-2 rounded-xl bg-slate-950/60 border border-white/5 hover:bg-slate-800 transition"><Upload className="h-4 w-4 text-indigo-400" /> Upload Any File</button>
-          <button title="Take photo from camera" className="flex items-center gap-1 p-2 rounded-xl bg-slate-950/60 border border-white/5 hover:bg-slate-800 transition"><Camera className="h-4 w-4 text-emerald-400" /> Camera</button>
-          <button title="Paste image from clipboard" className="flex items-center gap-1 p-2 rounded-xl bg-slate-950/60 border border-white/5 hover:bg-slate-800 transition"><Clipboard className="h-4 w-4 text-sky-400" /> Paste Image</button>
+      <div className="w-full bg-card/40 border border-border rounded-3xl p-6 sm:p-10 shadow-2xl backdrop-blur-2xl text-center space-y-4">
+        <div className="flex justify-center gap-4 text-muted-foreground text-xs font-bold mb-2">
+          <button title="Upload document" className="flex items-center gap-1 p-2 rounded-xl bg-muted/60 border border-border hover:bg-muted/80 transition"><Upload className="h-4 w-4 text-indigo-400" /> Upload Any File</button>
+          <button title="Take photo from camera" className="flex items-center gap-1 p-2 rounded-xl bg-muted/60 border border-border hover:bg-muted/80 transition"><Camera className="h-4 w-4 text-emerald-400" /> Camera</button>
+          <button title="Paste image from clipboard" className="flex items-center gap-1 p-2 rounded-xl bg-muted/60 border border-border hover:bg-muted/80 transition"><Clipboard className="h-4 w-4 text-sky-400" /> Paste Image</button>
         </div>
 
-        <h2 className="text-sm font-black uppercase tracking-wider text-slate-350">
+        <h2 className="text-sm font-black uppercase tracking-wider text-foreground">
           Universal Upload Hub
         </h2>
-        <p className="text-xs text-slate-500">Drop PDF, JPG, PNG or DOC files here. FileNova will auto-detect formats & recommend tools.</p>
+        <p className="text-xs text-muted-foreground/80">Drop PDF, JPG, PNG or DOC files here. FileNova will auto-detect formats & recommend tools.</p>
 
         <FileDropZone
           acceptedTypes={acceptedTypes}
@@ -49,11 +49,11 @@ export function WorkspaceUploadHub({
         />
 
         {detectedType && (
-          <div className="p-4 bg-slate-950/80 border border-white/5 rounded-2xl space-y-2 text-left animate-fade-up">
+          <div className="p-4 bg-muted/80 border border-border rounded-2xl space-y-2 text-left animate-fade-up">
             <div className="text-[10px] font-black uppercase text-indigo-400 flex items-center gap-1">
               <FileQuestion className="h-4 w-4" /> Detected {detectedType.toUpperCase()} Format
             </div>
-            <p className="text-[11px] text-slate-400">Select a recommended action pipeline to process your file:</p>
+            <p className="text-[11px] text-muted-foreground">Select a recommended action pipeline to process your file:</p>
             <div className="flex gap-2 flex-wrap pt-1">
               {uploadRecommendations.map(toolId => {
                 const toolObj = TOOL_REGISTRY[toolId];

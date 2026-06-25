@@ -59,7 +59,7 @@ export const DownloadResult: React.FC<DownloadResultProps> = ({
   };
 
   return (
-    <div className="bg-slate-900 border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden backdrop-blur-2xl">
+    <div className="bg-card border border-border rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden backdrop-blur-2xl">
       {/* Accent glowing boundary */}
       <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${btnGradient} opacity-60`} />
 
@@ -71,26 +71,26 @@ export const DownloadResult: React.FC<DownloadResultProps> = ({
 
         <div>
           <h2 className="text-lg sm:text-xl font-black text-white">Your File is Ready!</h2>
-          <p className="text-xs text-slate-400 mt-1">Processing completed successfully</p>
+          <p className="text-xs text-muted-foreground mt-1">Processing completed successfully</p>
         </div>
 
         {/* File information panel */}
-        <div className="bg-slate-950/60 border border-white/[0.05] rounded-2xl p-4 max-w-md mx-auto flex flex-col gap-2.5 font-medium">
+        <div className="bg-muted/60 border border-border rounded-2xl p-4 max-w-md mx-auto flex flex-col gap-2.5 font-medium">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-slate-400">Filename:</span>
-            <span className="text-slate-200 font-bold truncate max-w-[200px]" title={fileName}>
+            <span className="text-muted-foreground">Filename:</span>
+            <span className="text-foreground font-bold truncate max-w-[200px]" title={fileName}>
               {fileName}
             </span>
           </div>
 
           <div className="flex items-center justify-between text-xs">
-            <span className="text-slate-400">File Size:</span>
-            <span className="text-slate-200 font-bold">{fileSize}</span>
+            <span className="text-muted-foreground">File Size:</span>
+            <span className="text-foreground font-bold">{fileSize}</span>
           </div>
 
           {savings && (
-            <div className="flex items-center justify-between text-xs pt-2 border-t border-white/[0.05]">
-              <span className="text-slate-400">Estimated Reduction:</span>
+            <div className="flex items-center justify-between text-xs pt-2 border-t border-border">
+              <span className="text-muted-foreground">Estimated Reduction:</span>
               <span className="text-emerald-400 font-black uppercase tracking-wide">
                 {savings}
               </span>
@@ -122,7 +122,7 @@ export const DownloadResult: React.FC<DownloadResultProps> = ({
 
             <button
               onClick={handleCopyLink}
-              className="py-2.5 bg-slate-800 hover:bg-slate-750 border border-white/5 text-slate-200 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 hover:scale-[1.02] active:scale-98 transition-all cursor-pointer"
+              className="py-2.5 bg-muted hover:bg-muted border border-border text-foreground font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 hover:scale-[1.02] active:scale-98 transition-all cursor-pointer"
             >
               {copied ? (
                 <>
@@ -131,7 +131,7 @@ export const DownloadResult: React.FC<DownloadResultProps> = ({
                 </>
               ) : (
                 <>
-                  <Copy className="h-3.5 w-3.5 text-slate-400" />
+                  <Copy className="h-3.5 w-3.5 text-muted-foreground" />
                   Copy Link
                 </>
               )}
@@ -140,8 +140,8 @@ export const DownloadResult: React.FC<DownloadResultProps> = ({
         </div>
 
         {/* Micro Rating Feedback widget */}
-        <div className="pt-6 border-t border-white/[0.05] max-w-md mx-auto">
-          <p className="text-[10px] sm:text-xs text-slate-400 font-medium mb-2">Did this tool help you? Rate your experience:</p>
+        <div className="pt-6 border-t border-border max-w-md mx-auto">
+          <p className="text-[10px] sm:text-xs text-muted-foreground font-medium mb-2">Did this tool help you? Rate your experience:</p>
           <div className="flex items-center justify-center gap-1.5">
             {[1, 2, 3, 4, 5].map((star) => (
               <button
@@ -158,7 +158,7 @@ export const DownloadResult: React.FC<DownloadResultProps> = ({
                   className={`h-5 w-5 ${
                     star <= (hoverRating ?? rating ?? 0)
                       ? "text-amber-400 fill-amber-400"
-                      : "text-slate-600"
+                      : "text-muted-foreground/60"
                   }`}
                 />
               </button>
@@ -170,7 +170,7 @@ export const DownloadResult: React.FC<DownloadResultProps> = ({
         <div className="pt-4">
           <button
             onClick={onReset}
-            className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
             <RefreshCw className="h-3.5 w-3.5" />
             Process another file

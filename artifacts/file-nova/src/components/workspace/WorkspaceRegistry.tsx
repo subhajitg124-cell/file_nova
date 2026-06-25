@@ -43,23 +43,23 @@ export const SpreadsheetPreviewer: React.FC<{ filename: string }> = ({ filename 
   if (gridData.length === 0) return null;
 
   return (
-    <div className="w-full bg-slate-900/60 border border-white/[0.08] rounded-3xl p-4 space-y-3 backdrop-blur-xl animate-fade-up">
-      <div className="flex items-center gap-2 text-xs font-black uppercase text-indigo-400">
+    <div className="w-full bg-card/60 border border-border rounded-3xl p-4 space-y-3 backdrop-blur-xl animate-fade-up">
+      <div className="flex items-center gap-2 text-xs font-black uppercase text-primary">
         <Table className="h-4 w-4" />
         <span>Spreadsheet Preview Grid: {filename}</span>
       </div>
-      <div className="overflow-x-auto rounded-xl border border-white/10 bg-slate-950/40">
+      <div className="overflow-x-auto rounded-xl border border-border bg-muted/40">
         <table className="w-full text-[10.5px] border-collapse">
           <thead>
-            <tr className="bg-slate-900 border-b border-white/10 text-slate-400 font-black">
+            <tr className="bg-card border-b border-border text-muted-foreground font-black">
               {gridData[0]?.map((_, colIdx) => (
                 <th key={colIdx} className="p-2 text-left select-none">Col {colIdx + 1}</th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5 font-mono">
+          <tbody className="divide-y divide-border font-mono">
             {gridData.map((row, rowIdx) => (
-              <tr key={rowIdx} className="hover:bg-white/[0.02] text-slate-300">
+              <tr key={rowIdx} className="hover:bg-muted/5 text-foreground/80">
                 {row.map((cell, colIdx) => (
                   <td key={colIdx} className="p-2 max-w-[150px] truncate">{cell || "—"}</td>
                 ))}
@@ -68,7 +68,7 @@ export const SpreadsheetPreviewer: React.FC<{ filename: string }> = ({ filename 
           </tbody>
         </table>
       </div>
-      <span className="text-[9px] text-slate-500 block text-center">Displaying first 6 rows and columns. Offline parsing completed successfully.</span>
+      <span className="text-[9px] text-muted-foreground/80 block text-center">Displaying first 6 rows and columns. Offline parsing completed successfully.</span>
     </div>
   );
 };
@@ -78,23 +78,23 @@ export const PdfEditorWorkspace: React.FC<WorkspaceProps> = ({ files, configPane
   const removeFile = useFileStore((s) => s.removeFile);
   return (
     <div className="w-full grid grid-cols-1 gap-6">
-      <div className="bg-slate-950/40 border border-white/[0.05] rounded-3xl p-4 space-y-4">
-        <div className="flex items-center justify-between text-xs font-black uppercase text-slate-400">
+      <div className="bg-muted/40 border border-border rounded-3xl p-4 space-y-4">
+        <div className="flex items-center justify-between text-xs font-black uppercase text-muted-foreground">
           <span>Arrange Documents & Page Ranges</span>
-          <span className="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2.5 py-0.5 rounded-full">
+          <span className="bg-indigo-500/10 text-primary border border-indigo-500/20 px-2.5 py-0.5 rounded-full">
             {files.length} Files loaded
           </span>
         </div>
         
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {files.map((file, idx) => (
-            <div key={file.id} className="p-3 bg-slate-900 border border-white/5 rounded-2xl flex flex-col justify-between h-32 relative group">
+            <div key={file.id} className="p-3 bg-card border border-border rounded-2xl flex flex-col justify-between h-32 relative group">
               <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button title="Rotate page" className="p-1 rounded bg-slate-950 border border-white/10 hover:bg-slate-800 text-slate-400 hover:text-white cursor-pointer"><RotateCw className="h-3 w-3" /></button>
-                <button title="Delete page" onClick={() => removeFile(file.id)} className="p-1 rounded bg-slate-950 border border-white/10 hover:bg-rose-950 text-slate-400 hover:text-rose-400 cursor-pointer"><Trash2 className="h-3 w-3" /></button>
+                <button title="Rotate page" className="p-1 rounded bg-muted border border-border hover:bg-muted/80 text-muted-foreground hover:text-foreground cursor-pointer"><RotateCw className="h-3 w-3" /></button>
+                <button title="Delete page" onClick={() => removeFile(file.id)} className="p-1 rounded bg-muted border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive cursor-pointer"><Trash2 className="h-3 w-3" /></button>
               </div>
 
-              <div className="h-14 flex items-center justify-center bg-slate-950 border border-white/5 rounded-xl text-xs text-slate-500 font-bold">
+              <div className="h-14 flex items-center justify-center bg-muted border border-border rounded-xl text-xs text-muted-foreground/80 font-bold">
                 P. {idx + 1}
               </div>
               <div className="text-[10px] font-bold text-slate-350 truncate">
@@ -141,16 +141,16 @@ export const ImageWorkspace: React.FC<WorkspaceProps> = ({ previewPanel }) => {
 export const GovernmentWorkspace: React.FC<WorkspaceProps> = ({ configPanel, previewPanel }) => {
   return (
     <div className="w-full space-y-5">
-      <div className="bg-slate-950/40 border border-white/[0.05] rounded-3xl p-4 space-y-3">
+      <div className="bg-muted/40 border border-border rounded-3xl p-4 space-y-3">
         <h4 className="text-[10px] font-black uppercase tracking-wider text-emerald-400 flex items-center gap-1">
           <ShieldCheck className="h-4 w-4" /> Official Compliance Guidelines
         </h4>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-[10.5px] font-bold text-slate-400 leading-normal">
-          <div className="flex items-start gap-1.5 p-2 bg-slate-900/40 rounded-xl border border-white/[0.02]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-[10.5px] font-bold text-muted-foreground leading-normal">
+          <div className="flex items-start gap-1.5 p-2 bg-card/40 rounded-xl border border-border">
             <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0 mt-0.5" />
             <span>UIDAI Masking: First 8 digits are auto-blanked. Last 4 digits visible.</span>
           </div>
-          <div className="flex items-start gap-1.5 p-2 bg-slate-900/40 rounded-xl border border-white/[0.02]">
+          <div className="flex items-start gap-1.5 p-2 bg-card/40 rounded-xl border border-border">
             <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0 mt-0.5" />
             <span>Signature: Draw or upload. White background removed automatically.</span>
           </div>
@@ -168,12 +168,12 @@ export const GovernmentWorkspace: React.FC<WorkspaceProps> = ({ configPanel, pre
 export const AiWorkspace: React.FC<WorkspaceProps> = ({ previewPanel }) => {
   return (
     <div className="w-full grid grid-cols-1 gap-4">
-      <div className="w-full bg-slate-950/40 border border-white/[0.05] rounded-3xl p-4 flex items-center justify-between text-xs font-medium text-slate-400">
+      <div className="w-full bg-muted/40 border border-border rounded-3xl p-4 flex items-center justify-between text-xs font-medium text-muted-foreground">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-indigo-400" />
+          <Sparkles className="h-4 w-4 text-primary" />
           <span>AI Context-Aware Extractor</span>
         </div>
-        <span className="text-[9px] font-mono bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded">
+        <span className="text-[9px] font-mono bg-indigo-500/10 text-primary border border-indigo-500/20 px-2 py-0.5 rounded">
           Active
         </span>
       </div>
@@ -189,25 +189,25 @@ export const AiWorkspace: React.FC<WorkspaceProps> = ({ previewPanel }) => {
 export const BatchWorkspace: React.FC<WorkspaceProps> = ({ files, configPanel, isProcessing }) => {
   return (
     <div className="w-full space-y-6">
-      <div className="bg-slate-950/40 border border-white/[0.05] rounded-3xl p-5 space-y-4">
+      <div className="bg-muted/40 border border-border rounded-3xl p-5 space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-xs font-black uppercase tracking-wider text-slate-350 flex items-center gap-1.5">
-            <FileArchive className="h-4 w-4 text-indigo-400" />
+            <FileArchive className="h-4 w-4 text-primary" />
             Batch processing File Queue
           </h3>
-          <span className="text-[10px] font-mono text-slate-500">{files.length} active files</span>
+          <span className="text-[10px] font-mono text-muted-foreground/80">{files.length} active files</span>
         </div>
 
-        <div className="divide-y divide-white/[0.05] border border-white/[0.05] rounded-2xl overflow-hidden bg-slate-900/35">
+        <div className="divide-y divide-border border border-border rounded-2xl overflow-hidden bg-card/35">
           {files.map((file, idx) => (
             <div key={file.id} className="p-3 flex justify-between items-center text-xs">
               <div className="min-w-0 flex-1">
                 <span className="font-bold text-slate-200 block truncate">{idx + 1}. {file.name}</span>
-                <span className="text-[9px] font-mono text-slate-500">Mime: {file.type}</span>
+                <span className="text-[9px] font-mono text-muted-foreground/80">Mime: {file.type}</span>
               </div>
               <div className="flex items-center gap-2">
                 {isProcessing ? (
-                  <span className="text-[10px] text-indigo-400 flex items-center gap-1 animate-pulse">
+                  <span className="text-[10px] text-primary flex items-center gap-1 animate-pulse">
                     <Sparkles className="h-3 w-3 animate-spin" /> processing
                   </span>
                 ) : (

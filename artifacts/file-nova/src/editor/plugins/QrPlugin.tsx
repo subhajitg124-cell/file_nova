@@ -67,7 +67,7 @@ const QrSection: React.FC<SectionProps> = ({ config, onConfigChange, onStatusMes
       {config.qrResultUrl && (
         <BentoCard size="sm" hover={false} accent="premium">
           <div className="flex flex-col items-center gap-3">
-            <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white p-3 shadow-inner">
+            <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-card p-3 shadow-inner">
               <img src={config.qrResultUrl} alt="QR Code" className="w-32 h-auto" width="150" height="150" />
             </div>
             <PremiumButton variant="primary" size="sm" icon={<Download className="h-3.5 w-3.5" />} onClick={handleDownload}>

@@ -100,7 +100,7 @@ export function WorkspaceHeader({
           onClick={onToggleSidebar}
           title="Toggle workspace project library sidebar"
           aria-label="Toggle Project Library"
-          className="px-2 py-1 md:px-2.5 md:py-1.5 rounded-xl border border-white/10 bg-slate-950/40 text-[10px] font-black uppercase tracking-wider text-slate-300 hover:text-white flex items-center gap-1 transition cursor-pointer"
+          className="px-2 py-1 md:px-2.5 md:py-1.5 rounded-xl border border-border bg-muted/40 text-[10px] font-black uppercase tracking-wider text-foreground/80 hover:text-foreground flex items-center gap-1 transition cursor-pointer"
         >
           <FolderGit className="h-3.5 w-3.5" />
           <span className="hidden md:inline">Project Library</span>
@@ -111,23 +111,23 @@ export function WorkspaceHeader({
             <button
               title="View recent processed files"
               aria-label="View recent processed files"
-              className="px-2 py-1 md:px-2.5 md:py-1.5 rounded-xl border border-white/10 bg-slate-950/40 text-[10px] font-black uppercase tracking-wider text-slate-300 hover:text-white flex items-center gap-1 transition cursor-pointer"
+              className="px-2 py-1 md:px-2.5 md:py-1.5 rounded-xl border border-border bg-muted/40 text-[10px] font-black uppercase tracking-wider text-foreground/80 hover:text-foreground flex items-center gap-1 transition cursor-pointer"
             >
               <Clock className="h-3.5 w-3.5" />
               <span className="hidden md:inline">Recent</span>
             </button>
             <div className="absolute right-0 top-8 w-56 fn-glass rounded-xl shadow-[var(--fn-shadow-elevated)] p-2 hidden group-hover:block z-50 text-[var(--fn-text-primary)]">
-              <span className="text-[9px] font-black uppercase text-slate-500 px-2 py-1 block">Recently Processed</span>
+              <span className="text-[9px] font-black uppercase text-muted-foreground/80 px-2 py-1 block">Recently Processed</span>
               <div className="space-y-1 mt-1 max-h-40 overflow-y-auto">
                 {recentFiles.map((f, i) => (
                   <a
                     key={i}
                     href={f.url}
                     download={f.name}
-                    className="w-full text-left p-2 rounded-xl hover:bg-white/5 text-slate-300 hover:text-white text-[10px] font-bold block truncate"
+                    className="w-full text-left p-2 rounded-xl hover:bg-muted/5 text-foreground/80 hover:text-foreground text-[10px] font-bold block truncate"
                   >
                     <div className="truncate">{f.name}</div>
-                    <span className="text-[8px] text-slate-500">{f.time}</span>
+                    <span className="text-[8px] text-muted-foreground/80">{f.time}</span>
                   </a>
                 ))}
               </div>
@@ -138,7 +138,7 @@ export function WorkspaceHeader({
         <button
           onClick={onSaveSession}
           disabled={!hasFiles}
-          className="px-2 py-1 md:px-2.5 md:py-1.5 rounded-xl border border-white/10 bg-slate-950/40 text-[10px] font-black uppercase tracking-wider text-slate-300 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 transition cursor-pointer"
+          className="px-2 py-1 md:px-2.5 md:py-1.5 rounded-xl border border-border bg-muted/40 text-[10px] font-black uppercase tracking-wider text-foreground/80 hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 transition cursor-pointer"
           title="Save workspace file queue"
           aria-label="Save workspace file queue"
         >
@@ -160,7 +160,7 @@ export function WorkspaceHeader({
           onClick={onToggleHelp}
           title="Toggle help documentation"
           aria-label="Toggle help documentation"
-          className="p-1.5 rounded-xl border border-white/10 bg-slate-950/40 text-slate-400 hover:text-white transition cursor-pointer"
+          className="p-1.5 rounded-xl border border-border bg-muted/40 text-muted-foreground hover:text-foreground transition cursor-pointer"
         >
           <HelpCircle className="h-4 w-4" />
         </button>

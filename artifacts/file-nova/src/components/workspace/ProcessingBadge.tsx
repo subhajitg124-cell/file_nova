@@ -41,10 +41,10 @@ export default ProcessingBadge;
 
 export function ProcessingBadgeSkeleton() {
   return (
-    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/50 border border-white/10 animate-pulse">
-      <div className="h-3 w-16 bg-slate-800 rounded" />
+    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 border border-border animate-pulse">
+      <div className="h-3 w-16 bg-muted rounded" />
       <div className="w-px h-4 bg-white/10" />
-      <div className="h-3 w-20 bg-slate-800 rounded" />
+      <div className="h-3 w-20 bg-muted rounded" />
     </div>
   );
 }

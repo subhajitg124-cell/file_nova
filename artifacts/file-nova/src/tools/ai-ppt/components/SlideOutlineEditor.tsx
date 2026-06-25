@@ -106,9 +106,9 @@ export function SlideOutlineEditor({ outline, onChange, onRegenerateSlide, theme
   return (
     <div className="space-y-6">
       {/* Title Slide Header Editing */}
-      <div className="flex flex-col gap-4 pb-4 border-b border-gray-100 dark:border-gray-800">
+      <div className="flex flex-col gap-4 pb-4 border-b border-border">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
             <FileText className="h-4 w-4 text-purple-500" />
             Edit Outline
           </h3>
@@ -126,13 +126,13 @@ export function SlideOutlineEditor({ outline, onChange, onRegenerateSlide, theme
             onChange={(e) => onChange({ ...outline, title: e.target.value })}
             title="Presentation Title"
             placeholder="Main presentation title..."
-            className="w-full bg-white dark:bg-slate-950 border border-gray-200 dark:border-gray-800 rounded-xl px-3.5 py-2 text-xs font-bold text-gray-900 dark:text-white focus:outline-none focus:border-purple-500"
+            className="w-full bg-card border border-border rounded-xl px-3.5 py-2 text-xs font-bold text-foreground focus:outline-none focus:border-purple-500"
           />
         </div>
       </div>
 
       {/* Theme selector in workspace outline edit step */}
-      <div className="space-y-3 pb-4 border-b border-gray-100 dark:border-gray-800">
+      <div className="space-y-3 pb-4 border-b border-border">
         <ThemeSelector value={themeId} onChange={onThemeChange} />
       </div>
 
@@ -165,18 +165,18 @@ export function SlideOutlineEditor({ outline, onChange, onRegenerateSlide, theme
                 className={`rounded-xl border transition-all duration-200 overflow-hidden
                             ${isExpanded
                               ? "border-purple-300 dark:border-purple-800 shadow-md shadow-purple-500/5"
-                              : "border-gray-200 dark:border-gray-800 hover:border-purple-200 dark:hover:border-purple-900"}`}
+                              : "border-border hover:border-purple-200 dark:hover:border-purple-900"}`}
               >
                 {/* Card Title Bar */}
                 <div
                   onClick={() => setExpandedIndex(isExpanded ? null : i)}
-                  className="w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-900 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors cursor-pointer select-none"
+                  className="w-full flex items-center justify-between p-3 bg-muted hover:bg-muted/80 transition-colors cursor-pointer select-none"
                 >
                   <div className="flex items-center gap-2.5 min-w-0 pr-4">
                     <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-purple-50 dark:bg-purple-900/30 text-[10px] font-bold text-purple-600 dark:text-purple-400">
                       {i + 1}
                     </span>
-                    <span className="flex-1 text-xs font-semibold text-gray-950 dark:text-gray-100 truncate">
+                    <span className="flex-1 text-xs font-semibold text-foreground truncate">
                       {slide.heading || "(No Heading)"}
                     </span>
                   </div>
@@ -187,7 +187,7 @@ export function SlideOutlineEditor({ outline, onChange, onRegenerateSlide, theme
                       disabled={isFirst}
                       onClick={() => moveSlide(i, "up")}
                       title="Move slide up"
-                      className="p-1 rounded hover:bg-gray-200 dark:hover:bg-slate-700 disabled:opacity-30 text-gray-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 cursor-pointer"
+                      className="p-1 rounded hover:bg-muted disabled:opacity-30 text-muted-foreground hover:text-primary cursor-pointer"
                     >
                       <ArrowUp className="w-3.5 h-3.5" />
                     </button>
@@ -195,7 +195,7 @@ export function SlideOutlineEditor({ outline, onChange, onRegenerateSlide, theme
                       disabled={isLast}
                       onClick={() => moveSlide(i, "down")}
                       title="Move slide down"
-                      className="p-1 rounded hover:bg-gray-200 dark:hover:bg-slate-700 disabled:opacity-30 text-gray-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 cursor-pointer"
+                      className="p-1 rounded hover:bg-muted disabled:opacity-30 text-muted-foreground hover:text-primary cursor-pointer"
                     >
                       <ArrowDown className="w-3.5 h-3.5" />
                     </button>
@@ -203,21 +203,21 @@ export function SlideOutlineEditor({ outline, onChange, onRegenerateSlide, theme
                       disabled={outline.slides.length <= 3}
                       onClick={() => deleteSlide(i)}
                       title="Delete slide"
-                      className="p-1 rounded hover:bg-rose-100 dark:hover:bg-rose-950/50 disabled:opacity-30 text-gray-500 dark:text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer"
+                      className="p-1 rounded hover:bg-rose-100 dark:hover:bg-rose-950/50 disabled:opacity-30 text-muted-foreground hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                     {isExpanded ? (
-                      <ChevronUp className="h-4 w-4 text-gray-400 ml-1" />
+                      <ChevronUp className="h-4 w-4 text-muted-foreground ml-1" />
                     ) : (
-                      <ChevronDown className="h-4 w-4 text-gray-400 ml-1" />
+                      <ChevronDown className="h-4 w-4 text-muted-foreground ml-1" />
                     )}
                   </div>
                 </div>
 
                 {/* Card expanded body */}
                 {isExpanded && (
-                  <div className="p-4 bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-gray-800 space-y-4">
+                  <div className="p-4 bg-card border-t border-border space-y-4">
                     {/* Heading Input */}
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
@@ -228,7 +228,7 @@ export function SlideOutlineEditor({ outline, onChange, onRegenerateSlide, theme
                         onChange={(e) => handleSlideChange(i, "heading", e.target.value)}
                         title="Slide Heading"
                         placeholder="Slide Heading"
-                        className="w-full bg-white dark:bg-slate-950 border border-gray-200 dark:border-gray-800 rounded-xl px-3.5 py-2 text-xs font-bold text-gray-900 dark:text-white focus:outline-none focus:border-purple-500"
+                        className="w-full bg-card border border-border rounded-xl px-3.5 py-2 text-xs font-bold text-foreground focus:outline-none focus:border-purple-500"
                       />
                     </div>
 
@@ -256,12 +256,12 @@ export function SlideOutlineEditor({ outline, onChange, onRegenerateSlide, theme
                               onChange={(e) => handleBulletChange(i, bIdx, e.target.value)}
                               title={`Bullet point ${bIdx + 1}`}
                               placeholder={`Bullet point ${bIdx + 1}`}
-                              className="flex-1 bg-white dark:bg-slate-950 border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-1.5 text-xs text-gray-850 dark:text-gray-250 focus:outline-none focus:border-purple-500 leading-normal"
+                              className="flex-1 bg-card border border-border rounded-xl px-3 py-1.5 text-xs text-foreground focus:outline-none focus:border-purple-500 leading-normal"
                             />
                             <button
                               onClick={() => removeBullet(i, bIdx)}
                               title="Delete bullet point"
-                              className="text-gray-400 hover:text-rose-500 cursor-pointer shrink-0 transition-colors"
+                              className="text-muted-foreground hover:text-rose-500 cursor-pointer shrink-0 transition-colors"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -281,12 +281,12 @@ export function SlideOutlineEditor({ outline, onChange, onRegenerateSlide, theme
                         rows={2}
                         title="Speaker Notes"
                         placeholder="Speaker notes for this slide..."
-                        className="w-full bg-white dark:bg-slate-950 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-xs text-gray-700 dark:text-slate-350 focus:outline-none focus:border-purple-500 resize-none leading-relaxed"
+                        className="w-full bg-card border border-border rounded-xl p-3 text-xs text-muted-foreground focus:outline-none focus:border-purple-500 resize-none leading-relaxed"
                       />
                     </div>
 
                     {/* Slide AI Regeneration */}
-                    <div className="pt-3.5 border-t border-gray-100 dark:border-gray-800 space-y-2">
+                    <div className="pt-3.5 border-t border-border space-y-2">
                       <div className="flex items-center gap-1.5 text-[10px] font-black uppercase text-purple-600 dark:text-purple-400">
                         <Sparkles className="w-3.5 h-3.5" />
                         <span>Regenerate this slide</span>
@@ -300,8 +300,8 @@ export function SlideOutlineEditor({ outline, onChange, onRegenerateSlide, theme
                           }}
                           title="Regenerate instructions"
                           placeholder="e.g. make it shorter, add technical terms"
-                          className="flex-1 text-xs px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700
-                                     bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-purple-500"
+                          className="flex-1 text-xs px-3 py-2 rounded-lg border border-border
+                                     bg-card text-foreground focus:outline-none focus:border-purple-500"
                         />
                         <button
                           disabled={isRegenerating}

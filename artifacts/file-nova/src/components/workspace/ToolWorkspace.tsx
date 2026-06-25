@@ -1216,10 +1216,10 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
               <div className="col-span-1 lg:col-span-8 flex flex-col gap-3 order-1 lg:order-none min-h-0">
                 {/* Bento Primary Cell: Preview & Upload */}
                 <div 
-                  className={`flex-1 flex flex-col min-h-[45vh] lg:min-h-0 bg-slate-900/10 glass border rounded-2xl p-4 shadow-soft transition-all duration-300 hover:scale-[1.002] hover:shadow-premium relative overflow-hidden ${
+                  className={`flex-1 flex flex-col min-h-[45vh] lg:min-h-0 bg-muted/10 glass border rounded-2xl p-4 shadow-soft transition-all duration-300 hover:scale-[1.002] hover:shadow-premium relative overflow-hidden ${
                     isDraggingCanvas || files.length > 0
                       ? "border-blue-500/50 ring-2 ring-blue-500/10"
-                      : "border-white/10"
+                      : "border-border"
                   }`}
                   onDragOver={handleCanvasDragOver}
                   onDragLeave={handleCanvasDragLeave}

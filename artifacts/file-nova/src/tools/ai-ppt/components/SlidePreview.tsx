@@ -437,7 +437,7 @@ export const SlidePreview: React.FC<SlidePreviewProps> = ({ outline, theme }) =>
     <div className="w-full flex flex-col gap-4">
       {/* Slide Screen Frame */}
       <div
-        className="w-full rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-2xl relative select-none"
+        className="w-full rounded-2xl border border-border overflow-hidden shadow-2xl relative select-none"
         style={{
           aspectRatio: "16/9",
           backgroundColor: `#${isClosing ? palette.primary : palette.background}`,
@@ -464,17 +464,17 @@ export const SlidePreview: React.FC<SlidePreviewProps> = ({ outline, theme }) =>
       </div>
 
       {/* Slide Deck Pagination HUD */}
-      <div className="flex justify-between items-center bg-gray-50 dark:bg-slate-900 border border-gray-100 dark:border-gray-800 p-2.5 rounded-xl">
+      <div className="flex justify-between items-center bg-muted border border-border p-2.5 rounded-xl">
         <button
           disabled={activeIndex === 0}
           onClick={() => setActiveIndex((prev) => prev - 1)}
           title="Go to previous slide"
-          className="p-1.5 bg-white dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 border border-gray-200 dark:border-gray-700 rounded-lg disabled:opacity-30 text-gray-700 dark:text-gray-200 transition flex items-center gap-1 cursor-pointer font-bold text-xs"
+          className="p-1.5 bg-card hover:bg-muted/80 border border-border rounded-lg disabled:opacity-30 text-foreground transition flex items-center gap-1 cursor-pointer font-bold text-xs"
         >
           <ChevronLeft className="w-4 h-4" /> Previous
         </button>
 
-        <span className="text-xs font-bold text-gray-500 dark:text-gray-400 font-mono">
+        <span className="text-xs font-bold text-muted-foreground font-mono">
           Slide {activeIndex + 1} of {slides.length}
         </span>
 
@@ -482,7 +482,7 @@ export const SlidePreview: React.FC<SlidePreviewProps> = ({ outline, theme }) =>
           disabled={activeIndex === slides.length - 1}
           onClick={() => setActiveIndex((prev) => prev + 1)}
           title="Go to next slide"
-          className="p-1.5 bg-white dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 border border-gray-200 dark:border-gray-700 rounded-lg disabled:opacity-30 text-gray-700 dark:text-gray-200 transition flex items-center gap-1 cursor-pointer font-bold text-xs"
+          className="p-1.5 bg-card hover:bg-muted/80 border border-border rounded-lg disabled:opacity-30 text-foreground transition flex items-center gap-1 cursor-pointer font-bold text-xs"
         >
           Next <ChevronRight className="w-4 h-4" />
         </button>
@@ -504,7 +504,7 @@ export const SlidePreview: React.FC<SlidePreviewProps> = ({ outline, theme }) =>
               className={`shrink-0 w-24 aspect-video rounded-lg border text-left p-2 flex flex-col justify-between transition cursor-pointer select-none ${
                 isActive
                   ? "border-purple-600 ring-2 ring-purple-600/30"
-                  : "border-gray-200 dark:border-gray-700 hover:border-purple-300"
+                  : "border-border hover:border-purple-300"
               }`}
               style={{ backgroundColor: `#${thumbnailBg}` }}
             >

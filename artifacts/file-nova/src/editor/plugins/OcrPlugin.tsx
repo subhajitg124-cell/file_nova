@@ -88,7 +88,7 @@ const OcrSection: React.FC<SectionProps> = ({ config, onConfigChange, onStatusMe
               <span className="text-[10px] uppercase tracking-wider font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                 <FileText className="h-3 w-3" /> Extracted Text
               </span>
-              <span className="text-[9px] text-slate-400">{config.ocrText.length} chars</span>
+              <span className="text-[9px] text-slate-400 dark:text-slate-500">{config.ocrText.length} chars</span>
             </div>
             <textarea value={config.ocrText} onChange={(e) => onConfigChange("ocrText", e.target.value)}
               rows={5}

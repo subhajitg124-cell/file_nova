@@ -170,9 +170,9 @@ export const PassportPhotoEditor: React.FC = () => {
             </div>
             <span className="rounded-full bg-muted/70 px-3 py-1 text-[11px] font-semibold text-muted-foreground">{targetWidth}×{targetHeight}px</span>
           </div>
-          <div className="relative overflow-hidden rounded-[2rem] border-2 border-dashed border-primary/30 bg-white p-4">
+          <div className="relative overflow-hidden rounded-[2rem] border-2 border-dashed border-primary/30 bg-card p-4">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(0,0,0,0.04),_transparent_32%)] pointer-events-none" />
-            <div className="h-[420px] w-full overflow-hidden rounded-[1.5rem] bg-[#f9fafb] border border-border/70 flex items-center justify-center">
+            <div className="h-[420px] w-full overflow-hidden rounded-[1.5rem] bg-muted border border-border/70 flex items-center justify-center">
               {previewUrl ? (
                 <img src={previewUrl} alt="Passport preview" className="h-full w-auto max-w-full object-contain" width="300" height="400" loading="lazy" />
               ) : (

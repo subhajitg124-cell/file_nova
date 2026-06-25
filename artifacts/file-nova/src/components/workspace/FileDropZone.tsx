@@ -68,7 +68,7 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
     if (isPdf) return <FileText className="h-5 w-5 text-red-400" />;
     if (file.type.startsWith("image/")) return <ImageIcon className="h-5 w-5 text-blue-400" />;
     if (file.type.startsWith("video/")) return <Video className="h-5 w-5 text-violet-400" />;
-    return <FileText className="h-5 w-5 text-slate-400" />;
+    return <FileText className="h-5 w-5 text-muted-foreground" />;
   };
 
   const renderThumbnail = (file: File) => {
@@ -93,7 +93,7 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
         />
       );
     }
-    return <div className="h-full w-full flex items-center justify-center bg-slate-900 border border-white/5 rounded text-slate-400">{getFileIcon(file)}</div>;
+    return <div className="h-full w-full flex items-center justify-center bg-card border border-border rounded text-muted-foreground">{getFileIcon(file)}</div>;
   };
 
   const reorderFile = (index: number, direction: "up" | "down") => {
@@ -126,14 +126,14 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="flex items-center gap-3 p-2.5 rounded-xl border border-white/[0.05] bg-slate-900/60 hover:bg-slate-900 transition-colors group"
+                  className="flex items-center gap-3 p-2.5 rounded-xl border border-border bg-card/60 hover:bg-card transition-colors group"
                 >
-                  <div className="h-10 w-10 shrink-0 bg-slate-950 border border-white/10 rounded flex items-center justify-center overflow-hidden">
+                    <div className="h-10 w-10 shrink-0 bg-muted border border-border rounded flex items-center justify-center overflow-hidden">
                     {renderThumbnail(rawFile)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-slate-200 truncate">{fileRecord.name}</p>
-                    <p className="text-[10px] text-slate-500 font-mono mt-0.5">{formatSize(fileRecord.size)}</p>
+                    <p className="text-xs font-bold text-foreground truncate">{fileRecord.name}</p>
+                    <p className="text-[10px] text-muted-foreground/80 font-mono mt-0.5">{formatSize(fileRecord.size)}</p>
                   </div>
                   <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity shrink-0">
                     {maxFiles > 1 && (
@@ -142,7 +142,7 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
                           type="button"
                           onClick={() => reorderFile(index, "up")}
                           disabled={index === 0}
-                          className="p-1 rounded hover:bg-white/5 disabled:opacity-25 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                          className="p-1 rounded hover:bg-white/5 disabled:opacity-25 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                           title="Move up"
                         >
                           <ArrowUp className="h-3.5 w-3.5" />
@@ -151,7 +151,7 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
                           type="button"
                           onClick={() => reorderFile(index, "down")}
                           disabled={index === storeFiles.length - 1}
-                          className="p-1 rounded hover:bg-white/5 disabled:opacity-25 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                          className="p-1 rounded hover:bg-white/5 disabled:opacity-25 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                           title="Move down"
                         >
                           <ArrowDown className="h-3.5 w-3.5" />
@@ -161,7 +161,7 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
                     <button
                       type="button"
                       onClick={() => removeFile(fileRecord.id)}
-                      className="p-1.5 rounded hover:bg-red-500/10 text-slate-400 hover:text-red-400 transition-colors cursor-pointer"
+                      className="p-1.5 rounded hover:bg-red-500/10 text-muted-foreground hover:text-red-400 transition-colors cursor-pointer"
                       title="Remove file"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
@@ -181,7 +181,7 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
           className={`
             relative cursor-pointer rounded-2xl border-2 transition-all duration-300 min-h-[140px] flex items-center justify-center text-center p-4
             ${isDragActive
-              ? `border-${accentColor}-500 bg-slate-900 border-march ${theme.activeBg}`
+              ? `border-${accentColor}-500 bg-card border-march ${theme.activeBg}`
               : `fn-glass rounded-2xl border-dashed border-[var(--fn-border-strong)] hover:border-[var(--fn-border-strong)]/80 hover:bg-white/[0.05]`
             }
           `}
@@ -189,18 +189,18 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
           <input {...getInputProps()} />
 
           <div className="flex flex-col items-center gap-3">
-            <div className={`p-3 rounded-full bg-slate-950/60 border border-white/10 ${theme.color}`}>
+            <div className={`p-3 rounded-full bg-muted/60 border border-border ${theme.color}`}>
               <Upload className="h-5 w-5 animate-pulse" />
             </div>
             <div>
-              <p className="text-xs font-bold text-slate-200">
+              <p className="text-xs font-bold text-foreground">
                 {isDragActive ? "Drop files here!" : "Drag & Drop files"}
               </p>
-              <p className="text-[10px] text-slate-500 mt-1">
+              <p className="text-[10px] text-muted-foreground/80 mt-1">
                 or click to browse local files
               </p>
             </div>
-            <div className="px-2.5 py-1 rounded-lg bg-slate-950/40 border border-white/[0.05] text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+            <div className="px-2.5 py-1 rounded-lg bg-muted/40 border border-border text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
               Accepted: {acceptedTypes.join(", ")}
             </div>
           </div>
@@ -213,7 +213,7 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
           <input {...getInputProps()} />
           <button
             type="button"
-            className="w-full py-2 bg-slate-900 border border-dashed border-white/10 hover:border-white/20 rounded-xl text-xs font-bold text-slate-300 flex items-center justify-center gap-1.5 transition-all hover:bg-slate-900/60 cursor-pointer"
+            className="w-full py-2 bg-card border border-dashed border-border hover:border-border rounded-xl text-xs font-bold text-foreground/80 flex items-center justify-center gap-1.5 transition-all hover:bg-card/60 cursor-pointer"
           >
             <Sparkles className={`h-3.5 w-3.5 ${theme.color}`} />
             Add More Files ({storeFiles.length}/{maxFiles})

@@ -115,27 +115,27 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-start justify-center pt-[15vh] px-4 font-sans animate-fade-in">
+    <div className="fixed inset-0 z-50 bg-background/70 backdrop-blur-md flex items-start justify-center pt-[15vh] px-4 font-sans animate-fade-in">
       <motion.div
         ref={containerRef}
         onKeyDown={handleKeyDown}
         initial={{ opacity: 0, scale: 0.97, y: -10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ type: "spring", stiffness: 350, damping: 25 }}
-        className="w-full max-w-xl bg-slate-900/80 backdrop-blur-2xl border border-white/[0.08] rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col max-h-[50vh]"
+        className="w-full max-w-xl bg-card/80 backdrop-blur-2xl border border-border rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col max-h-[50vh]"
       >
         {/* Input area */}
-        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-white/[0.08]">
-          <Search className="h-5 w-5 text-slate-400 shrink-0" />
+        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-border">
+          <Search className="h-5 w-5 text-muted-foreground shrink-0" />
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Type a command or search a document tool..."
-            className="w-full bg-transparent text-sm text-white focus:outline-none placeholder-slate-500"
+            className="w-full bg-transparent text-sm text-foreground focus:outline-none placeholder:text-muted-foreground/80"
           />
-          <kbd className="hidden sm:inline-block text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded font-mono font-bold tracking-wider uppercase border border-white/5 shrink-0 select-none">
+          <kbd className="hidden sm:inline-block text-[9px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded font-mono font-bold tracking-wider uppercase border border-border shrink-0 select-none">
             ESC
           </kbd>
         </div>
@@ -143,7 +143,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
         {/* List items */}
         <div className="overflow-y-auto flex-1 p-2 space-y-1">
           {items.length === 0 ? (
-            <div className="py-10 text-center text-xs text-slate-500 font-bold">
+            <div className="py-10 text-center text-xs text-muted-foreground/80 font-bold">
               No matching tools or system settings found.
             </div>
           ) : (
@@ -154,25 +154,25 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
                   key={item.id}
                   onClick={item.action}
                   className={`w-full text-left p-3 rounded-2xl flex items-center justify-between transition-all duration-200 cursor-pointer ${
-                    active ? "bg-brand-primary text-white shadow-glow-sm scale-[1.01]" : "hover:bg-white/5 text-slate-300"
+                    active ? "bg-brand-primary text-white shadow-glow-sm scale-[1.01]" : "hover:bg-muted/5 text-foreground/80"
                   }`}
                 >
                   <div className="min-w-0">
                     <span className="text-xs font-black block truncate">
                       {item.name}
                     </span>
-                    <span className={`text-[10px] block truncate font-medium mt-0.5 ${active ? "text-indigo-200" : "text-slate-500"}`}>
+                    <span className={`text-[10px] block truncate font-medium mt-0.5 ${active ? "text-indigo-200" : "text-muted-foreground/80"}`}>
                       {item.sub}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-2">
                     {item.type === "system" ? (
-                      <kbd className={`text-[9px] px-1.5 py-0.5 rounded font-mono ${active ? "bg-indigo-700 text-indigo-100" : "bg-slate-950/60 text-slate-450 border border-white/5"}`}>
+                      <kbd className={`text-[9px] px-1.5 py-0.5 rounded font-mono ${active ? "bg-indigo-700 text-indigo-100" : "bg-muted/60 text-muted-foreground border border-border"}`}>
                         System
                       </kbd>
                     ) : (
-                      <kbd className={`text-[9px] px-1.5 py-0.5 rounded font-mono ${active ? "bg-indigo-700 text-indigo-100" : "bg-slate-950/60 text-slate-450 border border-white/5"}`}>
+                      <kbd className={`text-[9px] px-1.5 py-0.5 rounded font-mono ${active ? "bg-indigo-700 text-indigo-100" : "bg-muted/60 text-muted-foreground border border-border"}`}>
                         Tool
                       </kbd>
                     )}

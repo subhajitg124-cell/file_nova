@@ -141,7 +141,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
 
   if (!primaryFile) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 bg-slate-900/20 border border-dashed border-white/5 rounded-2xl min-h-[150px] text-slate-500 text-xs">
+      <div className="flex flex-col items-center justify-center p-8 bg-muted/20 border border-dashed border-border rounded-2xl min-h-[150px] text-muted-foreground/80 text-xs">
         <FileText className="h-8 w-8 mb-2 stroke-[1.5]" />
         <span>No file loaded. Upload a document to see preview.</span>
       </div>
@@ -151,7 +151,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
   // Render individual views
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 text-xs text-slate-400">
+      <div className="flex flex-col items-center justify-center p-12 text-xs text-muted-foreground">
         <div className="h-6 w-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mb-3" />
         <span>Loading preview content...</span>
       </div>
@@ -163,11 +163,11 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
     // PROTECT PREVIEW (Padlock + Watermark)
     if (slug === "protect-pdf") {
       return (
-        <div className="relative max-w-sm mx-auto p-6 bg-slate-900 border border-white/10 rounded-2xl flex flex-col items-center justify-center gap-4 text-center select-none overflow-hidden min-h-[240px]">
-          <div className="absolute inset-0 bg-slate-950/65 backdrop-blur-[2px] flex flex-col items-center justify-center gap-2 z-10">
+        <div className="relative max-w-sm mx-auto p-6 bg-card border border-border rounded-2xl flex flex-col items-center justify-center gap-4 text-center select-none overflow-hidden min-h-[240px]">
+          <div className="absolute inset-0 bg-card/65 backdrop-blur-[2px] flex flex-col items-center justify-center gap-2 z-10">
             <Lock className="h-10 w-10 text-rose-500 animate-bounce" />
-            <span className="text-xs font-black uppercase tracking-widest text-slate-200">CONFIDENTIAL & LOCKED</span>
-            <span className="text-[10px] text-slate-400">Preview overlay watermark active</span>
+            <span className="text-xs font-black uppercase tracking-widest text-foreground">CONFIDENTIAL & LOCKED</span>
+            <span className="text-[10px] text-muted-foreground">Preview overlay watermark active</span>
           </div>
           {pdfPages.length > 0 && (
             <img src={pdfPages[0]} alt="pdf locked preview" className="opacity-20 max-h-[200px] object-contain" width="400" height="300" loading="lazy" />
@@ -220,7 +220,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
 
       return (
         <div className="space-y-4">
-          <p className="text-[10px] text-slate-400 uppercase font-black tracking-wider text-center">Live rotation preview grid</p>
+          <p className="text-[10px] text-muted-foreground uppercase font-black tracking-wider text-center">Live rotation preview grid</p>
           <PageThumbnailGrid
             pages={pagesData}
             mode="view-only"
@@ -268,7 +268,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
 
       return (
         <div className="space-y-4">
-          <p className="text-[10px] text-slate-400 uppercase font-black tracking-wider text-center">Click thumbnails to select pages for extraction</p>
+          <p className="text-[10px] text-muted-foreground uppercase font-black tracking-wider text-center">Click thumbnails to select pages for extraction</p>
           <PageThumbnailGrid
             pages={pagesData}
             mode="select"
@@ -325,7 +325,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
 
       return (
         <div className="space-y-4">
-          <p className="text-[10px] text-slate-400 uppercase font-black tracking-wider text-center">
+          <p className="text-[10px] text-muted-foreground uppercase font-black tracking-wider text-center">
             Select pages to delete (marked with X)
           </p>
           <PageThumbnailGrid
@@ -381,7 +381,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
 
       return (
         <div className="space-y-4">
-          <p className="text-[10px] text-slate-400 uppercase font-black tracking-wider text-center">
+          <p className="text-[10px] text-muted-foreground uppercase font-black tracking-wider text-center">
             Drag and drop thumbnails to reorder pages
           </p>
           <PageThumbnailGrid
@@ -402,7 +402,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
 
       return (
         <div className="space-y-4 max-w-lg mx-auto py-2">
-          <div className="relative border border-white/10 rounded-2xl bg-white overflow-hidden p-2 flex justify-center shadow-xl">
+          <div className="relative border border-border rounded-2xl bg-card overflow-hidden p-2 flex justify-center shadow-xl">
             {pdfPages.length > 0 ? (
               <div className="relative">
                 <img src={pdfPages[0]} alt="aadhaar mask preview" className="max-h-[300px] object-contain select-none" width="400" height="300" loading="lazy" />
@@ -410,13 +410,13 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
                 {/* Mock Redacted Aadhaar Overlay (typically middle section of card) */}
                 <div className="absolute top-[68%] left-[28%] right-[28%] h-[8%] flex items-center justify-center gap-2 pointer-events-none select-none">
                   {maskStyle === "black" && (
-                    <div className="w-full h-full bg-black rounded" />
+                    <div className="w-full h-full bg-background rounded" />
                   )}
                   {maskStyle === "blur" && (
-                    <div className="w-full h-full bg-slate-400/40 backdrop-blur-md rounded border border-slate-500/20" />
+                    <div className="w-full h-full bg-muted/40 backdrop-blur-md rounded border border-border" />
                   )}
                   {maskStyle === "asterisks" && (
-                    <div className="w-full h-full bg-white text-[11px] font-black tracking-widest text-slate-900 border border-slate-300 rounded flex items-center justify-center">
+                    <div className="w-full h-full bg-card text-[11px] font-black tracking-widest text-foreground border border-border rounded flex items-center justify-center">
                       xxxx xxxx {showLast4 ? "1234" : "xxxx"}
                     </div>
                   )}
@@ -428,10 +428,10 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
                 </div>
               </div>
             ) : (
-              <div className="p-10 text-slate-500"><FileText className="h-10 w-10 mx-auto" /></div>
+              <div className="p-10 text-muted-foreground/80"><FileText className="h-10 w-10 mx-auto" /></div>
             )}
           </div>
-          <p className="text-[10px] text-slate-400 text-center flex items-center justify-center gap-1">
+          <p className="text-[10px] text-muted-foreground text-center flex items-center justify-center gap-1">
             <ShieldAlert className="h-3.5 w-3.5 text-amber-500" />
             Detected Aadhaar regions are highlighted. Middle 8 digits redacted.
           </p>
@@ -443,7 +443,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
     return (
       <div className="flex flex-col items-center gap-4">
         <div 
-          className={`relative border border-white/10 rounded-2xl overflow-hidden bg-white max-w-sm w-full p-2 flex justify-center shadow-xl select-none ${zoom > 1 ? 'cursor-grab active:cursor-grabbing' : ''}`}
+          className={`relative border border-border rounded-2xl overflow-hidden bg-card max-w-sm w-full p-2 flex justify-center shadow-xl select-none ${zoom > 1 ? 'cursor-grab active:cursor-grabbing' : ''}`}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
@@ -458,13 +458,13 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
               width="400" height="300" loading="lazy"
             />
           ) : (
-            <div className="py-20 text-slate-400 text-center"><FileText className="h-12 w-12 mx-auto mb-2 text-slate-500" /></div>
+            <div className="py-20 text-muted-foreground text-center"><FileText className="h-12 w-12 mx-auto mb-2 text-muted-foreground/80" /></div>
           )}
           
           {/* Zoom Overlay */}
-          <div className="absolute top-2 right-2 flex bg-slate-950/80 backdrop-blur border border-white/10 rounded-lg p-0.5 z-30">
-            <button type="button" onClick={handleZoomOut} className="p-1 text-slate-400 hover:text-white cursor-pointer" title="Zoom out" aria-label="Zoom out"><ZoomOut className="h-3.5 w-3.5" /></button>
-            <button type="button" onClick={handleZoomIn} className="p-1 text-slate-400 hover:text-white cursor-pointer" title="Zoom in" aria-label="Zoom in"><ZoomIn className="h-3.5 w-3.5" /></button>
+          <div className="absolute top-2 right-2 flex bg-card/80 backdrop-blur border border-border rounded-lg p-0.5 z-30">
+            <button type="button" onClick={handleZoomOut} className="p-1 text-muted-foreground hover:text-foreground cursor-pointer" title="Zoom out" aria-label="Zoom out"><ZoomOut className="h-3.5 w-3.5" /></button>
+            <button type="button" onClick={handleZoomIn} className="p-1 text-muted-foreground hover:text-foreground cursor-pointer" title="Zoom in" aria-label="Zoom in"><ZoomIn className="h-3.5 w-3.5" /></button>
           </div>
         </div>
 
@@ -474,20 +474,20 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
               type="button"
               disabled={currentPage === 1}
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-              className="p-1.5 rounded-lg border border-white/10 hover:bg-white/5 disabled:opacity-25 transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg border border-border hover:bg-muted/5 disabled:opacity-25 transition-colors cursor-pointer"
               title="Previous page"
               aria-label="Previous page"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
-            <span className="text-xs font-mono text-slate-400">
+            <span className="text-xs font-mono text-muted-foreground">
               Page {currentPage} of {totalPages}
             </span>
             <button
               type="button"
               disabled={currentPage === totalPages}
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-              className="p-1.5 rounded-lg border border-white/10 hover:bg-white/5 disabled:opacity-25 transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg border border-border hover:bg-muted/5 disabled:opacity-25 transition-colors cursor-pointer"
               title="Next page"
               aria-label="Next page"
             >
@@ -506,7 +506,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
     // BG REMOVE PREVIEW (Transparent checkerboard background)
     if (slug === "bg-remover") {
       return (
-        <div className="relative max-w-md mx-auto p-4 border border-white/10 rounded-2xl bg-slate-900 overflow-hidden min-h-[250px] flex items-center justify-center">
+        <div className="relative max-w-md mx-auto p-4 border border-border rounded-2xl bg-card overflow-hidden min-h-[250px] flex items-center justify-center">
           <div className="absolute inset-0 bg-[linear-gradient(45deg,#334155_25%,transparent_25%),linear-gradient(-45deg,#334155_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#334155_75%),linear-gradient(-45deg,transparent_75%,#334155_75%)] bg-[size:16px_16px] bg-[position:0_0,0_8px,8px_-8px,8px_0px] opacity-25" />
           <img src={objectUrl} alt="transparent background" className="max-h-[300px] object-contain rounded-lg shadow-2xl relative z-10" width="400" height="300" loading="lazy" />
         </div>
@@ -529,7 +529,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
     return (
       <div className="relative max-w-md mx-auto">
         <div 
-          className={`relative border border-white/10 rounded-2xl overflow-hidden bg-slate-900/60 p-4 min-h-[220px] flex items-center justify-center select-none ${zoom > 1 ? 'cursor-grab active:cursor-grabbing' : ''}`}
+          className={`relative border border-border rounded-2xl overflow-hidden bg-card/60 p-4 min-h-[220px] flex items-center justify-center select-none ${zoom > 1 ? 'cursor-grab active:cursor-grabbing' : ''}`}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
@@ -545,9 +545,9 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
           {(slug === "pan-card-resize" || slug === "resize-photo" || slug === "resize-image") && renderResizeGuidelines()}
           
           {/* Zoom Overlay */}
-          <div className="absolute top-2 right-2 flex bg-slate-950/80 backdrop-blur border border-white/10 rounded-lg p-0.5 z-30">
-            <button type="button" onClick={handleZoomOut} className="p-1 text-slate-400 hover:text-white cursor-pointer" title="Zoom out" aria-label="Zoom out"><ZoomOut className="h-3.5 w-3.5" /></button>
-            <button type="button" onClick={handleZoomIn} className="p-1 text-slate-400 hover:text-white cursor-pointer" title="Zoom in" aria-label="Zoom in"><ZoomIn className="h-3.5 w-3.5" /></button>
+          <div className="absolute top-2 right-2 flex bg-card/80 backdrop-blur border border-border rounded-lg p-0.5 z-30">
+            <button type="button" onClick={handleZoomOut} className="p-1 text-muted-foreground hover:text-foreground cursor-pointer" title="Zoom out" aria-label="Zoom out"><ZoomOut className="h-3.5 w-3.5" /></button>
+            <button type="button" onClick={handleZoomIn} className="p-1 text-muted-foreground hover:text-foreground cursor-pointer" title="Zoom in" aria-label="Zoom in"><ZoomIn className="h-3.5 w-3.5" /></button>
           </div>
         </div>
       </div>
@@ -558,7 +558,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
   if (isVideo) {
     const objectUrl = getObjectUrl(primaryFile);
     return (
-      <div className="border border-white/10 rounded-2xl overflow-hidden bg-black max-w-lg mx-auto">
+      <div className="border border-border rounded-2xl overflow-hidden bg-background max-w-lg mx-auto">
         <video src={objectUrl} controls className="w-full max-h-[300px] object-contain" />
       </div>
     );
@@ -566,11 +566,11 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
 
   /* ────────── FALLBACK PREVIEW CARD ────────── */
   return (
-    <div className="flex flex-col items-center justify-center p-8 bg-slate-900 border border-white/10 rounded-2xl max-w-sm mx-auto text-center gap-3">
+    <div className="flex flex-col items-center justify-center p-8 bg-card border border-border rounded-2xl max-w-sm mx-auto text-center gap-3">
       <FileText className="h-10 w-10 text-indigo-400 stroke-[1.5]" />
       <div>
-        <p className="text-xs font-bold text-slate-200 truncate max-w-[200px]">{primaryFile.name}</p>
-        <p className="text-[10px] text-slate-500 font-mono mt-0.5">Size: {(primaryFile.size / 1024).toFixed(1)} KB</p>
+        <p className="text-xs font-bold text-foreground truncate max-w-[200px]">{primaryFile.name}</p>
+        <p className="text-[10px] text-muted-foreground/80 font-mono mt-0.5">Size: {(primaryFile.size / 1024).toFixed(1)} KB</p>
       </div>
     </div>
   );

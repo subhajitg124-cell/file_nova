@@ -121,7 +121,7 @@ export const PdfMergeGrid: React.FC = () => {
                       <img
                         src={meta.thumbnail}
                         alt={`Page 1 of ${file.name}`}
-                        className="w-full h-full object-contain bg-white"
+                        className="w-full h-full object-contain bg-card"
                         width="400" height="300" loading="lazy"
                         draggable={false}
                       />

@@ -400,7 +400,7 @@ export const ToolGrid: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveSubcategory('favorites')}
-          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${activeSubcategory === 'favorites' ? 'bg-amber-400 text-slate-950 border-amber-300' : 'bg-card text-muted-foreground border-border hover:border-amber-400 hover:text-foreground'}`}
+          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${activeSubcategory === 'favorites' ? 'bg-amber-400 text-amber-950 border-amber-300' : 'bg-card text-muted-foreground border-border hover:border-amber-400 hover:text-foreground'}`}
         >
           <Star className={`h-3.5 w-3.5 ${favoriteTools.length > 0 ? 'fill-current' : ''}`} />
           {t.favorites}

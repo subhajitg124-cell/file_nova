@@ -185,7 +185,7 @@ export const LiveVideoEditor: React.FC = () => {
     >
       <div className="flex flex-col lg:flex-row min-h-[600px]">
         <div className="flex-1 bg-black border-b lg:border-b-0 lg:border-r border-border p-3 sm:p-4">
-          <div className="rounded-xl overflow-hidden bg-black border border-white/10 min-h-[360px] flex items-center justify-center">
+          <div className="rounded-xl overflow-hidden bg-black border border-border min-h-[360px] flex items-center justify-center">
             <video
               ref={videoRef}
               src={previewUrl}
@@ -207,7 +207,7 @@ export const LiveVideoEditor: React.FC = () => {
               }}
             />
           </div>
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-300">
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-xs text-foreground/80">
             <span className="truncate">{uploadedFile?.name || sourceFile.name}</span>
             <span>{formatTime(duration)} · {formatBytes(sourceFile.size)}</span>
           </div>

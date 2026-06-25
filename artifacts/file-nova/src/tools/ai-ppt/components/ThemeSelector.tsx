@@ -23,7 +23,7 @@ export function ThemeSelector({ value, onChange }: { value: string; onChange: (i
             className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer
                         ${activeCategory === cat.id
                           ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-sm shadow-purple-500/30"
-                          : "bg-gray-100 dark:bg-gray-800 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700"}`}
+                          : "bg-muted text-muted-foreground hover:bg-muted/80"}`}
           >
             {cat.icon} {cat.label}
           </button>
@@ -54,7 +54,7 @@ function ThemeCard({ theme, selected, onSelect }: { theme: PPTTheme; selected: b
       className={`group relative flex flex-col rounded-xl overflow-hidden border-2 text-left transition-all duration-200 cursor-pointer
                   ${selected
                     ? "border-purple-500 shadow-lg shadow-purple-500/20 scale-[1.02]"
-                    : "border-gray-200 dark:border-gray-700 hover:border-purple-300 hover:scale-[1.01]"}`}
+                    : "border-border hover:border-purple-300 hover:scale-[1.01]"}`}
     >
       {/* Visual representation card */}
       <div
@@ -81,11 +81,11 @@ function ThemeCard({ theme, selected, onSelect }: { theme: PPTTheme; selected: b
         </div>
       </div>
 
-      <div className="p-3 bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-gray-800 flex-1">
-        <h4 className="text-xs font-bold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+      <div className="p-3 bg-card border-t border-border flex-1">
+        <h4 className="text-xs font-bold text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
           {theme.label}
         </h4>
-        <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 leading-tight">
+        <p className="text-[10px] text-muted-foreground mt-0.5 leading-tight">
           {theme.description}
         </p>
       </div>

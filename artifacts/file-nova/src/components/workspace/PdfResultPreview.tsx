@@ -75,7 +75,7 @@ export const PdfResultPreview: React.FC<Props> = ({ url, maxPages = 8 }) => {
       </div>
       <div className="grid grid-cols-3 gap-2">
         {pages.map((src, i) => (
-          <div key={i} className="relative rounded-lg overflow-hidden border border-border bg-white shadow-sm" style={{ aspectRatio: '3/4' }}>
+          <div key={i} className="relative rounded-lg overflow-hidden border border-border bg-card shadow-sm" style={{ aspectRatio: '3/4' }}>
             <img src={src} alt={`Page ${i + 1}`} className="w-full h-full object-contain" width="300" height="400" loading="lazy" />
             <span className="absolute bottom-1.5 right-1.5 text-[9px] font-bold bg-black/50 text-white px-1.5 py-0.5 rounded-full leading-none">
               {i + 1}
