@@ -166,7 +166,7 @@ export function AIPPTMakerWorkspace() {
     <ToolWorkspace
       toolName="AI Slide Maker"
       toolDescription="Generate a complete, themed presentation from a topic or your notes"
-      toolIcon={<Presentation className="w-5 h-5 text-purple-400" />}
+      toolIcon={<Presentation className="w-5 h-5 text-primary" />}
       accentColor="purple"
       isProcessing={isGenerating}
       isReady={step === "outline" && !!outline}
@@ -181,13 +181,13 @@ export function AIPPTMakerWorkspace() {
           <AIToolHeader />
           {step === "input" && (
             <>
-              <div className="flex gap-2 p-1 bg-slate-950/60 border border-white/5 rounded-2xl">
+              <div className="flex gap-2 p-1 bg-card/60 border border-border rounded-2xl">
                 <button
                   onClick={() => setInputMode("topic")}
                   className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     inputMode === "topic"
                       ? "bg-purple-600 text-white shadow-lg"
-                      : "text-slate-400 hover:text-slate-200"
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   Just a topic
@@ -197,7 +197,7 @@ export function AIPPTMakerWorkspace() {
                   className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     inputMode === "paste"
                       ? "bg-purple-600 text-white shadow-lg"
-                      : "text-slate-400 hover:text-slate-200"
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   Paste my notes
@@ -211,22 +211,22 @@ export function AIPPTMakerWorkspace() {
               )}
 
               <div>
-                <label className="text-xs font-black uppercase tracking-wider text-slate-400">
+                <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">
                   Audience (optional)
                 </label>
                 <input
                   value={audience}
                   onChange={(e) => setAudience(e.target.value)}
                   placeholder="e.g. Class 10 students, B.Tech viva panel"
-                  className="mt-1.5 w-full px-3.5 py-2 rounded-xl border border-white/10
-                             bg-slate-950 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 font-bold"
+                  className="mt-1.5 w-full px-3.5 py-2 rounded-xl border border-border
+                             bg-card text-xs text-foreground placeholder-muted-foreground/60 focus:outline-none focus:border-purple-500 font-bold"
                 />
               </div>
 
               <div>
-                <div className="flex justify-between text-xs font-black uppercase tracking-wider text-slate-400">
+                <div className="flex justify-between text-xs font-black uppercase tracking-wider text-muted-foreground">
                   <span>Number of slides</span>
-                  <span className="text-purple-400 font-bold">{slideCount}</span>
+                  <span className="text-primary font-bold">{slideCount}</span>
                 </div>
                 <input
                   type="range"
@@ -235,7 +235,7 @@ export function AIPPTMakerWorkspace() {
                   value={slideCount}
                   onChange={(e) => setSlideCount(Number(e.target.value))}
                   title="Number of slides"
-                  className="w-full h-1 mt-2.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                  className="w-full h-1 mt-2.5 bg-card rounded-lg appearance-none cursor-pointer accent-purple-600"
                 />
               </div>
 
@@ -243,7 +243,7 @@ export function AIPPTMakerWorkspace() {
               <ThemeSelector value={themeId} onChange={setThemeId} />
 
               {error && (
-                <p className="text-xs text-rose-400 bg-rose-950/40 border border-rose-500/20 rounded-2xl p-3">
+                <p className="text-xs text-destructive bg-destructive/10 border border-destructive/20 rounded-2xl p-3">
                   {error}
                 </p>
               )}
@@ -272,8 +272,8 @@ export function AIPPTMakerWorkspace() {
         outline ? (
           <SlidePreview outline={outline} theme={getThemeById(themeId)} />
         ) : (
-          <div className="flex flex-col items-center justify-center h-full text-slate-500 text-xs py-20 text-center space-y-3">
-            <Presentation className="h-10 w-10 text-slate-600 stroke-[1.5] animate-pulse" />
+          <div className="flex flex-col items-center justify-center h-full text-muted-foreground/80 text-xs py-20 text-center space-y-3">
+            <Presentation className="h-10 w-10 text-muted-foreground/60 stroke-[1.5] animate-pulse" />
             <span>Your presentation visual deck preview will display here once outline generates.</span>
           </div>
         )

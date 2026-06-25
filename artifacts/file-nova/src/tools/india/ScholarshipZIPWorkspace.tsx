@@ -119,7 +119,7 @@ export const ScholarshipZIPWorkspace: React.FC = () => {
     <div className="space-y-6">
       {/* Portal Selection preset */}
       <div className="space-y-2">
-        <label className="text-xs font-black uppercase tracking-wider text-slate-400">Scholarship Portal Preset</label>
+        <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">Scholarship Portal Preset</label>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {[
             { id: "nsp", label: "NSP (National)" },
@@ -141,8 +141,8 @@ export const ScholarshipZIPWorkspace: React.FC = () => {
               }}
               className={`py-2 px-3 rounded-xl border text-xs font-bold hover:scale-[1.02] active:scale-98 transition-all cursor-pointer ${
                 portal === preset.id
-                  ? "border-lime-500 bg-lime-500/10 text-white"
-                  : "border-white/[0.06] bg-slate-900/60 hover:bg-slate-900 text-slate-300"
+                  ? "border-primary bg-primary/10 text-foreground"
+                  : "border-border bg-card/60 hover:bg-card text-foreground/80"
               }`}
             >
               {preset.label}
@@ -154,41 +154,41 @@ export const ScholarshipZIPWorkspace: React.FC = () => {
       {/* Suffix (Roll No / App ID) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <label className="text-xs font-black uppercase tracking-wider text-slate-400">Roll No / Application ID Suffix</label>
+          <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">Roll No / Application ID Suffix</label>
           <input
             type="text"
             value={rollNo}
             onChange={(e) => setRollNo(e.target.value)}
             placeholder="e.g. 1029482"
-            className="w-full bg-slate-950/60 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-lime-500 font-mono"
+            className="w-full bg-card/60 border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary font-mono"
           />
         </div>
 
         <div className="space-y-2">
-          <label className="text-xs font-black uppercase tracking-wider text-slate-400">ZIP File Name</label>
+          <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">ZIP File Name</label>
           <input
             type="text"
             value={zipName}
             onChange={(e) => setZipName(e.target.value)}
             placeholder="scholarship_documents.zip"
-            className="w-full bg-slate-950/60 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-lime-500 font-mono"
+            className="w-full bg-card/60 border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary font-mono"
           />
         </div>
       </div>
 
       {/* Auto Rename Option */}
-      <label className="flex items-center gap-3 cursor-pointer text-xs font-medium text-slate-300">
+      <label className="flex items-center gap-3 cursor-pointer text-xs font-medium text-foreground/80">
         <input
           type="checkbox"
           checked={autoRename}
           onChange={(e) => setAutoRename(e.target.checked)}
-          className="h-4 w-4 rounded border-white/10 text-lime-600 focus:ring-0 cursor-pointer"
+          className="h-4 w-4 rounded border-border text-primary focus:ring-0 cursor-pointer"
         />
         <span>Auto-rename files to portal specification (e.g. PHOTO.jpg)</span>
       </label>
 
       {/* Information Banner */}
-      <div className="bg-slate-950/60 border border-white/[0.05] rounded-2xl p-4 flex gap-2.5 text-xs text-slate-400 leading-relaxed font-medium">
+      <div className="bg-card/60 border border-border/50 rounded-2xl p-4 flex gap-2.5 text-xs text-muted-foreground leading-relaxed font-medium">
         <span>✅</span>
         <p>
           All operations run client-side. Your uploaded files never leave your device. Naming specifications are automatically applied.
@@ -199,7 +199,7 @@ export const ScholarshipZIPWorkspace: React.FC = () => {
 
   const previewPanel = (
     <div className="space-y-4">
-      <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 mb-2">Checklist & Document slots</h3>
+      <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground mb-2">Checklist & Document slots</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {slots.map((slot) => {
           const hasFile = slot.file !== null;
@@ -208,22 +208,22 @@ export const ScholarshipZIPWorkspace: React.FC = () => {
               key={slot.id}
               className={`p-3 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
                 hasFile
-                  ? "border-lime-500/25 bg-lime-500/5 text-white"
+                  ? "border-primary/25 bg-primary/5 text-foreground"
                   : slot.required
-                    ? "border-red-500/10 bg-red-500/5 text-slate-300"
-                    : "border-white/[0.05] bg-slate-900/30 text-slate-400"
+                    ? "border-destructive/20 bg-destructive/5 text-foreground/80"
+                    : "border-border bg-card/80 text-muted-foreground"
               }`}
             >
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className={`text-[10px] font-black uppercase tracking-wider ${hasFile ? "text-lime-400" : slot.required ? "text-red-400" : "text-slate-500"}`}>
+                  <span className={`text-[10px] font-black uppercase tracking-wider ${hasFile ? "text-primary" : slot.required ? "text-destructive" : "text-muted-foreground/80"}`}>
                     {slot.required ? "Required" : "Optional"}
                   </span>
-                  <span className="text-[10px] text-slate-500 font-mono">Max {slot.maxSizeKb}KB</span>
+                  <span className="text-[10px] text-muted-foreground/80 font-mono">Max {slot.maxSizeKb}KB</span>
                 </div>
-                <h4 className="text-xs font-bold text-slate-200 mt-1 truncate">{slot.label}</h4>
+                <h4 className="text-xs font-bold text-foreground/90 mt-1 truncate">{slot.label}</h4>
                 {hasFile && (
-                  <p className="text-[9px] text-slate-400 font-mono mt-0.5 truncate">{slot.file!.name}</p>
+                  <p className="text-[9px] text-muted-foreground font-mono mt-0.5 truncate">{slot.file!.name}</p>
                 )}
               </div>
               
@@ -232,12 +232,12 @@ export const ScholarshipZIPWorkspace: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => handleRemoveSlotFile(slot.id)}
-                    className="p-1.5 rounded-lg hover:bg-red-500/10 text-slate-400 hover:text-red-400 transition-colors cursor-pointer text-xs font-black"
+                    className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors cursor-pointer text-xs font-black"
                   >
                     Remove
                   </button>
                 ) : (
-                  <label className="px-3 py-1.5 bg-slate-800 hover:bg-slate-750 border border-white/5 text-white text-[10px] font-black rounded-lg transition-all cursor-pointer">
+                  <label className="px-3 py-1.5 bg-muted hover:bg-muted/80 border border-border text-foreground text-[10px] font-black rounded-lg transition-all cursor-pointer">
                     Upload
                     <input
                       type="file"

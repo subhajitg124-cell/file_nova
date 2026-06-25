@@ -12,7 +12,7 @@ export const PastedContentPanel: React.FC<PastedContentPanelProps> = ({ value, o
   return (
     <div className="space-y-3">
       <div>
-        <label className="text-xs font-black uppercase tracking-wider text-slate-400">
+        <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">
           Paste Raw Notes / Outline
         </label>
         <textarea
@@ -20,7 +20,7 @@ export const PastedContentPanel: React.FC<PastedContentPanelProps> = ({ value, o
           onChange={(e) => onChange(e.target.value)}
           placeholder="Paste bullet lists, paragraphs, or a messy draft here. We will structure it into beautiful slides..."
           rows={6}
-          className="mt-1.5 w-full bg-slate-950/80 border border-white/10 rounded-2xl p-4 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 font-mono leading-relaxed"
+          className="mt-1.5 w-full bg-card/80 border border-border rounded-2xl p-4 text-xs text-foreground placeholder-muted-foreground focus:outline-none focus:border-purple-500 font-mono leading-relaxed"
         />
       </div>
 

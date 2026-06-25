@@ -87,7 +87,7 @@ export const OCRScanWorkspace: React.FC = () => {
     <div className="space-y-6">
       {/* Multilingual language selector chips */}
       <div className="space-y-2">
-        <label className="text-xs font-black uppercase tracking-wider text-slate-400">OCR Languages</label>
+        <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">OCR Languages</label>
         <div className="flex gap-2 flex-wrap">
           {[
             { id: "eng", label: "English" },
@@ -104,8 +104,8 @@ export const OCRScanWorkspace: React.FC = () => {
                 onClick={() => toggleLanguage(lang.id)}
                 className={`py-2 px-3.5 rounded-xl border text-xs font-bold hover:scale-[1.02] active:scale-98 transition-all cursor-pointer ${
                   active
-                    ? "border-purple-500 bg-purple-500/10 text-white"
-                    : "border-white/[0.06] bg-slate-900/60 hover:bg-slate-900 text-slate-400 hover:text-white"
+                    ? "border-purple-500 bg-primary/10 text-foreground"
+                    : "border-border bg-card/60 hover:bg-muted text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {lang.label}
@@ -117,7 +117,7 @@ export const OCRScanWorkspace: React.FC = () => {
 
       {/* Engine selection: Fast vs Accurate */}
       <div className="space-y-2">
-        <label className="text-xs font-black uppercase tracking-wider text-slate-400">OCR Engine Mode</label>
+        <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">OCR Engine Mode</label>
         <div className="grid grid-cols-2 gap-3">
           {[
             { id: "fast", label: "Fast (Browser-local)", desc: "100% private, client-side" },
@@ -128,12 +128,12 @@ export const OCRScanWorkspace: React.FC = () => {
               onClick={() => setMode(item.id as any)}
               className={`p-3.5 rounded-2xl border text-left flex flex-col justify-between hover:scale-[1.02] active:scale-98 transition-all cursor-pointer ${
                 mode === item.id
-                  ? "border-purple-500 bg-purple-500/10 text-white"
-                  : "border-white/[0.06] bg-slate-900/60 hover:bg-slate-900 text-slate-300"
+                  ? "border-purple-500 bg-primary/10 text-foreground"
+                  : "border-border bg-card/60 hover:bg-muted text-foreground/80"
               }`}
             >
               <span className="text-xs font-black">{item.label}</span>
-              <span className="text-[9px] text-slate-500 mt-1">{item.desc}</span>
+              <span className="text-[9px] text-muted-foreground/80 mt-1">{item.desc}</span>
             </button>
           ))}
         </div>
@@ -141,18 +141,18 @@ export const OCRScanWorkspace: React.FC = () => {
 
       {/* Output Format */}
       <div className="space-y-2">
-        <label className="text-xs font-black uppercase tracking-wider text-slate-400 font-medium">Output format</label>
+        <label className="text-xs font-black uppercase tracking-wider text-muted-foreground font-medium">Output format</label>
         <div className="flex gap-4">
           {["TXT (Plain Text)", "PDF (Searchable)", "DOCX (Word)"].map((label, idx) => {
             const key = idx === 0 ? "txt" : idx === 1 ? "pdf" : "docx";
             return (
-              <label key={key} className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-300">
+              <label key={key} className="flex items-center gap-2 cursor-pointer text-xs font-bold text-foreground/80">
                 <input
                   type="radio"
                   name="format"
                   checked={format === key}
                   onChange={() => setFormat(key as any)}
-                  className="text-purple-600 focus:ring-0 cursor-pointer"
+                  className="text-primary focus:ring-0 cursor-pointer"
                 />
                 <span>{label}</span>
               </label>
@@ -162,13 +162,13 @@ export const OCRScanWorkspace: React.FC = () => {
       </div>
 
       {/* Advanced option checkboxes */}
-      <div className="space-y-3 pt-3 border-t border-white/[0.05]">
-        <label className="flex items-center gap-3 cursor-pointer text-xs font-medium text-slate-300">
+      <div className="space-y-3 pt-3 border-t border-border">
+        <label className="flex items-center gap-3 cursor-pointer text-xs font-medium text-foreground/80">
           <input
             type="checkbox"
             checked={preserveLayout}
             onChange={(e) => setPreserveLayout(e.target.checked)}
-            className="h-4 w-4 rounded border-white/10 text-purple-600 focus:ring-0 cursor-pointer"
+            className="h-4 w-4 rounded border-border text-primary focus:ring-0 cursor-pointer"
           />
           <span>Preserve column structures and alignments</span>
         </label>
@@ -180,23 +180,23 @@ export const OCRScanWorkspace: React.FC = () => {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
       {/* Column 1: Scanned image preview */}
       <div>
-        <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-2">Source Document Preview</h4>
+        <h4 className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/80 mb-2">Source Document Preview</h4>
         <PreviewPanel files={rawFiles} slug="ocr" />
       </div>
 
       {/* Column 2: Editable text area */}
       <div className="space-y-2">
-        <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-2">Extracted Transcription</h4>
+        <h4 className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/80 mb-2">Extracted Transcription</h4>
         {extractedText ? (
           <textarea
             value={extractedText}
             onChange={(e) => setExtractedText(e.target.value)}
-            className="w-full min-h-[260px] bg-slate-950 border border-white/10 rounded-2xl p-4 text-xs font-mono text-slate-200 focus:outline-none focus:border-purple-500 leading-relaxed resize-none"
+            className="w-full min-h-[260px] bg-card border border-border rounded-2xl p-4 text-xs font-mono text-foreground/90 focus:outline-none focus:border-purple-500 leading-relaxed resize-none"
             placeholder="Parsed text will display here..."
           />
         ) : (
-          <div className="w-full min-h-[260px] border border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center text-center p-4 text-slate-500 text-xs">
-            <FileText className="h-8 w-8 text-slate-600 mb-2 stroke-[1.5]" />
+          <div className="w-full min-h-[260px] border border-dashed border-border rounded-2xl flex flex-col items-center justify-center text-center p-4 text-muted-foreground/80 text-xs">
+            <FileText className="h-8 w-8 text-muted-foreground/60 mb-2 stroke-[1.5]" />
             <span>Transcription empty. Click &quot;Process Files&quot; to parse text layers.</span>
           </div>
         )}

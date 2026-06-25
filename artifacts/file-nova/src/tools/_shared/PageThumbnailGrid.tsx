@@ -38,7 +38,7 @@ const LazyImage: React.FC<{ src: string; alt: string; className?: string }> = ({
   }, []);
 
   return (
-    <div ref={imgRef} className={`relative w-full h-full bg-slate-900 flex items-center justify-center ${className}`}>
+    <div ref={imgRef} className={`relative w-full h-full bg-muted flex items-center justify-center ${className}`}>
       {isInView ? (
         <img
           src={src}
@@ -51,7 +51,7 @@ const LazyImage: React.FC<{ src: string; alt: string; className?: string }> = ({
         />
       ) : null}
       {!isLoaded && (
-        <div className="absolute inset-0 flex items-center justify-center bg-slate-900 text-slate-600 text-[10px] font-bold">
+        <div className="absolute inset-0 flex items-center justify-center bg-muted text-muted-foreground/60 text-[10px] font-bold">
           Loading...
         </div>
       )}
@@ -149,13 +149,13 @@ export const PageThumbnailGrid: React.FC<PageThumbnailGridProps> = ({
             className={`group relative aspect-[3/4] rounded-2xl border transition-all duration-150 overflow-hidden flex flex-col justify-between
               ${mode === "select" ? "cursor-pointer" : ""}
               ${mode === "reorder" ? "cursor-grab active:cursor-grabbing" : ""}
-              ${isSelected ? "border-indigo-500 ring-2 ring-indigo-500/20 shadow-lg bg-indigo-500/5" : "border-white/10 bg-slate-900/60 hover:border-white/25"}
-              ${isBeingDragged ? "opacity-40 scale-95 border-indigo-500/40 bg-indigo-550/5" : ""}
-              ${isDragTarget ? "border-indigo-500 bg-indigo-500/10 scale-102 ring-2 ring-indigo-500/30" : ""}
+              ${isSelected ? "border-indigo-500 ring-2 ring-indigo-500/20 shadow-lg bg-primary/5" : "border-border bg-muted/60 hover:border-border"}
+              ${isBeingDragged ? "opacity-40 scale-95 border-indigo-500/40 bg-primary/5" : ""}
+              ${isDragTarget ? "border-indigo-500 bg-primary/10 scale-102 ring-2 ring-indigo-500/30" : ""}
             `}
           >
             {/* Page number badge */}
-            <div className="absolute top-2 left-2 z-10 px-2 py-0.5 rounded-lg bg-slate-950/80 border border-white/10 text-[9px] font-black tracking-wider text-slate-300 select-none">
+            <div className="absolute top-2 left-2 z-10 px-2 py-0.5 rounded-lg bg-card/80 border border-border text-[9px] font-black tracking-wider text-foreground/80 select-none">
               P. {page.pageNumber}
             </div>
 
@@ -168,13 +168,13 @@ export const PageThumbnailGrid: React.FC<PageThumbnailGridProps> = ({
 
             {/* Drag Handle */}
             {mode === "reorder" && (
-              <div className="absolute top-2 right-2 z-10 h-5 w-5 rounded-lg bg-slate-950/80 border border-white/10 flex items-center justify-center text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="absolute top-2 right-2 z-10 h-5 w-5 rounded-lg bg-card/80 border border-border flex items-center justify-center text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
                 <GripVertical className="h-3 w-3" />
               </div>
             )}
 
             {/* Thumbnail Canvas */}
-            <div className="flex-1 flex items-center justify-center p-3 relative overflow-hidden bg-slate-950/20">
+            <div className="flex-1 flex items-center justify-center p-3 relative overflow-hidden bg-card/20">
               <div
                 style={{ transform: `rotate(${rot}deg)` }}
                 className="w-full h-full transition-transform duration-200"
@@ -189,14 +189,14 @@ export const PageThumbnailGrid: React.FC<PageThumbnailGridProps> = ({
 
             {/* Hover actions in rotate-individual mode */}
             {mode === "rotate-individual" && onRotatePage && (
-              <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 z-10 backdrop-blur-[1px]">
+              <div className="absolute inset-0 bg-card/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 z-10 backdrop-blur-[1px]">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     onRotatePage(page.pageNumber, 270); // 90 CCW / 270 CW
                   }}
                   title="Rotate CCW"
-                  className="p-2.5 rounded-xl bg-slate-900 border border-white/10 hover:bg-slate-800 text-slate-300 hover:text-white transition-all cursor-pointer shadow-lg hover:scale-105 active:scale-95"
+                  className="p-2.5 rounded-xl bg-muted border border-border hover:bg-accent text-foreground/80 hover:text-foreground transition-all cursor-pointer shadow-lg hover:scale-105 active:scale-95"
                 >
                   <RotateCcw className="h-4 w-4" />
                 </button>
@@ -206,7 +206,7 @@ export const PageThumbnailGrid: React.FC<PageThumbnailGridProps> = ({
                     onRotatePage(page.pageNumber, 90); // 90 CW
                   }}
                   title="Rotate CW"
-                  className="p-2.5 rounded-xl bg-slate-900 border border-white/10 hover:bg-slate-800 text-slate-300 hover:text-white transition-all cursor-pointer shadow-lg hover:scale-105 active:scale-95"
+                  className="p-2.5 rounded-xl bg-muted border border-border hover:bg-accent text-foreground/80 hover:text-foreground transition-all cursor-pointer shadow-lg hover:scale-105 active:scale-95"
                 >
                   <RotateCw className="h-4 w-4" />
                 </button>

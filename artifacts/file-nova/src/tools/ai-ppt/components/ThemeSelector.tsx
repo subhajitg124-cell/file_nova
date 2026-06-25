@@ -9,7 +9,7 @@ export function ThemeSelector({ value, onChange }: { value: string; onChange: (i
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <label className="text-xs font-black uppercase tracking-wider text-slate-400 mb-2 block">
+        <label className="text-xs font-black uppercase tracking-wider text-muted-foreground mb-2 block">
           Choose a theme
         </label>
       </div>

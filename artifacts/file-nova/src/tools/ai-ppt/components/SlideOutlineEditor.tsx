@@ -118,7 +118,7 @@ export function SlideOutlineEditor({ outline, onChange, onRegenerateSlide, theme
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-black uppercase tracking-wider text-slate-400">
+          <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">
             Presentation Title
           </label>
           <input
@@ -139,7 +139,7 @@ export function SlideOutlineEditor({ outline, onChange, onRegenerateSlide, theme
       {/* Slide Cards Accordion Header */}
       <div className="space-y-3">
         <div className="flex justify-between items-center">
-          <label className="text-xs font-black uppercase tracking-wider text-slate-400">
+          <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">
             Slides Outline
           </label>
           <button
@@ -220,7 +220,7 @@ export function SlideOutlineEditor({ outline, onChange, onRegenerateSlide, theme
                   <div className="p-4 bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-gray-800 space-y-4">
                     {/* Heading Input */}
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                      <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
                         Slide Heading
                       </label>
                       <input
@@ -235,7 +235,7 @@ export function SlideOutlineEditor({ outline, onChange, onRegenerateSlide, theme
                     {/* Bullets Input List */}
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                        <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
                           Bullet Points
                         </label>
                         <button
@@ -272,7 +272,7 @@ export function SlideOutlineEditor({ outline, onChange, onRegenerateSlide, theme
 
                     {/* Speaker Notes */}
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                      <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
                         Speaker Notes
                       </label>
                       <textarea
