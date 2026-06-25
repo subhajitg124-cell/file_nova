@@ -186,7 +186,7 @@ export function AIPPTMakerWorkspace() {
                   onClick={() => setInputMode("topic")}
                   className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     inputMode === "topic"
-                      ? "bg-purple-600 text-white shadow-lg"
+                      ? "bg-primary text-primary-foreground shadow-lg"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
@@ -196,7 +196,7 @@ export function AIPPTMakerWorkspace() {
                   onClick={() => setInputMode("paste")}
                   className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     inputMode === "paste"
-                      ? "bg-purple-600 text-white shadow-lg"
+                      ? "bg-primary text-primary-foreground shadow-lg"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
@@ -219,7 +219,7 @@ export function AIPPTMakerWorkspace() {
                   onChange={(e) => setAudience(e.target.value)}
                   placeholder="e.g. Class 10 students, B.Tech viva panel"
                   className="mt-1.5 w-full px-3.5 py-2 rounded-xl border border-border
-                             bg-card text-xs text-foreground placeholder-muted-foreground/60 focus:outline-none focus:border-purple-500 font-bold"
+                             bg-card text-xs text-foreground placeholder-muted-foreground/60 focus:outline-none focus:border-primary font-bold"
                 />
               </div>
 
@@ -235,7 +235,7 @@ export function AIPPTMakerWorkspace() {
                   value={slideCount}
                   onChange={(e) => setSlideCount(Number(e.target.value))}
                   title="Number of slides"
-                  className="w-full h-1 mt-2.5 bg-card rounded-lg appearance-none cursor-pointer accent-purple-600"
+                  className="w-full h-1 mt-2.5 bg-card rounded-lg appearance-none cursor-pointer accent-primary"
                 />
               </div>
 

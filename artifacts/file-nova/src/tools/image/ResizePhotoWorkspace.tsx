@@ -232,7 +232,7 @@ export const ResizePhotoWorkspace: React.FC = () => {
                   c.value === "transparent"
                     ? "bg-transparent"
                     : c.value === "#ffffff"
-                    ? "bg-white"
+                    ? "bg-white ring-1 ring-border"
                     : "bg-blue-500"
                 }`}
                 aria-hidden="true"

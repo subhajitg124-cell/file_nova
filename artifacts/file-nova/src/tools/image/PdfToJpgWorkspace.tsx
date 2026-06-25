@@ -63,8 +63,8 @@ export const PdfToJpgWorkspace: React.FC = () => {
         <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">Resolution (DPI)</label>
         <div className="grid grid-cols-3 gap-2">
           {[
-            { id: 150, label: "72 DPI", desc: "Screen" },
-            { id: 200, label: "150 DPI", desc: "Standard" },
+            { id: 72, label: "72 DPI", desc: "Screen" },
+            { id: 150, label: "150 DPI", desc: "Standard" },
             { id: 300, label: "300 DPI", desc: "Print" },
           ].map((d) => (
             <button

@@ -104,7 +104,7 @@ export const OCRScanWorkspace: React.FC = () => {
                 onClick={() => toggleLanguage(lang.id)}
                 className={`py-2 px-3.5 rounded-xl border text-xs font-bold hover:scale-[1.02] active:scale-98 transition-all cursor-pointer ${
                   active
-                    ? "border-purple-500 bg-primary/10 text-foreground"
+                    ? "border-primary bg-primary/10 text-foreground"
                     : "border-border bg-card/60 hover:bg-muted text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -128,7 +128,7 @@ export const OCRScanWorkspace: React.FC = () => {
               onClick={() => setMode(item.id as any)}
               className={`p-3.5 rounded-2xl border text-left flex flex-col justify-between hover:scale-[1.02] active:scale-98 transition-all cursor-pointer ${
                 mode === item.id
-                  ? "border-purple-500 bg-primary/10 text-foreground"
+                  ? "border-primary bg-primary/10 text-foreground"
                   : "border-border bg-card/60 hover:bg-muted text-foreground/80"
               }`}
             >
@@ -191,7 +191,7 @@ export const OCRScanWorkspace: React.FC = () => {
           <textarea
             value={extractedText}
             onChange={(e) => setExtractedText(e.target.value)}
-            className="w-full min-h-[260px] bg-card border border-border rounded-2xl p-4 text-xs font-mono text-foreground/90 focus:outline-none focus:border-purple-500 leading-relaxed resize-none"
+            className="w-full min-h-[260px] bg-card border border-border rounded-2xl p-4 text-xs font-mono text-foreground/90 focus:outline-none focus:border-primary leading-relaxed resize-none"
             placeholder="Parsed text will display here..."
           />
         ) : (
