@@ -28,20 +28,22 @@ export default defineConfig(() => {
       tailwindcss(),
       VitePWA({
         registerType: 'autoUpdate',
-        includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
+        includeAssets: ['favicons/favicon.ico', 'robots.txt', 'favicons/apple-touch-icon.png'],
         manifest: {
           name: 'FileNova',
           short_name: 'FileNova',
           description: 'Free online PDF tools built for India. Merge, split, compress, convert PDFs and manage Indian government documents offline.',
-          theme_color: '#4f46e5',
-          background_color: '#090d16',
+          theme_color: '#0d1b2a',
+          background_color: '#0d1b2a',
           display: 'standalone',
           orientation: 'portrait-primary',
           scope: '/',
           start_url: '/',
           icons: [
-            { src: '/icon-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
-            { src: '/icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+            { src: '/favicons/android-chrome-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+            { src: '/favicons/android-chrome-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+            { src: '/favicons/android-chrome-192x192-maskable.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
+            { src: '/favicons/android-chrome-512x512-maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
           ],
         },
         workbox: {

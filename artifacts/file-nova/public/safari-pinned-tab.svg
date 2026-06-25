@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <rect width="1024" height="1024" rx="204.8" fill="#0d1b2a"/>
+  <g transform="translate(153.6, 204.8)">
+    <!-- F letter -->
+    <path d="M0 0h184.32v614.4h245.76v122.88H0V0z" fill="url(#gradient)"/>
+    <!-- N letter -->
+    <path d="M307.2 0h184.32l204.8 409.6V0h184.32v737.28H675.84L471.04 327.68v409.6H286.72V0h20.48z" fill="url(#gradient)"/>
+  </g>
+  <!-- Sparkle stars -->
+  <g transform="translate(716.8, 153.6)">
+    <path d="M30.72 0l7.68 23.04L61.44 30.72l-23.04 7.68L30.72 61.44l-7.68-23.04L0 30.72l23.04-7.68z" fill="#5eead4"/>
+  </g>
+  <g transform="translate(793.6, 204.8) scale(0.6)">
+    <path d="M30.72 0l7.68 23.04L61.44 30.72l-23.04 7.68L30.72 61.44l-7.68-23.04L0 30.72l23.04-7.68z" fill="#5eead4"/>
+  </g>
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e3a8a"/>
+      <stop offset="50%" style="stop-color:#6b21a8"/>
+      <stop offset="100%" style="stop-color:#c026d3"/>
+    </linearGradient>
+  </defs>
+</svg>

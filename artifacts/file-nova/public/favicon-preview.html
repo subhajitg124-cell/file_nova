@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FileNova Favicon Preview</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0d1b2a;
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 900;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .subtitle {
+      color: #94a3b8;
+      font-size: 1rem;
+      margin-bottom: 2rem;
+    }
+    .section {
+      margin-bottom: 3rem;
+    }
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #1e3a5f;
+      color: #cbd5e1;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 1.5rem;
+    }
+    .card {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      border: 1px solid #334155;
+      transition: all 0.2s ease;
+    }
+    .card:hover {
+      border-color: #6366f1;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.2);
+    }
+    .card img {
+      display: block;
+      margin: 0 auto 1rem;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+    }
+    .card-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .card-size {
+      font-size: 0.75rem;
+      color: #64748b;
+      margin-top: 0.25rem;
+    }
+    .ico-preview {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .ico-item {
+      background: #1e293b;
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+      border: 1px solid #334155;
+    }
+    .code-block {
+      background: #0f172a;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+      overflow-x: auto;
+      border: 1px solid #1e293b;
+    }
+    .code-block pre {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.875rem;
+      line-height: 1.6;
+      color: #e2e8f0;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .code-block .tag {
+      color: #f472b6;
+    }
+    .code-block .attr {
+      color: #a78bfa;
+    }
+    .code-block .value {
+      color: #34d399;
+    }
+    .code-block .comment {
+      color: #64748b;
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-left: 0.5rem;
+    }
+    .badge-ico {
+      background: #7c3aed20;
+      color: #a78bfa;
+    }
+    .badge-png {
+      background: #10b98120;
+      color: #34d399;
+    }
+    .badge-apple {
+      background: #f59e0b20;
+      color: #fbbf24;
+    }
+    .badge-android {
+      background: #3b82f620;
+      color: #60a5fa;
+    }
+    .footer {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid #1e3a5f;
+      text-align: center;
+      color: #64748b;
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>FileNova Favicon Preview</h1>
+    <p class="subtitle">Complete favicon package generated from logo.png</p>
+
+    <!-- Standard PNG Favicons -->
+    <section class="section">
+      <h2 class="section-title">Standard PNG Favicons <span class="badge badge-png">PNG</span></h2>
+      <div class="grid">
+        <div class="card">
+          <img src="favicons/favicon-16x16.png" alt="16x16" width="16" height="16" style="width: 32px; height: 32px;">
+          <div class="card-label">favicon-16x16.png</div>
+          <div class="card-size">16 × 16</div>
+        </div>
+        <div class="card">
+          <img src="favicons/favicon-32x32.png" alt="32x32" width="32" height="32" style="width: 48px; height: 48px;">
+          <div class="card-label">favicon-32x32.png</div>
+          <div class="card-size">32 × 32</div>
+        </div>
+        <div class="card">
+          <img src="favicons/favicon-48x48.png" alt="48x48" width="48" height="48" style="width: 56px; height: 56px;">
+          <div class="card-label">favicon-48x48.png</div>
+          <div class="card-size">48 × 48</div>
+        </div>
+        <div class="card">
+          <img src="favicons/favicon-96x96.png" alt="96x96" width="96" height="96">
+          <div class="card-label">favicon-96x96.png</div>
+          <div class="card-size">96 × 96</div>
+        </div>
+        <div class="card">
+          <img src="favicons/favicon-128x128.png" alt="128x128" width="128" height="128" style="width: 96px; height: 96px;">
+          <div class="card-label">favicon-128x128.png</div>
+          <div class="card-size">128 × 128</div>
+        </div>
+        <div class="card">
+          <img src="favicons/favicon-192x192.png" alt="192x192" width="192" height="192" style="width: 128px; height: 128px;">
+          <div class="card-label">favicon-192x192.png</div>
+          <div class="card-size">192 × 192</div>
+        </div>
+        <div class="card">
+          <img src="favicons/favicon-256x256.png" alt="256x256" width="256" height="256" style="width: 128px; height: 128px;">
+          <div class="card-label">favicon-256x256.png</div>
+          <div class="card-size">256 × 256</div>
+        </div>
+        <div class="card">
+          <img src="favicons/favicon-512x512.png" alt="512x512" width="512" height="512" style="width: 128px; height: 128px;">
+          <div class="card-label">favicon-512x512.png</div>
+          <div class="card-size">512 × 512</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ICO Favicon -->
+    <section class="section">
+      <h2 class="section-title">Multi-size ICO <span class="badge badge-ico">ICO</span></h2>
+      <div class="ico-preview">
+        <div class="ico-item">
+          <img src="favicons/favicon.ico" alt="favicon.ico" width="32" height="32" style="width: 48px; height: 48px;">
+          <div class="card-label">favicon.ico</div>
+          <div class="card-size">16, 24, 32, 48, 64, 128, 256</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Apple Touch Icons -->
+    <section class="section">
+      <h2 class="section-title">Apple Touch Icons <span class="badge badge-apple">Apple</span></h2>
+      <div class="grid">
+        <div class="card">
+          <img src="favicons/apple-touch-icon.png" alt="180x180" width="180" height="180" style="width: 96px; height: 96px;">
+          <div class="card-label">apple-touch-icon.png</div>
+          <div class="card-size">180 × 180</div>
+        </div>
+        <div class="card">
+          <img src="favicons/apple-touch-icon-167x167.png" alt="167x167" width="167" height="167" style="width: 84px; height: 84px;">
+          <div class="card-label">apple-touch-icon-167x167.png</div>
+          <div class="card-size">167 × 167</div>
+        </div>
+        <div class="card">
+          <img src="favicons/apple-touch-icon-152x152.png" alt="152x152" width="152" height="152" style="width: 76px; height: 76px;">
+          <div class="card-label">apple-touch-icon-152x152.png</div>
+          <div class="card-size">152 × 152</div>
+        </div>
+        <div class="card">
+          <img src="favicons/apple-touch-icon-120x120.png" alt="120x120" width="120" height="120" style="width: 60px; height: 60px;">
+          <div class="card-label">apple-touch-icon-120x120.png</div>
+          <div class="card-size">120 × 120</div>
+        </div>
+        <div class="card">
+          <img src="favicons/apple-touch-icon-100x100.png" alt="100x100" width="100" height="100" style="width: 60px; height: 60px;">
+          <div class="card-label">apple-touch-icon-100x100.png</div>
+          <div class="card-size">100 × 100</div>
+        </div>
+        <div class="card">
+          <img src="favicons/apple-touch-icon-76x76.png" alt="76x76" width="76" height="76" style="width: 56px; height: 56px;">
+          <div class="card-label">apple-touch-icon-76x76.png</div>
+          <div class="card-size">76 × 76</div>
+        </div>
+        <div class="card">
+          <img src="favicons/apple-touch-icon-60x60.png" alt="60x60" width="60" height="60" style="width: 48px; height: 48px;">
+          <div class="card-label">apple-touch-icon-60x60.png</div>
+          <div class="card-size">60 × 60</div>
+        </div>
+        <div class="card">
+          <img src="favicons/apple-touch-icon-57x57.png" alt="57x57" width="57" height="57" style="width: 48px; height: 48px;">
+          <div class="card-label">apple-touch-icon-57x57.png</div>
+          <div class="card-size">57 × 57</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Android Chrome Icons -->
+    <section class="section">
+      <h2 class="section-title">Android Chrome Icons <span class="badge badge-android">Android</span></h2>
+      <div class="grid">
+        <div class="card">
+          <img src="favicons/android-chrome-192x192.png" alt="192x192" width="192" height="192" style="width: 96px; height: 96px;">
+          <div class="card-label">android-chrome-192x192.png</div>
+          <div class="card-size">192 × 192</div>
+        </div>
+        <div class="card">
+          <img src="favicons/android-chrome-512x512.png" alt="512x512" width="512" height="512" style="width: 128px; height: 128px;">
+          <div class="card-label">android-chrome-512x512.png</div>
+          <div class="card-size">512 × 512</div>
+        </div>
+        <div class="card">
+          <img src="favicons/android-chrome-192x192-maskable.png" alt="192x192 maskable" width="192" height="192" style="width: 96px; height: 96px;">
+          <div class="card-label">android-chrome-192x192-maskable.png</div>
+          <div class="card-size">192 × 192 (maskable)</div>
+        </div>
+        <div class="card">
+          <img src="favicons/android-chrome-512x512-maskable.png" alt="512x512 maskable" width="512" height="512" style="width: 128px; height: 128px;">
+          <div class="card-label">android-chrome-512x512-maskable.png</div>
+          <div class="card-size">512 × 512 (maskable)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Safari Pinned Tab -->
+    <section class="section">
+      <h2 class="section-title">Safari Pinned Tab</h2>
+      <div class="ico-preview">
+        <div class="ico-item">
+          <img src="safari-pinned-tab.svg" alt="safari-pinned-tab.svg" width="48" height="48">
+          <div class="card-label">safari-pinned-tab.svg</div>
+          <div class="card-size">Monochrome SVG</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HTML Head Code -->
+    <section class="section">
+      <h2 class="section-title">HTML Head Code</h2>
+      <div class="code-block">
+<pre><span class="comment">&lt;!-- Basic Favicon --&gt;</span>
+<span class="tag">&lt;link</span> <span class="attr">rel</span>=<span class="value">"icon"</span> <span class="attr">type</span>=<span class="value">"image/x-icon"</span> <span class="attr">href</span>=<span class="value">"/favicons/favicon.ico"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;link</span> <span class="attr">rel</span>=<span class="value">"icon"</span> <span class="attr">type</span>=<span class="value">"image/png"</span> <span class="attr">sizes</span>=<span class="value">"32x32"</span> <span class="attr">href</span>=<span class="value">"/favicons/favicon-32x32.png"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;link</span> <span class="attr">rel</span>=<span class="value">"icon"</span> <span class="attr">type</span>=<span class="value">"image/png"</span> <span class="attr">sizes</span>=<span class="value">"16x16"</span> <span class="attr">href</span>=<span class="value">"/favicons/favicon-16x16.png"</span><span class="tag">&gt;</span>
+
+<span class="comment">&lt;!-- Apple Touch Icons --&gt;</span>
+<span class="tag">&lt;link</span> <span class="attr">rel</span>=<span class="value">"apple-touch-icon"</span> <span class="attr">sizes</span>=<span class="value">"180x180"</span> <span class="attr">href</span>=<span class="value">"/favicons/apple-touch-icon.png"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;link</span> <span class="attr">rel</span>=<span class="value">"apple-touch-icon"</span> <span class="attr">sizes</span>=<span class="value">"167x167"</span> <span class="attr">href</span>=<span class="value">"/favicons/apple-touch-icon-167x167.png"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;link</span> <span class="attr">rel</span>=<span class="value">"apple-touch-icon"</span> <span class="attr">sizes</span>=<span class="value">"152x152"</span> <span class="attr">href</span>=<span class="value">"/favicons/apple-touch-icon-152x152.png"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;link</span> <span class="attr">rel</span>=<span class="value">"apple-touch-icon"</span> <span class="attr">sizes</span>=<span class="value">"120x120"</span> <span class="attr">href</span>=<span class="value">"/favicons/apple-touch-icon-120x120.png"</span><span class="tag">&gt;</span>
+
+<span class="comment">&lt;!-- Android Chrome Icons --&gt;</span>
+<span class="tag">&lt;link</span> <span class="attr">rel</span>=<span class="value">"icon"</span> <span class="attr">type</span>=<span class="value">"image/png"</span> <span class="attr">sizes</span>=<span class="value">"192x192"</span> <span class="attr">href</span>=<span class="value">"/favicons/android-chrome-192x192.png"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;link</span> <span class="attr">rel</span>=<span class="value">"icon"</span> <span class="attr">type</span>=<span class="value">"image/png"</span> <span class="attr">sizes</span>=<span class="value">"512x512"</span> <span class="attr">href</span>=<span class="value">"/favicons/android-chrome-512x512.png"</span><span class="tag">&gt;</span>
+
+<span class="comment">&lt;!-- Web App Manifest --&gt;</span>
+<span class="tag">&lt;link</span> <span class="attr">rel</span>=<span class="value">"manifest"</span> <span class="attr">href</span>=<span class="value">"/site.webmanifest"</span><span class="tag">&gt;</span>
+
+<span class="comment">&lt;!-- Safari Pinned Tab --&gt;</span>
+<span class="tag">&lt;link</span> <span class="attr">rel</span>=<span class="value">"mask-icon"</span> <span class="attr">href</span>=<span class="value">"/safari-pinned-tab.svg"</span> <span class="attr">color</span>=<span class="value">"#5bbad5"</span><span class="tag">&gt;</span>
+
+<span class="comment">&lt;!-- Windows Tiles --&gt;</span>
+<span class="tag">&lt;meta</span> <span class="attr">name</span>=<span class="value">"msapplication-TileColor"</span> <span class="attr">content</span>=<span class="value">"#0d1b2a"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;meta</span> <span class="attr">name</span>=<span class="value">"msapplication-TileImage"</span> <span class="attr">content</span>=<span class="value">"/favicons/favicon-144x144.png"</span><span class="tag">&gt;</span>
+
+<span class="comment">&lt;!-- Theme Color --&gt;</span>
+<span class="tag">&lt;meta</span> <span class="attr">name</span>=<span class="value">"theme-color"</span> <span class="attr">content</span>=<span class="value">"#0d1b2a"</span><span class="tag">&gt;</span></pre>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>Generated from logo.png • FileNova Favicon Package</p>
+    </footer>
+  </div>
+</body>
+</html>
