@@ -123,7 +123,7 @@ export const ResizePhotoWorkspace: React.FC = () => {
     <div className="space-y-6">
       {/* Preset Selectors */}
       <div className="space-y-2">
-        <label className="text-xs font-black uppercase tracking-wider text-slate-400">Photo Presets</label>
+        <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">Photo Presets</label>
         <div className="grid grid-cols-3 gap-2.5">
           {[
             { id: "passport", label: "Passport", desc: "35x45 mm" },
@@ -135,12 +135,12 @@ export const ResizePhotoWorkspace: React.FC = () => {
               onClick={() => setPreset(item.id as any)}
               className={`p-3 rounded-xl border text-left flex flex-col justify-between hover:scale-[1.02] active:scale-98 transition-all cursor-pointer ${
                 preset === item.id
-                  ? "border-sky-500 bg-sky-500/10 text-white"
-                  : "border-white/[0.06] bg-slate-900/60 hover:bg-slate-900 text-slate-300"
+                  ? "border-primary bg-primary/10 text-foreground"
+                  : "border-border bg-card hover:bg-muted text-foreground/80"
               }`}
             >
               <span className="text-xs font-black">{item.label}</span>
-              <span className="text-[10px] text-slate-500 mt-1">{item.desc}</span>
+              <span className="text-[10px] text-muted-foreground mt-1">{item.desc}</span>
             </button>
           ))}
         </div>
@@ -150,19 +150,19 @@ export const ResizePhotoWorkspace: React.FC = () => {
       {preset === "custom" && (
         <div className="space-y-4">
           <div className="flex gap-4">
-            <label className="flex items-center gap-1.5 cursor-pointer text-xs font-bold text-slate-300">
-              <input type="radio" checked={unit === "mm"} onChange={() => setUnit("mm")} className="text-sky-500" />
+            <label className="flex items-center gap-1.5 cursor-pointer text-xs font-bold text-foreground/80">
+              <input type="radio" checked={unit === "mm"} onChange={() => setUnit("mm")} className="text-primary" />
               Millimeters (mm)
             </label>
-            <label className="flex items-center gap-1.5 cursor-pointer text-xs font-bold text-slate-300">
-              <input type="radio" checked={unit === "px"} onChange={() => setUnit("px")} className="text-sky-500" />
+            <label className="flex items-center gap-1.5 cursor-pointer text-xs font-bold text-foreground/80">
+              <input type="radio" checked={unit === "px"} onChange={() => setUnit("px")} className="text-primary" />
               Pixels (px)
             </label>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <label className="text-[10px] text-slate-400 font-bold uppercase" htmlFor="resize-width">Width</label>
+              <label className="text-[10px] text-muted-foreground font-bold uppercase" htmlFor="resize-width">Width</label>
               <input
                 id="resize-width"
                 type="number"
@@ -170,11 +170,11 @@ export const ResizePhotoWorkspace: React.FC = () => {
                 onChange={(e) => setWidth(parseInt(e.target.value) || 1)}
                 title={`Width in ${unit}`}
                 placeholder={unit === "mm" ? "35" : "200"}
-                className="w-full bg-slate-950/60 border border-white/10 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-sky-500 font-mono"
+                className="w-full bg-card border border-border rounded-lg p-2.5 text-xs text-foreground focus:outline-none focus:border-primary font-mono"
               />
             </div>
             <div className="space-y-1">
-              <label className="text-[10px] text-slate-400 font-bold uppercase" htmlFor="resize-height">Height</label>
+              <label className="text-[10px] text-muted-foreground font-bold uppercase" htmlFor="resize-height">Height</label>
               <input
                 id="resize-height"
                 type="number"
@@ -182,7 +182,7 @@ export const ResizePhotoWorkspace: React.FC = () => {
                 onChange={(e) => setHeight(parseInt(e.target.value) || 1)}
                 title={`Height in ${unit}`}
                 placeholder={unit === "mm" ? "45" : "250"}
-                className="w-full bg-slate-950/60 border border-white/10 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-sky-500 font-mono"
+                className="w-full bg-card border border-border rounded-lg p-2.5 text-xs text-foreground focus:outline-none focus:border-primary font-mono"
               />
             </div>
           </div>
@@ -191,7 +191,7 @@ export const ResizePhotoWorkspace: React.FC = () => {
 
       {/* DPI settings */}
       <div className="space-y-2">
-        <label className="text-xs font-black uppercase tracking-wider text-slate-400">Target Print Resolution (DPI)</label>
+        <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">Target Print Resolution (DPI)</label>
         <div className="flex gap-2">
           {[96, 150, 300].map((d) => (
             <button
@@ -199,8 +199,8 @@ export const ResizePhotoWorkspace: React.FC = () => {
               onClick={() => setDpi(d as any)}
               className={`flex-1 py-1.5 rounded-lg border text-xs font-bold transition-all cursor-pointer ${
                 dpi === d
-                  ? "border-sky-500 bg-sky-500/10 text-white"
-                  : "border-white/10 text-slate-400 hover:text-white"
+                  ? "border-primary bg-primary/10 text-foreground"
+                  : "border-border text-muted-foreground hover:text-foreground"
               }`}
             >
               {d} DPI
@@ -211,7 +211,7 @@ export const ResizePhotoWorkspace: React.FC = () => {
 
       {/* Background fill picker */}
       <div className="space-y-2.5">
-        <label className="text-xs font-black uppercase tracking-wider text-slate-400">Background Tint</label>
+        <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">Background Tint</label>
         <div className="flex gap-3 flex-wrap">
           {[
             { value: "#ffffff", name: "White fill" },
@@ -223,12 +223,12 @@ export const ResizePhotoWorkspace: React.FC = () => {
               onClick={() => setBgColor(c.value)}
               className={`py-1.5 px-3 rounded-lg border text-xs font-bold flex items-center gap-1.5 cursor-pointer ${
                 bgColor === c.value
-                  ? "border-sky-500 bg-sky-500/10 text-white"
-                  : "border-white/10 text-slate-400 hover:text-white"
+                  ? "border-primary bg-primary/10 text-foreground"
+                  : "border-border text-muted-foreground hover:text-foreground"
               }`}
             >
               <span
-                className={`h-3.5 w-3.5 rounded-full border border-white/10 ${
+                className={`h-3.5 w-3.5 rounded-full border border-border ${
                   c.value === "transparent"
                     ? "bg-transparent"
                     : c.value === "#ffffff"
@@ -245,14 +245,14 @@ export const ResizePhotoWorkspace: React.FC = () => {
 
       {/* Real-time metrics values details */}
       {files.length > 0 && (
-        <div className="bg-slate-950/60 border border-white/[0.05] rounded-2xl p-4 flex items-center justify-between text-xs font-medium">
+        <div className="bg-card border border-border/50 rounded-2xl p-4 flex items-center justify-between text-xs font-medium">
           <div className="space-y-0.5">
-            <span className="text-[9px] font-black uppercase tracking-wider text-slate-500">Output pixel bounds</span>
-            <span className="text-slate-200 font-bold block">{pixelWidth} × {pixelHeight} px</span>
+            <span className="text-[9px] font-black uppercase tracking-wider text-muted-foreground">Output pixel bounds</span>
+            <span className="text-foreground/90 font-bold block">{pixelWidth} × {pixelHeight} px</span>
           </div>
           <div className="text-right space-y-0.5">
-            <span className="text-[9px] font-black uppercase tracking-wider text-slate-500">Format</span>
-            <span className="text-sky-400 font-black block">{bgColor === "transparent" ? "PNG" : "JPEG"}</span>
+            <span className="text-[9px] font-black uppercase tracking-wider text-muted-foreground">Format</span>
+            <span className="text-primary font-black block">{bgColor === "transparent" ? "PNG" : "JPEG"}</span>
           </div>
         </div>
       )}

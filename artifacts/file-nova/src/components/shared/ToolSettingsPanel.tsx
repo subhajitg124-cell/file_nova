@@ -559,7 +559,7 @@ function renderResizeImageSettings(
               type="number"
               value={options.resizeWidth || ''}
               onChange={(e) => handleWidthChange(parseInt(e.target.value) || 0)}
-              className="w-full p-2.5 bg-slate-950/40 border border-border rounded-xl text-xs font-mono focus:outline-none focus:border-primary"
+              className="w-full p-2.5 bg-card border border-border rounded-xl text-xs font-mono focus:outline-none focus:border-primary"
               placeholder="Width"
               title="Resize Width"
             />
@@ -570,7 +570,7 @@ function renderResizeImageSettings(
               type="number"
               value={options.resizeHeight || ''}
               onChange={(e) => handleHeightChange(parseInt(e.target.value) || 0)}
-              className="w-full p-2.5 bg-slate-950/40 border border-border rounded-xl text-xs font-mono focus:outline-none focus:border-primary"
+              className="w-full p-2.5 bg-card border border-border rounded-xl text-xs font-mono focus:outline-none focus:border-primary"
               placeholder="Height"
               title="Resize Height"
             />
@@ -651,7 +651,7 @@ function renderResizeImageSettings(
             type="button"
             onClick={() => update({ cropEnabled: !options.cropEnabled })}
             className={`px-3 py-1 rounded-full text-[10px] font-black uppercase transition-all cursor-pointer ${
-              options.cropEnabled ? 'bg-emerald-550/10 text-emerald-500 border border-emerald-500/30' : 'bg-slate-800 text-muted-foreground border border-border'
+              options.cropEnabled ? 'bg-emerald-550/10 text-emerald-500 border border-emerald-500/30' : 'bg-muted text-muted-foreground border border-border'
             }`}
           >
             {options.cropEnabled ? 'Enabled' : 'Disabled'}
@@ -659,7 +659,7 @@ function renderResizeImageSettings(
         </div>
 
         {options.cropEnabled && (
-          <div className="space-y-3 p-3 bg-slate-950/20 rounded-2xl border border-border/60 animate-fadeIn">
+          <div className="space-y-3 p-3 bg-card/50 rounded-2xl border border-border/60 animate-fadeIn">
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1">
                 <label className="text-[10px] text-muted-foreground font-bold">X Offset (Left)</label>

@@ -1,8 +1,11 @@
 import React, { useEffect } from "react";
 import { ToolPageLayout } from "@/components/ToolPageLayout";
 import { useFileStore } from "@/store/useFileStore";
+import { WordToPdfWorkspace } from "@/tools/office/WordToPdfWorkspace";
 
 export default function WordToPdfPage() {
+  const files = useFileStore((s) => s.files);
+
   useEffect(() => {
     const store = useFileStore.getState();
     store.clearStore();
@@ -10,5 +13,9 @@ export default function WordToPdfPage() {
     store.setOperation("convert");
   }, []);
 
-  return <ToolPageLayout slug="pdf-to-word" />;
+  if (files.length > 0) {
+    return <WordToPdfWorkspace />;
+  }
+
+  return <ToolPageLayout slug="word-to-pdf" />;
 }

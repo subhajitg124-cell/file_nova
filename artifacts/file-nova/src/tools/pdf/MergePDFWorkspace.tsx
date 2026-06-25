@@ -90,24 +90,24 @@ export const MergePDFWorkspace: React.FC = () => {
     <div className="space-y-6">
       {/* Output Filename */}
       <div className="space-y-2">
-        <label className="text-xs font-black uppercase tracking-wider text-slate-400">Output Filename</label>
+        <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">Output Filename</label>
         <input
           type="text"
           value={outputName}
           onChange={(e) => setOutputName(e.target.value)}
           placeholder="merged.pdf"
-          className="w-full bg-slate-950/60 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-violet-500 font-mono"
+          className="w-full bg-card border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary font-mono"
         />
       </div>
 
       {/* Add More Files & Organise Options */}
-      <div className="space-y-2.5 pt-4 border-t border-white/[0.05]">
-        <label className="text-xs font-black uppercase tracking-wider text-slate-400 block">
+      <div className="space-y-2.5 pt-4 border-t border-border/50">
+        <label className="text-xs font-black uppercase tracking-wider text-muted-foreground block">
           Add & Organise Queue
         </label>
         <div className="grid grid-cols-2 gap-2">
           {/* Add Files Button */}
-          <label className="flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-white/20 bg-slate-950/60 hover:bg-slate-900 px-3 py-2.5 text-xs font-bold text-slate-305 hover:text-white cursor-pointer transition">
+          <label className="flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-border bg-card hover:bg-muted px-3 py-2.5 text-xs font-bold text-foreground/80 hover:text-foreground cursor-pointer transition">
             <Plus className="h-3.5 w-3.5" /> Add PDFs
             <input
               type="file"
@@ -133,7 +133,7 @@ export const MergePDFWorkspace: React.FC = () => {
               }
             }}
             defaultValue=""
-            className="bg-slate-950/60 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-slate-355 font-bold focus:outline-none focus:border-violet-500 hover:bg-slate-900 cursor-pointer transition"
+            className="bg-card border border-border rounded-xl px-3 py-2.5 text-xs text-foreground/70 font-bold focus:outline-none focus:border-primary hover:bg-muted cursor-pointer transition"
             title="Sort files queue"
           >
             <option value="" disabled>⇅ Organise</option>
@@ -148,29 +148,29 @@ export const MergePDFWorkspace: React.FC = () => {
       </div>
 
       {/* Pages constraints per file */}
-      <div className="space-y-4 pt-4 border-t border-white/[0.05]">
-        <label className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-1">
+      <div className="space-y-4 pt-4 border-t border-border/50">
+        <label className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1">
           <Settings2 className="h-3.5 w-3.5 text-violet-400" />
           Page Selection Per File (Optional)
         </label>
         
         {files.length === 0 ? (
-          <p className="text-[10px] text-slate-500 font-medium">Upload PDF files to configure ranges.</p>
+          <p className="text-[10px] text-muted-foreground font-medium">Upload PDF files to configure ranges.</p>
         ) : (
           <div className="space-y-3">
             {files.map((file, idx) => (
-              <div key={file.id} className="p-3 rounded-xl border border-white/[0.05] bg-slate-950/40 space-y-2">
+              <div key={file.id} className="p-3 rounded-xl border border-border/50 bg-card space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold text-slate-300 truncate max-w-[200px]">
+                  <span className="text-[11px] font-bold text-foreground/80 truncate max-w-[200px]">
                     {idx + 1}. {file.name}
                   </span>
                   
-                  <label className="flex items-center gap-1.5 cursor-pointer text-[10px] font-bold text-slate-400">
+                  <label className="flex items-center gap-1.5 cursor-pointer text-[10px] font-bold text-muted-foreground">
                     <input
                       type="checkbox"
                       checked={!!applyRanges[file.id]}
                       onChange={(e) => handleToggleRange(file.id, e.target.checked)}
-                      className="h-3.5 w-3.5 rounded border-white/10 text-violet-600 focus:ring-0 cursor-pointer"
+                      className="h-3.5 w-3.5 rounded border-border text-primary focus:ring-0 cursor-pointer"
                     />
                     <span>Custom Range</span>
                   </label>
@@ -183,7 +183,7 @@ export const MergePDFWorkspace: React.FC = () => {
                       value={pageRanges[file.id] || ""}
                       onChange={(e) => handleRangeChange(file.id, e.target.value)}
                       placeholder="e.g. 1-3, 5"
-                      className="w-full bg-slate-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-violet-500 font-mono"
+                      className="w-full bg-muted border border-border rounded-lg px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:border-primary font-mono"
                     />
                   </div>
                 )}
@@ -193,7 +193,7 @@ export const MergePDFWorkspace: React.FC = () => {
         )}
       </div>
 
-      <div className="bg-slate-950/60 border border-white/[0.05] rounded-2xl p-4 flex items-center gap-2.5 text-xs font-medium text-slate-400">
+      <div className="bg-card border border-border/50 rounded-2xl p-4 flex items-center gap-2.5 text-xs font-medium text-muted-foreground">
         <span>💡</span>
         <p className="leading-relaxed">
           Arrange files by clicking the arrows. The first file in the list will be at the beginning of the merged PDF.
@@ -206,12 +206,12 @@ export const MergePDFWorkspace: React.FC = () => {
     <div className="space-y-4">
       <PreviewPanel files={rawFiles} slug="merge-pdf" />
       {files.length > 0 && (
-        <div className="flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-wider text-slate-500">
+        <div className="flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-wider text-muted-foreground">
           <span>Files in merge pipeline:</span>
           {files.map((file, idx) => (
             <React.Fragment key={file.id}>
               {idx > 0 && <ArrowRight className="h-3 w-3" />}
-              <span className="bg-slate-900 px-2 py-0.5 rounded border border-white/5 font-mono text-slate-300">
+              <span className="bg-muted px-2 py-0.5 rounded border border-border font-mono text-foreground/80">
                 P{idx + 1} ({file.name.substring(0, 8)})
               </span>
             </React.Fragment>

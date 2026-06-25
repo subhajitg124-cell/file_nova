@@ -129,7 +129,7 @@ export const PANCardResizeWorkspace: React.FC = () => {
     <div className="space-y-6">
       {/* Photo vs Scan preset */}
       <div className="space-y-2">
-        <label className="text-xs font-black uppercase tracking-wider text-slate-400">Card Upload Mode</label>
+        <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">Card Upload Mode</label>
         <div className="grid grid-cols-2 gap-2">
           {["photograph", "PAN Card Scan"].map((label, idx) => {
             const key = idx === 0 ? "photo" : "scan";
@@ -139,8 +139,8 @@ export const PANCardResizeWorkspace: React.FC = () => {
                 onClick={() => setUploadType(key as any)}
                 className={`py-2.5 px-4 rounded-xl border text-xs font-bold hover:scale-[1.02] active:scale-98 transition-all cursor-pointer ${
                   uploadType === key
-                    ? "border-indigo-500 bg-indigo-500/10 text-white"
-                    : "border-white/[0.06] bg-slate-900/60 hover:bg-slate-900 text-slate-300"
+                    ? "border-primary bg-primary/10 text-foreground"
+                    : "border-border bg-card hover:bg-muted text-foreground/80"
                 }`}
               >
                 {label}
@@ -152,7 +152,7 @@ export const PANCardResizeWorkspace: React.FC = () => {
 
       {/* Preset selections */}
       <div className="space-y-2.5">
-        <label className="text-xs font-black uppercase tracking-wider text-slate-400">Standard India Form Presets</label>
+        <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">Standard India Form Presets</label>
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
           {[
             { id: "uidai", label: "UIDAI" },
@@ -166,8 +166,8 @@ export const PANCardResizeWorkspace: React.FC = () => {
               onClick={() => setPreset(item.id as any)}
               className={`py-2 px-1.5 rounded-xl border text-[11px] font-bold text-center hover:scale-[1.02] active:scale-98 transition-all cursor-pointer ${
                 preset === item.id
-                  ? "border-indigo-500 bg-indigo-500/10 text-white"
-                  : "border-white/[0.06] bg-slate-900/60 hover:bg-slate-900 text-slate-400 hover:text-white"
+                  ? "border-primary bg-primary/10 text-foreground"
+                  : "border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground"
               }`}
             >
               {item.label}
@@ -180,34 +180,34 @@ export const PANCardResizeWorkspace: React.FC = () => {
       {preset === "custom" && (
         <div className="grid grid-cols-3 gap-2">
           <div className="space-y-1">
-            <label className="text-[10px] text-slate-400 font-bold uppercase">Width (px)</label>
+            <label className="text-[10px] text-muted-foreground font-bold uppercase">Width (px)</label>
             <input
               type="number"
               value={width}
               onChange={(e) => setWidth(parseInt(e.target.value) || 200)}
-              className="w-full bg-slate-950/60 border border-white/10 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono"
+              className="w-full bg-card border border-border rounded-lg p-2 text-xs text-foreground focus:outline-none focus:border-primary font-mono"
               title="Width in pixels"
               placeholder="200"
             />
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] text-slate-400 font-bold uppercase">Height (px)</label>
+            <label className="text-[10px] text-muted-foreground font-bold uppercase">Height (px)</label>
             <input
               type="number"
               value={height}
               onChange={(e) => setHeight(parseInt(e.target.value) || 200)}
-              className="w-full bg-slate-950/60 border border-white/10 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono"
+              className="w-full bg-card border border-border rounded-lg p-2 text-xs text-foreground focus:outline-none focus:border-primary font-mono"
               title="Height in pixels"
               placeholder="200"
             />
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] text-slate-400 font-bold uppercase">Max Size (KB)</label>
+            <label className="text-[10px] text-muted-foreground font-bold uppercase">Max Size (KB)</label>
             <input
               type="number"
               value={maxKb}
               onChange={(e) => setMaxKb(parseInt(e.target.value) || 50)}
-              className="w-full bg-slate-950/60 border border-white/10 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono"
+              className="w-full bg-card border border-border rounded-lg p-2 text-xs text-foreground focus:outline-none focus:border-primary font-mono"
               title="Maximum size in KB"
               placeholder="50"
             />
@@ -218,11 +218,11 @@ export const PANCardResizeWorkspace: React.FC = () => {
       {/* Quality slider */}
       <div className="space-y-2">
         <div className="flex items-center justify-between text-xs">
-          <label className="font-black uppercase tracking-wider text-slate-400 flex items-center gap-1">
-            <Sliders className="h-3.5 w-3.5 text-indigo-400" />
+          <label className="font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+            <Sliders className="h-3.5 w-3.5 text-primary" />
             Compression Quality
           </label>
-          <span className="text-indigo-400 font-black font-mono">{quality}%</span>
+          <span className="text-primary font-black font-mono">{quality}%</span>
         </div>
         <input
           type="range"
@@ -230,32 +230,32 @@ export const PANCardResizeWorkspace: React.FC = () => {
           max="100"
           value={quality}
           onChange={(e) => setQuality(parseInt(e.target.value))}
-          className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+          className="w-full h-1.5 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
           title="Compression Quality"
         />
       </div>
 
       {/* Output format presets */}
       <div className="space-y-2">
-        <label className="text-xs font-black uppercase tracking-wider text-slate-400">File Output Format</label>
+        <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">File Output Format</label>
         <div className="flex gap-4">
-          <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-300">
+          <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-foreground/80">
             <input
               type="radio"
               name="format"
               checked={format === "image/jpeg"}
               onChange={() => setFormat("image/jpeg")}
-              className="text-indigo-600 focus:ring-0 cursor-pointer"
+              className="text-primary focus:ring-0 cursor-pointer"
             />
             <span>JPEG</span>
           </label>
-          <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-300">
+          <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-foreground/80">
             <input
               type="radio"
               name="format"
               checked={format === "image/png"}
               onChange={() => setFormat("image/png")}
-              className="text-indigo-600 focus:ring-0 cursor-pointer"
+              className="text-primary focus:ring-0 cursor-pointer"
             />
             <span>PNG</span>
           </label>
@@ -264,14 +264,14 @@ export const PANCardResizeWorkspace: React.FC = () => {
 
       {/* Live Estimated details */}
       {files.length > 0 && (
-        <div className="bg-slate-950/60 border border-white/[0.05] rounded-2xl p-4 flex items-center justify-between text-xs font-medium">
+        <div className="bg-card border border-border/50 rounded-2xl p-4 flex items-center justify-between text-xs font-medium">
           <div className="space-y-0.5">
-            <span className="text-[9px] font-black uppercase tracking-wider text-slate-500">Output bounds</span>
-            <span className="text-slate-200 font-bold block">{width} × {height} px</span>
+            <span className="text-[9px] font-black uppercase tracking-wider text-muted-foreground">Output bounds</span>
+            <span className="text-foreground/90 font-bold block">{width} × {height} px</span>
           </div>
           <div className="text-right space-y-0.5">
-            <span className="text-[9px] font-black uppercase tracking-wider text-slate-500">Est. Size</span>
-            <span className="text-indigo-400 font-black block">&lt; {getEstimatedSize()}</span>
+            <span className="text-[9px] font-black uppercase tracking-wider text-muted-foreground">Est. Size</span>
+            <span className="text-primary font-black block">&lt; {getEstimatedSize()}</span>
           </div>
         </div>
       )}

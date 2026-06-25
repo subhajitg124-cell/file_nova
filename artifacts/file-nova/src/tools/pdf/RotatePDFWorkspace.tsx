@@ -38,7 +38,7 @@ export const RotatePDFWorkspace: React.FC = () => {
     <div className="space-y-6">
       {/* Rotation button selector */}
       <div className="space-y-2">
-        <label className="text-xs font-black uppercase tracking-wider text-slate-400">Rotation Angle</label>
+        <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">Rotation Angle</label>
         <div className="grid grid-cols-3 gap-2.5">
           {[
             { id: 90, label: "90° CW", icon: RotateCw },
@@ -52,11 +52,11 @@ export const RotatePDFWorkspace: React.FC = () => {
                 onClick={() => setRotation(angle.id)}
                 className={`p-3.5 rounded-2xl border text-left flex flex-col justify-between hover:scale-[1.02] active:scale-98 transition-all cursor-pointer ${
                   rotation === angle.id
-                    ? "border-amber-500 bg-amber-500/10 text-white"
-                    : "border-white/[0.06] bg-slate-900/60 hover:bg-slate-900 text-slate-300"
+                    ? "border-primary bg-primary/10 text-foreground"
+                    : "border-border bg-card hover:bg-muted text-foreground/80"
                 }`}
               >
-                <Icon className={`h-4.5 w-4.5 ${rotation === angle.id ? "text-amber-400" : "text-slate-400"}`} />
+                <Icon className={`h-4.5 w-4.5 ${rotation === angle.id ? "text-primary" : "text-muted-foreground"}`} />
                 <span className="text-xs font-black mt-3 block">{angle.label}</span>
               </button>
             );
@@ -65,26 +65,26 @@ export const RotatePDFWorkspace: React.FC = () => {
       </div>
 
       {/* Page Scope Selection */}
-      <div className="space-y-3 pt-4 border-t border-white/[0.05]">
-        <label className="text-xs font-black uppercase tracking-wider text-slate-400">Pages to Rotate</label>
+      <div className="space-y-3 pt-4 border-t border-border/50">
+        <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">Pages to Rotate</label>
         <div className="flex gap-4">
-          <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-300">
+          <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-foreground/80">
             <input
               type="radio"
               name="scope"
               checked={pageScope === "all"}
               onChange={() => setPageScope("all")}
-              className="text-amber-500 focus:ring-0 cursor-pointer"
+              className="text-primary focus:ring-0 cursor-pointer"
             />
             <span>All pages in document</span>
           </label>
-          <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-300">
+          <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-foreground/80">
             <input
               type="radio"
               name="scope"
               checked={pageScope === "custom"}
               onChange={() => setPageScope("custom")}
-              className="text-amber-500 focus:ring-0 cursor-pointer"
+              className="text-primary focus:ring-0 cursor-pointer"
             />
             <span>Specific pages range</span>
           </label>
@@ -94,8 +94,8 @@ export const RotatePDFWorkspace: React.FC = () => {
       {/* Pages lists range input */}
       {pageScope === "custom" && (
         <div className="space-y-2">
-          <label className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-            <Sliders className="h-3.5 w-3.5 text-amber-400" />
+          <label className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+            <Sliders className="h-3.5 w-3.5 text-primary" />
             Page Range list
           </label>
           <input
@@ -103,7 +103,7 @@ export const RotatePDFWorkspace: React.FC = () => {
             value={customRange}
             onChange={(e) => setCustomRange(e.target.value)}
             placeholder="e.g. 1, 3-5"
-            className="w-full bg-slate-950/60 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 font-mono"
+            className="w-full bg-card border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary font-mono"
           />
         </div>
       )}

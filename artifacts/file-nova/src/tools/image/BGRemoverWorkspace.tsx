@@ -63,7 +63,7 @@ export const BGRemoverWorkspace: React.FC = () => {
     <div className="space-y-6">
       {/* Background Options */}
       <div className="space-y-2.5">
-        <label className="text-xs font-black uppercase tracking-wider text-slate-400">Background Replacement</label>
+        <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">Background Replacement</label>
         <div className="grid grid-cols-3 gap-2">
           {[
             { id: "transparent", label: "Transparent", desc: "Clean cutout" },
@@ -75,12 +75,12 @@ export const BGRemoverWorkspace: React.FC = () => {
               onClick={() => setBackgroundType(type.id as any)}
               className={`p-3 rounded-2xl border text-left hover:scale-[1.02] active:scale-98 transition-all cursor-pointer ${
                 backgroundType === type.id
-                  ? "border-cyan-500 bg-cyan-500/10 text-white"
-                  : "border-white/[0.06] bg-slate-900/60 hover:bg-slate-900 text-slate-300"
+                  ? "border-primary bg-primary/10 text-foreground"
+                  : "border-border bg-card hover:bg-muted text-foreground/80"
               }`}
             >
               <h4 className="text-xs font-bold leading-none">{type.label}</h4>
-              <p className="text-[9px] text-slate-500 mt-1">{type.desc}</p>
+              <p className="text-[9px] text-muted-foreground mt-1">{type.desc}</p>
             </button>
           ))}
         </div>
@@ -89,20 +89,20 @@ export const BGRemoverWorkspace: React.FC = () => {
       {/* Custom color picker (when Color chosen) */}
       {backgroundType === "color" && (
         <div className="space-y-2">
-          <label className="text-xs font-black uppercase tracking-wider text-slate-400">Pick Background Color</label>
+          <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">Pick Background Color</label>
           <div className="flex items-center gap-3">
             <input
               type="color"
               value={customBgColor}
               onChange={(e) => setCustomBgColor(e.target.value)}
-              className="h-10 w-12 rounded border border-white/10 bg-slate-900 cursor-pointer p-0.5"
+              className="h-10 w-12 rounded border border-border bg-muted cursor-pointer p-0.5"
               title="Background color picker"
             />
             <input
               type="text"
               value={customBgColor}
               onChange={(e) => setCustomBgColor(e.target.value)}
-              className="bg-slate-950/60 border border-white/10 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 font-mono"
+              className="bg-card border border-border rounded-xl px-4 py-2 text-xs text-foreground focus:outline-none focus:border-primary font-mono"
               title="Background hex color code"
               placeholder="#3b82f6"
             />
@@ -111,7 +111,7 @@ export const BGRemoverWorkspace: React.FC = () => {
       )}
 
       {/* Manual Refinement Warning Info */}
-      <div className="bg-slate-950/60 border border-white/[0.05] rounded-2xl p-4 flex gap-2.5 text-xs text-slate-400 leading-relaxed font-medium">
+      <div className="bg-card border border-border/50 rounded-2xl p-4 flex gap-2.5 text-xs text-muted-foreground leading-relaxed font-medium">
         <span>✅</span>
         <p>
           Background removal is processed entirely inside your browser using secure ML models. No images are sent to the cloud.

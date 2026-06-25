@@ -52,26 +52,26 @@ export const AadhaarMaskWorkspace: React.FC = () => {
   const configPanel = (
     <div className="space-y-6">
       {/* Auto Detect Toggle */}
-      <div className="flex items-center justify-between p-3.5 rounded-2xl border border-white/[0.05] bg-slate-950/40">
+      <div className="flex items-center justify-between p-3.5 rounded-2xl border border-border/50 bg-card">
         <div className="space-y-0.5">
-          <label className="text-xs font-black uppercase tracking-wider text-slate-200 flex items-center gap-1.5">
-            <Shield className="h-4 w-4 text-orange-400" />
+          <label className="text-xs font-black uppercase tracking-wider text-foreground flex items-center gap-1.5">
+            <Shield className="h-4 w-4 text-primary" />
             Auto-Detect Aadhaar Numbers
           </label>
-          <p className="text-[10px] text-slate-400">Locates Aadhaar digits in PDF page layers automatically</p>
+          <p className="text-[10px] text-muted-foreground">Locates Aadhaar digits in PDF page layers automatically</p>
         </div>
         <input
           type="checkbox"
           checked={autoDetect}
           onChange={(e) => setAutoDetect(e.target.checked)}
-          className="h-4.5 w-4.5 rounded border-white/10 text-orange-600 focus:ring-0 cursor-pointer"
+          className="h-4.5 w-4.5 rounded border-border text-primary focus:ring-0 cursor-pointer"
           title="Auto-Detect Aadhaar Numbers"
         />
       </div>
 
       {/* Mask style */}
       <div className="space-y-2.5">
-        <label className="text-xs font-black uppercase tracking-wider text-slate-400">Redaction style</label>
+        <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">Redaction style</label>
         <div className="grid grid-cols-3 gap-2">
           {[
             { id: "black", label: "Black Block", desc: "Full redact" },
@@ -83,42 +83,42 @@ export const AadhaarMaskWorkspace: React.FC = () => {
               onClick={() => setMaskStyle(style.id as any)}
               className={`p-3.5 rounded-2xl border text-left hover:scale-[1.02] active:scale-98 transition-all cursor-pointer ${
                 maskStyle === style.id
-                  ? "border-orange-500 bg-orange-500/10 text-white"
-                  : "border-white/[0.06] bg-slate-900/60 hover:bg-slate-900 text-slate-300"
+                  ? "border-primary bg-primary/10 text-foreground"
+                  : "border-border bg-card hover:bg-muted text-foreground/80"
               }`}
             >
               <h4 className="text-xs font-bold leading-none">{style.label}</h4>
-              <p className="text-[9px] text-slate-500 mt-1">{style.desc}</p>
+              <p className="text-[9px] text-muted-foreground mt-1">{style.desc}</p>
             </button>
           ))}
         </div>
       </div>
 
       {/* Show Last 4 digits */}
-      <div className="flex items-center justify-between p-3.5 rounded-2xl border border-white/[0.05] bg-slate-950/40">
+      <div className="flex items-center justify-between p-3.5 rounded-2xl border border-border/50 bg-card">
         <div className="space-y-0.5">
-          <label className="text-xs font-black uppercase tracking-wider text-slate-200 flex items-center gap-1.5">
-            <Eye className="h-4 w-4 text-orange-400" />
+          <label className="text-xs font-black uppercase tracking-wider text-foreground flex items-center gap-1.5">
+            <Eye className="h-4 w-4 text-primary" />
             Keep Last 4 Digits Visible
           </label>
-          <p className="text-[10px] text-slate-400">Recommended for verification (UIDAI compliant)</p>
+          <p className="text-[10px] text-muted-foreground">Recommended for verification (UIDAI compliant)</p>
         </div>
         <input
           type="checkbox"
           checked={showLast4}
           disabled={maskStyle !== "asterisks"}
           onChange={(e) => setShowLast4(e.target.checked)}
-          className="h-4.5 w-4.5 rounded border-white/10 text-orange-600 focus:ring-0 cursor-pointer disabled:opacity-20"
+          className="h-4.5 w-4.5 rounded border-border text-primary focus:ring-0 cursor-pointer disabled:opacity-20"
           title="Keep Last 4 Digits Visible"
         />
       </div>
 
       {/* Manual Drawing guidance */}
-      <div className="bg-slate-950/60 border border-white/[0.05] rounded-2xl p-4 flex gap-2.5 text-xs text-slate-400 font-medium">
+      <div className="bg-card border border-border/50 rounded-2xl p-4 flex gap-2.5 text-xs text-muted-foreground font-medium">
         <span>💡</span>
         <div className="space-y-1">
-          <p className="font-bold text-slate-300">Need manual redaction?</p>
-          <p className="text-[10px] leading-relaxed text-slate-400">
+          <p className="font-bold text-foreground/80">Need manual redaction?</p>
+          <p className="text-[10px] leading-relaxed text-muted-foreground">
             If there are signatures, names, or photos you want to hide, click the PDF preview page below to draw a manual masking box.
           </p>
         </div>

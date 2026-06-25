@@ -78,7 +78,7 @@ export const SplitPDFWorkspace: React.FC = () => {
     <div className="space-y-6">
       {/* Split Mode Selector */}
       <div className="space-y-2">
-        <label className="text-xs font-black uppercase tracking-wider text-slate-400">Split Method</label>
+        <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">Split Method</label>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
           {[
             { id: "all", label: "Extract All Pages", desc: "Every page becomes a file" },
@@ -90,12 +90,12 @@ export const SplitPDFWorkspace: React.FC = () => {
               onClick={() => setSplitMode(mode.id as any)}
               className={`p-3.5 rounded-2xl border text-left flex flex-col justify-between hover:scale-[1.02] active:scale-98 transition-all cursor-pointer ${
                 splitMode === mode.id
-                  ? "border-blue-500 bg-blue-500/10 text-white"
-                  : "border-white/[0.06] bg-slate-900/60 hover:bg-slate-900 text-slate-300"
+                  ? "border-primary bg-primary/10 text-foreground"
+                  : "border-border bg-card hover:bg-muted text-foreground/80"
               }`}
             >
               <span className="text-xs font-black">{mode.label}</span>
-              <span className="text-[9px] text-slate-500 mt-1">{mode.desc}</span>
+              <span className="text-[9px] text-muted-foreground mt-1">{mode.desc}</span>
             </button>
           ))}
         </div>
@@ -104,8 +104,8 @@ export const SplitPDFWorkspace: React.FC = () => {
       {/* Pages lists range input */}
       {splitMode === "extract" && (
         <div className="space-y-2">
-          <label className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-            <Sliders className="h-3.5 w-3.5 text-blue-400" />
+          <label className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+            <Sliders className="h-3.5 w-3.5 text-primary" />
             Page Numbers / Ranges
           </label>
           <input
@@ -113,10 +113,10 @@ export const SplitPDFWorkspace: React.FC = () => {
             value={splitRange}
             onChange={(e) => setSplitRange(e.target.value)}
             placeholder="e.g. 1-3, 5, 8-10"
-            className="w-full bg-slate-950/60 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 font-mono"
+            className="w-full bg-card border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary font-mono"
           />
-          <p className="text-[10px] text-slate-500 leading-normal">
-            Use comma-separated ranges. Example: <span className="font-mono text-slate-400">1-3, 5</span> extracts pages 1, 2, 3 and 5.
+          <p className="text-[10px] text-muted-foreground leading-normal">
+            Use comma-separated ranges. Example: <span className="font-mono text-muted-foreground/80">1-3, 5</span> extracts pages 1, 2, 3 and 5.
           </p>
         </div>
       )}
@@ -124,8 +124,8 @@ export const SplitPDFWorkspace: React.FC = () => {
       {/* Split in parts range input */}
       {splitMode === "parts" && (
         <div className="space-y-2">
-          <label className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-            <Sliders className="h-3.5 w-3.5 text-blue-400" />
+          <label className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+            <Sliders className="h-3.5 w-3.5 text-primary" />
             Divide Into Equal Parts
           </label>
           <div className="flex gap-2">
@@ -135,11 +135,11 @@ export const SplitPDFWorkspace: React.FC = () => {
               max="20"
               value={partsCount}
               onChange={(e) => setPartsCount(parseInt(e.target.value) || 2)}
-              className="flex-1 bg-slate-950/60 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 font-mono"
+              className="flex-1 bg-card border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary font-mono"
               title="Number of parts to split PDF"
               placeholder="2"
             />
-            <span className="bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-450 flex items-center justify-center">
+            <span className="bg-muted border border-border rounded-xl px-4 py-2.5 text-xs font-bold text-muted-foreground flex items-center justify-center">
               Files
             </span>
           </div>
@@ -147,7 +147,7 @@ export const SplitPDFWorkspace: React.FC = () => {
       )}
 
       {/* User tip */}
-      <div className="bg-slate-950/60 border border-white/[0.05] rounded-2xl p-4 flex gap-2.5 text-xs text-slate-400 leading-relaxed font-medium">
+      <div className="bg-card border border-border/50 rounded-2xl p-4 flex gap-2.5 text-xs text-muted-foreground leading-relaxed font-medium">
         <span>💡</span>
         <p>
           You can interactively select page ranges by clicking thumbnails in the Live Preview area below.

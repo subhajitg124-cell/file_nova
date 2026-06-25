@@ -313,7 +313,7 @@ export const CompressImageWorkspace: React.FC = () => {
           mode={compressedUrl ? "slider" : "side-by-side"}
         />
       ) : (
-        <div className="flex flex-col items-center justify-center p-8 bg-slate-900/20 border border-dashed border-white/5 rounded-2xl min-h-[150px] text-slate-500 text-xs">
+        <div className="flex flex-col items-center justify-center p-8 bg-muted/20 border border-dashed border-border rounded-2xl min-h-[150px] text-muted-foreground text-xs">
           <FileArchive className="h-8 w-8 mb-2 stroke-[1.5] animate-pulse" />
           <span>Upload an image to see visual compression slider.</span>
         </div>

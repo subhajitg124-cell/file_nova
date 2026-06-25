@@ -688,8 +688,8 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
     if (isProcessing) {
       return (
         <div className="space-y-1.5 w-full">
-          <Progress value={progress} className="h-1.5 bg-slate-800 animate-pulse" />
-          <div className="flex justify-between text-[9px] font-mono text-slate-400">
+          <Progress value={progress} className="h-1.5 bg-muted animate-pulse" />
+          <div className="flex justify-between text-[9px] font-mono text-muted-foreground">
             <span className="animate-pulse">Processing...</span>
             <span>{progress}%</span>
           </div>
@@ -701,7 +701,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
       return (
         <button
           onClick={onReset}
-          className={`w-full ${paddingClass} ${textClass} bg-slate-800 hover:bg-slate-700 border border-white/10 text-white rounded-xl font-black uppercase transition cursor-pointer flex items-center justify-center gap-1.5`}
+          className={`w-full ${paddingClass} ${textClass} bg-muted hover:bg-muted/80 border border-border text-foreground rounded-xl font-black uppercase transition cursor-pointer flex items-center justify-center gap-1.5`}
         >
           <RefreshCw className="h-3.5 w-3.5" />
           Clear Results
@@ -713,17 +713,17 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
       <div className="flex gap-2 w-full font-sans">
         <button
           onClick={onReset}
-          className={`flex-1 ${paddingClass} ${textClass} border border-white/10 rounded-xl font-black uppercase text-slate-400 hover:text-white transition cursor-pointer`}
+          className={`flex-1 ${paddingClass} ${textClass} border border-border rounded-xl font-black uppercase text-muted-foreground hover:text-foreground transition cursor-pointer`}
         >
           Clear
         </button>
         <button
           onClick={onProcess}
           disabled={!isReady || (!isOnline && !currentPlugin.capabilities.offlineReady)}
-          className={`flex-[2] ${paddingClass} ${textClass} rounded-xl font-black uppercase tracking-wider text-white shadow-lg transition flex items-center justify-center gap-1.5 cursor-pointer ${
+          className={`flex-[2] ${paddingClass} ${textClass} rounded-xl font-black uppercase tracking-wider text-primary-foreground shadow-lg transition flex items-center justify-center gap-1.5 cursor-pointer ${
             isReady && (isOnline || currentPlugin.capabilities.offlineReady)
               ? `bg-gradient-to-r ${theme.gradient} hover:scale-[1.01] active:scale-99`
-              : "opacity-45 bg-slate-850 text-slate-500 cursor-not-allowed border border-white/5"
+              : "opacity-45 bg-muted text-muted-foreground cursor-not-allowed border border-border"
           }`}
         >
           <Play className="h-3.5 w-3.5 fill-current" />
@@ -738,7 +738,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
       case "preset-grid":
         return (
           <div key={ctrl.id} className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1">
+            <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1">
               {ctrl.icon}
               {ctrl.label}
             </label>
@@ -749,17 +749,17 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                   onClick={() => ctrl.onChange(opt.value)}
                   className={`p-3 rounded-xl border text-left flex flex-col justify-between h-22 hover:scale-[1.02] active:scale-98 transition-all cursor-pointer ${
                     ctrl.value === opt.value
-                      ? "border-indigo-500 bg-indigo-500/10 shadow-lg text-white"
-                      : "border-white/[0.06] bg-slate-950/45 hover:bg-slate-900/60 text-slate-300"
+                      ? "border-primary bg-primary/10 shadow-lg text-foreground"
+                      : "border-border bg-card hover:bg-muted text-foreground/80"
                   }`}
                 >
                   <div className="flex items-center justify-between w-full">
                     <span className="text-[10px] font-black uppercase tracking-wider truncate">{opt.label}</span>
-                    {ctrl.value === opt.value && <CheckCircle2 className="h-3 w-3 text-indigo-400" />}
+                    {ctrl.value === opt.value && <CheckCircle2 className="h-3 w-3 text-primary" />}
                   </div>
                   <div>
-                    <p className="text-[9px] text-slate-400 font-medium leading-none truncate">{opt.desc}</p>
-                    {opt.quality && <p className="text-[8px] text-slate-500 font-mono mt-1">{opt.quality}</p>}
+                    <p className="text-[9px] text-muted-foreground font-medium leading-none truncate">{opt.desc}</p>
+                    {opt.quality && <p className="text-[8px] text-muted-foreground/80 font-mono mt-1">{opt.quality}</p>}
                   </div>
                 </button>
               ))}
@@ -768,8 +768,8 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
         );
       case "toggle":
         return (
-          <label key={ctrl.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-950/45 border border-white/[0.04] cursor-pointer hover:bg-slate-900/40 transition">
-            <div className="flex items-center gap-2 text-xs font-medium text-slate-300">
+          <label key={ctrl.id} className="flex items-center justify-between p-3 rounded-xl bg-card border border-border/40 cursor-pointer hover:bg-muted transition">
+            <div className="flex items-center gap-2 text-xs font-medium text-foreground/80">
               {ctrl.icon}
               <span>{ctrl.label}</span>
             </div>
@@ -777,14 +777,14 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
               type="checkbox"
               checked={ctrl.value}
               onChange={(e) => ctrl.onChange(e.target.checked)}
-              className="h-4 w-4 rounded border-white/10 text-indigo-600 focus:ring-0 cursor-pointer"
+              className="h-4 w-4 rounded border-border text-primary focus:ring-0 cursor-pointer"
             />
           </label>
         );
       case "dropdown":
         return (
           <div key={ctrl.id} className="space-y-1.5">
-            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1">
+            <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1">
               {ctrl.icon}
               {ctrl.label}
             </label>
@@ -792,7 +792,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
               value={ctrl.value}
               onChange={(e) => ctrl.onChange(e.target.value)}
               title={ctrl.label}
-              className="w-full bg-slate-950/60 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 font-bold"
+              className="w-full bg-card border border-border rounded-xl px-3 py-2 text-xs text-foreground focus:outline-none focus:border-primary font-bold"
             >
               {ctrl.options?.map((opt: any) => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -803,9 +803,9 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
       case "slider":
         return (
           <div key={ctrl.id} className="space-y-1.5">
-            <div className="flex justify-between text-[10px] font-black uppercase tracking-wider text-slate-400">
+            <div className="flex justify-between text-[10px] font-black uppercase tracking-wider text-muted-foreground">
               <span className="flex items-center gap-1">{ctrl.icon}{ctrl.label}</span>
-              <span className="font-mono text-indigo-400">{ctrl.value}{ctrl.unit || ""}</span>
+              <span className="font-mono text-primary">{ctrl.value}{ctrl.unit || ""}</span>
             </div>
             <input
               type="range"
@@ -816,14 +816,14 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
               onChange={(e) => ctrl.onChange(Number(e.target.value))}
               title={ctrl.label}
               placeholder={ctrl.placeholder || ctrl.label}
-              className="w-full h-1.5 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+              className="w-full h-1.5 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
             />
           </div>
         );
       case "input":
         return (
           <div key={ctrl.id} className="space-y-1.5">
-            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1">
+            <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1">
               {ctrl.icon}
               {ctrl.label}
             </label>
@@ -834,21 +834,21 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                 onChange={(e) => ctrl.onChange(e.target.value)}
                 placeholder={ctrl.placeholder}
                 title={ctrl.label}
-                className="flex-1 bg-slate-950/60 border border-white/10 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono"
+                className="flex-1 bg-card border border-border rounded-xl px-4 py-2 text-xs text-foreground focus:outline-none focus:border-primary font-mono"
               />
               {ctrl.unit && (
-                <span className="bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-[10px] font-bold text-slate-400 flex items-center justify-center">
+                <span className="bg-muted border border-border rounded-xl px-3 py-2 text-[10px] font-bold text-muted-foreground flex items-center justify-center">
                   {ctrl.unit}
                 </span>
               )}
             </div>
-            {ctrl.description && <p className="text-[9px] text-slate-500 leading-normal">{ctrl.description}</p>}
+            {ctrl.description && <p className="text-[9px] text-muted-foreground/80 leading-normal">{ctrl.description}</p>}
           </div>
         );
       case "radio-cards":
         return (
           <div key={ctrl.id} className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1" id={`label-${ctrl.id}`}>
+            <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1" id={`label-${ctrl.id}`}>
               {ctrl.icon}
               {ctrl.label}
             </label>
@@ -860,8 +860,8 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                     key={opt.value}
                     className={`w-full p-3 rounded-xl border text-left flex items-center gap-3 transition-all duration-200 cursor-pointer ${
                       isSelected
-                        ? "border-blue-500/50 bg-blue-500/10 text-white shadow-[0_0_15px_rgba(59,130,246,0.1)]"
-                        : "border-white/[0.06] bg-slate-950/45 hover:bg-slate-900/60 text-slate-300"
+                        ? "border-primary/50 bg-primary/10 text-foreground shadow-[0_0_15px_rgba(59,130,246,0.1)]"
+                        : "border-border bg-card hover:bg-muted text-foreground/80"
                     }`}
                   >
                     <input
@@ -872,13 +872,13 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                       className="sr-only"
                     />
                     <div className={`h-4.5 w-4.5 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
-                      isSelected ? "border-blue-500 bg-blue-500" : "border-white/20"
+                      isSelected ? "border-primary bg-primary" : "border-border"
                     }`}>
-                      {isSelected && <div className="h-2 w-2 rounded-full bg-white" />}
+                      {isSelected && <div className="h-2 w-2 rounded-full bg-primary-foreground" />}
                     </div>
                     <div className="flex flex-col min-w-0">
                       <span className="text-xs font-bold leading-tight">{opt.label}</span>
-                      {opt.desc && <span className="text-[10px] text-slate-500 leading-normal mt-0.5">{opt.desc}</span>}
+                      {opt.desc && <span className="text-[10px] text-muted-foreground leading-normal mt-0.5">{opt.desc}</span>}
                     </div>
                   </label>
                 );
@@ -938,10 +938,10 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
           : `${kbVal} KB`;
 
         return (
-          <div key={ctrl.id} className="p-4 rounded-xl bg-slate-950/60 border border-blue-500/20 space-y-4 shadow-[0_0_15px_rgba(59,130,246,0.05)] transition-all duration-300 hover:scale-[1.005] hover:shadow-lg">
-            <div className="flex justify-between items-center text-xs font-black uppercase tracking-wider text-slate-300">
+          <div key={ctrl.id} className="p-4 rounded-xl bg-card border border-primary/20 space-y-4 shadow-[0_0_15px_rgba(59,130,246,0.05)] transition-all duration-300 hover:scale-[1.005] hover:shadow-lg">
+            <div className="flex justify-between items-center text-xs font-black uppercase tracking-wider text-foreground/80">
               <span>{ctrl.label}</span>
-              <span className="font-mono text-blue-400 text-[13px]">{formattedDisplayStr}</span>
+              <span className="font-mono text-primary text-[13px]">{formattedDisplayStr}</span>
             </div>
 
             <div className="space-y-1">
@@ -952,10 +952,10 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                 step={sStep}
                 value={sVal}
                 onChange={handleSliderChange}
-                className="w-full h-1.5 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                className="w-full h-1.5 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
                 title="Target size slider"
               />
-              <div className="flex justify-between text-[9px] font-mono text-slate-500">
+              <div className="flex justify-between text-[9px] font-mono text-muted-foreground/80">
                 <span>{targetSizeUnit === "MB" ? `${minMb} MB` : `${Math.round(minMb * 1024)} KB`}</span>
                 <span>{targetSizeUnit === "MB" ? `${maxMb} MB` : `${Math.round(maxMb * 1024)} KB`}</span>
               </div>
@@ -968,7 +968,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                   step={sStep}
                   value={targetSizeUnit === "MB" ? parseFloat((kbVal / 1024).toFixed(2)) : kbVal}
                   onChange={handleInputChange}
-                  className="w-full bg-slate-950/80 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 font-mono"
+                  className="w-full bg-card border border-border rounded-xl px-3 py-2 text-xs text-foreground focus:outline-none focus:border-primary font-mono"
                   placeholder="e.g. 1.5"
                   title="Target size input"
                 />
@@ -979,23 +979,23 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                   value={targetSizeUnit}
                   onChange={(e) => handleUnitChange(e.target.value as any)}
                   title="Target size unit selection"
-                  className="bg-slate-950/80 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 font-bold appearance-none pr-8 cursor-pointer"
+                  className="bg-card border border-border rounded-xl px-3 py-2 text-xs text-foreground focus:outline-none focus:border-primary font-bold appearance-none pr-8 cursor-pointer"
                 >
                   <option value="MB">MB</option>
                   <option value="KB">KB</option>
                 </select>
-                <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground">
                   <ChevronRight className="h-3 w-3 rotate-90" />
                 </div>
               </div>
             </div>
 
-            <label className="flex items-center gap-2 cursor-pointer text-[10px] font-semibold text-slate-400 select-none hover:text-slate-300 transition">
+            <label className="flex items-center gap-2 cursor-pointer text-[10px] font-semibold text-muted-foreground select-none hover:text-foreground/80 transition">
               <input
                 type="checkbox"
                 checked={autoAdjust}
                 onChange={(e) => handleCheckboxChange(e.target.checked)}
-                className="h-3.5 w-3.5 rounded border-white/10 text-blue-600 focus:ring-0 cursor-pointer"
+                className="h-3.5 w-3.5 rounded border-border text-primary focus:ring-0 cursor-pointer"
               />
               <span>Quality auto-adjusts to hit this size</span>
             </label>
@@ -1015,8 +1015,8 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
       return (
         <div className="space-y-5">
           <div>
-            <h3 className="text-xs font-black uppercase tracking-wider text-slate-300 mb-1">Tool Settings</h3>
-            <p className="text-[10px] text-slate-500 font-medium">Configure parameters for {toolName}.</p>
+            <h3 className="text-xs font-black uppercase tracking-wider text-foreground mb-1">Tool Settings</h3>
+            <p className="text-[10px] text-muted-foreground font-medium">Configure parameters for {toolName}.</p>
           </div>
 
           {/* Core Controls */}
@@ -1026,10 +1026,10 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
 
           {/* Advanced Controls Accordion */}
           {advancedControls.length > 0 && (
-            <div className="border-t border-white/5 pt-4 space-y-3">
+            <div className="border-t border-border pt-4 space-y-3">
               <button
                 onClick={() => setShowAdvanced(!showAdvanced)}
-                className="flex items-center justify-between w-full text-[10px] font-black uppercase tracking-wider text-slate-400 hover:text-white transition cursor-pointer"
+                className="flex items-center justify-between w-full text-[10px] font-black uppercase tracking-wider text-muted-foreground hover:text-foreground transition cursor-pointer"
               >
                 <span>Advanced Parameters</span>
                 <span className={`transition-transform duration-200 ${showAdvanced ? "rotate-90" : ""}`}>
@@ -1062,11 +1062,11 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
     if (files.length === 0) return null;
 
     const renderCard = (label: string, value: string, tone?: "default" | "success" | "info", idx?: number) => {
-      let toneClasses = "text-white border-white/10 dark:border-white/10 bg-slate-900/10";
+      let toneClasses = "text-foreground border-border bg-card/10";
       if (tone === "success") {
-        toneClasses = "text-emerald-400 border-emerald-500/20 dark:border-emerald-500/20 bg-emerald-500/5 shadow-[0_0_15px_rgba(16,185,129,0.05)]";
+        toneClasses = "text-emerald-400 border-emerald-500/20 bg-emerald-500/5 shadow-[0_0_15px_rgba(16,185,129,0.05)]";
       } else if (tone === "info") {
-        toneClasses = "text-blue-400 border-blue-500/20 dark:border-blue-500/20 bg-blue-500/5 shadow-[0_0_15px_rgba(59,130,246,0.05)]";
+        toneClasses = "text-blue-400 border-blue-500/20 bg-blue-500/5 shadow-[0_0_15px_rgba(59,130,246,0.05)]";
       }
 
       return (
@@ -1074,7 +1074,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
           key={idx !== undefined ? idx : label} 
           className={`glass border rounded-2xl p-4 shadow-soft flex flex-col justify-between hover:scale-[1.01] transition-all duration-200 ${toneClasses}`}
         >
-          <span className="text-[10px] font-black uppercase text-slate-500 tracking-wider">{label}</span>
+          <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">{label}</span>
           <span className="text-sm font-black mt-1.5 font-mono truncate">{value}</span>
         </div>
       );
@@ -1142,10 +1142,10 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="bg-slate-900 border-b border-white/[0.08] p-4 text-xs text-slate-400 leading-relaxed"
+            className="bg-muted border-b border-border p-4 text-xs text-muted-foreground leading-relaxed"
           >
             <div className="max-w-4xl mx-auto space-y-2">
-              <h3 className="font-extrabold text-white text-sm">💡 Quick Guide: {toolName}</h3>
+              <h3 className="font-extrabold text-foreground text-sm">💡 Quick Guide: {toolName}</h3>
               <p>{toolDescription}</p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 text-[10px] font-bold font-mono">
                 <div>Ctrl + K : Command Palette</div>
@@ -1204,8 +1204,8 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
             {/* Upload progress bar — absolute positioned for visibility */}
             {isUploading && (
               <div className="absolute top-0 left-0 w-full z-50 px-4 pt-2">
-                <Progress value={progress} className="h-1 bg-slate-800" />
-                <p className="text-[9px] text-center text-slate-500 mt-0.5 font-mono">Uploading file...</p>
+                <Progress value={progress} className="h-1 bg-muted" />
+                <p className="text-[9px] text-center text-muted-foreground mt-0.5 font-mono">Uploading file...</p>
               </div>
             )}
 
@@ -1226,14 +1226,14 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                   onDrop={handleCanvasDrop}
                 >
                   {/* Toolbar Canvas Header */}
-                  <div className="flex items-center justify-between border-b border-white/[0.06] pb-3 text-xs text-slate-400 shrink-0">
+                  <div className="flex items-center justify-between border-b border-border pb-3 text-xs text-muted-foreground shrink-0">
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => {
                           toast.info("Undone");
                           trackEvent({ tool: slug, action: "undo_click" });
                         }}
-                        className="p-1 rounded hover:bg-white/5 transition cursor-pointer"
+                        className="p-1 rounded hover:bg-muted transition cursor-pointer"
                         title="Undo (Ctrl + Z)"
                         aria-label="Undo"
                       >
@@ -1244,16 +1244,16 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                           toast.info("Redone");
                           trackEvent({ tool: slug, action: "redo_click" });
                         }}
-                        className="p-1 rounded hover:bg-white/5 transition cursor-pointer"
+                        className="p-1 rounded hover:bg-muted transition cursor-pointer"
                         title="Redo (Ctrl + Shift + Z)"
                         aria-label="Redo"
                       >
                         <Redo2 className="h-3.5 w-3.5" />
                       </button>
-                      <span className="text-slate-600">|</span>
+                      <span className="text-muted-foreground/60">|</span>
                       <button
                         onClick={() => setZoom(z => Math.max(50, z - 25))}
-                        className="p-1 rounded hover:bg-white/5 transition cursor-pointer"
+                        className="p-1 rounded hover:bg-muted transition cursor-pointer"
                         title="Zoom Out"
                         aria-label="Zoom Out"
                       >
@@ -1262,7 +1262,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                       <span className="font-mono text-[9.5px] font-bold">{zoom}%</span>
                       <button
                         onClick={() => setZoom(z => Math.min(200, z + 25))}
-                        className="p-1 rounded hover:bg-white/5 transition cursor-pointer"
+                        className="p-1 rounded hover:bg-muted transition cursor-pointer"
                         title="Zoom In"
                         aria-label="Zoom In"
                       >
@@ -1287,27 +1287,27 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
 
                   {/* Phase 2: Workflow Pipeline Stepper */}
                   {featureFlags.workflowEngine && (
-                    <div className="w-full bg-slate-950/60 border border-white/[0.04] p-2.5 rounded-xl backdrop-blur flex items-center justify-between text-[10.5px] mt-2.5 shrink-0">
-                      <span className="text-[9px] font-black uppercase text-slate-500 select-none shrink-0 pr-2 border-r border-white/5">Workflow Queue</span>
+                    <div className="w-full bg-card border border-border/40 p-2.5 rounded-xl backdrop-blur flex items-center justify-between text-[10.5px] mt-2.5 shrink-0">
+                      <span className="text-[9px] font-black uppercase text-muted-foreground select-none shrink-0 pr-2 border-r border-border/50">Workflow Queue</span>
                       <div className="flex-1 flex items-center justify-around px-2 min-w-0">
                         {getPipelineSteps().map((step, idx) => (
                           <React.Fragment key={step.id}>
                             {idx > 0 && (
                               <div className={`flex-1 h-0.5 mx-2 max-w-[40px] border-t-2 border-dashed ${
-                                step.status === "pending" ? "border-white/5" : "border-indigo-500/40"
+                                step.status === "pending" ? "border-border/50" : "border-primary/40"
                               }`} />
                             )}
                             <div className="flex items-center gap-1.5 min-w-0">
                               <div className={`h-5 w-5 rounded-full flex items-center justify-center font-bold text-[9px] shrink-0 border ${
                                 step.status === "done" ? "bg-emerald-600/20 text-emerald-400 border-emerald-500" :
-                                step.status === "active" ? "bg-indigo-600 text-white border-indigo-500 animate-pulse" :
-                                "bg-slate-900 text-slate-600 border-white/5"
+                                step.status === "active" ? "bg-primary text-primary-foreground border-primary animate-pulse" :
+                                "bg-muted text-muted-foreground border-border"
                               }`}>
                                 {step.status === "done" ? "✓" : idx + 1}
                               </div>
                               <span className={`truncate font-bold select-none ${
-                                step.status === "active" ? "text-indigo-400 inline" : 
-                                step.status === "done" ? "text-slate-300 hidden md:inline" : "text-slate-600 hidden md:inline"
+                                step.status === "active" ? "text-primary inline" : 
+                                step.status === "done" ? "text-foreground/80 hidden md:inline" : "text-muted-foreground hidden md:inline"
                               }`}>
                                 {step.label}
                               </span>
@@ -1320,7 +1320,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
 
                   {/* Decoupled Component Render Frame */}
                   <div 
-                    className={`flex-1 flex flex-col items-center justify-center p-2 relative overflow-hidden bg-slate-950/30 rounded-xl border border-white/[0.04] mt-2.5 transition-all duration-200 ${filterClassName} flex min-h-0`}
+                    className={`flex-1 flex flex-col items-center justify-center p-2 relative overflow-hidden bg-card/30 rounded-xl border border-border/40 mt-2.5 transition-all duration-200 ${filterClassName} flex min-h-0`}
                   >
                     <WorkspaceComponent
                       files={files}
@@ -1334,10 +1334,10 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                           <div className="w-full space-y-4">
                             {/* Unachievable target warning banner */}
                             {resultFile.warning && (
-                              <div className="p-3.5 bg-amber-550/10 border border-amber-500/20 rounded-2xl flex items-start gap-2.5 text-xs text-amber-300 animate-fade-up">
+                              <div className="p-3.5 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-start gap-2.5 text-xs text-amber-300 animate-fade-up">
                                 <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
                                 <div className="space-y-0.5">
-                                  <span className="font-extrabold text-white block">Compression Notice</span>
+                                  <span className="font-extrabold text-foreground block">Compression Notice</span>
                                   <span>{resultFile.warning}</span>
                                 </div>
                               </div>
@@ -1345,17 +1345,17 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
 
                             {/* One-click Continue Workflow Banner */}
                             {featureFlags.workflowEngine && (
-                              <div className="p-4 bg-slate-900 border border-indigo-500/25 rounded-2xl flex items-center justify-between text-xs animate-fade-up">
+                              <div className="p-4 bg-card border border-primary/25 rounded-2xl flex items-center justify-between text-xs animate-fade-up">
                                 <div className="flex items-center gap-2">
-                                  <Sparkles className="h-4.5 w-4.5 text-indigo-400 animate-pulse animate-pulse-subtle" />
+                                  <Sparkles className="h-4.5 w-4.5 text-primary animate-pulse animate-pulse-subtle" />
                                   <div>
-                                    <span className="font-black text-white block">Workflow Suggested Step</span>
-                                    <span className="text-[10px] text-slate-400">Next suggested tool: {TOOL_REGISTRY[getRecommendedTools()[0]]?.name || "Compress PDF"}</span>
+                                    <span className="font-black text-foreground block">Workflow Suggested Step</span>
+                                    <span className="text-[10px] text-muted-foreground">Next suggested tool: {TOOL_REGISTRY[getRecommendedTools()[0]]?.name || "Compress PDF"}</span>
                                   </div>
                                 </div>
                                 <button
                                   onClick={() => handleContinueWorkflow(getRecommendedTools()[0] || "compress-pdf")}
-                                  className="px-3.5 py-1.5 bg-indigo-655 hover:bg-indigo-600 rounded-xl text-white font-black text-[10.5px] uppercase tracking-wide transition flex items-center gap-1.5 cursor-pointer shadow-md"
+                                  className="px-3.5 py-1.5 bg-primary hover:bg-primary/80 rounded-xl text-primary-foreground font-black text-[10.5px] uppercase tracking-wide transition flex items-center gap-1.5 cursor-pointer shadow-md"
                                 >
                                   Continue Pipeline <ChevronRight className="h-3 w-3" />
                                 </button>
@@ -1397,7 +1397,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                     />
                   </div>
 
-                  <div className="text-center text-[9px] text-slate-500 font-bold border border-dashed border-white/5 p-2 rounded-xl bg-slate-900/20 animate-pulse mt-2.5 shrink-0">
+                  <div className="text-center text-[9px] text-muted-foreground font-bold border border-dashed border-border/50 p-2 rounded-xl bg-muted/20 animate-pulse mt-2.5 shrink-0">
                     Drag additional files here to append to document queue. Maximum files: {maxFiles}
                   </div>
                 </div>
@@ -1409,15 +1409,15 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
               {/* RIGHT COLUMN: Settings Sidebar (35%) */}
               <div className="col-span-1 lg:col-span-4 flex flex-col gap-3 order-3 lg:order-none min-h-0 overflow-y-auto">
                 {/* Bento Settings Sidebar Cell */}
-                <div className="glass border border-white/10 rounded-2xl p-4 shadow-soft flex flex-col gap-3 overflow-y-auto flex-1">
+                <div className="glass border border-border rounded-2xl p-4 shadow-soft flex flex-col gap-3 overflow-y-auto flex-1">
                   
                   {/* Desktop Sidebar Layout */}
                   <div className="hidden lg:flex flex-col gap-4">
                     {/* Output Filename configuration card */}
                     {hasFiles && (
-                      <div className="p-4 rounded-xl bg-slate-950/60 border border-white/[0.05] space-y-3">
+                      <div className="p-4 rounded-xl bg-card border border-border/50 space-y-3">
                         <div className="space-y-1.5">
-                          <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-wider text-slate-400">
+                          <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-wider text-muted-foreground">
                             <span>Output Filename</span>
                             {!premiumEnabled && (
                               <span className="text-[8px] bg-amber-500/10 text-amber-500 border border-amber-500/25 px-1.5 py-0.5 rounded-md flex items-center gap-0.5 font-bold">
@@ -1432,15 +1432,15 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                             onChange={(e) => setCustomFileName(e.target.value)}
                             title="Output Filename"
                             placeholder="Custom output filename"
-                            className={`w-full bg-slate-950/60 border rounded-xl px-3 py-2 text-xs text-white focus:outline-none font-mono ${
+                            className={`w-full bg-card border rounded-xl px-3 py-2 text-xs text-foreground focus:outline-none font-mono ${
                               premiumEnabled 
-                                ? "border-white/10 focus:border-indigo-500" 
-                                : "border-white/5 text-slate-500 cursor-not-allowed select-none bg-slate-950/30 font-medium"
+                                ? "border-border focus:border-primary" 
+                                : "border-border/50 text-muted-foreground cursor-not-allowed select-none bg-muted/30 font-medium"
                             }`}
                           />
                         </div>
                         {!premiumEnabled && (
-                          <p className="text-[9px] text-slate-500 leading-normal">
+                          <p className="text-[9px] text-muted-foreground leading-normal">
                             Upgrade to Pro to customize output names.
                           </p>
                         )}
@@ -1451,14 +1451,14 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
 
                     {/* Desktop Local Image Enhancements */}
                     {(currentPlugin.category === "image" || currentPlugin.category === "ocr") && (
-                      <div className="p-4 bg-slate-950/60 border border-white/[0.05] rounded-xl space-y-3">
-                        <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-indigo-400">
+                      <div className="p-4 bg-card border border-border/50 rounded-xl space-y-3">
+                        <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-primary">
                           <span>Local Enhancements</span>
-                          <button onClick={() => { setBrightness(100); setContrast(100); }} className="text-[9px] text-slate-500 hover:text-indigo-400 transition cursor-pointer">Reset</button>
+                          <button onClick={() => { setBrightness(100); setContrast(100); }} className="text-[9px] text-muted-foreground hover:text-primary transition cursor-pointer">Reset</button>
                         </div>
                         <div className="space-y-3 text-[10px] font-bold">
                           <div className="space-y-1">
-                            <div className="flex justify-between text-slate-400">
+                            <div className="flex justify-between text-muted-foreground">
                               <span>Brightness: {brightness}%</span>
                             </div>
                             <input
@@ -1469,12 +1469,12 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                               onChange={(e) => setBrightness(Number(e.target.value))}
                               title="Adjust Brightness"
                               placeholder="Brightness percentage"
-                              className="w-full h-1.5 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                              className="w-full h-1.5 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
                             />
                           </div>
                           
                           <div className="space-y-1">
-                            <div className="flex justify-between text-slate-400">
+                            <div className="flex justify-between text-muted-foreground">
                               <span>Contrast: {contrast}%</span>
                             </div>
                             <input
@@ -1485,7 +1485,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                               onChange={(e) => setContrast(Number(e.target.value))}
                               title="Adjust Contrast"
                               placeholder="Contrast percentage"
-                              className="w-full h-1.5 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                              className="w-full h-1.5 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
                             />
                           </div>
                         </div>
@@ -1495,11 +1495,11 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                     {/* Privacy Banner link */}
                     <button
                       onClick={() => setPrivacyModalOpen(true)}
-                      className="w-full p-3 border border-white/[0.06] rounded-xl bg-slate-950/80 hover:bg-slate-900 transition flex items-center justify-between cursor-pointer"
+                      className="w-full p-3 border border-border/60 rounded-xl bg-card hover:bg-muted transition flex items-center justify-between cursor-pointer"
                     >
                       <div className="flex items-center gap-2">
                         <Shield className="h-4 w-4 text-emerald-400" />
-                        <span className="text-[9px] font-black uppercase tracking-wider text-slate-200">Privacy & Audits</span>
+                        <span className="text-[9px] font-black uppercase tracking-wider text-foreground/90">Privacy & Audits</span>
                       </div>
                       <div className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
                     </button>
@@ -1509,14 +1509,14 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                   <div className="lg:hidden">
                     <button
                       onClick={() => setMobileSettingsOpen(!mobileSettingsOpen)}
-                      className="w-full p-3 rounded-xl bg-slate-950/40 border border-white/5 flex items-center justify-between text-[11px] font-black uppercase tracking-wider text-slate-200 cursor-pointer"
+                      className="w-full p-3 rounded-xl bg-card border border-border/50 flex items-center justify-between text-[11px] font-black uppercase tracking-wider text-foreground cursor-pointer"
                     >
                       <div className="flex items-center gap-2">
-                        <Sliders className="h-4 w-4 text-indigo-400" />
+                        <Sliders className="h-4 w-4 text-primary" />
                         <span>Adjustment Parameters & Settings</span>
                       </div>
                       <span className={`transition-transform duration-300 ${mobileSettingsOpen ? "rotate-90" : ""}`}>
-                        <ChevronRight className="h-4 w-4 text-slate-500" />
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
                       </span>
                     </button>
                     
@@ -1530,9 +1530,9 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                         >
                           {/* Output Filename configuration card */}
                           {hasFiles && (
-                            <div className="p-4 rounded-xl bg-slate-950/60 border border-white/[0.05] space-y-3">
+                            <div className="p-4 rounded-xl bg-card border border-border/50 space-y-3">
                               <div className="space-y-1.5">
-                                <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-wider text-slate-400">
+                                <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-wider text-muted-foreground">
                                   <span>Output Filename</span>
                                 </div>
                                 <input
@@ -1542,10 +1542,10 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                                   onChange={(e) => setCustomFileName(e.target.value)}
                                   title="Output Filename"
                                   placeholder="Custom output filename"
-                                  className={`w-full bg-slate-950/60 border rounded-xl px-3 py-2 text-xs text-white focus:outline-none font-mono ${
+                                  className={`w-full bg-card border rounded-xl px-3 py-2 text-xs text-foreground focus:outline-none font-mono ${
                                     premiumEnabled 
-                                      ? "border-white/10 focus:border-indigo-500" 
-                                      : "border-white/5 text-slate-500 cursor-not-allowed select-none bg-slate-950/30 font-medium"
+                                      ? "border-border focus:border-primary" 
+                                      : "border-border/50 text-muted-foreground cursor-not-allowed select-none bg-muted/30 font-medium"
                                   }`}
                                 />
                               </div>
@@ -1556,13 +1556,13 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
 
                           {/* Local enhancements sliders */}
                           {(currentPlugin.category === "image" || currentPlugin.category === "ocr") && (
-                            <div className="p-4 bg-slate-950/60 border border-white/[0.05] rounded-xl space-y-3">
-                              <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-indigo-400">
+                            <div className="p-4 bg-card border border-border/50 rounded-xl space-y-3">
+                              <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-primary">
                                 <span>Local Enhancements</span>
                               </div>
                               <div className="space-y-3 text-[10px] font-bold">
                                 <div className="space-y-1">
-                                  <div className="flex justify-between text-slate-400">
+                                  <div className="flex justify-between text-muted-foreground">
                                     <span>Brightness: {brightness}%</span>
                                   </div>
                                   <input
@@ -1573,12 +1573,12 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                                     onChange={(e) => setBrightness(Number(e.target.value))}
                                     title="Adjust Brightness"
                                     placeholder="Brightness percentage"
-                                    className="w-full h-1.5 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                                    className="w-full h-1.5 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
                                   />
                                 </div>
                                 
                                 <div className="space-y-1">
-                                  <div className="flex justify-between text-slate-400">
+                                  <div className="flex justify-between text-muted-foreground">
                                     <span>Contrast: {contrast}%</span>
                                   </div>
                                   <input
@@ -1589,7 +1589,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                                     onChange={(e) => setContrast(Number(e.target.value))}
                                     title="Adjust Contrast"
                                     placeholder="Contrast percentage"
-                                    className="w-full h-1.5 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                                    className="w-full h-1.5 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
                                   />
                                 </div>
                               </div>
@@ -1601,8 +1601,8 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                   </div>
                 </div>
                 {/* Status/Info Cell — compact, below settings */}
-                <div className="glass border border-white/10 rounded-2xl p-3 shadow-soft shrink-0">
-                  <div className="text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center justify-between w-full border-b border-white/5 pb-1 mb-2">
+                <div className="glass border border-border rounded-2xl p-3 shadow-soft shrink-0">
+                  <div className="text-[10px] font-black uppercase tracking-wider text-muted-foreground flex items-center justify-between w-full border-b border-border/50 pb-1 mb-2">
                     <span>Status Info</span>
                     <span className={`h-2 w-2 rounded-full ${isProcessing ? 'bg-blue-400 animate-pulse' : isUploading ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}`} />
                   </div>
@@ -1612,22 +1612,22 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                       statusPanel
                     ) : (
                       <>
-                        <div className="flex items-center justify-between p-2 rounded-xl bg-slate-950/40 border border-white/[0.02]">
-                          <span className="text-slate-400 font-bold">Process State</span>
-                          <span className="font-mono font-extrabold text-white">
+                        <div className="flex items-center justify-between p-2 rounded-xl bg-card border border-border/20">
+                          <span className="text-muted-foreground font-bold">Process State</span>
+                          <span className="font-mono font-extrabold text-foreground">
                             {isUploading ? "Uploading..." : isProcessing ? (processingStatus || "Processing...") : (resultFile ? "Complete" : "Ready")}
                           </span>
-                          <span className={`h-2 w-2 rounded-full ${isProcessing ? 'bg-indigo-400 animate-pulse' : 'bg-emerald-400'}`} />
+                          <span className={`h-2 w-2 rounded-full ${isProcessing ? 'bg-primary animate-pulse' : 'bg-emerald-400'}`} />
                         </div>
                         
                         <div className="grid grid-cols-2 gap-1.5 text-xs w-full">
-                          <div className="flex items-center justify-between p-2 rounded-xl bg-slate-950/40 border border-white/[0.02]">
-                            <span className="text-slate-400 font-bold">Files</span>
-                            <span className="font-mono font-extrabold text-white">{files.length}</span>
+                          <div className="flex items-center justify-between p-2 rounded-xl bg-card border border-border/20">
+                            <span className="text-muted-foreground font-bold">Files</span>
+                            <span className="font-mono font-extrabold text-foreground">{files.length}</span>
                           </div>
-                          <div className="flex items-center justify-between p-2 rounded-xl bg-slate-950/40 border border-white/[0.02]">
-                            <span className="text-slate-400 font-bold">Size</span>
-                            <span className="font-mono font-extrabold text-white">
+                          <div className="flex items-center justify-between p-2 rounded-xl bg-card border border-border/20">
+                            <span className="text-muted-foreground font-bold">Size</span>
+                            <span className="font-mono font-extrabold text-foreground">
                               {formatBytes(files.reduce((acc, f) => acc + f.size, 0))}
                             </span>
                           </div>
@@ -1645,7 +1645,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                         {/* Collapsible logs */}
                         <button
                           onClick={() => setLogsOpen(o => !o)}
-                          className="flex items-center justify-between w-full text-[9px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-300 transition cursor-pointer pt-1"
+                          className="flex items-center justify-between w-full text-[9px] font-black uppercase tracking-wider text-muted-foreground hover:text-foreground/80 transition cursor-pointer pt-1"
                         >
                           <span className="flex items-center gap-1"><Activity className="h-3 w-3" /> Timeline Logs</span>
                           <ChevronRight className={`h-3 w-3 transition-transform ${logsOpen ? 'rotate-90' : ''}`} />
@@ -1658,10 +1658,10 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                               exit={{ height: 0, opacity: 0 }}
                               className="overflow-hidden"
                             >
-                              <div className="space-y-0.5 font-mono text-[8.5px] text-slate-400 max-h-28 overflow-y-auto bg-slate-950/60 rounded-xl p-2">
+                              <div className="space-y-0.5 font-mono text-[8.5px] text-muted-foreground max-h-28 overflow-y-auto bg-card rounded-xl p-2">
                                 {timelineLogs.slice(-8).map((log, i) => (
                                   <div key={i} className="flex gap-2">
-                                    <span className="text-slate-500 shrink-0">[{log.time}]</span>
+                                    <span className="text-muted-foreground/60 shrink-0">[{log.time}]</span>
                                     <span className="truncate">{log.text}</span>
                                   </div>
                                 ))}
@@ -1683,27 +1683,27 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
       {/* MOBILE DRAWER BOTTOM SHEET (Parameters config panel) */}
       <AnimatePresence>
         {mobileDrawerOpen && (
-          <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-end justify-center md:hidden">
+          <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-end justify-center md:hidden">
             <motion.div
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
-              className="w-full max-h-[70vh] bg-slate-900 border-t border-white/10 rounded-t-3xl p-5 overflow-y-auto space-y-4"
+              className="w-full max-h-[70vh] bg-card border-t border-border rounded-t-3xl p-5 overflow-y-auto space-y-4"
             >
-              <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
-                <span className="text-xs font-black uppercase tracking-wider text-slate-250">Adjustment Settings</span>
+              <div className="flex items-center justify-between border-b border-border pb-3">
+                <span className="text-xs font-black uppercase tracking-wider text-foreground">Adjustment Settings</span>
                 <button
                   onClick={() => setMobileDrawerOpen(false)}
-                  className="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-[10px] font-bold text-slate-300 cursor-pointer"
+                  className="px-2.5 py-1 rounded-xl bg-muted hover:bg-muted/80 text-[10px] font-bold text-foreground/80 cursor-pointer"
                 >
                   Done
                 </button>
               </div>
 
               {hasFiles && (
-                <div className="p-4 rounded-2xl bg-slate-950/60 border border-white/[0.05] space-y-3">
+                <div className="p-4 rounded-2xl bg-card border border-border/50 space-y-3">
                   <div className="space-y-1.5">
-                    <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-slate-400">
+                    <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-muted-foreground">
                       <span>Output Filename</span>
                       {!premiumEnabled && (
                         <span className="text-[8px] bg-amber-500/10 text-amber-500 border border-amber-500/25 px-1.5 py-0.5 rounded-md flex items-center gap-0.5 font-bold">
@@ -1722,10 +1722,10 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                             ? `${files[0].name.replace(/\.[^/.]+$/, "")}_processed` 
                             : "e.g. customized-output"
                         }
-                        className={`w-full bg-slate-950/60 border rounded-xl px-3 py-2 text-xs text-white focus:outline-none font-mono ${
+                        className={`w-full bg-card border rounded-xl px-3 py-2 text-xs text-foreground focus:outline-none font-mono ${
                           premiumEnabled 
-                            ? "border-white/10 focus:border-indigo-500" 
-                            : "border-white/5 text-slate-500 cursor-not-allowed select-none bg-slate-950/30 font-medium"
+                            ? "border-border focus:border-primary" 
+                            : "border-border/50 text-muted-foreground cursor-not-allowed select-none bg-muted/30 font-medium"
                         }`}
                       />
                     </div>
@@ -1760,13 +1760,13 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
       {/* PRIVACY MODAL */}
       <AnimatePresence>
         {privacyModalOpen && (
-          <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="max-w-md w-full relative">
               <button
                 onClick={() => setPrivacyModalOpen(false)}
                 title="Close privacy modal"
                 aria-label="Close privacy modal"
-                className="absolute top-4 right-4 text-slate-400 hover:text-white z-10"
+                className="absolute top-4 right-4 text-muted-foreground hover:text-foreground z-10"
               >
                 close
               </button>
