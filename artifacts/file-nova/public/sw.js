@@ -1,5 +1,5 @@
 // FileNova Service Worker - Offline Support, Caching & WASM Models Pre-fetching
-const CACHE_NAME = 'filenova-v1';
+const CACHE_NAME = 'filenova-v2';
 const WASM_CACHE_NAME = 'filenova-wasm-models-v1';
 
 const STATIC_ASSETS = [
