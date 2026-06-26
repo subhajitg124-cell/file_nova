@@ -22,7 +22,7 @@ const WatermarkSection: React.FC<SectionProps> = ({ config, onConfigChange, mode
     <BentoCard size="sm" hover={false}>
       <SettingRow label="Watermark Text">
         <div className="relative">
-          <Type className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+          <Type className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
           <input type="text" value={config.watermarkText || ""} onChange={(e) => onConfigChange("watermarkText", e.target.value)}
             placeholder="e.g. CONFIDENTIAL"
             className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-950 pl-8 pr-3 py-2 text-xs text-slate-800 dark:text-white outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/30" disabled={disabled} />
@@ -34,18 +34,18 @@ const WatermarkSection: React.FC<SectionProps> = ({ config, onConfigChange, mode
       <SettingRow label={`Opacity ${config.watermarkOpacity || 40}%`}>
         <input type="range" min={5} max={95} value={config.watermarkOpacity || 40}
           onChange={(e) => onConfigChange("watermarkOpacity", Number(e.target.value))}
-          className="h-1 w-full rounded-lg appearance-none cursor-pointer accent-purple-500 bg-slate-200 dark:bg-slate-800" disabled={disabled} />
+          className="h-1 w-full rounded-lg appearance-none cursor-pointer accent-primary bg-muted" disabled={disabled} />
       </SettingRow>
       <div className="grid grid-cols-2 gap-3 pt-2">
         <SettingRow label={`Rotation ${config.watermarkRotation || 0}°`}>
           <input type="range" min={-45} max={45} value={config.watermarkRotation || 0}
             onChange={(e) => onConfigChange("watermarkRotation", Number(e.target.value))}
-            className="h-1 w-full rounded-lg appearance-none cursor-pointer accent-purple-500 bg-slate-200 dark:bg-slate-800" disabled={disabled} />
+            className="h-1 w-full rounded-lg appearance-none cursor-pointer accent-primary bg-muted" disabled={disabled} />
         </SettingRow>
         <SettingRow label={`Scale ${config.watermarkScale || 100}%`}>
           <input type="range" min={50} max={200} value={config.watermarkScale || 100}
             onChange={(e) => onConfigChange("watermarkScale", Number(e.target.value))}
-            className="h-1 w-full rounded-lg appearance-none cursor-pointer accent-purple-500 bg-slate-200 dark:bg-slate-800" disabled={disabled} />
+            className="h-1 w-full rounded-lg appearance-none cursor-pointer accent-primary bg-muted" disabled={disabled} />
         </SettingRow>
       </div>
     </BentoCard>
@@ -58,7 +58,7 @@ const WatermarkSection: React.FC<SectionProps> = ({ config, onConfigChange, mode
               className={`h-7 w-7 flex items-center justify-center rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
                 (config.watermarkPosition || "center") === pos.id
                   ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/30"
-                  : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted border border-transparent"
               }`}
               title={pos.id.replace("-", " ")} disabled={disabled}>
               {pos.icon}

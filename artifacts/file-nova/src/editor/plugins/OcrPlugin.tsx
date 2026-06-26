@@ -50,7 +50,7 @@ const OcrSection: React.FC<SectionProps> = ({ config, onConfigChange, onStatusMe
   return (
     <div className="space-y-3">
       <BentoCard size="sm" hover={false}>
-        <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500 mb-2.5">Languages</p>
+        <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-2.5">Languages</p>
         <div className="flex flex-wrap gap-1.5">
           {languages.map((lang) => {
             const active = (config.ocrLanguages || ["eng"]).includes(lang.code);
@@ -63,7 +63,7 @@ const OcrSection: React.FC<SectionProps> = ({ config, onConfigChange, onStatusMe
                 className={`px-2.5 py-1.5 rounded-lg border text-[10px] font-bold transition cursor-pointer ${
                   active
                     ? "border-purple-500/50 bg-purple-500/10 text-purple-600 dark:text-purple-400 shadow-sm"
-                    : "border-slate-200 dark:border-white/10 bg-white/80 dark:bg-slate-950 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900"
+                    : "border-border bg-card/80 text-muted-foreground hover:bg-muted"
                 }`} disabled={disabled}>
                 {lang.label}
               </button>
@@ -88,19 +88,19 @@ const OcrSection: React.FC<SectionProps> = ({ config, onConfigChange, onStatusMe
               <span className="text-[10px] uppercase tracking-wider font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                 <FileText className="h-3 w-3" /> Extracted Text
               </span>
-              <span className="text-[9px] text-slate-400 dark:text-slate-500">{config.ocrText.length} chars</span>
+              <span className="text-[9px] text-muted-foreground">{config.ocrText.length} chars</span>
             </div>
             <textarea value={config.ocrText} onChange={(e) => onConfigChange("ocrText", e.target.value)}
               rows={5}
-              className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-950 px-3 py-2.5 text-xs text-slate-700 dark:text-slate-300 outline-none focus:border-purple-500 font-mono" disabled={disabled} />
+              className="w-full rounded-xl border-border bg-card px-3 py-2.5 text-xs text-foreground outline-none focus:border-primary font-mono" disabled={disabled} />
             <PremiumButton variant="primary" size="sm" icon={<Download className="h-3.5 w-3.5" />} onClick={handleDownload}>
               Download Text
             </PremiumButton>
           </div>
         ) : (
           <div className="text-center py-3">
-            <FileText className="h-6 w-6 mx-auto mb-1.5 text-slate-300 dark:text-slate-600" />
-            <p className="text-[11px] text-slate-400 dark:text-slate-500">Select languages and click Extract</p>
+            <FileText className="h-6 w-6 mx-auto mb-1.5 text-muted-foreground" />
+            <p className="text-[11px] text-muted-foreground">Select languages and click Extract</p>
           </div>
         )}
       </BentoCard>

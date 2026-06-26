@@ -18,15 +18,15 @@ const ProtectSection: React.FC<SectionProps> = ({ config, onConfigChange, mode, 
             <input type={showPw ? "text" : "password"} value={config.password || ""}
               onChange={(e) => onConfigChange("password", e.target.value)}
               placeholder="Enter password"
-              className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-950 px-3 py-2.5 pr-10 text-xs text-slate-800 dark:text-white outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/30" disabled={disabled} />
-            <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white transition cursor-pointer" disabled={disabled}>
+              className="w-full rounded-xl border-border bg-card px-3 py-2.5 pr-10 text-xs text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary/30" disabled={disabled} />
+            <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition cursor-pointer" disabled={disabled}>
               {showPw ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
             </button>
           </div>
           <input type={showPw ? "text" : "password"} value={config.confirmPassword || ""}
             onChange={(e) => onConfigChange("confirmPassword", e.target.value)}
             placeholder="Confirm password"
-            className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-950 px-3 py-2.5 text-xs text-slate-800 dark:text-white outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/30" disabled={disabled} />
+              className="w-full rounded-xl border-border bg-card px-3 py-2.5 text-xs text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary/30" disabled={disabled} />
           {config.confirmPassword && config.password !== config.confirmPassword && (
             <p className="text-[10px] text-red-500 flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-red-500" /> Passwords do not match</p>
           )}
@@ -37,17 +37,17 @@ const ProtectSection: React.FC<SectionProps> = ({ config, onConfigChange, mode, 
       </BentoCard>
 
       <BentoCard size="sm" hover={false}>
-        <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500 mb-2.5">Permissions</p>
+        <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-2.5">Permissions</p>
         <div className="space-y-1.5">
           {[
             { key: "allowPrint", label: "Allow Printing", icon: <Printer className="h-3 w-3" /> },
             { key: "allowCopy", label: "Allow Copying", icon: <Copy className="h-3 w-3" /> },
             { key: "allowEdit", label: "Allow Editing", icon: <Edit3 className="h-3 w-3" /> },
           ].map(({ key, label, icon }) => (
-            <label key={key} className="flex items-center gap-3 rounded-lg border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-slate-950/60 px-3 py-2 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 transition">
+            <label key={key} className="flex items-center gap-3 rounded-lg border-border bg-card/80 px-3 py-2 cursor-pointer hover:bg-muted transition">
               <input type="checkbox" checked={!!config[key]} onChange={(e) => onConfigChange(key, e.target.checked)}
-                className="h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-purple-500 focus:ring-purple-500/30 cursor-pointer" disabled={disabled} />
-              <span className="flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-300">{icon}{label}</span>
+                className="h-4 w-4 rounded border-border text-primary focus:ring-primary/30 cursor-pointer" disabled={disabled} />
+              <span className="flex items-center gap-1.5 text-xs font-bold text-foreground">{icon}{label}</span>
             </label>
           ))}
         </div>

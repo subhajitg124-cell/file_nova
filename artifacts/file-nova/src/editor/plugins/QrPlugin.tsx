@@ -37,10 +37,10 @@ const QrSection: React.FC<SectionProps> = ({ config, onConfigChange, onStatusMes
       <BentoCard size="sm" hover={false}>
         <SettingRow label="Content">
           <div className="relative">
-            <QrCode className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+            <QrCode className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <input type="text" value={config.qrPayload || ""} onChange={(e) => onConfigChange("qrPayload", e.target.value)}
               placeholder="https://example.com or any text"
-              className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-950 pl-8 pr-3 py-2 text-xs text-slate-800 dark:text-white outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/30" disabled={disabled} />
+              className="w-full rounded-xl border-border bg-card pl-8 pr-3 py-2 text-xs text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary/30" disabled={disabled} />
           </div>
         </SettingRow>
       </BentoCard>
@@ -67,7 +67,7 @@ const QrSection: React.FC<SectionProps> = ({ config, onConfigChange, onStatusMes
       {config.qrResultUrl && (
         <BentoCard size="sm" hover={false} accent="premium">
           <div className="flex flex-col items-center gap-3">
-            <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-card p-3 shadow-inner">
+            <div className="rounded-xl border-border bg-card p-3 shadow-inner">
               <img src={config.qrResultUrl} alt="QR Code" className="w-32 h-auto" width="150" height="150" />
             </div>
             <PremiumButton variant="primary" size="sm" icon={<Download className="h-3.5 w-3.5" />} onClick={handleDownload}>

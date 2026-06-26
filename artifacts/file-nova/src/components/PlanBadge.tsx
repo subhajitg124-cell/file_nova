@@ -182,17 +182,17 @@ export function PlanBadge() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
-            className="absolute right-0 mt-3 w-72 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/97 backdrop-blur-xl p-4 shadow-2xl z-50 text-left"
+            className="absolute right-0 mt-3 w-72 rounded-2xl border border-border bg-card backdrop-blur-xl p-4 shadow-2xl z-50 text-left"
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-3">
+            <div className="flex items-center justify-between border-b border-border pb-2.5 mb-3">
               <span className={`text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1.5 ${tier.headerColor}`}>
                 <IconComp className="h-3 w-3" />
                 {tText(tier.statusLabel)}
               </span>
               <button
                 onClick={() => setIsOpen(false)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer transition-colors"
+                className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
                 title="Close"
               >
                 <X className="h-3.5 w-3.5" />
@@ -202,16 +202,16 @@ export function PlanBadge() {
             <div className="space-y-3">
               {/* Limit description */}
               <div>
-                <p className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-snug">
+                <p className="text-xs font-bold text-foreground leading-snug">
                   {tText(tier.limitLabel)}
                 </p>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-normal mt-0.5">
+                <p className="text-[11px] text-muted-foreground leading-normal mt-0.5">
                   {tText(tier.limitDesc)}
                 </p>
               </div>
 
               {/* Usage meter */}
-              <div className="bg-slate-50 dark:bg-slate-950/60 rounded-xl p-2.5 border border-slate-100 dark:border-slate-800/60">
+              <div className="bg-muted rounded-xl p-2.5 border border-border">
                 {maxUses === null ? (
                   /* Unlimited */
                   <div className="flex items-center gap-2 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
@@ -220,9 +220,9 @@ export function PlanBadge() {
                   </div>
                 ) : (
                   <>
-                    <div className="flex items-center justify-between text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">
+                    <div className="flex items-center justify-between text-[11px] font-bold text-foreground mb-1.5">
                       <span className="flex items-center gap-1">
-                        <Clock className="h-3 w-3 text-slate-400" />
+                        <Clock className="h-3 w-3 text-muted-foreground" />
                         {tText("Uses Remaining")}
                       </span>
                       <span className={tier.headerColor}>
@@ -230,7 +230,7 @@ export function PlanBadge() {
                       </span>
                     </div>
                     {/* Progress bar */}
-                    <div className="h-2 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                       <div
                         className={`h-full bg-gradient-to-r ${tier.barFrom} ${tier.barTo} rounded-full transition-all duration-500`}
                         style={{ width: `${progressPct}%` }}
@@ -245,7 +245,7 @@ export function PlanBadge() {
                 {(tier.perks as readonly string[]).map((perk: string) => (
                   <div
                     key={perk}
-                    className="flex items-center gap-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400"
+                    className="flex items-center gap-1 text-[10px] font-semibold text-muted-foreground"
                   >
                     <CheckCircle2 className={`h-2.5 w-2.5 shrink-0 ${tier.headerColor}`} />
                     {perk}

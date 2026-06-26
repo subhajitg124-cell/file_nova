@@ -14,13 +14,13 @@ interface PremiumButtonProps {
 
 const variants = {
   primary:
-    "bg-white/10 dark:bg-white/10 hover:bg-white/20 dark:hover:bg-white/20 text-slate-700 dark:text-slate-200 border border-white/20 dark:border-white/20",
+    "bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20",
   premium:
-    "bg-gradient-to-r from-purple-600 to-emerald-500 hover:from-purple-500 hover:to-emerald-400 text-white shadow-lg shadow-purple-500/20 dark:shadow-purple-500/20 border-0",
+    "bg-gradient-to-r from-purple-600 to-emerald-500 hover:from-purple-500 hover:to-emerald-400 text-white shadow-lg shadow-purple-500/20 border-0",
   ghost:
-    "bg-transparent hover:bg-white/10 dark:hover:bg-white/10 text-slate-400 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 border border-transparent",
+    "bg-transparent hover:bg-muted text-muted-foreground hover:text-foreground border border-transparent",
   danger:
-    "bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20",
+    "bg-destructive/10 hover:bg-destructive/20 text-destructive border border-destructive/20",
 };
 
 const sizes = {
@@ -40,7 +40,7 @@ export const PremiumButton: React.FC<PremiumButtonProps> = ({
     className={[
       "flex items-center justify-center gap-2 rounded-xl font-bold transition-all cursor-pointer",
       "disabled:opacity-40 disabled:cursor-not-allowed",
-      "focus:outline-none focus:ring-2 focus:ring-purple-500/40",
+      "focus:outline-none focus:ring-2 focus:ring-primary/40",
       variants[variant],
       sizes[size],
       className,

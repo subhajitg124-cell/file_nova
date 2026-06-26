@@ -166,7 +166,7 @@ export function SmartSearchBar({
         `}
       >
         <Search
-          className={`w-4 h-4 shrink-0 transition-colors duration-200 ${open ? "text-indigo-400" : "text-gray-400"}`}
+          className={`w-4 h-4 shrink-0 transition-colors duration-200 ${open ? "text-indigo-400" : "text-muted-foreground"}`}
         />
         <input
           ref={inputRef}
@@ -180,7 +180,7 @@ export function SmartSearchBar({
           onKeyDown={handleKeyDown}
           placeholder={defaultPlaceholder}
           className="flex-1 bg-transparent text-xs text-[var(--fn-text-primary)]
-                     placeholder:text-gray-400/70
+                     placeholder:text-muted-foreground/70
                      outline-none min-w-0 font-medium"
           autoComplete="off"
           spellCheck={false}
@@ -188,7 +188,7 @@ export function SmartSearchBar({
         {query && (
           <button
             onClick={clearQuery}
-            className="text-gray-400 hover:text-gray-300 transition-colors cursor-pointer"
+            className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             title={tText("Clear search")}
           >
             <X className="w-3.5 h-3.5" />

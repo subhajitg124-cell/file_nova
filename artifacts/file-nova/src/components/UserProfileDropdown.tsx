@@ -199,7 +199,7 @@ export const UserProfileDropdown = memo(function UserProfileDropdown() {
               onClick={() => { setLocation("/profile"); setDropdownOpen(false); }}
               className="w-full text-left py-2 px-3 rounded-lg text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/80 transition flex items-center gap-2 cursor-pointer"
             >
-              <User className="h-3.5 w-3.5 text-indigo-450" />
+              <User className="h-3.5 w-3.5 text-primary" />
               <span>My Profile</span>
             </button>
             <button

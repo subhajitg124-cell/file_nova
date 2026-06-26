@@ -27,10 +27,10 @@ const SplitSection: React.FC<SectionProps> = ({ config, onConfigChange, mode, di
       <BentoCard size="sm" hover={false}>
         <SettingRow label="Page Range" helpText="e.g. 1-3,5,7-9">
           <div className="relative">
-            <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+            <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <input type="text" value={config.splitRange || ""} onChange={(e) => onConfigChange("splitRange", e.target.value)}
               placeholder="1-3,5,7-9"
-              className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-950 pl-8 pr-3 py-2 text-xs text-slate-800 dark:text-white outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/30" disabled={disabled} />
+              className="w-full rounded-xl border-border bg-card pl-8 pr-3 py-2 text-xs text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary/30" disabled={disabled} />
           </div>
         </SettingRow>
       </BentoCard>
@@ -61,9 +61,9 @@ const SplitSection: React.FC<SectionProps> = ({ config, onConfigChange, mode, di
           <div className="flex gap-2">
             <input type="text" value={config.outputPrefix || "split"} onChange={(e) => onConfigChange("outputPrefix", e.target.value)}
               placeholder="Prefix"
-              className="flex-1 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-800 dark:text-white outline-none focus:border-purple-500" disabled={disabled} />
+              className="flex-1 rounded-xl border-border bg-card px-3 py-2 text-xs text-foreground outline-none focus:border-primary" disabled={disabled} />
             <select value={config.namingStyle || "numbered"} onChange={(e) => onConfigChange("namingStyle", e.target.value)}
-              className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-950 px-2 py-2 text-xs text-slate-600 dark:text-slate-300 outline-none" disabled={disabled}>
+              className="rounded-xl border-border bg-card px-2 py-2 text-xs text-muted-foreground outline-none" disabled={disabled}>
               <option value="numbered">1,2,3</option>
               <option value="range">Range</option>
             </select>
