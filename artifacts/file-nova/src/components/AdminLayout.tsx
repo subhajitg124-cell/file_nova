@@ -281,7 +281,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
                       <Shield className="h-3 w-3" /> Manual Overrides
                     </p>
                     <label className="flex items-center justify-between cursor-pointer" title="Force LibreOffice availability">
-                      <span className="text-[11px] text-slate-450">LibreOffice (Office)</span>
+                      <span className="text-[11px] text-slate-400">LibreOffice (Office)</span>
                       <input
                         type="checkbox"
                         checked={admin.settings.libreofficeAvailableOverride !== false}
@@ -293,7 +293,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
                       />
                     </label>
                     <label className="flex items-center justify-between cursor-pointer" title="Force FFmpeg availability">
-                      <span className="text-[11px] text-slate-450">FFmpeg (Video)</span>
+                      <span className="text-[11px] text-slate-400">FFmpeg (Video)</span>
                       <input
                         type="checkbox"
                         checked={admin.settings.ffmpegAvailableOverride !== false}
@@ -313,7 +313,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
                     </p>
                     
                     <div>
-                      <span className="block text-[10px] text-slate-455 mb-1">Active Event Theme</span>
+                      <span className="block text-[10px] text-slate-400 mb-1">Active Event Theme</span>
                       <button
                         type="button"
                         onClick={() => setIsThemeModalOpen(true)}
@@ -371,7 +371,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
                       <BellRing className="h-3 w-3" /> Global Notice Banner
                     </p>
                     <label className="flex items-center justify-between cursor-pointer">
-                      <span className="font-semibold text-slate-305">Active Banner</span>
+                      <span className="font-semibold text-slate-300">Active Banner</span>
                       <input
                         type="checkbox"
                         checked={admin.settings.globalNoticeActive || false}
@@ -411,7 +411,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
                       <Sparkles className="h-3 w-3" /> Announcement Pop-up
                     </p>
                     <label className="flex items-center justify-between cursor-pointer">
-                      <span className="font-semibold text-slate-305">Active Modal</span>
+                      <span className="font-semibold text-slate-300">Active Modal</span>
                       <input
                         type="checkbox"
                         checked={admin.settings.popupMessageActive || false}
@@ -551,7 +551,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
                   <Palette className="h-5 w-5 text-indigo-400" />
                   Select Event Theme
                 </h3>
-                <p className="text-xs text-slate-450">
+                <p className="text-xs text-slate-400">
                   Select a celebration style to apply global theme color overrides and floating canvas animations.
                 </p>
               </div>
@@ -588,7 +588,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
                         )}
                       </div>
 
-                      <span className="text-[9px] text-slate-455 mt-1 truncate">
+                      <span className="text-[9px] text-slate-400 mt-1 truncate">
                         {theme.occasion}
                       </span>
                     </button>
@@ -609,7 +609,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
               <div className="flex justify-end pt-1">
                 <button
                   onClick={() => setIsThemeModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-850 text-xs font-bold border border-white/10 hover:text-white transition cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-muted text-xs font-bold border border-white/10 hover:text-white transition cursor-pointer"
                 >
                   Dismiss
                 </button>

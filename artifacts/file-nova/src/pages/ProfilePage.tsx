@@ -198,7 +198,7 @@ export default function ProfilePage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-card flex items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
       </div>
     );
@@ -283,23 +283,23 @@ export default function ProfilePage() {
           {/* Left Column: Summary Card */}
           <div className="md:col-span-4 space-y-6">
             <div className="bg-card/45 border border-border/80 rounded-3xl p-6 backdrop-blur-xl flex flex-col items-center text-center shadow-premium card-shine">
-              <div className="h-20 w-20 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white text-3xl font-black mb-4 shadow-lg border-2 border-slate-800">
+              <div className="h-20 w-20 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white text-3xl font-black mb-4 shadow-lg border-2 border-border">
                 {(user.name || user.email).charAt(0).toUpperCase()}
               </div>
-              <h2 className="font-black text-lg text-white leading-tight">{user.name || "FileNova User"}</h2>
-              <p className="text-xs text-slate-500 mt-1">{user.email}</p>
+              <h2 className="font-black text-lg text-foreground leading-tight">{user.name || "FileNova User"}</h2>
+              <p className="text-xs text-muted-foreground mt-1">{user.email}</p>
 
-              <div className="mt-6 w-full pt-6 border-t border-slate-900/60 space-y-3">
+              <div className="mt-6 w-full pt-6 border-t border-border/60 space-y-3">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-500 font-bold">Plan Tier</span>
+                  <span className="text-muted-foreground font-bold">Plan Tier</span>
                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-indigo-500/10 text-indigo-400 border border-indigo-500/25">
                     <Award className="h-3 w-3 fill-current" />
                     {user.premiumTier}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-500 font-bold">Role</span>
-                  <span className="text-slate-300 font-extrabold uppercase text-[10px]">{user.role}</span>
+                  <span className="text-muted-foreground font-bold">Role</span>
+                  <span className="text-foreground font-extrabold uppercase text-[10px]">{user.role}</span>
                 </div>
               </div>
 
@@ -308,22 +308,22 @@ export default function ProfilePage() {
                   logout();
                   setLocation("/");
                 }}
-                className="w-full mt-8 py-2.5 px-4 bg-slate-900 hover:bg-slate-850 border border-slate-850 hover:border-slate-850 text-red-400 hover:text-red-300 font-bold text-xs rounded-xl transition-all cursor-pointer"
+                className="w-full mt-8 py-2.5 px-4 bg-card hover:bg-muted border border-border hover:border-border text-red-400 hover:text-red-300 font-bold text-xs rounded-xl transition-all cursor-pointer"
               >
                 Logout Account
               </button>
             </div>
 
             {/* Quick stats box */}
-            <div className="bg-slate-900/40 border border-slate-900 rounded-3xl p-5 backdrop-blur-xl shadow-lg space-y-4">
-              <h3 className="font-extrabold text-xs text-slate-400 uppercase tracking-wider">Account Usage</h3>
+            <div className="bg-card/40 border border-border rounded-3xl p-5 backdrop-blur-xl shadow-lg space-y-4">
+              <h3 className="font-extrabold text-xs text-muted-foreground uppercase tracking-wider">Account Usage</h3>
               <div className="space-y-3">
                 <div>
                   <div className="flex justify-between text-xs mb-1">
-                    <span className="text-slate-500">Daily limit gate</span>
-                    <span className="text-slate-300 font-extrabold">{user.premiumEnabled ? "Unlimited" : "3 files / day"}</span>
+                    <span className="text-muted-foreground">Daily limit gate</span>
+                    <span className="text-foreground font-extrabold">{user.premiumEnabled ? "Unlimited" : "3 files / day"}</span>
                   </div>
-                  <div className="h-1.5 w-full bg-slate-950 rounded-full overflow-hidden">
+                  <div className="h-1.5 w-full bg-card rounded-full overflow-hidden">
                     <div className={`h-full bg-indigo-500 transition-all duration-500 ${user.premiumEnabled ? "w-full" : "w-[30%]"}`} />
                   </div>
                 </div>
@@ -335,16 +335,16 @@ export default function ProfilePage() {
           <div className="md:col-span-8 space-y-6">
             
             {/* Profile Info */}
-            <div className="bg-slate-900/30 border border-slate-900 rounded-3xl p-6 backdrop-blur-xl shadow-xl">
+            <div className="bg-card/30 border border-border rounded-3xl p-6 backdrop-blur-xl shadow-xl">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="font-extrabold text-sm text-white uppercase tracking-wider flex items-center gap-2">
-                  <User className="h-4.5 w-4.5 text-indigo-400" />
+                <h3 className="font-extrabold text-sm text-foreground uppercase tracking-wider flex items-center gap-2">
+                  <User className="h-4 w-4 text-indigo-400" />
                   Personal Information
                 </h3>
                 {!isEditing && (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="flex items-center gap-1.5 py-1 px-3 bg-slate-900 hover:bg-slate-850 border border-slate-800 rounded-lg text-xs font-bold text-slate-300 hover:text-white transition-all cursor-pointer"
+                    className="flex items-center gap-1.5 py-1 px-3 bg-card hover:bg-muted border border-border rounded-lg text-xs font-bold text-foreground hover:text-foreground transition-all cursor-pointer"
                   >
                     <Edit3 className="h-3.5 w-3.5" />
                     Edit
@@ -360,15 +360,15 @@ export default function ProfilePage() {
                       id="profile-name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="peer w-full bg-slate-950/45 border border-slate-900 focus:border-indigo-500/50 rounded-xl pl-10 pr-4 pt-5 pb-2 text-xs text-white focus:outline-none transition-all placeholder-transparent backdrop-blur-md"
+                      className="peer w-full bg-card/45 border border-border focus:border-indigo-500/50 rounded-xl pl-10 pr-4 pt-5 pb-2 text-xs text-foreground focus:outline-none transition-all placeholder-transparent backdrop-blur-md"
                       placeholder=" "
                       required
                     />
-                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 peer-focus:text-indigo-400 transition-all h-4 w-4 pointer-events-none" />
+                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground peer-focus:text-indigo-400 transition-all h-4 w-4 pointer-events-none" />
                     <label 
                       htmlFor="profile-name"
                       className="absolute left-10 top-2 text-[9px] font-bold text-indigo-400 uppercase tracking-wider transition-all
-                        peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-xs peer-placeholder-shown:text-slate-500 peer-placeholder-shown:font-normal peer-placeholder-shown:lowercase peer-placeholder-shown:normal-case
+                        peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-xs peer-placeholder-shown:text-muted-foreground peer-placeholder-shown:font-normal peer-placeholder-shown:lowercase peer-placeholder-shown:normal-case
                         peer-focus:top-2 peer-focus:-translate-y-0 peer-focus:text-[9px] peer-focus:font-bold peer-focus:text-indigo-400 peer-focus:uppercase peer-focus:tracking-wider pointer-events-none"
                     >
                       Full Name
@@ -381,14 +381,14 @@ export default function ProfilePage() {
                       id="profile-phone"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="peer w-full bg-slate-950/45 border border-slate-900 focus:border-indigo-500/50 rounded-xl pl-10 pr-4 pt-5 pb-2 text-xs text-white focus:outline-none transition-all placeholder-transparent backdrop-blur-md"
+                      className="peer w-full bg-card/45 border border-border focus:border-indigo-500/50 rounded-xl pl-10 pr-4 pt-5 pb-2 text-xs text-foreground focus:outline-none transition-all placeholder-transparent backdrop-blur-md"
                       placeholder=" "
                     />
-                    <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 peer-focus:text-indigo-400 transition-all h-4 w-4 pointer-events-none" />
+                    <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground peer-focus:text-indigo-400 transition-all h-4 w-4 pointer-events-none" />
                     <label 
                       htmlFor="profile-phone"
                       className="absolute left-10 top-2 text-[9px] font-bold text-indigo-400 uppercase tracking-wider transition-all
-                        peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-xs peer-placeholder-shown:text-slate-500 peer-placeholder-shown:font-normal peer-placeholder-shown:lowercase peer-placeholder-shown:normal-case
+                        peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-xs peer-placeholder-shown:text-muted-foreground peer-placeholder-shown:font-normal peer-placeholder-shown:lowercase peer-placeholder-shown:normal-case
                         peer-focus:top-2 peer-focus:-translate-y-0 peer-focus:text-[9px] peer-focus:font-bold peer-focus:text-indigo-400 peer-focus:uppercase peer-focus:tracking-wider pointer-events-none"
                     >
                       Phone Number
@@ -411,7 +411,7 @@ export default function ProfilePage() {
                         setName(user.name || "");
                         setPhone(user.phoneNumber || "");
                       }}
-                      className="py-2.5 px-4 bg-slate-900 hover:bg-slate-850 border border-slate-850 hover:border-slate-800 text-slate-400 hover:text-white font-bold text-xs rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
+                      className="py-2.5 px-4 bg-card hover:bg-muted border border-border hover:border-border text-muted-foreground hover:text-foreground font-bold text-xs rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
                     >
                       <X className="h-3.5 w-3.5" />
                       Cancel
@@ -420,33 +420,33 @@ export default function ProfilePage() {
                 </form>
               ) : (
                 <div className="space-y-4 text-xs">
-                  <div className="grid grid-cols-3 py-2 border-b border-slate-900/40">
-                    <span className="text-slate-500 font-bold">Full Name</span>
-                    <span className="col-span-2 text-white font-semibold">{user.name || "Not provided"}</span>
+                  <div className="grid grid-cols-3 py-2 border-b border-border/40">
+                    <span className="text-muted-foreground font-bold">Full Name</span>
+                    <span className="col-span-2 text-foreground font-semibold">{user.name || "Not provided"}</span>
                   </div>
-                  <div className="grid grid-cols-3 py-2 border-b border-slate-900/40">
-                    <span className="text-slate-500 font-bold">Email Address</span>
-                    <span className="col-span-2 text-white font-semibold">{user.email}</span>
+                  <div className="grid grid-cols-3 py-2 border-b border-border/40">
+                    <span className="text-muted-foreground font-bold">Email Address</span>
+                    <span className="col-span-2 text-foreground font-semibold">{user.email}</span>
                   </div>
                   <div className="grid grid-cols-3 py-2">
-                    <span className="text-slate-500 font-bold">Phone Number</span>
-                    <span className="col-span-2 text-white font-semibold">{user.phoneNumber || "Not provided"}</span>
+                    <span className="text-muted-foreground font-bold">Phone Number</span>
+                    <span className="col-span-2 text-foreground font-semibold">{user.phoneNumber || "Not provided"}</span>
                   </div>
                 </div>
               )}
             </div>
 
             {/* Change Password (Security) */}
-            <div className="bg-slate-900/30 border border-slate-900 rounded-3xl p-6 backdrop-blur-xl shadow-xl">
+            <div className="bg-card/30 border border-border rounded-3xl p-6 backdrop-blur-xl shadow-xl">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="font-extrabold text-sm text-white uppercase tracking-wider flex items-center gap-2">
-                  <Lock className="h-4.5 w-4.5 text-indigo-400" />
+                <h3 className="font-extrabold text-sm text-foreground uppercase tracking-wider flex items-center gap-2">
+                  <Lock className="h-4 w-4 text-indigo-400" />
                   Security
                 </h3>
                 {!isChangingPassword && (
                   <button
                     onClick={() => setIsChangingPassword(true)}
-                    className="flex items-center gap-1.5 py-1 px-3 bg-slate-900 hover:bg-slate-850 border border-slate-800 rounded-lg text-xs font-bold text-slate-300 hover:text-white transition-all cursor-pointer"
+                    className="flex items-center gap-1.5 py-1 px-3 bg-card hover:bg-muted border border-border rounded-lg text-xs font-bold text-foreground hover:text-foreground transition-all cursor-pointer"
                   >
                     <KeyRound className="h-3.5 w-3.5" />
                     Change Password
@@ -462,15 +462,15 @@ export default function ProfilePage() {
                       id="current-password"
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
-                      className="peer w-full bg-slate-950/45 border border-slate-900 focus:border-indigo-500/50 rounded-xl pl-10 pr-4 pt-5 pb-2 text-xs text-white focus:outline-none transition-all placeholder-transparent backdrop-blur-md"
+                      className="peer w-full bg-card/45 border border-border focus:border-indigo-500/50 rounded-xl pl-10 pr-4 pt-5 pb-2 text-xs text-foreground focus:outline-none transition-all placeholder-transparent backdrop-blur-md"
                       placeholder=" "
                       required
                     />
-                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 peer-focus:text-indigo-400 transition-all h-4 w-4 pointer-events-none" />
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground peer-focus:text-indigo-400 transition-all h-4 w-4 pointer-events-none" />
                     <label 
                       htmlFor="current-password"
                       className="absolute left-10 top-2 text-[9px] font-bold text-indigo-400 uppercase tracking-wider transition-all
-                        peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-xs peer-placeholder-shown:text-slate-500 peer-placeholder-shown:font-normal peer-placeholder-shown:lowercase peer-placeholder-shown:normal-case
+                        peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-xs peer-placeholder-shown:text-muted-foreground peer-placeholder-shown:font-normal peer-placeholder-shown:lowercase peer-placeholder-shown:normal-case
                         peer-focus:top-2 peer-focus:-translate-y-0 peer-focus:text-[9px] peer-focus:font-bold peer-focus:text-indigo-400 peer-focus:uppercase peer-focus:tracking-wider pointer-events-none"
                     >
                       Current Password
@@ -483,15 +483,15 @@ export default function ProfilePage() {
                       id="new-password"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      className="peer w-full bg-slate-950/45 border border-slate-900 focus:border-indigo-500/50 rounded-xl pl-10 pr-4 pt-5 pb-2 text-xs text-white focus:outline-none transition-all placeholder-transparent backdrop-blur-md"
+                      className="peer w-full bg-card/45 border border-border focus:border-indigo-500/50 rounded-xl pl-10 pr-4 pt-5 pb-2 text-xs text-foreground focus:outline-none transition-all placeholder-transparent backdrop-blur-md"
                       placeholder=" "
                       required
                     />
-                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 peer-focus:text-indigo-400 transition-all h-4 w-4 pointer-events-none" />
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground peer-focus:text-indigo-400 transition-all h-4 w-4 pointer-events-none" />
                     <label 
                       htmlFor="new-password"
                       className="absolute left-10 top-2 text-[9px] font-bold text-indigo-400 uppercase tracking-wider transition-all
-                        peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-xs peer-placeholder-shown:text-slate-500 peer-placeholder-shown:font-normal peer-placeholder-shown:lowercase peer-placeholder-shown:normal-case
+                        peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-xs peer-placeholder-shown:text-muted-foreground peer-placeholder-shown:font-normal peer-placeholder-shown:lowercase peer-placeholder-shown:normal-case
                         peer-focus:top-2 peer-focus:-translate-y-0 peer-focus:text-[9px] peer-focus:font-bold peer-focus:text-indigo-400 peer-focus:uppercase peer-focus:tracking-wider pointer-events-none"
                     >
                       New Password (Min 8 chars)
@@ -504,15 +504,15 @@ export default function ProfilePage() {
                       id="confirm-password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="peer w-full bg-slate-950/45 border border-slate-900 focus:border-indigo-500/50 rounded-xl pl-10 pr-4 pt-5 pb-2 text-xs text-white focus:outline-none transition-all placeholder-transparent backdrop-blur-md"
+                      className="peer w-full bg-card/45 border border-border focus:border-indigo-500/50 rounded-xl pl-10 pr-4 pt-5 pb-2 text-xs text-foreground focus:outline-none transition-all placeholder-transparent backdrop-blur-md"
                       placeholder=" "
                       required
                     />
-                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 peer-focus:text-indigo-400 transition-all h-4 w-4 pointer-events-none" />
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground peer-focus:text-indigo-400 transition-all h-4 w-4 pointer-events-none" />
                     <label 
                       htmlFor="confirm-password"
                       className="absolute left-10 top-2 text-[9px] font-bold text-indigo-400 uppercase tracking-wider transition-all
-                        peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-xs peer-placeholder-shown:text-slate-500 peer-placeholder-shown:font-normal peer-placeholder-shown:lowercase peer-placeholder-shown:normal-case
+                        peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-xs peer-placeholder-shown:text-muted-foreground peer-placeholder-shown:font-normal peer-placeholder-shown:lowercase peer-placeholder-shown:normal-case
                         peer-focus:top-2 peer-focus:-translate-y-0 peer-focus:text-[9px] peer-focus:font-bold peer-focus:text-indigo-400 peer-focus:uppercase peer-focus:tracking-wider pointer-events-none"
                     >
                       Confirm New Password
@@ -536,7 +536,7 @@ export default function ProfilePage() {
                         setNewPassword("");
                         setConfirmPassword("");
                       }}
-                      className="py-2.5 px-4 bg-slate-900 hover:bg-slate-850 border border-slate-850 hover:border-slate-800 text-slate-400 hover:text-white font-bold text-xs rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
+                      className="py-2.5 px-4 bg-card hover:bg-muted border border-border hover:border-border text-muted-foreground hover:text-foreground font-bold text-xs rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
                     >
                       <X className="h-3.5 w-3.5" />
                       Cancel
@@ -544,35 +544,35 @@ export default function ProfilePage() {
                   </div>
                 </form>
               ) : (
-                <p className="text-xs text-slate-500 leading-relaxed">
+                <p className="text-xs text-muted-foreground leading-relaxed">
                   Regular password resets protect your data. If you log in via Google authentication, password changes are handled inside your Google Account settings.
                 </p>
               )}
             </div>
 
             {/* Billing & Payment History */}
-            <div className="bg-slate-900/30 border border-slate-900 rounded-3xl p-6 backdrop-blur-xl shadow-xl">
-              <h3 className="font-extrabold text-sm text-white uppercase tracking-wider flex items-center gap-2 mb-6">
-                <CreditCard className="h-4.5 w-4.5 text-indigo-400" />
+            <div className="bg-card/30 border border-border rounded-3xl p-6 backdrop-blur-xl shadow-xl">
+              <h3 className="font-extrabold text-sm text-foreground uppercase tracking-wider flex items-center gap-2 mb-6">
+                <CreditCard className="h-4 w-4 text-indigo-400" />
                 Billing & Payment History
               </h3>
 
               {loadingHistory ? (
                 <div className="flex flex-col items-center justify-center py-8 gap-2">
                   <Loader2 className="h-6 w-6 text-indigo-500 animate-spin" />
-                  <span className="text-xs text-slate-500">Loading your transactions...</span>
+                  <span className="text-xs text-muted-foreground">Loading your transactions...</span>
                 </div>
               ) : paymentHistory.length === 0 ? (
-                <div className="text-center py-8 border border-dashed border-slate-800 rounded-2xl bg-slate-950/20">
-                  <History className="h-8 w-8 text-slate-600 mx-auto mb-2" />
-                  <p className="text-xs text-slate-400 font-semibold">No transactions found</p>
-                  <p className="text-[11px] text-slate-500 mt-1">Upgrade to Premium to see your billing history here.</p>
+                <div className="text-center py-8 border border-dashed border-border rounded-2xl bg-card/20">
+                  <History className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-xs text-muted-foreground font-semibold">No transactions found</p>
+                  <p className="text-[11px] text-muted-foreground mt-1">Upgrade to Premium to see your billing history here.</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse text-xs">
                     <thead>
-                      <tr className="border-b border-slate-900/60 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                      <tr className="border-b border-border/60 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                         <th className="pb-3 pr-2">Plan</th>
                         <th className="pb-3 px-2">Date</th>
                         <th className="pb-3 px-2">Amount</th>
@@ -582,11 +582,11 @@ export default function ProfilePage() {
                     </thead>
                     <tbody className="divide-y divide-slate-900/40">
                       {paymentHistory.map((item) => (
-                        <tr key={item.id} className="text-slate-300 hover:text-white transition-colors">
+                        <tr key={item.id} className="text-foreground hover:text-foreground transition-colors">
                           <td className="py-3.5 pr-2 font-bold capitalize">
                             {item.plan}
                           </td>
-                          <td className="py-3.5 px-2 text-slate-400">
+                          <td className="py-3.5 px-2 text-muted-foreground">
                             {new Date(item.createdAt).toLocaleDateString('en-IN', {
                               day: 'numeric',
                               month: 'short',
@@ -602,19 +602,19 @@ export default function ProfilePage() {
                                 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/25'
                                 : item.status.includes('pending')
                                 ? 'bg-amber-500/10 text-amber-400 border border-amber-500/25'
-                                : 'bg-slate-500/10 text-slate-400 border border-slate-500/25'
+                                : 'bg-slate-500/10 text-muted-foreground border border-slate-500/25'
                             }`}>
                               {item.status}
                             </span>
                           </td>
                           <td className="py-3.5 pl-2 text-right">
                             {item.status.includes('pending') ? (
-                              <span className="text-[10px] text-slate-500 italic">Pending approval</span>
+                              <span className="text-[10px] text-muted-foreground italic">Pending approval</span>
                             ) : (
                               <button
                                 onClick={() => handleDownloadInvoice(item.id)}
                                 disabled={downloadingInvoiceId === item.id}
-                                className="inline-flex items-center gap-1.5 py-1 px-2 bg-slate-900 hover:bg-slate-850 border border-slate-850 rounded-lg text-[11px] font-bold text-slate-300 hover:text-white hover:border-slate-800 transition-all cursor-pointer disabled:opacity-50"
+                                className="inline-flex items-center gap-1.5 py-1 px-2 bg-card hover:bg-muted border border-border rounded-lg text-[11px] font-bold text-foreground hover:text-foreground hover:border-border transition-all cursor-pointer disabled:opacity-50"
                               >
                                 {downloadingInvoiceId === item.id ? (
                                   <Loader2 className="h-3 w-3 animate-spin" />
@@ -638,10 +638,10 @@ export default function ProfilePage() {
               <div className="absolute inset-0 bg-gradient-to-r from-red-500/[0.02] via-transparent to-red-500/[0.02] pointer-events-none" />
               <div className="absolute top-0 right-0 -translate-y-12 translate-x-12 w-36 h-36 bg-red-500/[0.04] rounded-full blur-2xl group-hover/danger:bg-red-500/[0.08] transition-all duration-700 pointer-events-none" />
               <h3 className="font-extrabold text-sm text-red-400 uppercase tracking-wider flex items-center gap-2 mb-3 relative z-10">
-                <ShieldAlert className="h-4.5 w-4.5" />
+                <ShieldAlert className="h-4 w-4" />
                 Danger Zone
               </h3>
-              <p className="text-xs text-slate-400/90 leading-relaxed mb-6 relative z-10">
+              <p className="text-xs text-muted-foreground/90 leading-relaxed mb-6 relative z-10">
                 Permanently delete your account and all associated document configurations. This action is instantaneous, irreversible, and cannot be undone.
               </p>
 
@@ -660,14 +660,14 @@ export default function ProfilePage() {
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full shadow-2xl relative">
-            <h4 className="font-black text-base text-white flex items-center gap-2 mb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-card/80 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-card border border-border rounded-3xl p-6 max-w-md w-full shadow-2xl relative">
+            <h4 className="font-black text-base text-foreground flex items-center gap-2 mb-3">
               <ShieldAlert className="h-5 w-5 text-red-500" />
               Delete Account Permanently?
             </h4>
-            <p className="text-xs text-slate-400 leading-relaxed mb-5">
-              To proceed with deletion, please type <strong className="text-white font-extrabold">delete my account</strong> below to confirm.
+            <p className="text-xs text-muted-foreground leading-relaxed mb-5">
+              To proceed with deletion, please type <strong className="text-foreground font-extrabold">delete my account</strong> below to confirm.
             </p>
 
             <div className="relative group/field mb-6">
@@ -676,13 +676,13 @@ export default function ProfilePage() {
                 id="delete-confirm"
                 value={deleteConfirmText}
                 onChange={(e) => setDeleteConfirmText(e.target.value)}
-                className="peer w-full bg-slate-950/60 border border-red-950 focus:border-red-500/50 rounded-xl px-4 pt-5 pb-2 text-xs text-white focus:outline-none transition-all placeholder-transparent backdrop-blur-md"
+                className="peer w-full bg-card/60 border border-red-950 focus:border-red-500/50 rounded-xl px-4 pt-5 pb-2 text-xs text-foreground focus:outline-none transition-all placeholder-transparent backdrop-blur-md"
                 placeholder=" "
               />
               <label 
                 htmlFor="delete-confirm"
                 className="absolute left-4 top-2 text-[9px] font-bold text-red-400 uppercase tracking-wider transition-all
-                  peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-xs peer-placeholder-shown:text-slate-500 peer-placeholder-shown:font-normal peer-placeholder-shown:lowercase peer-placeholder-shown:normal-case
+                  peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-xs peer-placeholder-shown:text-muted-foreground peer-placeholder-shown:font-normal peer-placeholder-shown:lowercase peer-placeholder-shown:normal-case
                   peer-focus:top-2 peer-focus:-translate-y-0 peer-focus:text-[9px] peer-focus:font-bold peer-focus:text-red-400 peer-focus:uppercase peer-focus:tracking-wider pointer-events-none"
               >
                 Type "delete my account" to confirm
@@ -695,7 +695,7 @@ export default function ProfilePage() {
                   setShowDeleteModal(false);
                   setDeleteConfirmText("");
                 }}
-                className="py-2 px-4 bg-slate-900 hover:bg-slate-850 border border-slate-800 text-slate-300 font-bold text-xs rounded-xl transition cursor-pointer"
+                className="py-2 px-4 bg-card hover:bg-muted border border-border text-foreground font-bold text-xs rounded-xl transition cursor-pointer"
               >
                 Cancel
               </button>

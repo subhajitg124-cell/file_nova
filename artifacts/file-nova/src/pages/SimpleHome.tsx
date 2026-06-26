@@ -784,7 +784,7 @@ export default function SimpleHome() {
                 </div>
                 <div className="space-y-1.5 pt-2">
                   <div className="text-[9px] text-gray-400 dark:text-slate-500 font-bold uppercase tracking-wider">{tText("Aadhaar Number")}</div>
-                  <div className="h-8 bg-gray-50 dark:bg-slate-900/60 rounded-xl border border-gray-200 dark:border-slate-850 flex items-center justify-center px-3 font-mono text-xs text-gray-500 dark:text-slate-350 relative overflow-hidden">
+                  <div className="h-8 bg-gray-50 dark:bg-slate-900/60 rounded-xl border border-gray-200 dark:border-border flex items-center justify-center px-3 font-mono text-xs text-gray-500 dark:text-slate-400 relative overflow-hidden">
                     <motion.span
                       animate={{
                         opacity: [1, 0, 1],
@@ -813,7 +813,7 @@ export default function SimpleHome() {
                     </motion.span>
                   </div>
                 </div>
-                <div className="flex justify-between items-center text-[9px] text-gray-400 dark:text-slate-500 pt-1 border-t border-gray-100 dark:border-slate-900">
+                <div className="flex justify-between items-center text-[9px] text-gray-400 dark:text-slate-500 pt-1 border-t border-gray-100 dark:border-border">
                   <span>Status:</span>
                   <span className="text-emerald-500 dark:text-emerald-400 font-bold flex items-center gap-1">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-ping" />
@@ -835,7 +835,7 @@ export default function SimpleHome() {
                   {tText("Exact pixel dimensions and KB compression ranges for NSP, SVMCM, OASIS, NSDL/UTI — preconfigured to bypass verification errors.")}
                 </p>
               </div>
-              <div className="pt-2 border-t border-[var(--fn-border)] dark:border-slate-900/40 flex justify-between items-center text-[9px] font-bold uppercase tracking-wider">
+              <div className="pt-2 border-t border-[var(--fn-border)] dark:border-border/40 flex justify-between items-center text-[9px] font-bold uppercase tracking-wider">
                 <span className="text-[var(--fn-text-tertiary)] dark:text-gray-500">OASIS • NSP • SVMCM</span>
                 <span className="text-[var(--fn-accent-india)] dark:text-emerald-400">100% Match</span>
               </div>
@@ -853,7 +853,7 @@ export default function SimpleHome() {
                   {tText("Every tool functions instantly upon landing. No email login gates, no captcha loops, and no downloads wait queue.")}
                 </p>
               </div>
-              <div className="pt-2 border-t border-[var(--fn-border)] dark:border-slate-900/40 flex justify-between items-center text-[9px] font-bold uppercase tracking-wider">
+              <div className="pt-2 border-t border-[var(--fn-border)] dark:border-border/40 flex justify-between items-center text-[9px] font-bold uppercase tracking-wider">
                 <span className="text-[var(--fn-text-tertiary)] dark:text-gray-500">Direct Access</span>
                 <span className="text-[var(--fn-accent-india)] dark:text-emerald-400">100% Free</span>
               </div>
@@ -996,7 +996,7 @@ export default function SimpleHome() {
               <h3 className="font-extrabold text-sm text-foreground">{tText("Choose a Tool")}</h3>
               <button 
                 onClick={() => { setShowPickerModal(false); setDroppedFile(null); }}
-                className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-350 cursor-pointer"
+                className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-400 cursor-pointer"
                 aria-label="Close dialog"
               >
                 <X className="h-4 w-4" />

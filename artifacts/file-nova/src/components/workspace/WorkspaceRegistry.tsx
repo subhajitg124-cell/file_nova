@@ -97,7 +97,7 @@ export const PdfEditorWorkspace: React.FC<WorkspaceProps> = ({ files, configPane
               <div className="h-14 flex items-center justify-center bg-muted border border-border rounded-xl text-xs text-muted-foreground/80 font-bold">
                 P. {idx + 1}
               </div>
-              <div className="text-[10px] font-bold text-slate-350 truncate">
+              <div className="text-[10px] font-bold text-slate-400 truncate">
                 {file.name}
               </div>
             </div>
@@ -191,7 +191,7 @@ export const BatchWorkspace: React.FC<WorkspaceProps> = ({ files, configPanel, i
     <div className="w-full space-y-6">
       <div className="bg-muted/40 border border-border rounded-3xl p-5 space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-xs font-black uppercase tracking-wider text-slate-350 flex items-center gap-1.5">
+          <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
             <FileArchive className="h-4 w-4 text-primary" />
             Batch processing File Queue
           </h3>

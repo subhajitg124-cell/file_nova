@@ -114,7 +114,7 @@ export default function AdminAnalytics() {
                 <div key={idx} className="py-3.5 flex justify-between items-center text-xs">
                   <div>
                     <span className="font-bold text-slate-200 font-mono">&quot;{log.query}&quot;</span>
-                    <div className="text-[10px] text-slate-450 mt-0.5">Matched: {log.match}</div>
+                    <div className="text-[10px] text-slate-400 mt-0.5">Matched: {log.match}</div>
                   </div>
                   <div className="text-right">
                     <span className={`text-[9.5px] font-bold px-2 py-0.5 rounded-lg border ${

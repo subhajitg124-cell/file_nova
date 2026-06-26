@@ -112,7 +112,7 @@ export const LoadingSkeleton: React.FC = () => {
       {[1, 2, 3].map((i) => (
         <motion.div
           key={i}
-          className="h-16 bg-slate-900/60 border border-slate-850 rounded-2xl w-full relative overflow-hidden"
+          className="h-16 bg-slate-900/60 border border-border rounded-2xl w-full relative overflow-hidden"
           animate={{
             opacity: [0.4, 0.85, 0.4],
           }}

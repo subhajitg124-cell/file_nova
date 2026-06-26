@@ -111,7 +111,7 @@ export default function AdminUpiPayments() {
           </div>
           <button
             onClick={loadPayments}
-            className="inline-flex items-center gap-2 rounded-xl border border-white/[0.06] bg-slate-900/60 hover:bg-slate-900 px-4 py-2.5 text-xs font-bold text-slate-350 hover:text-white transition cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-xl border border-white/[0.06] bg-slate-900/60 hover:bg-slate-900 px-4 py-2.5 text-xs font-bold text-slate-400 hover:text-white transition cursor-pointer"
           >
             <RefreshCw className="h-3.5 w-3.5" />
             <span>Refresh</span>
@@ -126,7 +126,7 @@ export default function AdminUpiPayments() {
               <span>Fetching pending transactions from Razorpay/UPI queues...</span>
             </div>
           ) : payments.length === 0 ? (
-            <div className="py-12 text-center text-slate-450">
+            <div className="py-12 text-center text-slate-400">
               <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-500 mb-3 opacity-80" />
               <p className="font-bold text-white text-sm">No pending payments for verification</p>
               <p className="text-[10px] text-slate-500 mt-1">Manual bank transfer requests will register here automatically.</p>

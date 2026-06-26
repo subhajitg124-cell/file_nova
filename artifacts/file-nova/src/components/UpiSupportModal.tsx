@@ -97,7 +97,7 @@ export function UpiSupportModal({ isOpen, onClose, amount, note }: UpiSupportMod
         )}
 
         {/* Details Card */}
-        <div className="bg-slate-950/60 border border-slate-850 rounded-2xl p-3 text-left text-xs space-y-2">
+        <div className="bg-slate-950/60 border border-border rounded-2xl p-3 text-left text-xs space-y-2">
           <div className="flex justify-between items-center">
             <span className="text-slate-500">Payee Name</span>
             <span className="font-bold text-slate-200">{FILENOVA_PAYEE_NAME}</span>
@@ -120,7 +120,7 @@ export function UpiSupportModal({ isOpen, onClose, amount, note }: UpiSupportMod
         {/* Footer info */}
         <button
           onClick={onClose}
-          className="w-full py-2.5 rounded-xl border border-slate-800 hover:bg-slate-850 text-slate-400 hover:text-white text-xs font-bold transition cursor-pointer"
+          className="w-full py-2.5 rounded-xl border border-slate-800 hover:bg-muted text-slate-400 hover:text-white text-xs font-bold transition cursor-pointer"
         >
           Cancel / Close
         </button>

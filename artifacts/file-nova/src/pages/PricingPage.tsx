@@ -436,7 +436,7 @@ function UpiPaymentBox({
               <p className="text-xs text-muted-foreground font-medium">Pay ₹{amount} for the {plan.replace('pass_', '').toUpperCase()} plan using UPI.</p>
             </div>
             <div className="rounded-2xl border border-border bg-background/50 p-4 text-center space-y-4">
-              <img src={createUpiQrUrl(amount)} alt="FileNova UPI QR code" className="mx-auto h-40 w-40 rounded-xl border border-border bg-white object-contain p-2" width="200" height="200" loading="lazy" />
+              <img src={createUpiQrUrl(amount)} alt="FileNova UPI QR code" className="mx-auto h-40 w-40 rounded-xl border border-border bg-card object-contain p-2" width="200" height="200" loading="lazy" />
               <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2">
                 <span className="min-w-0 flex-1 truncate text-xs font-bold text-foreground text-left">{upiId}</span>
                 <button type="button" onClick={copyUpiId} title="Copy UPI ID to clipboard" aria-label="Copy UPI ID to clipboard" className="h-8 w-8 shrink-0 rounded-lg border border-border bg-background hover:bg-muted flex items-center justify-center cursor-pointer"><Copy className="h-3.5 w-3.5" /></button>

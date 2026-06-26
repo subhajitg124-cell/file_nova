@@ -515,7 +515,7 @@ export default function AdminCouponManagement() {
                           }}
                           className="h-4 w-4 rounded border-white/10 accent-indigo-500"
                         />
-                        <label htmlFor={`plan-${plan}`} className="text-xs font-semibold uppercase cursor-pointer text-slate-350">{plan}</label>
+                        <label htmlFor={`plan-${plan}`} className="text-xs font-semibold uppercase cursor-pointer text-slate-400">{plan}</label>
                       </div>
                     ))}
                   </div>
@@ -575,7 +575,7 @@ export default function AdminCouponManagement() {
               <p className="mt-2 text-xs text-slate-500 font-bold">Loading system coupons database...</p>
             </div>
           ) : coupons.length === 0 ? (
-            <div className="text-center py-10 bg-slate-950 border border-white/[0.05] rounded-2xl text-slate-450">
+            <div className="text-center py-10 bg-slate-950 border border-white/[0.05] rounded-2xl text-slate-400">
               <Package className="h-10 w-10 mx-auto mb-2 opacity-30 text-indigo-400" />
               <p className="font-bold text-white text-xs">No active campaign coupons found</p>
               <p className="text-[10px] text-slate-500 mt-1">Initialize coupon codes using the form above to activate client discounts.</p>
@@ -630,7 +630,7 @@ export default function AdminCouponManagement() {
                         <div className="inline-flex items-center justify-end gap-1.5">
                           <button
                             onClick={() => handleEditCoupon(coupon)}
-                            className="p-1.5 text-slate-450 hover:text-white rounded-lg hover:bg-white/[0.04] transition"
+                            className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-white/[0.04] transition"
                             title="Edit Coupon"
                           >
                             <Edit className="h-3.5 w-3.5" />
@@ -648,7 +648,7 @@ export default function AdminCouponManagement() {
                           </button>
                           <button
                             onClick={() => handleDeleteCoupon(coupon.id)}
-                            className="p-1.5 text-slate-450 hover:text-rose-400 rounded-lg hover:bg-white/[0.04] transition"
+                            className="p-1.5 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-white/[0.04] transition"
                             title="Delete Coupon"
                           >
                             <Trash2 className="h-3.5 w-3.5 text-rose-500" />

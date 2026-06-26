@@ -923,7 +923,7 @@ export default function ReferralPage() {
             <h3 className="font-black text-lg text-foreground mb-1">Scan to Join</h3>
             <p className="text-xs text-muted-foreground mb-4">Let your friend scan this QR code with their mobile device to sign up instantly.</p>
             
-            <div className="bg-white p-3.5 rounded-2xl border border-border inline-block shadow-sm mb-4">
+            <div className="bg-card p-3.5 rounded-2xl border border-border inline-block shadow-sm mb-4">
               <img
                 src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(referralLink)}`}
                 alt="FileNova Invite QR Code"

@@ -4,6 +4,7 @@ import SocialMediaLinks from "./SocialMediaLinks";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useTranslation } from "@/lib/i18n";
 import { createUpiLink } from "@/lib/upi";
+import { Lock, Mail, MessageCircle, MessageSquare, Heart, Coffee } from "lucide-react";
 import { UpiSupportModal } from "./UpiSupportModal";
 
 const TelegramContact: React.FC = () => {
@@ -14,25 +15,26 @@ const TelegramContact: React.FC = () => {
   if (!isProOrHigher) {
     return (
       <li className="flex items-center gap-2">
-        <span>📱</span>
+        <MessageCircle className="h-4 w-4 text-muted-foreground" />
         <span className="text-muted-foreground/60">{tText("Telegram:")} </span>
-        <span className="text-muted-foreground/60">🔒 {tText("Upgrade to PRO")}</span>
+        <Lock className="h-3.5 w-3.5 text-muted-foreground/60" />
+        <span className="text-muted-foreground/60">{tText("Upgrade to PRO")}</span>
       </li>
     );
   }
 
   return (
-    <li className="flex items-center gap-2">
-      <span>📱</span>
-      <a
-        href="https://t.me/filenova_assistant"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="hover:text-primary transition-colors"
-      >
-        Telegram: @filenova_assistant
-      </a>
-    </li>
+      <li className="flex items-center gap-2">
+        <MessageCircle className="h-4 w-4 text-primary" />
+        <a
+          href="https://t.me/filenova_assistant"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:text-primary transition-colors"
+        >
+          Telegram: @filenova_assistant
+        </a>
+      </li>
   );
 };
 
@@ -44,28 +46,29 @@ const WhatsAppContact: React.FC = () => {
   if (!isEliteUser) {
     return (
       <li className="flex items-center gap-2">
-        <span>💬</span>
+        <MessageSquare className="h-4 w-4 text-muted-foreground" />
         <span className="text-muted-foreground/60">{tText("WhatsApp:")} </span>
-        <span className="text-muted-foreground/60">🔒 {tText("Upgrade to Elite")}</span>
+        <Lock className="h-3.5 w-3.5 text-muted-foreground/60" />
+        <span className="text-muted-foreground/60">{tText("Upgrade to Elite")}</span>
       </li>
     );
   }
 
   return (
-    <li className="flex items-center gap-2">
-      <span>💬</span>
-      <a
-        href="https://wa.me/919064560741?text=Hi! I am a FileNova Elite user and need assistance with..."
-        target="_blank"
-        rel="noopener noreferrer"
-        className="hover:text-primary transition-colors"
-      >
-        WhatsApp: +91 9064560741
-      </a>
-      <span className="text-xs bg-yellow-400 text-gray-900 px-2 py-0.5 rounded font-semibold">
-        Elite
-      </span>
-    </li>
+      <li className="flex items-center gap-2">
+        <MessageSquare className="h-4 w-4 text-emerald-500" />
+        <a
+          href="https://wa.me/919064560741?text=Hi! I am a FileNova Elite user and need assistance with..."
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:text-primary transition-colors"
+        >
+          WhatsApp: +91 9064560741
+        </a>
+        <span className="text-xs bg-amber-500 text-white px-2 py-0.5 rounded font-semibold">
+          Elite
+        </span>
+      </li>
   );
 };
 
@@ -98,7 +101,7 @@ const Footer: React.FC = memo(() => {
             <p className="text-muted-foreground text-sm mb-4">
               {tText("India's most trusted document automation platform.")}
               <br />
-              {tText("Made with ❤️ for students & CSC operators.")}
+              {tText("Made with ")}<Heart className="h-3.5 w-3.5 inline-block text-red-500 fill-red-500" />{tText(" for students & CSC operators.")}
             </p>
             <div className="flex gap-3">
               <a
@@ -224,7 +227,7 @@ const Footer: React.FC = memo(() => {
             <h4 className="font-semibold mb-4 text-foreground">{tText("Contact & Support")}</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-center gap-2">
-                <span>📧</span>
+                <Mail className="h-4 w-4 text-muted-foreground" />
                 <a
                   href="mailto:subhajiteditz90@gmail.com"
                   className="hover:text-primary transition-colors"
@@ -246,7 +249,7 @@ const Footer: React.FC = memo(() => {
         <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
           <p>© {new Date().getFullYear()} FileNova - All rights reserved</p>
           <p className="mt-2">
-            Made with ❤️ by <span className="text-primary font-bold">Subhajit Ghosh</span>
+            Made with <Heart className="h-3.5 w-3.5 inline-block text-red-500 fill-red-500" /> by <span className="text-primary font-bold">Subhajit Ghosh</span>
           </p>
           
           <div className="mt-6 flex flex-col items-center justify-center gap-3">
@@ -257,14 +260,14 @@ const Footer: React.FC = memo(() => {
                 onClick={(e) => triggerUpi(e, 10, "Chai for FileNova")}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white rounded-xl text-xs font-black shadow-lg transition duration-200 transform hover:scale-105 active:scale-95"
               >
-                {tText("☕ Chai (₹10)")}
+                <Coffee className="h-3.5 w-3.5" /> {tText("Chai (₹10)")}
               </a>
               <a
                 href={createUpiLink(50, "Support FileNova")}
                 onClick={(e) => triggerUpi(e, 50, "Support FileNova")}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-650 text-white rounded-xl text-xs font-black shadow-lg transition duration-200 transform hover:scale-105 active:scale-95 border border-indigo-500/20"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white rounded-xl text-xs font-black shadow-lg transition duration-200 transform hover:scale-105 active:scale-95 border border-indigo-500/20"
               >
-                {tText("💖 Support (₹50)")}
+                <Heart className="h-3.5 w-3.5" /> {tText("Support (₹50)")}
               </a>
             </div>
           </div>

@@ -273,7 +273,7 @@ export default function ResourcesPage() {
       <div className="absolute top-[800px] right-0 w-[500px] h-[500px] bg-[radial-gradient(circle_at_right,_rgba(168,85,247,0.06),_transparent_70%)] pointer-events-none z-0" />
 
       {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-border dark:border-slate-900 bg-card/85 dark:bg-slate-950/80 backdrop-blur-xl transition-all">
+      <header className="sticky top-0 z-40 border-b border-border dark:border-border bg-card/85 dark:bg-slate-950/80 backdrop-blur-xl transition-all">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
           <Link href="/" className="inline-flex items-center gap-2 rounded-xl border border-border bg-card/65 backdrop-blur-md px-3.5 py-1.5 text-xs font-bold text-muted-foreground hover:text-foreground transition-all hover:scale-105">
             <ArrowLeft className="h-4 w-4" />
@@ -294,7 +294,7 @@ export default function ResourcesPage() {
           Document Guides & <br />
           <span className="bg-gradient-to-r from-indigo-650 via-purple-605 to-indigo-650 dark:from-indigo-400 dark:via-purple-400 dark:to-indigo-400 bg-clip-text text-transparent">Operator Resources</span>
         </h1>
-        <p className="text-slate-650 dark:text-slate-400 text-xs md:text-sm max-w-xl mx-auto leading-relaxed">
+        <p className="text-slate-600 dark:text-slate-400 text-xs md:text-sm max-w-xl mx-auto leading-relaxed">
           Verify local marksheet/photo requirements for West Bengal schemes, test your files locally, or browse curated operator recommendations.
         </p>
 
@@ -330,7 +330,7 @@ export default function ResourcesPage() {
             >
               {/* Left Column: Schemes list / Search */}
               <div className="lg:col-span-4 space-y-6">
-                <div className="bg-card/30 dark:bg-slate-900/30 border border-border dark:border-slate-900 rounded-3xl p-5 backdrop-blur-xl shadow-lg space-y-4">
+                <div className="bg-card/30 dark:bg-slate-900/30 border border-border dark:border-border rounded-3xl p-5 backdrop-blur-xl shadow-lg space-y-4">
                   {/* Search Bar */}
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 h-4 w-4" />
@@ -339,7 +339,7 @@ export default function ResourcesPage() {
                       placeholder="Search schemes, e.g. SVMCM..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-950 border border-border dark:border-slate-900 rounded-xl text-xs focus:outline-none focus:border-indigo-500 transition text-foreground placeholder:text-muted-foreground/60"
+                      className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-950 border border-border dark:border-border rounded-xl text-xs focus:outline-none focus:border-indigo-500 transition text-foreground placeholder:text-muted-foreground/60"
                     />
                   </div>
 
@@ -357,7 +357,7 @@ export default function ResourcesPage() {
                         className={`py-1 px-3 rounded-lg border text-[10px] font-bold transition-all cursor-pointer ${
                           selectedCategory === cat.key
                             ? "bg-slate-100 border-slate-300 dark:bg-slate-800 dark:border-slate-700 text-slate-900 dark:text-white"
-                            : "bg-white dark:bg-slate-950/40 border-border dark:border-slate-900 text-slate-500 hover:text-slate-700 dark:hover:text-slate-350"
+                            : "bg-white dark:bg-slate-950/40 border-border dark:border-border text-slate-500 hover:text-slate-700 dark:hover:text-slate-400"
                         }`}
                       >
                         {cat.label}
@@ -367,14 +367,14 @@ export default function ResourcesPage() {
                 </div>
 
                 {/* Schemes list container */}
-                <div className="bg-card/25 dark:bg-slate-900/20 border border-border dark:border-slate-900 rounded-3xl p-2.5 max-h-[460px] overflow-y-auto space-y-1.5 scrollbar-none shadow-md">
+                <div className="bg-card/25 dark:bg-slate-900/20 border border-border dark:border-border rounded-3xl p-2.5 max-h-[460px] overflow-y-auto space-y-1.5 scrollbar-none shadow-md">
                   {filteredSchemes.map((scheme) => (
                     <button
                       key={scheme.id}
                       onClick={() => setSelectedScheme(scheme)}
                       className={`w-full text-left p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between group ${
                         selectedScheme.id === scheme.id
-                          ? "bg-indigo-900/20 border-indigo-500/30 text-indigo-650 dark:text-white"
+                          ? "bg-indigo-900/20 border-indigo-500/30 text-indigo-600 dark:text-white"
                           : "bg-transparent border-transparent text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900/30 hover:text-slate-900 dark:hover:text-slate-200"
                       }`}
                     >
@@ -398,14 +398,14 @@ export default function ResourcesPage() {
               <div className="lg:col-span-8 space-y-6">
                 
                 {/* Information Desk */}
-                <div className="bg-card dark:bg-slate-900/40 border border-border dark:border-slate-900 rounded-3xl p-6 backdrop-blur-xl shadow-xl space-y-6">
+                <div className="bg-card dark:bg-slate-900/40 border border-border dark:border-border rounded-3xl p-6 backdrop-blur-xl shadow-xl space-y-6">
                   <div>
                     <h2 className="text-2xl font-black text-slate-900 dark:text-white leading-tight">{selectedScheme.name}</h2>
                     {selectedScheme.bengaliName && (
                       <p className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold mt-1">{selectedScheme.bengaliName}</p>
                     )}
                     <div className="flex flex-wrap gap-4 mt-4 text-[11px] text-slate-500 font-semibold">
-                      <span>Department: <strong className="text-slate-700 dark:text-slate-355">{selectedScheme.department}</strong></span>
+                      <span>Department: <strong className="text-slate-700 dark:text-slate-400">{selectedScheme.department}</strong></span>
                       <a href={selectedScheme.officialWebsite} target="_blank" rel="noopener noreferrer" className="text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1 font-bold">
                         Official Portal <ExternalLink className="h-3 w-3" />
                       </a>
@@ -413,7 +413,7 @@ export default function ResourcesPage() {
                   </div>
 
                   {/* Eligibility list */}
-                  <div className="p-4 bg-muted/30 dark:bg-slate-950/60 border border-border dark:border-slate-900 rounded-2xl space-y-2">
+                  <div className="p-4 bg-muted/30 dark:bg-slate-950/60 border border-border dark:border-border rounded-2xl space-y-2">
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Eligibility Criteria</span>
                     <ul className="space-y-1.5">
                       {selectedScheme.eligibility.map((el, i) => (
@@ -443,7 +443,7 @@ export default function ResourcesPage() {
                                   : "bg-rose-500/[0.03] border-rose-500/25"
                                 : isChecking
                                 ? "bg-indigo-500/[0.04] border-indigo-500/40"
-                                : "bg-muted/10 dark:bg-slate-950/40 border border-border dark:border-slate-900"
+                                : "bg-muted/10 dark:bg-slate-950/40 border border-border dark:border-border"
                             }`}
                           >
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -460,10 +460,10 @@ export default function ResourcesPage() {
                                 
                                 {/* Constraints badges */}
                                 <div className="flex flex-wrap gap-1.5 mt-2">
-                                  <span className="text-[9px] bg-card px-2 py-0.5 rounded text-slate-600 dark:text-slate-400 font-bold border border-border dark:border-slate-850">Format: {doc.format}</span>
-                                  <span className="text-[9px] bg-card px-2 py-0.5 rounded text-slate-600 dark:text-slate-400 font-bold border border-border dark:border-slate-850">Size: {doc.minSizeKB ? `${doc.minSizeKB}-` : ""}{doc.maxSizeKB} KB max</span>
+                                  <span className="text-[9px] bg-card px-2 py-0.5 rounded text-slate-600 dark:text-slate-400 font-bold border border-border dark:border-border">Format: {doc.format}</span>
+                                  <span className="text-[9px] bg-card px-2 py-0.5 rounded text-slate-600 dark:text-slate-400 font-bold border border-border dark:border-border">Size: {doc.minSizeKB ? `${doc.minSizeKB}-` : ""}{doc.maxSizeKB} KB max</span>
                                   {doc.dimensions && (
-                                    <span className="text-[9px] bg-card px-2 py-0.5 rounded text-slate-600 dark:text-slate-400 font-bold border border-border dark:border-slate-850">Dimensions: {doc.dimensions.width}x{doc.dimensions.height} {doc.dimensions.unit}</span>
+                                    <span className="text-[9px] bg-card px-2 py-0.5 rounded text-slate-600 dark:text-slate-400 font-bold border border-border dark:border-border">Dimensions: {doc.dimensions.width}x{doc.dimensions.height} {doc.dimensions.unit}</span>
                                   )}
                                 </div>
                               </div>
@@ -492,7 +492,7 @@ export default function ResourcesPage() {
                                       setCheckingDocSpec(doc);
                                       setTimeout(() => fileInputRef.current?.click(), 50);
                                     }}
-                                    className="inline-flex items-center gap-1.5 py-2 px-4 bg-card hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-850 border border-border dark:border-slate-800 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 transition cursor-pointer"
+                                    className="inline-flex items-center gap-1.5 py-2 px-4 bg-card hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-muted border border-border dark:border-slate-800 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 transition cursor-pointer"
                                   >
                                     <Upload className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />
                                     Verify File
@@ -521,7 +521,7 @@ export default function ResourcesPage() {
                                         useFileStore.getState().setOperation("compress");
                                         setLocation("/workspace");
                                       }}
-                                      className="py-1 px-2.5 bg-slate-900 hover:bg-slate-850 border border-slate-850 rounded-lg text-[10px] font-black text-indigo-400 transition"
+                                      className="py-1 px-2.5 bg-slate-900 hover:bg-muted border border-border rounded-lg text-[10px] font-black text-indigo-400 transition"
                                     >
                                       Go Compress PDF
                                     </button>
@@ -533,7 +533,7 @@ export default function ResourcesPage() {
                                         useFileStore.getState().setOperation("resize");
                                         setLocation("/workspace");
                                       }}
-                                      className="py-1 px-2.5 bg-slate-900 hover:bg-slate-850 border border-slate-850 rounded-lg text-[10px] font-black text-emerald-400 transition"
+                                      className="py-1 px-2.5 bg-slate-900 hover:bg-muted border border-border rounded-lg text-[10px] font-black text-emerald-400 transition"
                                     >
                                       Resize & Crop Image
                                     </button>
@@ -541,7 +541,7 @@ export default function ResourcesPage() {
                                   {selectedScheme.toolId === "scholarship-zip" && (
                                     <button
                                       onClick={() => setLocation("/scholarship-zip")}
-                                      className="py-1 px-2.5 bg-slate-900 hover:bg-slate-850 border border-slate-850 rounded-lg text-[10px] font-black text-indigo-400 transition"
+                                      className="py-1 px-2.5 bg-slate-900 hover:bg-muted border border-border rounded-lg text-[10px] font-black text-indigo-400 transition"
                                     >
                                       Sikshashree ZIP Maker
                                     </button>
@@ -599,7 +599,7 @@ export default function ResourcesPage() {
                     className={`relative flex flex-col justify-between rounded-3xl border p-6 transition duration-300 ${
                       rec.popular
                         ? "border-indigo-500/35 bg-indigo-900/5 shadow-lg"
-                        : "border-border bg-card dark:border-slate-900 dark:bg-slate-950/40 hover:border-border/80 hover:bg-slate-50/50 dark:hover:bg-slate-900/20"
+                        : "border-border bg-card dark:border-border dark:bg-slate-950/40 hover:border-border/80 hover:bg-slate-50/50 dark:hover:bg-slate-900/20"
                     }`}
                   >
                     {rec.popular && (
@@ -609,7 +609,7 @@ export default function ResourcesPage() {
                     )}
                     <div>
                       <div className="flex items-start justify-between mb-4">
-                        <div className="rounded-2xl bg-white dark:bg-slate-950 border border-border dark:border-slate-900 p-3 text-indigo-600 dark:text-indigo-400 shadow-inner">
+                        <div className="rounded-2xl bg-white dark:bg-slate-950 border border-border dark:border-border p-3 text-indigo-600 dark:text-indigo-400 shadow-inner">
                           {rec.icon}
                         </div>
                         <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider ${rec.tagColor}`}>
@@ -622,7 +622,7 @@ export default function ResourcesPage() {
                       
                       <ul className="mt-5 space-y-2">
                         {rec.features.map((feature, idx) => (
-                          <li key={idx} className="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-350">
+                          <li key={idx} className="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-400">
                             <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
                             {feature}
                           </li>
@@ -630,12 +630,12 @@ export default function ResourcesPage() {
                       </ul>
                     </div>
                     
-                    <div className="mt-6 pt-5 border-t border-border dark:border-slate-900/50">
+                    <div className="mt-6 pt-5 border-t border-border dark:border-border/50">
                       <a
                         href={rec.ctaUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={`inline-flex w-full items-center justify-center gap-2 rounded-xl py-3 text-xs font-black transition cursor-pointer ${rec.popular ? "bg-indigo-600 hover:bg-indigo-500 text-white shadow-glow-indigo" : "bg-card hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-300 border border-border dark:border-slate-850"}`}
+                        className={`inline-flex w-full items-center justify-center gap-2 rounded-xl py-3 text-xs font-black transition cursor-pointer ${rec.popular ? "bg-indigo-600 hover:bg-indigo-500 text-white shadow-glow-indigo" : "bg-card hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-muted text-slate-700 dark:text-slate-300 border border-border dark:border-border"}`}
                       >
                         <span>{rec.ctaText}</span>
                         <ExternalLink className="h-3.5 w-3.5" />
@@ -656,7 +656,7 @@ export default function ResourcesPage() {
             <h3 className="text-lg font-black text-slate-900 dark:text-white flex items-center justify-center gap-2">
               <span>☕ Support FileNova Project</span>
             </h3>
-            <p className="text-xs text-slate-650 dark:text-slate-400 mt-1.5 max-w-md mx-auto leading-relaxed">
+            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1.5 max-w-md mx-auto leading-relaxed">
               FileNova is built to keep Indian document utilities accessible and 100% private. If our platform saves you money on premium PDF tools, consider supporting our work!
             </p>
           </div>

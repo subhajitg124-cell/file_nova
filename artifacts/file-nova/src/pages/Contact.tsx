@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import SocialMediaLinks from "@/components/SocialMediaLinks";
-import { Lock } from "lucide-react";
+import { Lock, Mail, MessageCircle, MessageSquare, Code2 } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 
 const TelegramSupport: React.FC = () => {
@@ -15,23 +15,25 @@ const TelegramSupport: React.FC = () => {
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.2 }}
-        className="bg-slate-900/40 border border-slate-900 rounded-2xl p-6 relative overflow-hidden transition-all duration-300"
+        className="bg-card border border-border rounded-2xl p-6 relative overflow-hidden transition-all duration-300"
       >
-        <div className="absolute top-0 right-0 bg-blue-400 text-gray-900 text-xs font-bold px-3 py-1 rounded-bl-lg">
+        <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-bl-lg">
           PRO+
         </div>
-        <div className="w-16 h-16 bg-blue-400/10 border border-blue-400/20 rounded-full flex items-center justify-center mb-4 relative">
-          <Lock className="h-8 w-8 text-blue-400/50" />
+        <div className="w-16 h-16 bg-primary/10 border border-primary/20 rounded-full flex items-center justify-center mb-4 relative">
+          <Lock className="h-8 w-8 text-primary/50" />
         </div>
-        <h3 className="text-xl font-bold text-white mb-2">Telegram Support</h3>
-        <p className="text-slate-400 mb-4">Instant support for PRO users</p>
+        <h3 className="text-xl font-bold text-foreground mb-2">Telegram Support</h3>
+        <p className="text-muted-foreground mb-4">Instant support for PRO users</p>
         <div className="relative">
           <div className="absolute inset-0 flex items-center justify-center z-10">
-            <span className="text-sm font-bold text-blue-400 bg-slate-900/80 px-3 py-1 rounded-lg">🔒 Upgrade to PRO for Telegram Support</span>
+            <span className="text-sm font-bold text-primary bg-card/80 px-3 py-1 rounded-lg flex items-center gap-1.5">
+              <Lock className="h-3.5 w-3.5" /> Upgrade to PRO for Telegram Support
+            </span>
           </div>
           <button
             disabled
-            className="block w-full bg-blue-500/50 text-white/50 text-center py-3 rounded-lg font-semibold cursor-not-allowed blur-[1px]"
+            className="block w-full bg-primary/50 text-primary-foreground/50 text-center py-3 rounded-lg font-semibold cursor-not-allowed blur-[1px]"
           >
             Message on Telegram
           </button>
@@ -45,25 +47,25 @@ const TelegramSupport: React.FC = () => {
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: 0.2 }}
-      className="bg-slate-900/40 border border-slate-900 hover:border-blue-400/35 rounded-2xl p-6 relative overflow-hidden transition-all duration-300"
+      className="bg-card border border-border hover:border-primary/35 rounded-2xl p-6 relative overflow-hidden transition-all duration-300"
     >
-      <div className="absolute top-0 right-0 bg-blue-400 text-gray-900 text-xs font-bold px-3 py-1 rounded-bl-lg">
+      <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-bl-lg">
         PRO+
       </div>
-      <div className="w-16 h-16 bg-blue-400/10 border border-blue-400/20 rounded-full flex items-center justify-center text-3xl mb-4">
-        📱
+      <div className="w-16 h-16 bg-primary/10 border border-primary/20 rounded-full flex items-center justify-center mb-4">
+        <MessageCircle className="h-8 w-8 text-primary" />
       </div>
-      <h3 className="text-xl font-bold text-white mb-2">Telegram Support</h3>
-      <p className="text-slate-400 mb-4">Instant support for PRO users</p>
+      <h3 className="text-xl font-bold text-foreground mb-2">Telegram Support</h3>
+      <p className="text-muted-foreground mb-4">Instant support for PRO users</p>
       <a
         href="https://t.me/filenova_assistant"
         target="_blank"
         rel="noopener noreferrer"
-        className="block w-full bg-blue-500 text-white text-center py-3 rounded-lg font-semibold hover:bg-blue-400 transition"
+        className="block w-full bg-primary text-primary-foreground text-center py-3 rounded-lg font-semibold hover:bg-primary/90 transition"
       >
         Message on Telegram
       </a>
-      <p className="text-sm text-slate-500 mt-2 text-center">
+      <p className="text-sm text-muted-foreground mt-2 text-center">
         @filenova_assistant
       </p>
     </motion.div>
@@ -80,19 +82,21 @@ const WhatsAppSupport: React.FC = () => {
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.3 }}
-        className="bg-slate-900/40 border border-slate-900 rounded-2xl p-6 relative overflow-hidden transition-all duration-300"
+        className="bg-card border border-border rounded-2xl p-6 relative overflow-hidden transition-all duration-300"
       >
-        <div className="absolute top-0 right-0 bg-yellow-400 text-gray-900 text-xs font-bold px-3 py-1 rounded-bl-lg">
+        <div className="absolute top-0 right-0 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
           ELITE ONLY
         </div>
         <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center mb-4 relative">
           <Lock className="h-8 w-8 text-emerald-500/50" />
         </div>
-        <h3 className="text-xl font-bold text-white mb-2">WhatsApp Support</h3>
-        <p className="text-slate-400 mb-4">Priority support for Elite users</p>
+        <h3 className="text-xl font-bold text-foreground mb-2">WhatsApp Support</h3>
+        <p className="text-muted-foreground mb-4">Priority support for Elite users</p>
         <div className="relative">
           <div className="absolute inset-0 flex items-center justify-center z-10">
-            <span className="text-sm font-bold text-yellow-400 bg-slate-900/80 px-3 py-1 rounded-lg">🔒 Upgrade to Elite for WhatsApp Support</span>
+            <span className="text-sm font-bold text-amber-500 bg-card/80 px-3 py-1 rounded-lg flex items-center gap-1.5">
+              <Lock className="h-3.5 w-3.5" /> Upgrade to Elite for WhatsApp Support
+            </span>
           </div>
           <button
             disabled
@@ -110,16 +114,16 @@ const WhatsAppSupport: React.FC = () => {
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: 0.3 }}
-      className="bg-slate-900/40 border border-slate-900 hover:border-emerald-500/35 rounded-2xl p-6 relative overflow-hidden transition-all duration-300"
+      className="bg-card border border-border hover:border-emerald-500/35 rounded-2xl p-6 relative overflow-hidden transition-all duration-300"
     >
-      <div className="absolute top-0 right-0 bg-yellow-400 text-gray-900 text-xs font-bold px-3 py-1 rounded-bl-lg">
+      <div className="absolute top-0 right-0 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
         ELITE ONLY
       </div>
-      <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center text-3xl mb-4">
-        💬
+      <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center mb-4">
+        <MessageSquare className="h-8 w-8 text-emerald-500" />
       </div>
-      <h3 className="text-xl font-bold text-white mb-2">WhatsApp Support</h3>
-      <p className="text-slate-400 mb-4">Priority support for Elite users</p>
+      <h3 className="text-xl font-bold text-foreground mb-2">WhatsApp Support</h3>
+      <p className="text-muted-foreground mb-4">Priority support for Elite users</p>
       <a
         href="https://wa.me/919064560741?text=Hi! I am a FileNova Elite user and need assistance with..."
         target="_blank"
@@ -128,7 +132,7 @@ const WhatsAppSupport: React.FC = () => {
       >
         Chat on WhatsApp
       </a>
-      <p className="text-sm text-slate-500 mt-2 text-center">
+      <p className="text-sm text-muted-foreground mt-2 text-center">
         +91 9064560741
       </p>
     </motion.div>
@@ -137,7 +141,7 @@ const WhatsAppSupport: React.FC = () => {
 
 const Contact: React.FC = () => {
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans py-12 px-4 relative">
+    <div className="min-h-screen bg-background text-foreground font-sans py-12 px-4 relative">
       <div className="absolute top-0 left-0 right-0 h-[600px] bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.15),_transparent_60%)] pointer-events-none z-0" />
       <div className="absolute top-[800px] right-0 w-[500px] h-[500px] bg-[radial-gradient(circle_at_right,_rgba(168,85,247,0.08),_transparent_70%)] pointer-events-none z-0" />
 
@@ -147,10 +151,10 @@ const Contact: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <h1 className="text-4xl font-black text-white mb-4">
+          <h1 className="text-4xl font-black text-foreground mb-4">
             Get in Touch
           </h1>
-          <p className="text-slate-400 text-lg max-w-xl mx-auto">
+          <p className="text-muted-foreground text-lg max-w-xl mx-auto">
             We're here to help! Choose your preferred way to connect with the FileNova team.
           </p>
         </motion.div>
@@ -161,20 +165,20 @@ const Contact: React.FC = () => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.1 }}
-            className="bg-slate-900/40 border border-slate-900 hover:border-indigo-500/35 rounded-2xl p-6 transition-all duration-300"
+            className="bg-card border border-border hover:border-primary/35 rounded-2xl p-6 transition-all duration-300"
           >
-            <div className="w-16 h-16 bg-blue-500/10 border border-blue-500/20 rounded-full flex items-center justify-center text-3xl mb-4">
-              📧
+            <div className="w-16 h-16 bg-primary/10 border border-primary/20 rounded-full flex items-center justify-center mb-4">
+              <Mail className="h-8 w-8 text-primary" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">Email Support</h3>
-            <p className="text-slate-400 mb-4">For all users — Free & Premium</p>
+            <h3 className="text-xl font-bold text-foreground mb-2">Email Support</h3>
+            <p className="text-muted-foreground mb-4">For all users — Free & Premium</p>
             <a
               href="mailto:subhajiteditz90@gmail.com?subject=FileNova Support Request&body=Hi, I need help with..."
-              className="block w-full bg-blue-600 text-white text-center py-3 rounded-lg font-semibold hover:bg-blue-500 transition"
+              className="block w-full bg-primary text-primary-foreground text-center py-3 rounded-lg font-semibold hover:bg-primary/90 transition"
             >
               Send Email
             </a>
-            <p className="text-sm text-slate-500 mt-2 text-center">
+            <p className="text-sm text-muted-foreground mt-2 text-center">
               subhajiteditz90@gmail.com
             </p>
           </motion.div>
@@ -200,10 +204,10 @@ const Contact: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="mt-8 bg-slate-900/40 border border-slate-900 rounded-2xl p-6"
+          className="mt-8 bg-card border border-border rounded-2xl p-6"
         >
-          <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-            <span>👨‍💻</span>
+          <h3 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
+            <Code2 className="h-6 w-6 text-primary" />
             Meet the Developer
           </h3>
           <div className="flex items-center gap-4 mb-4">
@@ -211,8 +215,8 @@ const Contact: React.FC = () => {
               SG
             </div>
             <div>
-              <p className="text-lg font-semibold text-white">Subhajit Ghosh</p>
-              <p className="text-slate-400">Founder & Developer, FileNova</p>
+              <p className="text-lg font-semibold text-foreground">Subhajit Ghosh</p>
+              <p className="text-muted-foreground">Founder & Developer, FileNova</p>
             </div>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -253,7 +257,7 @@ const Contact: React.FC = () => {
         </motion.div>
 
         <div className="mt-8 text-center">
-          <Link href="/" className="inline-flex items-center gap-2 text-indigo-400 hover:text-indigo-300 font-semibold transition-colors">
+          <Link href="/" className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-semibold transition-colors">
             ← Back to Home
           </Link>
         </div>

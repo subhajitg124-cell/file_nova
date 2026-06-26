@@ -358,7 +358,7 @@ export default function OperatorDashboard() {
             <div className="rounded-3xl border border-white/[0.06] bg-slate-900/40 p-12 backdrop-blur-md text-center text-slate-400">
               <Users className="h-12 w-12 mx-auto text-violet-400/40 mb-4 animate-pulse" />
               <h3 className="text-base font-bold text-white">No active client selected</h3>
-              <p className="text-xs text-slate-450 mt-1 max-w-sm mx-auto">Select a client from the left queue dashboard or add a new customer to launch the document workspace.</p>
+              <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">Select a client from the left queue dashboard or add a new customer to launch the document workspace.</p>
             </div>
           )}
         </section>
@@ -474,7 +474,7 @@ export default function OperatorDashboard() {
                 { keys: ["Esc"], desc: "Close any open modal window" },
               ].map((sc, index) => (
                 <div key={index} className="flex justify-between items-center py-1.5 border-b border-white/[0.02]">
-                  <span className="font-semibold text-slate-350">{sc.desc}</span>
+                  <span className="font-semibold text-slate-400">{sc.desc}</span>
                   <div className="flex gap-1">
                     {sc.keys.map((k) => (
                       <kbd key={k} className="bg-slate-900 border border-white/10 rounded px-1.5 py-0.5 text-[10px] font-mono text-white font-bold">{k}</kbd>
@@ -523,11 +523,11 @@ export default function OperatorDashboard() {
                 <span className="text-[10px] font-black text-slate-500 print:text-black/60 uppercase tracking-wider block">Customer Details</span>
                 <div className="rounded-xl bg-slate-950/40 border border-white/[0.04] p-3 text-xs space-y-1.5 print:bg-slate-100 print:border-black/10">
                   <div className="flex justify-between">
-                    <span className="text-slate-450 print:text-black/60 font-medium">Name:</span>
+                    <span className="text-slate-400 print:text-black/60 font-medium">Name:</span>
                     <span className="font-bold text-white print:text-black">{receiptCustomer.name}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-450 print:text-black/60 font-medium">Phone:</span>
+                    <span className="text-slate-400 print:text-black/60 font-medium">Phone:</span>
                     <span className="font-mono text-white print:text-black font-bold">{receiptCustomer.phone}</span>
                   </div>
                 </div>
@@ -536,7 +536,7 @@ export default function OperatorDashboard() {
               <div className="space-y-2 border-t border-white/10 print:border-black/15 pt-4">
                 <span className="text-[10px] font-black text-slate-500 print:text-black/60 uppercase tracking-wider block">Rendered Services</span>
                 <div className="flex justify-between text-xs">
-                  <span className="text-slate-350 print:text-black font-semibold">📋 {receiptCustomer.scheme}</span>
+                  <span className="text-slate-400 print:text-black font-semibold">📋 {receiptCustomer.scheme}</span>
                   <span className="font-bold text-white print:text-black">₹{receiptCustomer.cost}</span>
                 </div>
               </div>

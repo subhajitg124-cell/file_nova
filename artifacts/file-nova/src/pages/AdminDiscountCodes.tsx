@@ -449,7 +449,7 @@ export default function AdminDiscountCodes() {
                         }}
                         className="h-4 w-4 rounded border-white/10 accent-emerald-500"
                       />
-                      <label htmlFor={`dc-plan-${plan}`} className="text-xs font-bold uppercase cursor-pointer text-slate-350">{plan}</label>
+                      <label htmlFor={`dc-plan-${plan}`} className="text-xs font-bold uppercase cursor-pointer text-slate-400">{plan}</label>
                     </div>
                   ))}
                 </div>
@@ -496,7 +496,7 @@ export default function AdminDiscountCodes() {
               <p className="mt-2 text-xs text-slate-500 font-bold">Loading discount codes...</p>
             </div>
           ) : codes.length === 0 ? (
-            <div className="text-center py-10 bg-slate-950 border border-white/[0.05] rounded-2xl text-slate-450">
+            <div className="text-center py-10 bg-slate-950 border border-white/[0.05] rounded-2xl text-slate-400">
               <Tag className="h-10 w-10 mx-auto mb-2 opacity-30 text-emerald-400" />
               <p className="font-bold text-white text-xs">No discount codes yet</p>
               <p className="text-[10px] text-slate-500 mt-1">Click "Generate Code" to create your first discount code.</p>
@@ -577,7 +577,7 @@ export default function AdminDiscountCodes() {
                         <div className="inline-flex items-center justify-end gap-1.5">
                           <button
                             onClick={() => openEdit(dc)}
-                            className="p-1.5 text-slate-450 hover:text-white rounded-lg hover:bg-white/[0.04] transition cursor-pointer"
+                            className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-white/[0.04] transition cursor-pointer"
                             title="Edit"
                           >
                             <Tag className="h-3.5 w-3.5" />
@@ -595,7 +595,7 @@ export default function AdminDiscountCodes() {
                           </button>
                           <button
                             onClick={() => handleDelete(dc.id)}
-                            className="p-1.5 text-slate-450 hover:text-rose-400 rounded-lg hover:bg-white/[0.04] transition cursor-pointer"
+                            className="p-1.5 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-white/[0.04] transition cursor-pointer"
                             title="Delete"
                           >
                             <Trash2 className="h-3.5 w-3.5 text-rose-500" />

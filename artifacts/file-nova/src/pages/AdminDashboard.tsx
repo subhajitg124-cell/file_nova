@@ -709,7 +709,7 @@ export default function AdminDashboard() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-10 bg-slate-950 border border-white/[0.05] rounded-xl text-slate-450">
+              <div className="text-center py-10 bg-slate-950 border border-white/[0.05] rounded-xl text-slate-400">
                 <CreditCard className="h-8 w-8 mx-auto mb-2 opacity-30 text-indigo-400" />
                 <p className="font-bold text-white text-xs">No recent subscriptions detected</p>
                 <p className="text-[10px] text-slate-500 mt-1">Completed payment records will appear here once orders are processed.</p>

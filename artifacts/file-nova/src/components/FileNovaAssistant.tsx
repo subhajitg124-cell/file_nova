@@ -318,7 +318,7 @@ export function FileNovaAssistant({ isOpen, onClose }: FileNovaAssistantProps) {
                         className={`rounded-2xl p-3.5 shadow-panel text-xs leading-relaxed ${
                           m.sender === "user"
                             ? "bg-gradient-to-tr from-brand-primary to-indigo-650 text-white font-medium shadow-glow-indigo-subtle"
-                            : "bg-slate-900/60 border border-slate-850"
+                            : "bg-slate-900/60 border border-border"
                         }`}
                       >
                         {m.sender === "user" ? <p>{m.text}</p> : formatText(m.text)}
@@ -372,7 +372,7 @@ export function FileNovaAssistant({ isOpen, onClose }: FileNovaAssistantProps) {
                 <button
                   key={pr.text}
                   onClick={() => handleSendMessage(pr.text)}
-                  className="flex items-center gap-1.5 rounded-xl border border-slate-800 bg-slate-950/80 px-2.5 py-1.5 text-[10px] font-bold text-slate-350 hover:text-white hover:border-primary/50 transition cursor-pointer shrink-0"
+                  className="flex items-center gap-1.5 rounded-xl border border-slate-800 bg-slate-950/80 px-2.5 py-1.5 text-[10px] font-bold text-slate-400 hover:text-white hover:border-primary/50 transition cursor-pointer shrink-0"
                 >
                   {pr.icon}
                   <span>{tText(pr.text)}</span>

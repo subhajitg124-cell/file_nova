@@ -305,7 +305,7 @@ const isValidationError = (err: string): boolean => {
           <div className="space-y-4">
             {hasGoogleClientId && (
               <>
-                <div className="flex justify-center rounded-xl bg-white p-1 shadow-sm overflow-hidden">
+                <div className="flex justify-center rounded-xl bg-card p-1 shadow-sm overflow-hidden">
                   <GoogleLogin
                     onSuccess={handleGoogleSuccess}
                     onError={() => toast.error("Google sign in was cancelled or failed.")}

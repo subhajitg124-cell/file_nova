@@ -112,7 +112,7 @@ export default function SEOPhotoCompressor() {
             </h2>
             <div className="overflow-x-auto rounded-xl border border-white/[0.05] bg-slate-950">
               <table className="w-full text-xs">
-                <thead className="bg-white/[0.02] font-bold text-slate-450 border-b border-white/[0.05]">
+                <thead className="bg-white/[0.02] font-bold text-slate-400 border-b border-white/[0.05]">
                   <tr>
                     <th className="px-4 py-3">Parameter</th>
                     <th className="px-4 py-3">NSDL / UTIITSL Guideline</th>

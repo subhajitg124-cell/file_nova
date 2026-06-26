@@ -160,7 +160,7 @@ export const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
                 <Layers className="h-3 w-3" /> Redesigned
               </span>
             </div>
-            <div className="border border-indigo-500/15 bg-slate-950/80 rounded-2xl p-3 h-64 overflow-y-auto flex items-center justify-center text-xs text-slate-350">
+            <div className="border border-indigo-500/15 bg-slate-950/80 rounded-2xl p-3 h-64 overflow-y-auto flex items-center justify-center text-xs text-slate-400">
               {afterContent ? afterContent : afterImage ? (
                 <img src={afterImage} alt="Processed" className="max-h-full max-w-full object-contain" width="400" height="300" loading="lazy" />
               ) : (

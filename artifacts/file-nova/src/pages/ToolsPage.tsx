@@ -52,7 +52,7 @@ const BentoToolCard: React.FC<BentoToolCardProps> = ({ tool, getCanonicalUrl }) 
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`group relative bg-card hover:bg-slate-50 dark:bg-slate-900/30 dark:hover:bg-slate-900/60 border border-border dark:border-slate-900 hover:border-indigo-500/35 rounded-2xl p-6 cursor-pointer transition-all duration-300 flex flex-col justify-between hover:shadow-glow-indigo-subtle block text-left overflow-hidden min-h-[190px]
+      className={`group relative bg-card hover:bg-slate-50 dark:bg-slate-900/30 dark:hover:bg-slate-900/60 border border-border dark:border-border hover:border-indigo-500/35 rounded-2xl p-6 cursor-pointer transition-all duration-300 flex flex-col justify-between hover:shadow-glow-indigo-subtle block text-left overflow-hidden min-h-[190px]
         ${isBentoWide ? "sm:col-span-2" : "col-span-1"}
       `}
     >
@@ -70,7 +70,7 @@ const BentoToolCard: React.FC<BentoToolCardProps> = ({ tool, getCanonicalUrl }) 
       <div className="relative z-10">
         {/* Header: Icon + Badge */}
         <div className="flex items-start justify-between mb-4">
-          <div className="h-10 w-10 rounded-xl bg-white dark:bg-slate-950 border border-border dark:border-slate-850 flex items-center justify-center text-indigo-650 dark:text-indigo-400 group-hover:scale-110 group-hover:rotate-[3deg] transition-all duration-300">
+          <div className="h-10 w-10 rounded-xl bg-white dark:bg-slate-950 border border-border dark:border-border flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:scale-110 group-hover:rotate-[3deg] transition-all duration-300">
             <ToolIcon className="h-5 w-5" />
           </div>
           {tool.badge && (
@@ -93,7 +93,7 @@ const BentoToolCard: React.FC<BentoToolCardProps> = ({ tool, getCanonicalUrl }) 
         </p>
       </div>
 
-      <div className="flex items-center justify-between pt-3 border-t border-border dark:border-slate-900/60 text-[10px] text-slate-500 font-bold uppercase tracking-wider relative z-10">
+      <div className="flex items-center justify-between pt-3 border-t border-border dark:border-border/60 text-[10px] text-slate-500 font-bold uppercase tracking-wider relative z-10">
         <span className="capitalize">{tool.category === "india" ? "India-Specific" : tool.category}</span>
         <span className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400 opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-0.5">
           Launch <ChevronRight className="h-3 w-3" />
@@ -185,7 +185,7 @@ export default function ToolsPage() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-100/10 via-background to-background dark:from-indigo-950/20 dark:via-slate-950 dark:to-slate-950 pointer-events-none z-0" />
 
       {/* Header Navigation */}
-      <header className="sticky top-0 z-30 border-b border-border dark:border-slate-900 bg-card/85 dark:bg-slate-950/80 backdrop-blur-xl py-4 px-6">
+      <header className="sticky top-0 z-30 border-b border-border dark:border-border bg-card/85 dark:bg-slate-950/80 backdrop-blur-xl py-4 px-6">
         <nav aria-label="Tools directory" className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button 
@@ -219,7 +219,7 @@ export default function ToolsPage() {
         </div>
 
         {/* Search & Categories Bar */}
-        <div className="bg-card/45 dark:bg-slate-900/40 border border-border dark:border-slate-900 rounded-2xl p-4 backdrop-blur-md mb-8">
+        <div className="bg-card/45 dark:bg-slate-900/40 border border-border dark:border-border rounded-2xl p-4 backdrop-blur-md mb-8">
           <div className="relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 h-5 w-5 pointer-events-none" />
             <input
@@ -242,7 +242,7 @@ export default function ToolsPage() {
           </div>
 
           {/* Categories grid */}
-          <div className="flex flex-wrap gap-2 mt-4 pt-2 border-t border-border dark:border-slate-900">
+          <div className="flex flex-wrap gap-2 mt-4 pt-2 border-t border-border dark:border-border">
             {categories.map((cat) => {
               const CatIcon = cat.icon;
               return (
@@ -272,10 +272,10 @@ export default function ToolsPage() {
           </div>
 
         ) : (
-          <div className="text-center py-20 bg-card/20 dark:bg-slate-900/20 border border-border dark:border-slate-900 border-dashed rounded-2xl">
+          <div className="text-center py-20 bg-card/20 dark:bg-slate-900/20 border border-border dark:border-border border-dashed rounded-2xl">
             <HelpCircle className="h-10 w-10 text-slate-400 dark:text-slate-700 mx-auto mb-3" />
             <p className="text-sm font-bold text-slate-500 dark:text-slate-400">No tools match your criteria</p>
-            <p className="text-xs text-slate-400 dark:text-slate-650 mt-1">Try resetting your filters or search keywords</p>
+            <p className="text-xs text-slate-400 dark:text-slate-600 mt-1">Try resetting your filters or search keywords</p>
             <button 
               onClick={() => { setSearchQuery(""); setActiveCategory("all"); }}
               className="mt-4 text-xs bg-card hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 border border-border dark:border-transparent text-slate-700 dark:text-slate-300 py-1.5 px-3 rounded-lg transition-colors font-bold cursor-pointer"
