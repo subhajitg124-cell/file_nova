@@ -100,7 +100,7 @@ export const prerenderRoutes = [
   "/pdf-to-jpg",
   "/jpg-to-pdf",
   "/word-to-pdf",
-  "/compress-for-upload",
+  "/compress-pdf-for-upload",
   "/government-form-fill",
   "/ai-ppt-maker",
 ];

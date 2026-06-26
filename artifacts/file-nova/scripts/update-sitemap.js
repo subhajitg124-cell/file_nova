@@ -16,7 +16,7 @@ const toolPages = [
   { path: "/scholarship-zip",         priority: 0.95 },
   { path: "/resize-photo",            priority: 0.95, image: { loc: "/photo_resize_mockup.png", title: "Resize Photo for Scholarship Form Online Free" } },
   { path: "/government-form-fill",    priority: 0.9 },
-  { path: "/compress-for-upload",     priority: 0.85 },
+  { path: "/compress-pdf-for-upload",     priority: 0.85 },
   // ── PDF Tools (priority 0.95-0.75)
   { path: "/compress-pdf",            priority: 0.95 },
   { path: "/merge-pdf",               priority: 0.95 },
@@ -112,6 +112,9 @@ const infoPages = [
   { path: "/privacy",                 priority: 0.5,  changefreq: "monthly" },
   { path: "/terms",                   priority: 0.5,  changefreq: "monthly" },
   { path: "/cookie-policy",           priority: 0.4,  changefreq: "monthly" },
+  { path: "/workspace",               priority: 0.8,  changefreq: "weekly" },
+  { path: "/workflows",               priority: 0.75, changefreq: "weekly" },
+  { path: "/india-tools",             priority: 0.85, changefreq: "weekly" },
 ];
 
 const blogPages = [

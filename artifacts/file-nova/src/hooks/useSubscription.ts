@@ -151,133 +151,7 @@ export function useSubscription() {
     pass_7d: 2900,
   };
 
-  const startCheckout = useCallback(async (plan: "basic" | "pro" | "elite" | "pass_24h" | "pass_7d" | "pro_monthly", coupon?: string) => {
-    const targetPlan = plan === "pro_monthly" ? "basic" : plan;
-    setLoading(true);
-    try {
-      const isLoaded = await loadRazorpayScript();
-      if (!isLoaded) {
-        toast.error("Failed to load Razorpay checkout. Check your internet connection.");
-        setLoading(false);
-        return;
-      }
-
-      let discountPercentage = 0;
-      if (coupon) {
-        const code = coupon.toUpperCase().trim();
-        if (code === "STUDENT20") discountPercentage = 20;
-        else if (code === "CYBER50" && targetPlan === "elite") discountPercentage = 50;
-        else if (code === "FIRST30") discountPercentage = 30;
-        else if (code === "WB10") discountPercentage = 10;
-      }
-      let amount = PLAN_PRICES_PAISE[targetPlan];
-      if (discountPercentage > 0) {
-        amount = Math.round(amount * (1 - discountPercentage / 100));
-      }
-
-      const token = localStorage.getItem("filenova_token");
-      const headers: Record<string, string> = { "Content-Type": "application/json" };
-      if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
-      }
-
-      const res = await fetch(`${BACKEND_URL}/api/payments/create-order`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ plan: targetPlan, amount, coupon }),
-      });
-      if (!res.ok) throw new Error(await res.text());
-      const data = await res.json();
-
-      const options = {
-        key: data.keyId,
-        amount: data.amount,
-        currency: data.currency,
-        name: "FileNova Premium",
-        description: `Upgrade to ${targetPlan.toUpperCase()}`,
-        order_id: data.orderId,
-        handler: async (response: any) => {
-          setLoading(true);
-          try {
-             const token = localStorage.getItem("filenova_token");
-             const headers: Record<string, string> = { "Content-Type": "application/json" };
-             if (token) {
-               headers["Authorization"] = `Bearer ${token}`;
-             }
-
-             const verifyRes = await fetch(`${BACKEND_URL}/api/payments/verify`, {
-              method: "POST",
-              headers,
-              body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                plan: targetPlan,
-              }),
-            });
-            if (!verifyRes.ok) throw new Error("Payment verification failed");
-            toast.success("🎉 Welcome to Pro! Your account is now upgraded.");
-            fetchStatus();
-            useAuthStore.getState().fetchMe();
-          } catch (err: any) {
-            toast.error(err.message || "Payment verification failed");
-          } finally {
-            setLoading(false);
-          }
-        },
-        prefill: {
-          name: "Student Desk",
-          email: "student@filenova.in",
-        },
-        theme: {
-          color: "#0284c7",
-        },
-        modal: {
-          ondismiss: () => {
-            toast.info("Payment process cancelled.");
-          },
-        },
-      };
-
-      // Mock auto-complete for local/testing convenience
-      if (data.orderId.startsWith("order_mock_")) {
-        toast.info("Mocking transaction checkout…");
-        setTimeout(async () => {
-          try {
-            const token = localStorage.getItem("filenova_token");
-            const headers: Record<string, string> = { "Content-Type": "application/json" };
-            if (token) {
-              headers["Authorization"] = `Bearer ${token}`;
-            }
-
-            const verifyRes = await fetch(`${BACKEND_URL}/api/payments/verify`, {
-              method: "POST",
-              headers,
-              body: JSON.stringify({
-                razorpay_order_id: data.orderId,
-                razorpay_payment_id: `pay_mock_${Math.random().toString(36).slice(2)}`,
-                plan: targetPlan,
-              }),
-            });
-            if (!verifyRes.ok) throw new Error("Mock verification failed");
-            toast.success("🎉 Welcome to Pro! Your account is now upgraded.");
-            fetchStatus();
-            useAuthStore.getState().fetchMe();
-          } catch (err) {
-            toast.error("Simulated purchase validation failed.");
-          } finally {
-            setLoading(false);
-          }
-        }, 1200);
-      } else {
-        const rzp = new (window as any).Razorpay(options);
-        rzp.open();
-      }
-    } catch (err: any) {
-      toast.error(err.message || "Payment setup failed");
-      setLoading(false);
-    }
-  }, [fetchStatus, loadRazorpayScript]);
+  // startCheckout removed — use CheckoutModal via useCheckoutStore instead
 
   // Cancel Plan
   const cancelSubscription = useCallback(async () => {
@@ -390,7 +264,7 @@ export function useSubscription() {
     usersServedToday,
     incrementAdWatch,
     incrementFeatureUse,
-    startCheckout,
+    // startCheckout removed — use CheckoutModal instead
     cancelSubscription,
     isLimitReached,
     shouldShowAdGate,

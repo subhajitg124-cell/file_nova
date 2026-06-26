@@ -217,6 +217,12 @@ export function Router() {
           <Route path="/tools/ai-pdf-summary"><Redirect to="/ai-pdf-summary" /></Route>
           <Route path="/tools/ai-summarize"><Redirect to="/ai-pdf-summary" /></Route>
 
+          <Route path="/ai-background-remover"><Redirect to="/remove-background" /></Route>
+          <Route path="/trim"><Redirect to="/tools/trim" /></Route>
+          <Route path="/compress-video"><Redirect to="/video-tools" /></Route>
+          <Route path="/video-to-audio"><Redirect to="/tools/video-to-audio" /></Route>
+          <Route path="/video-to-gif"><Redirect to="/tools/video-to-gif" /></Route>
+          <Route path="/compress-audio"><Redirect to="/tools/compress-audio" /></Route>
           <Route path="/tools/compress-pan-card">
             <SEOPhotoCompressor />
           </Route>

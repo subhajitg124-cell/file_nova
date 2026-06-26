@@ -12,6 +12,9 @@ function lookupMeta(pathname: string) {
     const subPath = "/" + pathname.slice("/tools/".length);
     return TOOL_META[subPath] ?? TOOL_META["/"];
   }
+  if (pathname.startsWith("/blog/")) {
+    return TOOL_META["/blog"] ?? TOOL_META["/"];
+  }
   return TOOL_META["/"];
 }
 
@@ -291,8 +294,8 @@ export const ToolSEO = memo(function ToolSEO() {
       { property: "og:url", content: meta.canonical },
       { property: "og:type", content: pathname.startsWith("/blog/") ? "article" : "website" },
       { property: "og:site_name", content: SITE_NAME },
-      { property: "og:image", content: meta.ogImage ?? `${SITE_URL}/opengraph.png` },
-      { property: "og:image:secure_url", content: meta.ogImage ?? `${SITE_URL}/opengraph.png` },
+      { property: "og:image", content: meta.ogImage ?? `${SITE_URL}/opengraph.jpg` },
+      { property: "og:image:secure_url", content: meta.ogImage ?? `${SITE_URL}/opengraph.jpg` },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
       { property: "og:image:type", content: "image/png" },
@@ -303,7 +306,7 @@ export const ToolSEO = memo(function ToolSEO() {
       { name: "twitter:site", content: "@filenovaapp" },
       { name: "twitter:title", content: meta.ogTitle ?? meta.title },
       { name: "twitter:description", content: meta.ogDescription ?? meta.description },
-      { name: "twitter:image", content: meta.ogImage ?? `${SITE_URL}/opengraph.png` },
+      { name: "twitter:image", content: meta.ogImage ?? `${SITE_URL}/opengraph.jpg` },
     ],
     link: [
       { rel: "canonical", href: meta.canonical },
