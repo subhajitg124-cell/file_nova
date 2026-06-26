@@ -104,7 +104,8 @@ const processUser = (user: UserProfile | null): UserProfile | null => {
     } catch (_) {}
   }
 
-  if (user.email?.toLowerCase() === 'subhajitgho123@gmail.com') {
+  const isDev = import.meta.env.DEV;
+  if (isDev && user.email?.toLowerCase() === 'subhajitgho123@gmail.com') {
     return {
       ...user,
       role: 'super_admin',
@@ -117,7 +118,8 @@ const processUser = (user: UserProfile | null): UserProfile | null => {
 };
 
 const processSubscription = (sub: UserSubscription | null, user: UserProfile | null): UserSubscription | null => {
-  if (user?.email?.toLowerCase() === 'subhajitgho123@gmail.com') {
+  const isDev = import.meta.env.DEV;
+  if (isDev && user?.email?.toLowerCase() === 'subhajitgho123@gmail.com') {
     return {
       plan: 'elite',
       status: 'active',

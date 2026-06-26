@@ -39,7 +39,7 @@ export const StepByStepGuide: React.FC<StepByStepGuideProps> = ({ title, steps, 
         <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
           <BookOpen className="h-5 w-5 text-primary" />
         </div>
-        <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white">
+        <h2 className="text-xl md:text-2xl font-black text-foreground">
           {title}
         </h2>
       </div>

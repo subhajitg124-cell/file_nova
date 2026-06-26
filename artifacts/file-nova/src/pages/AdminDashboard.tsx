@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import {
   Activity,
@@ -9,7 +9,6 @@ import {
   RefreshCw,
   Users,
   Zap,
-  Terminal as TerminalIcon,
   ShieldCheck,
   TrendingUp,
   Sliders,
@@ -67,9 +66,7 @@ export default function AdminDashboard() {
   const [slotMaxKb, setSlotMaxKb] = useState(100);
   const [currentSlots, setCurrentSlots] = useState<{ id: string; label: string; target: string; maxSizeKb: number }[]>([]);
 
-  // Logs terminal simulation state
-  const [logs, setLogs] = useState<string[]>([]);
-  const logsContainerRef = useRef<HTMLDivElement>(null);
+
 
   useEffect(() => {
     try {
@@ -81,55 +78,6 @@ export default function AdminDashboard() {
       console.warn("Could not read custom rules", e);
     }
   }, []);
-
-  // Set up logs terminal simulator
-  useEffect(() => {
-    const logTemplates = [
-      "Database heartbeat verification successful. Latency: 14ms",
-      "Completed PDF merge operation. Job ID: job_7f5c. Output size: 2.4 MB (savings: 18%)",
-      "Cron trigger: Periodic cleanup of expired temporary files started.",
-      "Cleaned up 18 temporary files from system cache.",
-      "Rate limit warning triggered for IP 103.88.22.94 on upload route.",
-      "Generated masked Aadhaar card PDF locally via browser canvas rendering.",
-      "Global Notice banner state updated dynamically: status set to true.",
-      "Razorpay gateway handshake verification successful. Order: order_xyz approved.",
-      "New premium membership initialized for subhajitghosh@filenova.in.",
-      "Warmup test for headless LibreOffice converter resolved in 780ms.",
-      "FFmpeg audio processing task completed. Transcode ratio: 1.2:1.",
-      "UPI manual verification event: Pending verification list fetched.",
-      "Discount rule matching: flat 50% offer broadcasted to pricing page.",
-      "Cyber Cafe template compiler verified: packaged ZIP naming patterns checked.",
-    ];
-
-    const generateInitialLogs = () => {
-      const init: string[] = [];
-      const now = new Date();
-      for (let i = 7; i > 0; i--) {
-        const time = new Date(now.getTime() - i * 60 * 1000);
-        const randTemplate = logTemplates[Math.floor(Math.random() * logTemplates.length)];
-        const type = randTemplate.includes("warning") || randTemplate.includes("limit") ? "WARN" : randTemplate.includes("successful") || randTemplate.includes("completed") || randTemplate.includes("approved") || randTemplate.includes("resolved") ? "SUCCESS" : "INFO";
-        init.push(`[${time.toTimeString().split(" ")[0]}] [${type}] ${randTemplate}`);
-      }
-      return init;
-    };
-
-    setLogs(generateInitialLogs());
-
-    const interval = setInterval(() => {
-      const timeStr = new Date().toTimeString().split(" ")[0];
-      const randTemplate = logTemplates[Math.floor(Math.random() * logTemplates.length)];
-      const type = randTemplate.includes("warning") || randTemplate.includes("limit") ? "WARN" : randTemplate.includes("successful") || randTemplate.includes("completed") || randTemplate.includes("approved") || randTemplate.includes("resolved") ? "SUCCESS" : "INFO";
-      setLogs((prev) => [...prev.slice(-30), `[${timeStr}] [${type}] ${randTemplate}`]);
-    }, 4500);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    if (logsContainerRef.current) {
-      logsContainerRef.current.scrollTop = logsContainerRef.current.scrollHeight;
-    }
-  }, [logs]);
 
   const handleAddSlot = () => {
     if (!slotKey || !slotLabel) {
@@ -383,38 +331,6 @@ export default function AdminDashboard() {
                     }
                   </div>
                 ))}
-              </div>
-            </div>
-
-            {/* Simulated Live stdout log terminal */}
-            <div className="rounded-2xl border border-white/[0.06] bg-slate-950 p-5 flex flex-col justify-between relative overflow-hidden group">
-              <div className="absolute top-0 left-0 right-0 h-10 bg-slate-900 border-b border-white/[0.06] px-4 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <TerminalIcon className="h-4 w-4 text-slate-400" />
-                  <span className="text-[11px] font-mono text-slate-400 font-bold">filenova_health_stdout.log</span>
-                </div>
-                <div className="flex gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-rose-500/60" />
-                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500/60" />
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/60" />
-                </div>
-              </div>
-
-              {/* Logs area */}
-              <div 
-                ref={logsContainerRef}
-                className="flex-1 mt-6 overflow-y-auto max-h-60 pr-2 pt-2 terminal-scrollbar font-mono text-[10.5px] leading-relaxed text-slate-300 space-y-1"
-              >
-                {logs.map((log, index) => {
-                  let color = "text-slate-350";
-                  if (log.includes("[WARN]")) color = "text-amber-400";
-                  if (log.includes("[SUCCESS]")) color = "text-emerald-400 font-bold";
-                  return (
-                    <div key={index} className={`${color} break-all hover:bg-white/[0.02] py-0.5 rounded px-1 transition-colors`}>
-                      {log}
-                    </div>
-                  );
-                })}
               </div>
             </div>
 

@@ -852,6 +852,9 @@ export function LanguageProvider({
     } catch (e) {
       // ignore
     }
+    if (typeof document !== "undefined") {
+      document.documentElement.lang = language === "hi" ? "hi-IN" : "en-IN";
+    }
   }, [language]);
 
   const setLanguage = (lang: AppLanguage) => setLanguageState(lang);

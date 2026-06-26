@@ -378,28 +378,28 @@ export default function SimpleHome() {
     }
     if (ext === 'xlsx' || ext === 'xls') {
       return [
-        { id: 'xlsx-to-csv', title: 'XLSX to CSV Converter', desc: 'Convert spreadsheet to CSV' }
+        { id: 'compress-doc', title: 'Compress Office Docs', desc: 'Reduce spreadsheet and document size' }
       ];
     }
     if (ext === 'csv') {
       return [
-        { id: 'csv-to-xlsx', title: 'CSV to XLSX Converter', desc: 'Convert CSV to spreadsheet' }
+        { id: 'word-to-pdf', title: 'Word to PDF', desc: 'Convert documents to PDF format' }
       ];
     }
     if (type.startsWith('video/')) {
       return [
-        { id: 'compress-video', title: 'Compress Video', desc: 'Reduce MP4/video file size' },
-        { id: 'trim-video', title: 'Trim Video', desc: 'Cut and trim video segments' }
+        { id: 'compress-image', title: 'Compress Image', desc: 'Reduce image file size' },
+        { id: 'jpg-to-pdf', title: 'JPG to PDF', desc: 'Convert images to PDF' }
       ];
     }
     if (type.startsWith('audio/')) {
       return [
-        { id: 'compress-audio', title: 'Compress Audio', desc: 'Reduce audio file size' }
+        { id: 'compress-image', title: 'Compress Image', desc: 'Reduce image file size' }
       ];
     }
     if (ext === 'svg') {
       return [
-        { id: 'svg-to-png', title: 'SVG to PNG Converter', desc: 'Render vector graphics to PNG image' }
+        { id: 'compress-image', title: 'Compress Image', desc: 'Reduce image file size' }
       ];
     }
     return [

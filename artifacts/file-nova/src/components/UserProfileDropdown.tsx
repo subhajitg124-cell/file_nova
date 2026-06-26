@@ -87,7 +87,7 @@ export const UserProfileDropdown = memo(function UserProfileDropdown() {
         return <span className="inline-flex items-center rounded-md bg-amber-500/10 px-2 py-1 text-[10px] font-bold text-amber-500 border border-amber-500/20">ELITE 👑</span>;
       case "free":
       default:
-        return <span className="inline-flex items-center rounded-md bg-gray-500/10 px-2 py-1 text-[10px] font-bold text-gray-400 border border-gray-500/20">FREE</span>;
+        return <span className="inline-flex items-center rounded-md bg-muted px-2 py-1 text-[10px] font-bold text-muted-foreground border border-border">FREE</span>;
     }
   };
 

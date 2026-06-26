@@ -280,7 +280,7 @@ export function PopularToolsGrid() {
       `}</style>
       <section className="w-full px-4 py-8 relative z-10">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-lg font-black text-gray-900 dark:text-white mb-4">
+          <h2 className="text-lg font-black text-foreground mb-4">
             Popular Tools
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">

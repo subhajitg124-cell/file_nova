@@ -50,6 +50,13 @@ const SITEMAP_URLS: SitemapUrl[] = [
   // Office Tools
   { loc: "/compress-doc",                          changefreq: "weekly", priority: 0.8,   lastmod: "2026-06-10" },
 
+  // Video Tools
+  { loc: "/trim",                                  changefreq: "weekly", priority: 0.7,   lastmod: "2026-06-20" },
+  { loc: "/compress-video",                        changefreq: "weekly", priority: 0.7,   lastmod: "2026-06-20" },
+  { loc: "/video-to-audio",                        changefreq: "weekly", priority: 0.7,   lastmod: "2026-06-20" },
+  { loc: "/video-to-gif",                          changefreq: "weekly", priority: 0.7,   lastmod: "2026-06-20" },
+  { loc: "/compress-audio",                        changefreq: "weekly", priority: 0.7,   lastmod: "2026-06-20" },
+
   // Catalog Pages
   { loc: "/tools",                                 changefreq: "daily",  priority: 0.95,  lastmod: "2026-06-25" },
   { loc: "/pdf-tools",                             changefreq: "daily",  priority: 0.9,   lastmod: "2026-06-25" },

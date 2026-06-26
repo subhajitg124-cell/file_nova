@@ -130,33 +130,33 @@ export function SuccessScreen({
   };
 
   return (
-    <div className="p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-3xl space-y-6 shadow-xl text-center">
+    <div className="p-6 bg-card border border-border rounded-3xl space-y-6 shadow-xl text-center">
       {/* File Ready Stats */}
       <div className="flex flex-col items-center gap-2">
         <div className="h-12 w-12 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center border border-emerald-500/20">
           <Check className="h-6 w-6 stroke-[3]" />
         </div>
-        <h3 className="text-lg font-black text-gray-900 dark:text-white">
+        <h3 className="text-lg font-black text-foreground">
           {tText("File Processed successfully!")}
         </h3>
-        <p className="text-xs text-gray-500 dark:text-gray-400">
+        <p className="text-xs text-muted-foreground">
           {fileName}
         </p>
       </div>
 
       {/* Stats Table */}
       {originalSize && newSize && percentSaved && percentSaved > 0 ? (
-        <div className="grid grid-cols-3 gap-2 p-3 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 text-xs">
+        <div className="grid grid-cols-3 gap-2 p-3 bg-muted rounded-2xl border border-border text-xs">
           <div>
-            <span className="text-gray-400 block uppercase font-bold tracking-wider text-[9px] mb-0.5">Original</span>
-            <span className="font-extrabold text-gray-900 dark:text-gray-200">{formatSize(originalSize)}</span>
+            <span className="text-muted-foreground block uppercase font-bold tracking-wider text-[9px] mb-0.5">Original</span>
+            <span className="font-extrabold text-foreground">{formatSize(originalSize)}</span>
           </div>
-          <div className="border-x border-gray-100 dark:border-gray-800">
-            <span className="text-gray-400 block uppercase font-bold tracking-wider text-[9px] mb-0.5">Processed</span>
-            <span className="font-extrabold text-gray-900 dark:text-gray-200">{formatSize(newSize)}</span>
+          <div className="border-x border-border">
+            <span className="text-muted-foreground block uppercase font-bold tracking-wider text-[9px] mb-0.5">Processed</span>
+            <span className="font-extrabold text-foreground">{formatSize(newSize)}</span>
           </div>
           <div>
-            <span className="text-gray-400 block uppercase font-bold tracking-wider text-[9px] mb-0.5">Reduction</span>
+            <span className="text-muted-foreground block uppercase font-bold tracking-wider text-[9px] mb-0.5">Reduction</span>
             <span className="font-extrabold text-emerald-500">-{percentSaved}%</span>
           </div>
         </div>
@@ -177,7 +177,7 @@ export function SuccessScreen({
           <button
             onClick={handleCopyLink}
             disabled={isGenerating}
-            className="flex items-center justify-center gap-1.5 py-2.5 bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-xl font-bold text-xs transition duration-200 cursor-pointer active:scale-[0.98] disabled:opacity-50"
+            className="flex items-center justify-center gap-1.5 py-2.5 bg-secondary hover:bg-secondary/80 text-secondary-foreground border border-border rounded-xl font-bold text-xs transition duration-200 cursor-pointer active:scale-[0.98] disabled:opacity-50"
           >
             {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
             {copied ? tText("Copied!") : tText("Copy Link")}
@@ -194,16 +194,16 @@ export function SuccessScreen({
         </div>
 
         {isGenerating && (
-          <p className="text-[10px] text-indigo-500 dark:text-indigo-400 font-bold animate-pulse">
+          <p className="text-[10px] text-primary font-bold animate-pulse">
             Generating secure sharing link...
           </p>
         )}
       </div>
 
-      <div className="border-t border-gray-100 dark:border-gray-600 pt-4">
+      <div className="border-t border-border pt-4">
         <button
           onClick={onReset}
-          className="w-full flex items-center justify-center gap-2 py-2 bg-transparent hover:bg-gray-50 dark:hover:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 font-semibold rounded-xl transition duration-200 text-xs cursor-pointer"
+          className="w-full flex items-center justify-center gap-2 py-2 bg-transparent hover:bg-muted border border-border text-muted-foreground font-semibold rounded-xl transition duration-200 text-xs cursor-pointer"
         >
           <RotateCcw className="h-3.5 w-3.5" />
           {tText("Process another file")}

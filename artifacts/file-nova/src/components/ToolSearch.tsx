@@ -29,7 +29,7 @@ export function ToolSearch({ query, setQuery }: ToolSearchProps) {
         placeholder="Search tools... e.g. compress, Aadhaar, merge"
         className="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-gray-200
                    dark:border-gray-700 bg-white dark:bg-gray-800
-                   text-gray-900 dark:text-white text-sm
+                   text-foreground text-sm
                    focus:outline-none focus:ring-2 focus:ring-indigo-500"
         value={query}
         onChange={(e) => setQuery(e.target.value)}

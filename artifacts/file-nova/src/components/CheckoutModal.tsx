@@ -34,7 +34,7 @@ const PLAN_DETAILS: Record<PlanType, {
 }> = {
   pass_24h: {
     name: "24h Pass",
-    price: 19,
+    price: 9,
     period: "24 hours",
     description: "Perfect for quick one-off document edits and tasks",
     features: [
@@ -45,7 +45,7 @@ const PLAN_DETAILS: Record<PlanType, {
   },
   pass_7d: {
     name: "7-Day Pass",
-    price: 39,
+    price: 29,
     period: "7 days",
     description: "Great for week-long exam prep, projects, or operators",
     features: [
@@ -276,7 +276,6 @@ export function CheckoutModal() {
       });
       rzp.open();
     } catch (err: any) {
-      console.error("Razorpay checkout flow failed:", err);
       toast.error(err.message || "Failed to start checkout. Please try UPI instead.");
     } finally {
       setProcessing(false);

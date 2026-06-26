@@ -430,7 +430,7 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
          {/* Page Header (H1 + Intro) */}
          <div className="mb-10 text-left space-y-4">
            <div className="flex items-center gap-3.5 flex-wrap">
-             <h1 className="text-3xl md:text-5xl font-black tracking-tight text-gray-900 dark:text-white leading-tight">
+             <h1 className="text-3xl md:text-5xl font-black tracking-tight text-foreground leading-tight">
                {content.h1}
              </h1>
              {content.badge && (
@@ -439,7 +439,7 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
                </span>
              )}
            </div>
-           <p className="text-gray-600 dark:text-slate-300 text-sm md:text-base leading-relaxed max-w-3xl">
+           <p className="text-muted-foreground text-sm md:text-base leading-relaxed max-w-3xl">
              {content.toolDescription}
            </p>
          </div>
@@ -458,7 +458,7 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
           {/* Features Section */}
           {content.features && content.features.length > 0 && (
             <section className="border-t border-border/60 pt-12 mb-12" aria-labelledby="features-heading">
-              <h2 id="features-heading" className="text-xl md:text-2xl font-black text-gray-900 dark:text-white mb-6">
+              <h2 id="features-heading" className="text-xl md:text-2xl font-black text-foreground mb-6">
                 Key Features of {content.toolName}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -568,10 +568,10 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
 
         {/* SEO Content Block */}
         <section className="border-t border-border/60 pt-12 mb-12" aria-labelledby="about-heading">
-          <h2 id="about-heading" className="text-xl md:text-2xl font-black text-gray-900 dark:text-white mb-6">
+          <h2 id="about-heading" className="text-xl md:text-2xl font-black text-foreground mb-6">
             About {content.toolName}
           </h2>
-          <div className="space-y-4 max-w-4xl text-sm text-gray-600 dark:text-slate-350 leading-relaxed">
+          <div className="space-y-4 max-w-4xl text-sm text-muted-foreground leading-relaxed">
              {content.seoBody.map((paragraph, i) => (
               <p key={i}><LinkifiedText text={paragraph} /></p>
             ))}
@@ -581,7 +581,7 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
           {/* Use Cases Section */}
           {content.useCases && content.useCases.length > 0 && (
             <section className="border-t border-border/60 pt-12 mb-12" aria-labelledby="usecases-heading">
-              <h2 id="usecases-heading" className="text-xl md:text-2xl font-black text-gray-900 dark:text-white mb-6">
+              <h2 id="usecases-heading" className="text-xl md:text-2xl font-black text-foreground mb-6">
                 Common Use Cases for {content.toolName}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -605,7 +605,7 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
         {/* FAQ Section */}
         {content.faqs && content.faqs.length > 0 && (
           <section className="border-t border-border/60 pt-12 mb-12 max-w-3xl mx-auto animate-fade-up" aria-labelledby="faq-heading">
-            <h2 id="faq-heading" className="text-xl md:text-2xl font-black text-gray-900 dark:text-white mb-6 text-center">
+            <h2 id="faq-heading" className="text-xl md:text-2xl font-black text-foreground mb-6 text-center">
               Frequently Asked Questions — {content.toolName}
             </h2>
             <div className="space-y-1">
@@ -619,7 +619,7 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
         {/* Related Tools Section */}
         {content.relatedTools && content.relatedTools.length > 0 && (
           <section className="border-t border-border/60 pt-12" aria-labelledby="related-heading">
-            <h2 id="related-heading" className="text-xl md:text-2xl font-black text-gray-900 dark:text-white mb-6">
+            <h2 id="related-heading" className="text-xl md:text-2xl font-black text-foreground mb-6">
               Related Tools You Might Need
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -645,7 +645,7 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
         {/* Suggested Next Tool */}
         {WORKFLOW_CHAINS[slug] && (
           <section className="border-t border-border/60 pt-12" aria-labelledby="suggested-heading">
-            <h2 id="suggested-heading" className="text-xl md:text-2xl font-black text-gray-900 dark:text-white mb-4">
+            <h2 id="suggested-heading" className="text-xl md:text-2xl font-black text-foreground mb-4">
               Suggested Next Step After {content.toolName}
             </h2>
             <p className="text-xs text-muted-foreground mb-6 max-w-xl">
@@ -680,7 +680,7 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
           return (
             <section className="border-t border-border/60 pt-12" aria-labelledby="category-tools-heading">
               <div className="flex items-center justify-between mb-6">
-                <h2 id="category-tools-heading" className="text-xl md:text-2xl font-black text-gray-900 dark:text-white">
+                <h2 id="category-tools-heading" className="text-xl md:text-2xl font-black text-foreground">
                   More {catPage ? catPage.label : "Tools"}
                 </h2>
                 {catPage && (
@@ -713,7 +713,7 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
         {/* Popular Tools */}
         <section className="border-t border-border/60 pt-12" aria-labelledby="popular-heading">
           <div className="flex items-center justify-between mb-6">
-            <h2 id="popular-heading" className="text-xl md:text-2xl font-black text-gray-900 dark:text-white">
+            <h2 id="popular-heading" className="text-xl md:text-2xl font-black text-foreground">
               Popular Tools on FileNova
             </h2>
             <Link href="/tools" className="text-xs font-bold text-primary hover:underline">
@@ -742,7 +742,7 @@ export function ToolPageLayout({ slug, children }: ToolPageLayoutProps) {
         {/* CTA Section */}
         <section className="border-t border-border/60 pt-12 pb-4" aria-labelledby="cta-heading">
           <div className="bg-gradient-to-br from-indigo-500/5 via-violet-500/5 to-indigo-500/5 border border-indigo-500/10 rounded-xs p-8 text-center">
-            <h2 id="cta-heading" className="text-xl md:text-2xl font-black text-gray-900 dark:text-white mb-3">
+            <h2 id="cta-heading" className="text-xl md:text-2xl font-black text-foreground mb-3">
               Ready to {typeof content.h1 === 'string' ? content.h1.replace(/^(Merge|Split|Compress|Rotate|Unlock|Protect|Resize|Convert|Fill|Mask|Remove|Summarize|Bundle|Add)\s+/i, '').trim() : 'get started'}?
             </h2>
             <p className="text-sm text-muted-foreground max-w-xl mx-auto mb-6">

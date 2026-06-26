@@ -221,7 +221,7 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
                 🇮🇳 {tText("India Tools")}
               </Link>
               <Link onClick={() => setMobileMenuOpen(false)} href="/contact" className="text-center text-sm border border-border text-foreground font-bold py-2 rounded-lg">
-                {tText("📞 Contact Support")}
+                {tText("Contact Support")}
               </Link>
               <div className="flex items-center justify-between px-4 py-2 border border-border bg-card rounded-lg">
                 <span className="text-xs font-bold text-muted-foreground">{tText("Theme")}</span>
