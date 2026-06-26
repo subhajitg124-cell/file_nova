@@ -291,10 +291,11 @@ export const ToolSEO = memo(function ToolSEO() {
       { property: "og:url", content: meta.canonical },
       { property: "og:type", content: pathname.startsWith("/blog/") ? "article" : "website" },
       { property: "og:site_name", content: SITE_NAME },
-      { property: "og:image", content: meta.ogImage ?? `${SITE_URL}/opengraph.jpg` },
+      { property: "og:image", content: meta.ogImage ?? `${SITE_URL}/opengraph.png` },
+      { property: "og:image:secure_url", content: meta.ogImage ?? `${SITE_URL}/opengraph.png` },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
-      { property: "og:image:type", content: "image/jpeg" },
+      { property: "og:image:type", content: "image/png" },
       { property: "og:image:alt", content: meta.ogDescription ?? meta.description },
       { property: "og:locale", content: "en_IN" },
       // Twitter / X Card
@@ -302,7 +303,7 @@ export const ToolSEO = memo(function ToolSEO() {
       { name: "twitter:site", content: "@filenovaapp" },
       { name: "twitter:title", content: meta.ogTitle ?? meta.title },
       { name: "twitter:description", content: meta.ogDescription ?? meta.description },
-      { name: "twitter:image", content: meta.ogImage ?? `${SITE_URL}/opengraph.jpg` },
+      { name: "twitter:image", content: meta.ogImage ?? `${SITE_URL}/opengraph.png` },
     ],
     link: [
       { rel: "canonical", href: meta.canonical },

@@ -1154,6 +1154,130 @@ export const toolContentMap: Record<string, ToolContent> = {
     toolCategory: "image"
   },
 
+  "compress-doc": {
+    slug: "compress-doc",
+    title: "Compress Word, Excel, PPT Files Free | FileNova",
+    h1: "Compress Word, Excel & PowerPoint Files Online Free",
+    metaDescription:
+      "Compress Microsoft Word (DOCX), Excel (XLSX), and PowerPoint (PPTX) files online for free. Reduce office document sizes for email attachments and portal uploads.",
+    keywords:
+      "compress word file, compress excel file, compress pptx online, reduce docx size free, compress office files, shrink xlsx file size",
+    toolName: "FileNova Office Document Compressor",
+    toolDescription:
+      "Free online tool to compress Microsoft Word, Excel, and PowerPoint files by optimizing images and removing redundant metadata.",
+    seoBody: [
+      "Office documents — Word reports, Excel sheets, and PowerPoint presentations — can quickly become too large to email or upload. Embedded images, high-resolution charts, and leftover metadata from revisions all add to file size.",
+      "FileNova's office document compressor shrinks DOCX, XLSX, and PPTX files by optimizing embedded images, stripping unnecessary metadata, and cleaning up internal formatting — without affecting the content you care about.",
+      "This is especially useful for Indian students and professionals who need to email assignments, upload project reports to college portals, or share business proposals within attachment size limits.",
+      "All processing happens directly in your browser. Your documents never leave your device, keeping sensitive financial data, academic work, and business information completely private.",
+      "After compressing, you can [Word to PDF](word-to-pdf) to convert to PDF format, or [Merge PDF](merge-pdf) to combine with other documents."
+    ],
+    faqs: [
+      {
+        q: "How do I compress a Word document online for free?",
+        a: "Upload your DOCX file to FileNova's Compress Doc tool and click Compress. The tool optimizes embedded images and metadata to reduce file size. Download your compressed file instantly."
+      },
+      {
+        q: "Will compressing an Excel file remove my formulas or data?",
+        a: "No. Compressing only optimizes embedded images and removes unnecessary metadata. All formulas, macros, cell data, and formatting remain completely intact."
+      },
+      {
+        q: "Can I compress PowerPoint files with embedded videos?",
+        a: "Yes. FileNova compresses images and cleans metadata inside PPTX files. For embedded video files, consider compressing the video separately before inserting it into your presentation."
+      },
+      {
+        q: "Is it safe to upload sensitive office documents?",
+        a: "Yes. All compression runs locally in your browser. Your Word, Excel, and PowerPoint files never upload to any server — they stay on your device."
+      }
+    ],
+    relatedTools: [
+      { label: "Word to PDF", slug: "word-to-pdf", icon: "file-text" },
+      { label: "Compress PDF", slug: "compress-pdf", icon: "file-zip" },
+      { label: "Compress Image", slug: "compress-image", icon: "image" },
+      { label: "Merge PDF", slug: "merge-pdf", icon: "files" }
+    ],
+    features: [
+      { icon: "file-text", title: "Multi-Format Support", description: "Compress DOCX, XLSX, and PPTX files. One tool handles all Microsoft Office document formats for your convenience." },
+      { icon: "image", title: "Smart Image Optimization", description: "Embedded images are intelligently compressed to reduce file size while keeping them clear enough for screen viewing and printing." },
+      { icon: "trash-2", title: "Metadata Cleanup", description: "Removes redundant revision history, hidden comments, and embedded thumbnails that bloat office document files over time." }
+    ],
+    useCases: [
+      { title: "Email Large Reports", description: "Compress a Word report or Excel spreadsheet before emailing to clients or colleagues when the file exceeds typical attachment size limits." },
+      { title: "Upload to College Portals", description: "Reduce project reports and presentation files to meet college and university portal upload size restrictions without losing content quality." }
+    ],
+    steps: [
+      { title: "Upload your document", description: "Select your DOCX, XLSX, or PPTX file. The tool automatically detects the format and applies the right compression strategy.", icon: "upload" },
+      { title: "Compress automatically", description: "FileNova optimizes embedded images and removes redundant metadata. The document content stays unchanged.", icon: "process" },
+      { title: "Download compressed file", description: "Get your smaller, email-friendly document. All original formatting, formulas, and content are preserved.", icon: "download" }
+    ],
+    howToName: "Compress Office Documents Online",
+    toolCategory: "document"
+  },
+
+  "ai-ppt-maker": {
+    slug: "ai-ppt-maker",
+    title: "AI PPT Maker – Generate Presentations from Topic Free | FileNova",
+    h1: "AI PPT Maker – Create PowerPoint Presentations with AI",
+    metaDescription:
+      "Generate complete PowerPoint presentations from any topic or notes using AI for free. Choose themes, tone, and slide count. Perfect for school and college projects in India.",
+    keywords:
+      "ai ppt maker free, ai presentation generator, topic to ppt, ai slides maker, free powerpoint generator india, ai presentation maker no signup",
+    toolName: "FileNova AI Presentation Maker",
+    toolDescription:
+      "Generate complete PowerPoint presentations from any topic or notes using AI online for free, with customizable themes and writing tone.",
+    seoBody: [
+      "Creating a presentation from scratch takes time — choosing a layout, writing slide content, picking visuals, and formatting everything consistently. FileNova's AI PPT Maker does all of this for you in seconds.",
+      "Just enter your topic or paste your notes, select the number of slides, choose a theme color, and pick a writing tone (formal, conversational, or student-friendly). The AI generates a complete, downloadable PowerPoint file with structured slides, bullet points, and consistent formatting.",
+      "This is ideal for Indian college and school students working on project presentations, seminar slides, or assignment submissions where a well-structured PPT is expected. No design skills or PowerPoint expertise needed.",
+      "Each presentation is generated fresh from your input — you get original content, not template filler. After downloading, you can open the PPTX file in Microsoft PowerPoint, Google Slides, or LibreOffice Impress.",
+      "After generating your presentation, use [Compress Doc](compress-doc) to reduce file size for emailing, or [Word to PDF](word-to-pdf) to convert to PDF format."
+    ],
+    faqs: [
+      {
+        q: "How to make a PPT from a topic using AI for free?",
+        a: "Enter your topic on FileNova's AI PPT Maker, choose the number of slides and writing tone, and click Generate. A complete themed PowerPoint downloads in seconds."
+      },
+      {
+        q: "Can I generate a presentation from my own notes?",
+        a: "Yes. Paste your notes, bullet points, or syllabus content into the input area. The AI structures your notes into well-organized slides with headings and sub-points."
+      },
+      {
+        q: "What themes and styles are available?",
+        a: "You can choose from multiple color themes and three writing tones — formal (for business/professional), conversational (for general audiences), and student-friendly (for academic presentations)."
+      },
+      {
+        q: "Is the AI PPT Maker really free?",
+        a: "Yes. Free users can generate presentations up to a certain number of slides per day. Pro and Elite users get unlimited generation with more theme options and longer presentations."
+      },
+      {
+        q: "Can I edit the generated presentation after downloading?",
+        a: "Yes. The downloaded PPTX file opens in Microsoft PowerPoint, Google Slides, or LibreOffice Impress. You can edit, add images, change text, and customize as needed."
+      }
+    ],
+    relatedTools: [
+      { label: "Compress Doc", slug: "compress-doc", icon: "file-zip" },
+      { label: "Word to PDF", slug: "word-to-pdf", icon: "file-text" },
+      { label: "AI PDF Summary", slug: "ai-pdf-summary", icon: "sparkles" },
+      { label: "OCR PDF", slug: "ocr", icon: "scan" }
+    ],
+    features: [
+      { icon: "wand-2", title: "Topic-to-Slides in Seconds", description: "Enter any topic or paste your notes, and the AI generates a complete multi-slide presentation with headings, bullet points, and structured content." },
+      { icon: "palette", title: "Customizable Themes & Tone", description: "Choose from multiple color themes and three writing tones — formal, conversational, or student-friendly — to match your audience." },
+      { icon: "download", title: "Real PPTX Download", description: "Download a real .pptx file that opens in Microsoft PowerPoint, Google Slides, or LibreOffice. Edit it further like any normal presentation." }
+    ],
+    useCases: [
+      { title: "College Project Presentations", description: "Generate a well-structured presentation for your college project or seminar in seconds. Choose a student-friendly tone and academic theme for best results." },
+      { title: "Business Proposal Decks", description: "Quickly create a professional proposal or pitch deck from bullet points. Select formal tone and corporate theme for client-ready presentations." }
+    ],
+    steps: [
+      { title: "Enter your topic or notes", description: "Type your presentation topic or paste your notes, bullet points, or outline. The AI uses this to generate slide content.", icon: "upload" },
+      { title: "Customize settings", description: "Choose the number of slides, color theme, and writing tone. Preview the structure before generating.", icon: "configure" },
+      { title: "Generate and download", description: "Click Generate. Your PowerPoint file downloads as a PPTX ready to open, edit, and present.", icon: "download" }
+    ],
+    howToName: "Create a Presentation with AI",
+    toolCategory: "document"
+  },
+
   "word-to-pdf": {
     slug: "word-to-pdf",
     title: "Word to PDF – Convert DOC/DOCX to PDF Free | FileNova",
