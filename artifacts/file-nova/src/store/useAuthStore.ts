@@ -54,6 +54,15 @@ const LOCAL_USER_KEY = 'filenova_local_user';
 const LOCAL_USERS_KEY = 'filenova_local_users';
 const API_TIMEOUT_MS = 30000;
 
+const getInitialUser = (): UserProfile | null => {
+  try {
+    const raw = localStorage.getItem(LOCAL_USER_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+};
+
 const freeSubscription: UserSubscription = {
   plan: 'free',
   status: 'active',
@@ -339,7 +348,7 @@ async function safeFetch(input: RequestInfo, init?: RequestInit): Promise<Respon
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
-  user: null,
+  user: getInitialUser(),
   subscription: null,
   loading: false,
   error: null,
@@ -455,9 +464,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({
         user: processedUser,
         subscription: processSubscription(data.subscription, processedUser),
+        initialized: true,
       });
       if (data.token) {
         localStorage.setItem(SESSION_TOKEN_KEY, data.token);
+      }
+      if (processedUser) {
+        localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(processedUser));
       }
       return true;
     } catch (err: any) {
@@ -510,9 +523,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({
         user: processedUser,
         subscription: processSubscription(null, processedUser),
+        initialized: true,
       });
       if (data.token) {
         localStorage.setItem(SESSION_TOKEN_KEY, data.token);
+      }
+      if (processedUser) {
+        localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(processedUser));
       }
       localStorage.removeItem('filenova_referral_code');
       localStorage.removeItem('filenova_referral_tracking_id');
@@ -557,12 +574,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (!res.ok || !data.success) {
         throw new Error(data.error || 'Google login failed');
       }
+      const processedUser = processUser(data.user);
       set({
-        user: data.user,
-        subscription: data.subscription,
+        user: processedUser,
+        subscription: processSubscription(data.subscription, processedUser),
+        initialized: true,
       });
       if (data.token) {
         localStorage.setItem(SESSION_TOKEN_KEY, data.token);
+      }
+      if (processedUser) {
+        localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(processedUser));
       }
       localStorage.removeItem('filenova_referral_code');
       localStorage.removeItem('filenova_referral_tracking_id');
@@ -698,6 +720,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         throw new Error(data.error || 'Failed to delete account');
       }
       localStorage.removeItem(SESSION_TOKEN_KEY);
+      localStorage.removeItem(LOCAL_USER_KEY);
       set({ user: null, subscription: null });
       return true;
     } catch (err: any) {

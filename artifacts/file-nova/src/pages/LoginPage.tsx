@@ -28,10 +28,13 @@ export default function LoginPage() {
   const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
-    if (user) {
-      setLocation(new URLSearchParams(window.location.search).get("redirect") || "/dashboard");
+    // Only redirect if the user was already logged in on initial mount/init
+    const initialUser = useAuthStore.getState().user;
+    if (initialUser) {
+      const redirectPath = new URLSearchParams(window.location.search).get("redirect") || "/dashboard";
+      setLocation(decodeURIComponent(redirectPath), { replace: true });
     }
-  }, [user, setLocation]);
+  }, [setLocation]);
 
   const clearErrors = () => {
     setEmailError("");
@@ -62,8 +65,12 @@ export default function LoginPage() {
   };
 
   const finishAuth = (message: string) => {
-    toast.success(message);
-    setLocation("/dashboard");
+    const redirectPath = new URLSearchParams(window.location.search).get("redirect") || "/dashboard";
+    const decodedRedirect = decodeURIComponent(redirectPath);
+    setLocation(decodedRedirect, { replace: true });
+    setTimeout(() => {
+      toast.success(message);
+    }, 150);
   };
 
 const isNetworkError = (err: string): boolean => {
@@ -294,10 +301,10 @@ const isValidationError = (err: string): boolean => {
           </div>
 
           <div className="flex border border-border/60 bg-muted/40 p-1 rounded-full mb-6" role="tablist" aria-label="Authentication method">
-            <button role="tab" aria-selected={activeTab === "login"} onClick={() => handleTabChange("login")} className={`flex-1 py-2 text-xs font-bold rounded-full transition cursor-pointer ${activeTab === "login" ? "bg-card text-foreground shadow-sm border border-border/40" : "text-muted-foreground hover:text-foreground"}`}>
+            <button role="tab" {...(activeTab === "login" ? { "aria-selected": "true" } : { "aria-selected": "false" })} onClick={() => handleTabChange("login")} className={`flex-1 py-2 text-xs font-bold rounded-full transition cursor-pointer ${activeTab === "login" ? "bg-card text-foreground shadow-sm border border-border/40" : "text-muted-foreground hover:text-foreground"}`}>
               Sign In
             </button>
-            <button role="tab" aria-selected={activeTab === "signup"} onClick={() => handleTabChange("signup")} className={`flex-1 py-2 text-xs font-bold rounded-full transition cursor-pointer ${activeTab === "signup" ? "bg-card text-foreground shadow-sm border border-border/40" : "text-muted-foreground hover:text-foreground"}`}>
+            <button role="tab" {...(activeTab === "signup" ? { "aria-selected": "true" } : { "aria-selected": "false" })} onClick={() => handleTabChange("signup")} className={`flex-1 py-2 text-xs font-bold rounded-full transition cursor-pointer ${activeTab === "signup" ? "bg-card text-foreground shadow-sm border border-border/40" : "text-muted-foreground hover:text-foreground"}`}>
               Create Account
             </button>
           </div>
