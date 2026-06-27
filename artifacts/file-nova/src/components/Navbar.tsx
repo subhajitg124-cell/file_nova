@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
+import { DevBadge } from "@/components/dev/DevBadge";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { PlanBadge } from "@/components/PlanBadge";
@@ -134,7 +135,9 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
             {(() => {
               const tier = user?.premiumTier || 'free';
               const isDev = user?.role === 'developer';
-              if (isDev) return null;
+              if (isDev) {
+                return <DevBadge />;
+              }
               if (tier === 'elite') {
                 return (
                   <Link href="/pricing" className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 px-3.5 py-2 rounded-full transition-all whitespace-nowrap shrink-0">
@@ -201,7 +204,17 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
               {(() => {
                 const tier = user?.premiumTier || 'free';
                 const isDev = user?.role === 'developer';
-                if (isDev) return null;
+                if (isDev) {
+                  return (
+                    <Link onClick={() => setMobileMenuOpen(false)} href="/dev" className="flex items-center justify-center gap-2 text-sm font-black text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 py-2.5 rounded-lg">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75" />
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500" />
+                      </span>
+                      DevWorkspace
+                    </Link>
+                  );
+                }
                 if (tier === 'elite') {
                   return (
                     <Link onClick={() => setMobileMenuOpen(false)} href="/pricing" className="flex items-center justify-center gap-2 text-sm font-black text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 py-2.5 rounded-lg">

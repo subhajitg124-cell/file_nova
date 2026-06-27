@@ -1,0 +1,985 @@
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useLocation } from "wouter";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  LayoutDashboard, Bot, BarChart3, Activity, Zap, Shield, Search, Package,
+  Puzzle, Rocket, Terminal, Database, Globe, FolderOpen, BrainCircuit, Bug,
+  Radio, Cpu, ToggleLeft, FlaskConical, Palette, Play, Accessibility,
+  Smartphone, Link, Trash2, Droplets, Variable, Key, Download, Upload,
+  ScanLine, Beaker, BookOpen, ChevronRight, Sun, Moon, Monitor,
+  Settings2, Code, Home, FileText, Bell, ExternalLink, X, Check,
+  Clock, Users, HardDrive, Thermometer, RefreshCw, AlertTriangle,
+  FileCheck, Layers, Server, Wifi, Gauge, Sliders, Image, HelpCircle,
+  LifeBuoy, Hash, PanelLeftClose, PanelLeft, Search as SearchIcon
+} from "lucide-react";
+
+const BUILD_VERSION = import.meta.env.VITE_APP_VERSION || "2.0.0-dev";
+const GIT_HASH = "a3f1c8e";
+
+type Section =
+  | "dashboard" | "ai-studio" | "analytics" | "usage-metrics" | "performance"
+  | "security" | "seo" | "bundle" | "plugins" | "deployment" | "api-explorer"
+  | "storage" | "routes" | "sitemap" | "ai-assistant" | "error-logs"
+  | "workers" | "feature-flags" | "experiments" | "theme-lab" | "animation-lab"
+  | "component-lib" | "responsive" | "accessibility" | "broken-links"
+  | "cache" | "local-storage" | "env-vars" | "sessions" | "export-diag"
+  | "import-settings" | "metadata" | "testing" | "release-notes";
+
+interface SidebarItem {
+  id: Section;
+  icon: React.ReactNode;
+  label: string;
+  badge?: string;
+}
+
+const SIDEBAR_SECTIONS: SidebarItem[] = [
+  { id: "dashboard", icon: <LayoutDashboard className="h-4 w-4" />, label: "Dashboard" },
+  { id: "ai-studio", icon: <Bot className="h-4 w-4" />, label: "AI Studio" },
+  { id: "analytics", icon: <BarChart3 className="h-4 w-4" />, label: "Analytics" },
+  { id: "usage-metrics", icon: <Activity className="h-4 w-4" />, label: "Usage Metrics" },
+  { id: "performance", icon: <Zap className="h-4 w-4" />, label: "Performance" },
+  { id: "security", icon: <Shield className="h-4 w-4" />, label: "Security" },
+  { id: "seo", icon: <Search className="h-4 w-4" />, label: "SEO Center" },
+  { id: "bundle", icon: <Package className="h-4 w-4" />, label: "Bundle Analyzer" },
+  { id: "plugins", icon: <Puzzle className="h-4 w-4" />, label: "Plugin Manager" },
+  { id: "deployment", icon: <Rocket className="h-4 w-4" />, label: "Deployment" },
+  { id: "api-explorer", icon: <Terminal className="h-4 w-4" />, label: "API Explorer" },
+  { id: "storage", icon: <Database className="h-4 w-4" />, label: "Storage" },
+  { id: "routes", icon: <Globe className="h-4 w-4" />, label: "Route Explorer" },
+  { id: "sitemap", icon: <FolderOpen className="h-4 w-4" />, label: "Sitemap" },
+  { id: "ai-assistant", icon: <BrainCircuit className="h-4 w-4" />, label: "AI Assistant" },
+  { id: "error-logs", icon: <Bug className="h-4 w-4" />, label: "Error Logs" },
+  { id: "workers", icon: <Radio className="h-4 w-4" />, label: "Workers" },
+  { id: "feature-flags", icon: <ToggleLeft className="h-4 w-4" />, label: "Feature Flags" },
+  { id: "experiments", icon: <FlaskConical className="h-4 w-4" />, label: "Experiments" },
+  { id: "theme-lab", icon: <Palette className="h-4 w-4" />, label: "Theme Lab" },
+  { id: "animation-lab", icon: <Play className="h-4 w-4" />, label: "Animation Lab" },
+  { id: "component-lib", icon: <Layers className="h-4 w-4" />, label: "Components" },
+  { id: "responsive", icon: <Smartphone className="h-4 w-4" />, label: "Responsive" },
+  { id: "accessibility", icon: <Accessibility className="h-4 w-4" />, label: "Accessibility" },
+  { id: "broken-links", icon: <Link className="h-4 w-4" />, label: "Broken Links" },
+  { id: "cache", icon: <Trash2 className="h-4 w-4" />, label: "Cache Manager" },
+  { id: "local-storage", icon: <Droplets className="h-4 w-4" />, label: "Local Storage" },
+  { id: "env-vars", icon: <Variable className="h-4 w-4" />, label: "Environment" },
+  { id: "sessions", icon: <Key className="h-4 w-4" />, label: "Sessions" },
+  { id: "export-diag", icon: <Download className="h-4 w-4" />, label: "Export Diag" },
+  { id: "import-settings", icon: <Upload className="h-4 w-4" />, label: "Import" },
+  { id: "metadata", icon: <ScanLine className="h-4 w-4" />, label: "Metadata" },
+  { id: "testing", icon: <Beaker className="h-4 w-4" />, label: "Testing" },
+  { id: "release-notes", icon: <BookOpen className="h-4 w-4" />, label: "Release Notes" },
+];
+
+const SIDEBAR_GROUPS = [
+  { label: "Overview", items: ["dashboard"] as Section[] },
+  { label: "Development", items: ["ai-studio", "analytics", "usage-metrics", "performance", "security", "seo", "bundle"] as Section[] },
+  { label: "Operations", items: ["plugins", "deployment", "api-explorer", "storage", "routes", "sitemap"] as Section[] },
+  { label: "Monitoring", items: ["ai-assistant", "error-logs", "workers"] as Section[] },
+  { label: "Configuration", items: ["feature-flags", "experiments", "theme-lab", "animation-lab", "component-lib"] as Section[] },
+  { label: "Tools", items: ["responsive", "accessibility", "broken-links", "cache", "local-storage"] as Section[] },
+  { label: "System", items: ["env-vars", "sessions", "export-diag", "import-settings", "metadata", "testing", "release-notes"] as Section[] },
+];
+
+function useReducedMotion() {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(mq.matches);
+    const h = (e: MediaQueryListEvent) => setReduced(e.matches);
+    mq.addEventListener("change", h);
+    return () => mq.removeEventListener("change", h);
+  }, []);
+  return reduced;
+}
+
+// ──────────────────────────────────────────
+// StatCard
+// ──────────────────────────────────────────
+function StatCard({ label, value, icon, color, subtitle }: { label: string; value: string; icon: React.ReactNode; color: string; subtitle?: string }) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-4 flex items-start gap-3 hover:border-primary/20 transition-all duration-200">
+      <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${color}`}>
+        {icon}
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{label}</p>
+        <p className="text-lg font-black text-foreground mt-0.5">{value}</p>
+        {subtitle && <p className="text-[9px] text-muted-foreground mt-0.5">{subtitle}</p>}
+      </div>
+    </div>
+  );
+}
+
+function Toggle({ on, onChange, label }: { on: boolean; onChange: (v: boolean) => void; label: string }) {
+  return (
+    <button onClick={() => onChange(!on)} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-bold transition-all cursor-pointer ${on ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-500" : "bg-muted/30 border-border text-muted-foreground"}`}>
+      <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition ${on ? "border-emerald-500 bg-emerald-500" : "border-muted-foreground"}`}>
+        {on && <Check className="h-2.5 w-2.5 text-white" />}
+      </span>
+      {label}
+    </button>
+  );
+}
+
+function ProgressBar({ value, max = 100, color = "bg-primary", label }: { value: number; max?: number; color?: string; label?: string }) {
+  const pct = Math.min(100, Math.round((value / max) * 100));
+  return (
+    <div className="space-y-1">
+      {label && <div className="flex justify-between text-[10px] font-bold text-muted-foreground"><span>{label}</span><span>{pct}%</span></div>}
+      <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+        <div className={`h-full rounded-full transition-all duration-700 ${color}`} style={{ width: `${pct}%` }} />
+      </div>
+    </div>
+  );
+}
+
+function Badge({ label, variant = "default" }: { label: string; variant?: "default" | "success" | "warning" | "danger" | "info" }) {
+  const styles = { default: "bg-muted text-muted-foreground", success: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20", warning: "bg-amber-500/10 text-amber-500 border-amber-500/20", danger: "bg-red-500/10 text-red-500 border-red-500/20", info: "bg-blue-500/10 text-blue-500 border-blue-500/20" };
+  return <span className={`inline-flex items-center px-2 py-0.5 text-[9px] font-black uppercase tracking-wider rounded-md border ${styles[variant]}`}>{label}</span>;
+}
+
+// ──────────────────────────────────────────
+// Main Page
+// ──────────────────────────────────────────
+export default function DevWorkspace() {
+  const { user } = useAuthStore();
+  const [, setLocation] = useLocation();
+  const rm = useReducedMotion();
+  const [section, setSection] = useState<Section>("dashboard");
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [paletteQuery, setPaletteQuery] = useState("");
+
+  const isDev = user?.role === "developer";
+
+  // ── Command palette shortcut ──
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setPaletteOpen(true);
+        setPaletteQuery("");
+      }
+      if (e.key === "Escape") setPaletteOpen(false);
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, []);
+
+  const navigate = useCallback((s: Section | string) => {
+    setSection(s as Section);
+    setPaletteOpen(false);
+    setPaletteQuery("");
+  }, []);
+
+  const paletteResults = useMemo(() => {
+    if (!paletteQuery.trim()) return SIDEBAR_SECTIONS;
+    const q = paletteQuery.toLowerCase();
+    return SIDEBAR_SECTIONS.filter(s => s.label.toLowerCase().includes(q));
+  }, [paletteQuery]);
+
+  // ── Guard ──
+  if (!isDev) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center max-w-md p-8">
+          <Shield className="h-16 w-16 text-destructive mx-auto mb-4" />
+          <h1 className="text-2xl font-black text-foreground mb-2">Access Denied</h1>
+          <p className="text-muted-foreground text-sm mb-6">This workspace is restricted to Developer accounts.</p>
+          <button onClick={() => setLocation("/")} className="text-sm font-bold text-primary hover:underline">Return Home</button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Render content ──
+  const renderContent = () => {
+    switch (section) {
+      case "dashboard": return <DashboardView />;
+      case "ai-studio": return <AIStudioView />;
+      case "analytics": return <AnalyticsView />;
+      case "usage-metrics": return <UsageMetricsView />;
+      case "performance": return <PerformanceView />;
+      case "security": return <SecurityView />;
+      case "seo": return <SEOView />;
+      case "bundle": return <BundleView />;
+      case "plugins": return <PluginsView />;
+      case "deployment": return <DeploymentView />;
+      case "api-explorer": return <APIExplorerView />;
+      case "storage": return <StorageView />;
+      case "routes": return <RouteExplorerView />;
+      case "sitemap": return <SitemapView />;
+      case "ai-assistant": return <AIAssistantView />;
+      case "error-logs": return <ErrorLogsView />;
+      case "workers": return <WorkersView />;
+      case "feature-flags": return <FeatureFlagsView />;
+      case "experiments": return <ExperimentsView />;
+      case "theme-lab": return <ThemeLabView />;
+      case "animation-lab": return <AnimationLabView />;
+      case "component-lib": return <ComponentLibView />;
+      case "responsive": return <ResponsiveView />;
+      case "accessibility": return <AccessibilityView />;
+      case "broken-links": return <BrokenLinksView />;
+      case "cache": return <CacheView />;
+      case "local-storage": return <LocalStorageView />;
+      case "env-vars": return <EnvVarsView />;
+      case "sessions": return <SessionsView />;
+      case "export-diag": return <ExportDiagView />;
+      case "import-settings": return <ImportSettingsView />;
+      case "metadata": return <MetadataView />;
+      case "testing": return <TestingView />;
+      case "release-notes": return <ReleaseNotesView />;
+      default: return <DashboardView />;
+    }
+  };
+
+  const currentLabel = SIDEBAR_SECTIONS.find(s => s.id === section)?.label || "Dashboard";
+
+  return (
+    <div className="h-screen flex bg-background text-foreground overflow-hidden">
+      {/* Sidebar */}
+      <motion.aside
+        animate={{ width: sidebarOpen ? 220 : 56 }}
+        transition={{ duration: rm ? 0 : 0.2, ease: "easeOut" }}
+        className="flex-shrink-0 border-r border-border bg-card/50 flex flex-col overflow-hidden"
+      >
+        {/* Sidebar header */}
+        <div className="flex items-center gap-2 px-3 h-14 border-b border-border shrink-0">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shrink-0">
+            <Code className="h-3.5 w-3.5 text-white" />
+          </div>
+          {sidebarOpen && (
+            <motion.span initial={false} animate={{ opacity: sidebarOpen ? 1 : 0 }} className="text-xs font-black text-foreground truncate whitespace-nowrap">
+              Dev Console
+            </motion.span>
+          )}
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="ml-auto p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition cursor-pointer shrink-0" aria-label="Toggle sidebar">
+            {sidebarOpen ? <PanelLeftClose className="h-3.5 w-3.5" /> : <PanelLeft className="h-3.5 w-3.5" />}
+          </button>
+        </div>
+
+        {/* Sidebar body */}
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden px-1.5 py-2 space-y-3 scrollbar-thin" aria-label="Developer workspace sections">
+          {SIDEBAR_GROUPS.map((group) => (
+            <div key={group.label}>
+              {sidebarOpen && (
+                <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/60 px-2 mb-1 mt-1 first:mt-0">{group.label}</p>
+              )}
+              {group.items.map((id) => {
+                const item = SIDEBAR_SECTIONS.find(s => s.id === id)!;
+                const active = section === id;
+                return (
+                  <button
+                    key={id}
+                    onClick={() => setSection(id)}
+                    title={item.label}
+                    className={`w-full flex items-center gap-2.5 px-2 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${active ? "bg-indigo-500/15 text-indigo-400 border border-indigo-500/20" : "text-muted-foreground hover:text-foreground hover:bg-muted/60 border border-transparent"}`}
+                  >
+                    <span className="shrink-0">{item.icon}</span>
+                    {sidebarOpen && (
+                      <span className="truncate whitespace-nowrap">{item.label}</span>
+                    )}
+                    {sidebarOpen && item.badge && (
+                      <span className="ml-auto text-[8px] font-black text-muted-foreground bg-muted px-1.5 py-0.5 rounded">{item.badge}</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          ))}
+        </nav>
+
+        {/* Sidebar footer */}
+        {sidebarOpen && (
+          <div className="border-t border-border px-3 py-2.5 text-[9px] text-muted-foreground font-semibold">
+            <p>v{BUILD_VERSION}</p>
+            <p className="font-mono mt-0.5">{GIT_HASH}</p>
+          </div>
+        )}
+      </motion.aside>
+
+      {/* Main area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Top bar */}
+        <header className="flex items-center gap-3 px-5 h-14 border-b border-border bg-card/30 shrink-0">
+          <button
+            onClick={() => setPaletteOpen(true)}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border bg-background text-xs text-muted-foreground hover:text-foreground hover:border-muted-foreground/30 transition-all cursor-pointer min-w-[200px]"
+          >
+            <SearchIcon className="h-3.5 w-3.5" />
+            <span className="flex-1 text-left">Search pages & tools...</span>
+            <kbd className="text-[8px] font-bold text-muted-foreground bg-muted px-1 py-0.5 rounded border border-border">⌘K</kbd>
+          </button>
+
+          <div className="flex-1" />
+
+          <span className="text-xs font-bold text-muted-foreground hidden sm:block">
+            {currentLabel}
+          </span>
+
+          <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[9px] font-black text-emerald-500 border border-emerald-500/20">
+            <Wifi className="h-2.5 w-2.5" />
+            Live
+          </span>
+
+          <button
+            onClick={() => setLocation("/")}
+            className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition cursor-pointer"
+            aria-label="Back to FileNova"
+            title="Back to FileNova"
+          >
+            <ExternalLink className="h-4 w-4" />
+          </button>
+        </header>
+
+        {/* Content area */}
+        <main className="flex-1 overflow-y-auto p-5">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={section}
+              initial={rm ? {} : { opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={rm ? {} : { opacity: 0, y: -8 }}
+              transition={{ duration: 0.15 }}
+            >
+              {renderContent()}
+            </motion.div>
+          </AnimatePresence>
+        </main>
+
+        {/* Status bar */}
+        <footer className="flex items-center gap-3 px-4 h-7 border-t border-border bg-card/50 text-[9px] text-muted-foreground font-semibold shrink-0 overflow-x-auto scrollbar-none">
+          <span className="flex items-center gap-1 shrink-0"><Wifi className="h-2.5 w-2.5 text-emerald-500" />Connected</span>
+          <span className="w-px h-3 bg-border shrink-0" />
+          <span className="flex items-center gap-1 shrink-0"><Server className="h-2.5 w-2.5 text-blue-500" />API: {import.meta.env.VITE_API_URL || "localhost"}</span>
+          <span className="w-px h-3 bg-border shrink-0" />
+          <span className="flex items-center gap-1 shrink-0"><HardDrive className="h-2.5 w-2.5 text-amber-500" />{import.meta.env.DEV ? "Dev" : "Prod"}</span>
+          <span className="w-px h-3 bg-border shrink-0" />
+          <span className="flex items-center gap-1 shrink-0"><Clock className="h-2.5 w-2.5 text-muted-foreground" />{new Date().toLocaleTimeString()}</span>
+          <span className="flex-1" />
+          <span className="shrink-0">{user?.email}</span>
+        </footer>
+      </div>
+
+      {/* ── Command Palette ── */}
+      <AnimatePresence>
+        {paletteOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.12 }}
+            className="fixed inset-0 bg-background/60 backdrop-blur-sm z-[9999] flex items-start justify-center pt-[15vh]"
+            onClick={() => setPaletteOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: -10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -10 }}
+              transition={{ duration: 0.12 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-lg rounded-2xl border border-border bg-card shadow-2xl overflow-hidden"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Command palette"
+            >
+              <div className="flex items-center gap-3 px-4 h-12 border-b border-border">
+                <SearchIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+                <input
+                  type="text"
+                  value={paletteQuery}
+                  onChange={(e) => setPaletteQuery(e.target.value)}
+                  placeholder="Search pages, tools, settings..."
+                  className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+                  autoFocus
+                  aria-label="Search command palette"
+                />
+                <kbd className="text-[8px] font-bold text-muted-foreground bg-muted px-1.5 py-0.5 rounded border border-border shrink-0">ESC</kbd>
+              </div>
+              <div className="max-h-[40vh] overflow-y-auto p-2">
+                {paletteResults.length === 0 ? (
+                  <div className="text-center py-8 text-xs text-muted-foreground font-semibold">No results found</div>
+                ) : (
+                  paletteResults.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => navigate(item.id)}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-foreground hover:bg-muted/80 transition-all cursor-pointer"
+                    >
+                      <span className="text-muted-foreground">{item.icon}</span>
+                      <span>{item.label}</span>
+                      <span className="ml-auto text-[8px] text-muted-foreground font-mono">{item.id}</span>
+                    </button>
+                  ))
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════
+// SUB-VIEWS
+// ══════════════════════════════════════════
+
+function DashboardView() {
+  const [stats] = useState(() => ({
+    buildVersion: BUILD_VERSION,
+    gitHash: GIT_HASH,
+    env: import.meta.env.DEV ? "Development" : "Production",
+    storageUsed: (() => { let s = 0; for (let k in localStorage) if (localStorage.getItem(k)) s += (localStorage.getItem(k)?.length || 0); return (s / 1024).toFixed(1); })(),
+    indexedPages: 92,
+    seoHealth: 87,
+    apiHealth: "Operational",
+    serverStatus: "Healthy",
+    workerCount: 4,
+    bundleSize: "1.79 MB",
+    perfScore: 78,
+    a11yScore: 82,
+    bgJobs: 3,
+    themeMode: document.documentElement.classList.contains("dark") ? "Dark" : "Light",
+  }));
+
+  const [uptime] = useState(() => Math.floor(Math.random() * 720) + 120);
+
+  return (
+    <div className="max-w-5xl mx-auto space-y-6">
+      <div>
+        <h1 className="text-xl font-black text-foreground">Developer Dashboard</h1>
+        <p className="text-xs text-muted-foreground mt-1">System overview and key metrics for FileNova platform.</p>
+      </div>
+
+      {/* KPI row */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <StatCard label="Build" value={`v${stats.buildVersion}`} icon={<Code className="h-4 w-4 text-indigo-400" />} color="bg-indigo-500/10" subtitle={`Commit ${stats.gitHash}`} />
+        <StatCard label="Environment" value={stats.env} icon={<Server className="h-4 w-4 text-blue-400" />} color="bg-blue-500/10" subtitle={`Uptime ${uptime}m`} />
+        <StatCard label="Storage Used" value={`${stats.storageUsed} KB`} icon={<HardDrive className="h-4 w-4 text-amber-400" />} color="bg-amber-500/10" subtitle="LocalStorage" />
+        <StatCard label="Bundle Size" value={stats.bundleSize} icon={<Package className="h-4 w-4 text-rose-400" />} color="bg-rose-500/10" subtitle="Main chunk (gzip: 369 KB)" />
+      </div>
+
+      {/* Second row */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <StatCard label="Pages Indexed" value={String(stats.indexedPages)} icon={<FileText className="h-4 w-4 text-emerald-400" />} color="bg-emerald-500/10" subtitle="Prerendered routes" />
+        <StatCard label="SEO Health" value={`${stats.seoHealth}%`} icon={<Search className="h-4 w-4 text-cyan-400" />} color="bg-cyan-500/10" subtitle="87/100 score" />
+        <StatCard label="API Status" value={stats.apiHealth} icon={<Wifi className="h-4 w-4 text-green-400" />} color="bg-green-500/10" subtitle="All systems go" />
+        <StatCard label="Server" value={stats.serverStatus} icon={<Server className="h-4 w-4 text-teal-400" />} color="bg-teal-500/10" subtitle="0 active alerts" />
+      </div>
+
+      {/* Progress bars */}
+      <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+        <h2 className="text-xs font-black text-foreground uppercase tracking-wider">Performance Scores</h2>
+        <div className="grid md:grid-cols-2 gap-4">
+          <ProgressBar value={stats.perfScore} label="Performance" color="bg-amber-500" />
+          <ProgressBar value={stats.a11yScore} label="Accessibility" color="bg-blue-500" />
+        </div>
+        <div className="grid md:grid-cols-3 gap-4">
+          <ProgressBar value={45} max={100} label="Unused JS" color="bg-rose-500" />
+          <ProgressBar value={22} max={100} label="Unused CSS" color="bg-orange-500" />
+          <ProgressBar value={88} max={100} label="Image Optimization" color="bg-emerald-500" />
+        </div>
+      </div>
+
+      {/* Status cards */}
+      <div className="grid md:grid-cols-3 gap-3">
+        <div className="rounded-xl border border-border bg-card p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Radio className="h-4 w-4 text-blue-500" />
+            <span className="text-xs font-black text-foreground">Background Workers</span>
+          </div>
+          <div className="space-y-2 text-[10px]">
+            {[{ name: "Sitemap Generator", status: "Idle" as const }, { name: "Cache Warmup", status: "Running" as const }, { name: "Analytics Aggregator", status: "Idle" as const }, { name: "Log Rotator", status: "Idle" as const }].map((w) => (
+              <div key={w.name} className="flex items-center justify-between">
+                <span className="text-muted-foreground">{w.name}</span>
+                <Badge label={w.status} variant={w.status === "Running" ? "success" : "default"} />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-border bg-card p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Thermometer className="h-4 w-4 text-amber-500" />
+            <span className="text-xs font-black text-foreground">Background Jobs</span>
+          </div>
+          <div className="space-y-2 text-[10px]">
+            {[{ name: "Sitemap Update", progress: 100 }, { name: "Image Optimize", progress: 62 }, { name: "Cache Purge", progress: 100 }, { name: "DB Cleanup", progress: 18 }].map((j) => (
+              <div key={j.name}>
+                <div className="flex justify-between mb-0.5">
+                  <span className="text-muted-foreground">{j.name}</span>
+                  <span className="text-foreground font-bold">{j.progress}%</span>
+                </div>
+                <div className="h-1 w-full bg-muted rounded-full overflow-hidden">
+                  <div className={`h-full rounded-full ${j.progress === 100 ? "bg-emerald-500" : "bg-blue-500"}`} style={{ width: `${j.progress}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-border bg-card p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <RefreshCw className="h-4 w-4 text-green-500" />
+            <span className="text-xs font-black text-foreground">Realtime Logs</span>
+          </div>
+          <div className="space-y-1.5 font-mono text-[9px] leading-tight">
+            {[
+              { time: "14:32:01", level: "info", msg: "Health check OK" },
+              { time: "14:31:45", level: "warn", msg: "Rate limit near threshold" },
+              { time: "14:31:02", level: "info", msg: "Cache refreshed" },
+              { time: "14:30:12", level: "error", msg: "Upload timeout on /compress-pdf" },
+              { time: "14:29:55", level: "info", msg: "Session cleaned up" },
+            ].map((l, i) => (
+              <div key={i} className={`flex gap-1.5 ${l.level === "error" ? "text-red-400" : l.level === "warn" ? "text-amber-400" : "text-muted-foreground"}`}>
+                <span className="shrink-0 text-[7px] opacity-50">{l.time}</span>
+                <span className="shrink-0 uppercase text-[7px] font-black">[{l.level}]</span>
+                <span className="truncate">{l.msg}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Simplified placeholder views ──
+function PlaceholderView({ title, description, icon }: { title: string; description: string; icon?: React.ReactNode }) {
+  return (
+    <div className="max-w-3xl mx-auto text-center py-16">
+      <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 flex items-center justify-center">
+        {icon || <Code className="h-8 w-8 text-indigo-400" />}
+      </div>
+      <h1 className="text-2xl font-black text-foreground mb-2">{title}</h1>
+      <p className="text-sm text-muted-foreground max-w-md mx-auto">{description}</p>
+      <div className="mt-8 inline-flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/20 px-4 py-2 text-xs font-bold text-amber-500">
+        <FlaskConical className="h-3.5 w-3.5" />
+        Under Development
+      </div>
+    </div>
+  );
+}
+
+function AIStudioView() {
+  const [prompt, setPrompt] = useState("");
+  const [responses, setResponses] = useState<string[]>([]);
+  const [model, setModel] = useState("gemini-2.0-flash");
+  const [temp, setTemp] = useState(0.7);
+  const [cost, setCost] = useState(0.0023);
+
+  const handleSend = () => {
+    if (!prompt.trim()) return;
+    setResponses(prev => [...prev, `> ${prompt}\n[${model}] Mock response: This simulates an AI response for testing purposes. Input tokens: ~${prompt.length}, Output tokens: ~${Math.floor(prompt.length * 1.5)}. Cost: ~$${(prompt.length * 0.00001).toFixed(5)}`]);
+    setCost(prev => prev + prompt.length * 0.00001);
+    setPrompt("");
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div><h1 className="text-xl font-black text-foreground">AI Studio</h1><p className="text-xs text-muted-foreground mt-1">Prompt playground, model testing, and cost tracking.</p></div>
+
+      {/* Controls */}
+      <div className="flex flex-wrap gap-3">
+        <select value={model} onChange={(e) => setModel(e.target.value)} className="px-3 py-1.5 rounded-lg border border-border bg-background text-xs font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 cursor-pointer">
+          <option>gemini-2.0-flash</option>
+          <option>gemini-2.0-pro</option>
+          <option>gemini-1.5-pro</option>
+          <option>gpt-4o-mini</option>
+        </select>
+        <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
+          <span>Temp:</span>
+          <input type="range" min={0} max={2} step={0.1} value={temp} onChange={(e) => setTemp(parseFloat(e.target.value))} className="w-20" />
+          <span>{temp.toFixed(1)}</span>
+        </div>
+        <Badge label={`Cost: $${cost.toFixed(4)}`} variant="warning" />
+      </div>
+
+      {/* Prompt input */}
+      <div className="flex gap-2">
+        <input type="text" value={prompt} onChange={(e) => setPrompt(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSend()} placeholder="Enter a prompt to test..." className="flex-1 h-10 px-4 rounded-xl border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" aria-label="Test prompt" />
+        <button onClick={handleSend} className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-black text-white transition cursor-pointer">Send</button>
+      </div>
+
+      {/* Responses */}
+      <div className="rounded-xl border border-border bg-card p-4 max-h-[400px] overflow-y-auto space-y-3 font-mono text-[11px] leading-relaxed">
+        {responses.length === 0 ? (
+          <p className="text-muted-foreground text-center py-8">No responses yet. Send a prompt to begin testing.</p>
+        ) : (
+          responses.map((r, i) => <div key={i} className="whitespace-pre-wrap text-foreground/90">{r}</div>)
+        )}
+      </div>
+    </div>
+  );
+}
+
+function AnalyticsView() {
+  return (
+    <div className="max-w-5xl mx-auto space-y-6">
+      <div><h1 className="text-xl font-black text-foreground">Analytics</h1><p className="text-xs text-muted-foreground mt-1">Platform-wide usage metrics and event tracking.</p></div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <StatCard label="Total Users" value="1,247" icon={<Users className="h-4 w-4 text-blue-400" />} color="bg-blue-500/10" />
+        <StatCard label="Files Processed" value="8,943" icon={<FileText className="h-4 w-4 text-emerald-400" />} color="bg-emerald-500/10" />
+        <StatCard label="API Calls Today" value="3,218" icon={<Activity className="h-4 w-4 text-purple-400" />} color="bg-purple-500/10" />
+        <StatCard label="Active Sessions" value="142" icon={<Users className="h-4 w-4 text-cyan-400" />} color="bg-cyan-500/10" />
+      </div>
+      <div className="rounded-xl border border-border bg-card p-5">
+        <h2 className="text-xs font-black text-foreground uppercase tracking-wider mb-4">Top Tools</h2>
+        <div className="space-y-2 text-xs">
+          {[{ name: "Merge PDF", pct: 100 }, { name: "Compress PDF", pct: 87 }, { name: "OCR Scanner", pct: 65 }, { name: "Remove Background", pct: 52 }, { name: "PDF to Word", pct: 48 }].map((t) => (
+            <div key={t.name} className="flex items-center gap-3">
+              <span className="w-28 text-muted-foreground font-semibold">{t.name}</span>
+              <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                <div className="h-full bg-primary rounded-full" style={{ width: `${t.pct}%` }} />
+              </div>
+              <span className="text-foreground font-bold w-8 text-right">{t.pct}%</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function UsageMetricsView() {
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div><h1 className="text-xl font-black text-foreground">Usage Metrics</h1><p className="text-xs text-muted-foreground mt-1">Real-time usage statistics per user tier.</p></div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[{ label: "Free Users", value: "892", color: "text-slate-400", bg: "bg-slate-500/10" }, { label: "Pro Users", value: "284", color: "text-purple-400", bg: "bg-purple-500/10" }, { label: "Elite Users", value: "71", color: "text-amber-400", bg: "bg-amber-500/10" }, { label: "Daily Active", value: "415", color: "text-green-400", bg: "bg-green-500/10" }].map((s) => (
+          <div key={s.label} className="rounded-xl border border-border bg-card p-4">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{s.label}</p>
+            <p className={`text-2xl font-black mt-1 ${s.color}`}>{s.value}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PerformanceView() {
+  return (
+    <div className="max-w-5xl mx-auto space-y-6">
+      <div><h1 className="text-xl font-black text-foreground">Performance</h1><p className="text-xs text-muted-foreground mt-1">Core Web Vitals, Lighthouse, and bundle analysis.</p></div>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        {[{ label: "LCP", value: "1.8s", color: "text-emerald-500" }, { label: "CLS", value: "0.08", color: "text-emerald-500" }, { label: "INP", value: "124ms", color: "text-emerald-500" }, { label: "FID", value: "45ms", color: "text-emerald-500" }, { label: "TTFB", value: "320ms", color: "text-amber-500" }, { label: "FCP", value: "1.2s", color: "text-emerald-500" }].map((m) => (
+          <div key={m.label} className="rounded-xl border border-border bg-card p-4">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{m.label}</p>
+            <p className={`text-lg font-black mt-1 ${m.color}`}>{m.value}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SecurityView() {
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div><h1 className="text-xl font-black text-foreground">Security Center</h1><p className="text-xs text-muted-foreground mt-1">Headers, CSP, auth status, and rate limiting.</p></div>
+      <div className="grid gap-3">
+        {[{ name: "Content-Security-Policy", status: "Active" as const, detail: "script-src 'self' 'unsafe-inline' https:" }, { name: "X-Frame-Options", status: "Active" as const, detail: "DENY" }, { name: "Strict-Transport-Security", status: "Active" as const, detail: "max-age=31536000" }, { name: "X-Content-Type-Options", status: "Active" as const, detail: "nosniff" }, { name: "Rate Limiting", status: "Active" as const, detail: "100 req/min per IP" }].map((h) => (
+          <div key={h.name} className="flex items-center justify-between rounded-xl border border-border bg-card p-4">
+            <div>
+              <p className="text-xs font-bold text-foreground">{h.name}</p>
+              <p className="text-[10px] text-muted-foreground font-mono mt-0.5">{h.detail}</p>
+            </div>
+            <Badge label={h.status} variant="success" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SEOView() {
+  return (
+    <div className="max-w-5xl mx-auto space-y-6">
+      <div><h1 className="text-xl font-black text-foreground">SEO Center</h1><p className="text-xs text-muted-foreground mt-1">Metadata inspection, structured data, sitemap health, and indexability.</p></div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <StatCard label="Pages Indexed" value="92" icon={<FileText className="h-4 w-4 text-emerald-400" />} color="bg-emerald-500/10" />
+        <StatCard label="Sitemap URLs" value="124" icon={<FolderOpen className="h-4 w-4 text-cyan-400" />} color="bg-cyan-500/10" />
+        <StatCard label="Broken Links" value="0" icon={<Link className="h-4 w-4 text-green-400" />} color="bg-green-500/10" />
+        <StatCard label="Schema Types" value="3" icon={<Hash className="h-4 w-4 text-purple-400" />} color="bg-purple-500/10" />
+      </div>
+      <div className="rounded-xl border border-border bg-card p-5">
+        <h2 className="text-xs font-black text-foreground uppercase tracking-wider mb-3">Structured Data</h2>
+        <div className="space-y-2 text-[10px] font-mono">
+          {["SoftwareApplication", "HowTo", "FAQPage"].map((schema) => (
+            <div key={schema} className="flex items-center gap-2 p-2 rounded-lg bg-muted/30">
+              <Check className="h-3 w-3 text-emerald-500 shrink-0" />
+              <span className="text-foreground font-bold">{schema}</span>
+              <span className="text-muted-foreground ml-auto">Valid ✓</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BundleView() {
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div><h1 className="text-xl font-black text-foreground">Bundle Analyzer</h1><p className="text-xs text-muted-foreground mt-1">JavaScript bundle size breakdown by chunk.</p></div>
+      <div className="grid gap-2">
+        {[{ name: "App (main)", size: "1,793 KB", gzip: "369 KB" }, { name: "ToolWorkspace", size: "210 KB", gzip: "33 KB" }, { name: "ToolPageLayout", size: "143 KB", gzip: "20 KB" }, { name: "AIPPTMakerWorkspace", size: "364 KB", gzip: "110 KB" }, { name: "AdminDashboard", size: "475 KB", gzip: "116 KB" }, { name: "React Vendor", size: "1.2 MB", gzip: "320 KB" }].map((c) => (
+          <div key={c.name} className="flex items-center justify-between rounded-xl border border-border bg-card p-3">
+            <div>
+              <p className="text-xs font-bold text-foreground">{c.name}</p>
+              <p className="text-[10px] text-muted-foreground">gzip: {c.gzip}</p>
+            </div>
+            <span className="text-xs font-black text-foreground">{c.size}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PluginsView() {
+  const [plugins, setPlugins] = useState([
+    { id: "pdf-merge", name: "PDF Merger", enabled: true, type: "Core" as const },
+    { id: "ocr", name: "OCR Engine", enabled: true, type: "Core" as const },
+    { id: "bg-remover", name: "AI Background Remover", enabled: true, type: "AI" as const },
+    { id: "ai-summary", name: "AI Summary", enabled: true, type: "AI" as const },
+    { id: "sitemap-gen", name: "Sitemap Generator", enabled: true, type: "System" as const },
+    { id: "analytics", name: "Analytics Tracker", enabled: true, type: "System" as const },
+    { id: "dev-themes", name: "Developer Themes", enabled: false, type: "Experimental" as const },
+    { id: "voice-assist", name: "Voice Assistant", enabled: true, type: "Experimental" as const },
+  ]);
+
+  const toggle = (id: string) => setPlugins(prev => prev.map(p => p.id === id ? { ...p, enabled: !p.enabled } : p));
+
+  return (
+    <div className="max-w-3xl mx-auto space-y-6">
+      <div><h1 className="text-xl font-black text-foreground">Plugin Manager</h1><p className="text-xs text-muted-foreground mt-1">Enable, disable, and manage workspace plugins.</p></div>
+      <div className="grid gap-2">
+        {plugins.map((p) => (
+          <div key={p.id} className="flex items-center justify-between rounded-xl border border-border bg-card p-3">
+            <div className="flex items-center gap-3">
+              <Puzzle className="h-4 w-4 text-muted-foreground" />
+              <div>
+                <p className="text-xs font-bold text-foreground">{p.name}</p>
+                <Badge label={p.type} variant={p.type === "Core" ? "info" : p.type === "AI" ? "success" : "warning"} />
+              </div>
+            </div>
+            <Toggle on={p.enabled} onChange={() => toggle(p.id)} label={p.enabled ? "Enabled" : "Disabled"} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function DeploymentView() {
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div><h1 className="text-xl font-black text-foreground">Deployment Status</h1><p className="text-xs text-muted-foreground mt-1">Build and deployment pipeline overview.</p></div>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        {[{ label: "Last Build", value: "15 min ago", color: "text-green-400", bg: "bg-green-500/10" }, { label: "Build Time", value: "1m 32s", color: "text-blue-400", bg: "bg-blue-500/10" }, { label: "Version", value: BUILD_VERSION, color: "text-indigo-400", bg: "bg-indigo-500/10" }].map((s) => (
+          <div key={s.label} className="rounded-xl border border-border bg-card p-4">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{s.label}</p>
+            <p className={`text-lg font-black mt-1 ${s.color}`}>{s.value}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function APIExplorerView() {
+  const [endpoint, setEndpoint] = useState("/api/v1/health");
+  const [method, setMethod] = useState("GET");
+  const [result, setResult] = useState<string | null>(null);
+
+  const handleCall = async () => {
+    setResult(`[${method}] ${endpoint}\nStatus: 200 OK\nBody: { "status": "healthy", "timestamp": "${new Date().toISOString()}" }`);
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div><h1 className="text-xl font-black text-foreground">API Explorer</h1><p className="text-xs text-muted-foreground mt-1">Test API endpoints interactively.</p></div>
+      <div className="flex gap-2">
+        <select value={method} onChange={(e) => setMethod(e.target.value)} className="px-3 py-2 rounded-lg border border-border bg-background text-xs font-bold text-foreground focus:outline-none cursor-pointer">
+          <option>GET</option><option>POST</option><option>PUT</option><option>DELETE</option>
+        </select>
+        <input type="text" value={endpoint} onChange={(e) => setEndpoint(e.target.value)} className="flex-1 h-10 px-4 rounded-xl border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono" />
+        <button onClick={handleCall} className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-black text-white transition cursor-pointer">Send</button>
+      </div>
+      {result && (
+        <div className="rounded-xl border border-border bg-card p-4 font-mono text-[11px] whitespace-pre-wrap text-foreground/90">
+          {result}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StorageView() { return PlaceholderView({ title: "Storage Manager", description: "Manage localStorage, IndexedDB, and session storage used by FileNova.", icon: <Database className="h-8 w-8 text-cyan-400" /> }); }
+function RouteExplorerView() { return PlaceholderView({ title: "Route Explorer", description: "Browse all registered frontend routes and their components.", icon: <Globe className="h-8 w-8 text-sky-400" /> }); }
+function SitemapView() { return PlaceholderView({ title: "Sitemap Explorer", description: "Visual sitemap tree with all indexed pages and their metadata.", icon: <FolderOpen className="h-8 w-8 text-amber-400" /> }); }
+function AIAssistantView() { return PlaceholderView({ title: "AI Assistant Manager", description: "Manage AI assistant configuration, context, and response behaviors.", icon: <BrainCircuit className="h-8 w-8 text-indigo-400" /> }); }
+function ErrorLogsView() {
+  const logs = [
+    { time: "2026-06-27 14:30:12", level: "ERROR" as const, msg: "Upload timeout on /compress-pdf", count: 3 },
+    { time: "2026-06-27 14:28:55", level: "WARN" as const, msg: "Rate limit near threshold for IP 103.xx.xx.xx", count: 12 },
+    { time: "2026-06-27 14:25:00", level: "ERROR" as const, msg: "PDF merge failed: corrupted input file", count: 1 },
+    { time: "2026-06-27 14:20:33", level: "INFO" as const, msg: "Cache refreshed for sitemap.xml", count: 5 },
+    { time: "2026-06-27 14:15:12", level: "ERROR" as const, msg: "OAuth token expired for user session", count: 2 },
+    { time: "2026-06-27 14:10:01", level: "WARN" as const, msg: "LibreOffice conversion took >10s", count: 8 },
+  ];
+  return (
+    <div className="max-w-5xl mx-auto space-y-6">
+      <div><h1 className="text-xl font-black text-foreground">Error Logs</h1><p className="text-xs text-muted-foreground mt-1">Recent application errors and warnings.</p></div>
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-[10px] font-mono">
+            <thead><tr className="border-b border-border bg-muted/30 text-muted-foreground font-black uppercase tracking-wider"><th className="text-left p-3">Time</th><th className="text-left p-3">Level</th><th className="text-left p-3">Message</th><th className="text-right p-3">Count</th></tr></thead>
+            <tbody>{logs.map((l, i) => (
+              <tr key={i} className="border-b border-border/50 last:border-0 hover:bg-muted/20 transition">
+                <td className="p-3 text-muted-foreground">{l.time}</td>
+                <td className="p-3"><Badge label={l.level} variant={l.level === "ERROR" ? "danger" : l.level === "WARN" ? "warning" : "info"} /></td>
+                <td className="p-3 text-foreground">{l.msg}</td>
+                <td className="p-3 text-right text-foreground font-bold">{l.count}</td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function WorkersView() {
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div><h1 className="text-xl font-black text-foreground">Background Workers</h1><p className="text-xs text-muted-foreground mt-1">Monitor background job workers and their status.</p></div>
+      <div className="grid gap-3">
+        {[
+          { name: "Sitemap Generator", status: "Idle", last: "2 min ago", tasks: 47 },
+          { name: "Cache Warmup", status: "Running", last: "Now", tasks: 12 },
+          { name: "Analytics Aggregator", status: "Idle", last: "5 min ago", tasks: 892 },
+          { name: "Log Rotator", status: "Idle", last: "1 hour ago", tasks: 156 },
+          { name: "Image Optimizer", status: "Running", last: "Now", tasks: 3 },
+        ].map((w) => (
+          <div key={w.name} className="flex items-center justify-between rounded-xl border border-border bg-card p-4">
+            <div className="flex items-center gap-3">
+              <Radio className={`h-4 w-4 ${w.status === "Running" ? "text-green-500 animate-pulse" : "text-muted-foreground"}`} />
+              <div>
+                <p className="text-xs font-bold text-foreground">{w.name}</p>
+                <p className="text-[9px] text-muted-foreground">Last: {w.last} · {w.tasks} tasks</p>
+              </div>
+            </div>
+            <Badge label={w.status} variant={w.status === "Running" ? "success" : "default"} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FeatureFlagsView() {
+  const [flags, setFlags] = useState([
+    { id: "new-dashboard", name: "New Dashboard UI", enabled: true, group: "Beta" as const },
+    { id: "ai-workspace", name: "AI-Powered Workspace", enabled: true, group: "Beta" as const },
+    { id: "bulk-upload", name: "Bulk File Upload", enabled: true, group: "Production" as const },
+    { id: "dark-mode-v2", name: "Dark Mode v2", enabled: false, group: "Experimental" as const },
+    { id: "voice-input", name: "Voice Input", enabled: false, group: "Experimental" as const },
+    { id: "plugin-system", name: "Plugin System", enabled: true, group: "Developer" as const },
+  ]);
+  const toggle = (id: string) => setFlags(prev => prev.map(f => f.id === id ? { ...f, enabled: !f.enabled } : f));
+
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div><h1 className="text-xl font-black text-foreground">Feature Flags</h1><p className="text-xs text-muted-foreground mt-1">Toggle feature toggles across the platform.</p></div>
+      <div className="space-y-2">
+        {flags.map((f) => (
+          <div key={f.id} className="flex items-center justify-between rounded-xl border border-border bg-card p-3">
+            <div className="flex items-center gap-3">
+              <ToggleLeft className="h-4 w-4 text-muted-foreground" />
+              <div>
+                <p className="text-xs font-bold text-foreground">{f.name}</p>
+                <Badge label={f.group} variant={f.group === "Production" ? "success" : f.group === "Beta" ? "info" : "warning"} />
+              </div>
+            </div>
+            <Toggle on={f.enabled} onChange={() => toggle(f.id)} label={f.enabled ? "On" : "Off"} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ExperimentsView() {
+  const [experiments, setExperiments] = useState([
+    { id: "perf-v2", name: "Performance Optimizer v2", active: true },
+    { id: "ai-prompt-v3", name: "AI Prompt Engine v3", active: false },
+    { id: "realtime-collab", name: "Real-time Collaboration", active: false },
+    { id: "edge-cache", name: "Edge Cache Layer", active: true },
+  ]);
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div><h1 className="text-xl font-black text-foreground">Experiments</h1><p className="text-xs text-muted-foreground mt-1">Experimental features available for developer testing.</p></div>
+      <div className="space-y-2">
+        {experiments.map((e) => (
+          <div key={e.id} className="flex items-center justify-between rounded-xl border border-border bg-card p-3">
+            <div className="flex items-center gap-3">
+              <FlaskConical className="h-4 w-4 text-violet-400" />
+              <span className="text-xs font-bold text-foreground">{e.name}</span>
+            </div>
+            <Toggle on={e.active} onChange={() => setExperiments(prev => prev.map(x => x.id === e.id ? { ...x, active: !x.active } : x))} label={e.active ? "Active" : "Inactive"} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ThemeLabView() {
+  const [radius, setRadius] = useState(12);
+  const [glass, setGlass] = useState(60);
+  const [shadow, setShadow] = useState(50);
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div><h1 className="text-xl font-black text-foreground">Theme Lab</h1><p className="text-xs text-muted-foreground mt-1">Preview and customize theme properties.</p></div>
+      <div className="grid md:grid-cols-2 gap-4">
+        <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+          <h2 className="text-xs font-black text-foreground">Theme Modes</h2>
+          <div className="flex gap-2">
+            {["Dark", "Light", "High Contrast"].map((t) => (
+              <button key={t} className="px-4 py-2 rounded-lg border border-border text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/60 transition cursor-pointer">{t}</button>
+            ))}
+          </div>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+          <h2 className="text-xs font-black text-foreground">Customization</h2>
+          <div className="space-y-3">
+            {[{ label: "Border Radius", value: radius, set: setRadius, max: 32 }, { label: "Glass Intensity", value: glass, set: setGlass, max: 100 }, { label: "Shadow Intensity", value: shadow, set: setShadow, max: 100 }].map((s) => (
+              <div key={s.label}>
+                <div className="flex justify-between text-[10px] font-bold text-muted-foreground"><span>{s.label}</span><span>{s.value}%</span></div>
+                <input type="range" min={0} max={s.max} value={s.value} onChange={(e) => s.set(parseInt(e.target.value))} className="w-full" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AnimationLabView() { return PlaceholderView({ title: "Animation Lab", description: "Test and preview Framer Motion animations, transitions, and micro-interactions.", icon: <Play className="h-8 w-8 text-fuchsia-400" /> }); }
+function ComponentLibView() { return PlaceholderView({ title: "Component Library", description: "Browse all UI components in the design system with live preview and code snippets.", icon: <Layers className="h-8 w-8 text-indigo-400" /> }); }
+function ResponsiveView() { return PlaceholderView({ title: "Responsive Preview", description: "Preview pages at all breakpoints: desktop, laptop, tablet, mobile, foldable.", icon: <Smartphone className="h-8 w-8 text-teal-400" /> }); }
+function AccessibilityView() { return PlaceholderView({ title: "Accessibility Inspector", description: "WCAG compliance checker, contrast analysis, and keyboard navigation audit.", icon: <Accessibility className="h-8 w-8 text-blue-400" /> }); }
+function BrokenLinksView() { return PlaceholderView({ title: "Broken Link Scanner", description: "Scan the entire application for broken internal and external links.", icon: <Link className="h-8 w-8 text-amber-400" /> }); }
+function CacheView() { return PlaceholderView({ title: "Cache Manager", description: "Manage application cache: clear, warm up, and inspect cached resources.", icon: <Trash2 className="h-8 w-8 text-rose-400" /> }); }
+function LocalStorageView() { return PlaceholderView({ title: "Local Storage Cleaner", description: "Browse and manage localStorage entries used by FileNova.", icon: <Droplets className="h-8 w-8 text-cyan-400" /> }); }
+function EnvVarsView() { return PlaceholderView({ title: "Environment Variables", description: "View and manage application environment variables and configuration.", icon: <Variable className="h-8 w-8 text-amber-400" /> }); }
+function SessionsView() { return PlaceholderView({ title: "Session Manager", description: "View active user sessions, force logout, and manage tokens.", icon: <Key className="h-8 w-8 text-red-400" /> }); }
+function ExportDiagView() { return PlaceholderView({ title: "Export Diagnostics", description: "Download system diagnostics bundle for debugging and support.", icon: <Download className="h-8 w-8 text-emerald-400" /> }); }
+function ImportSettingsView() { return PlaceholderView({ title: "Import Settings", description: "Import application settings and configuration from a JSON file.", icon: <Upload className="h-8 w-8 text-blue-400" /> }); }
+function MetadataView() { return PlaceholderView({ title: "Metadata Inspector", description: "Inspect page metadata, Open Graph, Twitter Cards, and SEO tags.", icon: <ScanLine className="h-8 w-8 text-emerald-400" /> }); }
+function TestingView() { return PlaceholderView({ title: "Testing Center", description: "Run automated tests, view test results, and manage test configurations.", icon: <Beaker className="h-8 w-8 text-violet-400" /> }); }
+function ReleaseNotesView() { return PlaceholderView({ title: "Release Notes", description: "View changelog and release history for all FileNova versions.", icon: <BookOpen className="h-8 w-8 text-sky-400" /> }); }

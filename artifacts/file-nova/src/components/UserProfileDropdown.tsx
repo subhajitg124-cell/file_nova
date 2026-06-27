@@ -156,7 +156,7 @@ export const UserProfileDropdown = memo(function UserProfileDropdown() {
             <div className="mb-3.5">
               {sectionHeader("Developer Tools")}
               <div className="space-y-1">
-                <button onClick={() => { setLocation("/developer-workspace"); setDropdownOpen(false); }} className="w-full text-left py-2 px-3 rounded-lg text-xs font-black text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/10 border border-indigo-500/10 hover:border-indigo-500/20 transition flex items-center gap-2 cursor-pointer">
+                <button onClick={() => { setLocation("/dev"); setDropdownOpen(false); }} className="w-full text-left py-2 px-3 rounded-lg text-xs font-black text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/10 border border-indigo-500/10 hover:border-indigo-500/20 transition flex items-center gap-2 cursor-pointer">
                   <Code className="h-3.5 w-3.5 text-indigo-400" />
                   <span>Developer Workspace</span>
                 </button>
@@ -164,11 +164,11 @@ export const UserProfileDropdown = memo(function UserProfileDropdown() {
                   <Sliders className="h-3.5 w-3.5 text-indigo-400" />
                   <span>Beta Testing Zone</span>
                 </button>
-                <button onClick={() => { setLocation("/developer-workspace"); setDropdownOpen(false); }} className="w-full text-left py-2 px-3 rounded-lg text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/80 transition flex items-center gap-2 cursor-pointer">
+                <button onClick={() => { setLocation("/dev"); setDropdownOpen(false); }} className="w-full text-left py-2 px-3 rounded-lg text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/80 transition flex items-center gap-2 cursor-pointer">
                   <Terminal className="h-3.5 w-3.5 text-purple-400" />
                   <span>API Explorer</span>
                 </button>
-                <button onClick={() => { setLocation("/developer-workspace"); setDropdownOpen(false); }} className="w-full text-left py-2 px-3 rounded-lg text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/80 transition flex items-center gap-2 cursor-pointer">
+                <button onClick={() => { setLocation("/dev"); setDropdownOpen(false); }} className="w-full text-left py-2 px-3 rounded-lg text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/80 transition flex items-center gap-2 cursor-pointer">
                   <Globe className="h-3.5 w-3.5 text-cyan-400" />
                   <span>Environment Info</span>
                 </button>
