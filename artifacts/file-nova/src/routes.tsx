@@ -58,6 +58,7 @@ const SEOPhotoCompressor = React.lazy(() => import("@/pages/seo/SEOPhotoCompress
 const NotFound = React.lazy(() => import("@/pages/not-found"));
 
 const BetaTestingZone = React.lazy(() => import("@/pages/BetaTestingZone"));
+const DeveloperWorkspace = React.lazy(() => import("@/pages/DeveloperWorkspace"));
 const LoginPage = React.lazy(() => import("@/pages/LoginPage"));
 const DashboardPage = React.lazy(() => import("@/pages/DashboardPage"));
 const HistoryPage = React.lazy(() => import("@/pages/HistoryPage"));
@@ -229,6 +230,9 @@ export function Router() {
           <Route path="/tools/:toolId" component={ToolPage} />
           <Route path="/beta-test">
             <BetaTestingZone />
+          </Route>
+          <Route path="/developer-workspace">
+            <DeveloperWorkspace />
           </Route>
           <Route path="/premium">
             <PremiumSuite />

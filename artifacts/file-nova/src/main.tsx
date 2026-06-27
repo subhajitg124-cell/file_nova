@@ -6,17 +6,9 @@ import "./index.css";
 import "./styles/eventThemes.css";
 import "./lib/errorHandler";
 
-// Register Service Worker for PWA offline support
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/registerSW.js').then(
-      (registration) => {
-        console.log('SW registered: ', registration);
-      },
-      (registrationError) => {
-        console.log('SW registration failed: ', registrationError);
-      }
-    );
+    navigator.serviceWorker.register('/registerSW.js').catch(() => {});
   });
 }
 

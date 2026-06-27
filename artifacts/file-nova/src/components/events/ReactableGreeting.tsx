@@ -52,10 +52,9 @@ export function ReactableGreeting() {
               style={{
                 left: "50%",
                 top: "50%",
-                // @ts-ignore
                 "--r": `${i * 60}deg`,
                 animation: "burst-out 0.6s ease-out forwards",
-              }}
+              } as React.CSSProperties}
             >
               {reaction.emoji}
             </span>

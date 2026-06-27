@@ -1,5 +1,4 @@
 import "./prerender-polyfill";
-console.log("=== ENTRY PRERENDER MODULE RUNNING ===");
 import { renderToString } from "react-dom/server";
 import { Router } from "wouter";
 import { createHead, UnheadProvider, renderSSRHead } from "@unhead/react/server";

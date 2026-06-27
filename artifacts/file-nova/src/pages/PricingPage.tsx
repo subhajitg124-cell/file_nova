@@ -8,6 +8,7 @@ import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { Sparkles, CheckCircle2, ShieldCheck, Zap, Loader, Copy, QrCode, Check, X } from "lucide-react";
 import { useSubscription, type PremiumTier, isTestingPeriodActive } from "@/hooks/useSubscription";
+import type { PlanType } from "@/store/useCheckoutStore";
 import { TestingNotice } from "@/components/TestingNotice";
 import { useAdmin } from "@/lib/admin";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -542,7 +543,7 @@ export default function PricingPage() {
     if (plan === "free") { if (premiumTier !== "free" && confirm("Confirm cancellation?")) cancelSubscription(); return; }
     if (!user) return;
     if (!user.phoneVerified) { setPendingPlan(plan); setOtpOpen(true); return; }
-    openCheckout(plan as any, appliedDiscount > 0 ? couponCode.trim().toUpperCase() : undefined);
+    openCheckout(plan as PlanType, appliedDiscount > 0 ? couponCode.trim().toUpperCase() : undefined);
   };
 
   const getPlanPrice = (planId: PremiumTier, original: number) => {
@@ -718,7 +719,7 @@ export default function PricingPage() {
           if (pendingPlan && pendingPlan !== "free") {
             const couponDiscount = getDynamicCouponDiscount(pendingPlan, couponCode);
             const activeCoupon = couponDiscount > 0 ? couponCode.trim().toUpperCase() : undefined;
-            openCheckout(pendingPlan as any, activeCoupon);
+            openCheckout(pendingPlan as PlanType, activeCoupon);
             setPendingPlan(null);
           }
         }}

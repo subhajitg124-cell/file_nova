@@ -2,7 +2,7 @@ import React, { memo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "wouter";
 import {
-  Settings2, Crown, Menu, X, Check
+  Settings2, Crown, Menu, X, Check, Bell, CreditCard, FileText
 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
@@ -12,6 +12,7 @@ import { PlanBadge } from "@/components/PlanBadge";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
 import { SmartSearchBar } from "@/components/SmartSearchBar";
+import { PopularToolsDropdown } from "@/components/PopularToolsDropdown";
 
 interface NavbarProps {
   showSearch?: boolean;
@@ -59,7 +60,6 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
         className="sticky top-0 z-40 w-full bg-transparent py-3 px-3 sm:px-4 transition-all duration-300"
       >
         <div className="max-w-6xl mx-auto h-14 px-4 sm:px-6 flex items-center justify-between gap-2 rounded-full border border-border/60 relative group/nav">
-          {/* Backdrop layers to avoid creating parent stacking context */}
           <div className="absolute inset-0 bg-background/70 backdrop-blur-xl shadow-premium rounded-full -z-20 pointer-events-none" />
           <div className="absolute inset-0 bg-gradient-to-r from-brand-primary/0 via-brand-primary/10 to-brand-primary/0 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-500 pointer-events-none rounded-full -z-10" />
 
@@ -69,17 +69,41 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
           </Link>
 
           {showSearch && (
-            <div className="relative max-w-[240px] xl:max-w-xs w-full hidden lg:block z-10">
+            <div className="relative max-w-[200px] xl:max-w-xs w-full hidden lg:block z-10">
               <SmartSearchBar placeholder={tText("Search 30+ document tools...")} />
             </div>
           )}
 
           <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 relative z-10">
+            <nav className="hidden xl:flex items-center gap-1" aria-label="Main navigation">
+              <PopularToolsDropdown />
+              <Link href="/pricing" className="flex items-center gap-1.5 text-sm text-muted-foreground font-medium py-1.5 px-3 rounded-full hover:bg-muted/60 transition-colors duration-150 whitespace-nowrap">
+                <CreditCard className="h-3.5 w-3.5" />
+                {tText("Pricing")}
+              </Link>
+              <Link href="/workspace" className="flex items-center gap-1.5 text-sm text-muted-foreground font-medium py-1.5 px-3 rounded-full hover:bg-muted/60 transition-colors duration-150 whitespace-nowrap">
+                <FileText className="h-3.5 w-3.5" />
+                {tText("Workspace")}
+              </Link>
+            </nav>
+
+            {/* Notification bell */}
+            <button
+              className="relative hidden md:flex items-center justify-center p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all cursor-pointer"
+              aria-label="Notifications"
+              title="Notifications"
+            >
+              <Bell className="h-4 w-4" />
+              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+            </button>
+
+            {/* Settings */}
             <div className="relative hidden md:block">
               <button
                 onClick={() => setSettingsOpen(!settingsOpen)}
-                className="flex items-center justify-center p-2 rounded-full text-muted-foreground hover:text-foreground hover:fn-neu-pressed transition-all cursor-pointer border border-transparent hover:border-[var(--fn-border)]"
+                className="flex items-center justify-center p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all cursor-pointer"
                 aria-label="Settings"
+                aria-expanded={settingsOpen}
                 title="Settings"
               >
                 <Settings2 className="h-4 w-4" />
@@ -106,7 +130,7 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
               </AnimatePresence>
             </div>
 
-            {/* Smart Premium / Upgrade button — adapts to user tier */}
+            {/* Smart Premium / Upgrade button */}
             {(() => {
               const tier = user?.premiumTier || 'free';
               const isDev = user?.role === 'developer';
@@ -149,6 +173,7 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 hover:bg-accent/50 rounded-lg text-muted-foreground hover:text-foreground lg:hidden cursor-pointer"
               aria-label="Toggle mobile menu"
+              aria-expanded={mobileMenuOpen}
               title="Toggle mobile menu"
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -197,9 +222,17 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
               <Link onClick={() => setMobileMenuOpen(false)} href="/pricing" className="text-center text-sm border border-border text-foreground font-bold py-2 rounded-lg">
                 {tText("View Plans & Pricing")}
               </Link>
-              <Link onClick={() => setMobileMenuOpen(false)} href="/contact" className="text-center text-sm border border-border text-foreground font-bold py-2 rounded-lg">
-                {tText("Contact Support")}
+              <Link onClick={() => setMobileMenuOpen(false)} href="/workspace" className="text-center text-sm border border-border text-foreground font-bold py-2 rounded-lg">
+                <FileText className="h-4 w-4 inline-block mr-1.5" />{tText("Open Workspace")}
               </Link>
+              <div className="grid grid-cols-2 gap-2">
+                <Link onClick={() => setMobileMenuOpen(false)} href="/tools" className="text-center text-sm border border-border text-foreground font-bold py-2 rounded-lg">
+                  {tText("All Tools")}
+                </Link>
+                <Link onClick={() => setMobileMenuOpen(false)} href="/contact" className="text-center text-sm border border-border text-foreground font-bold py-2 rounded-lg">
+                  {tText("Contact")}
+                </Link>
+              </div>
               <div className="flex items-center justify-between px-4 py-2 border border-border bg-card rounded-lg">
                 <span className="text-xs font-bold text-muted-foreground">{tText("Theme")}</span>
                 <ThemeToggle />

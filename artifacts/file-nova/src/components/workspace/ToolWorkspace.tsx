@@ -206,9 +206,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
     description: toolDescription,
   };
 
-  // Usage tracking event logger
   const trackEvent = (event: { tool: string; action: string; metadata?: any }) => {
-    console.log(`[FileNova Analytics]`, event);
     logAction(`Tracked: ${event.action} for ${event.tool}`);
     analytics.logEvent(event.tool, event.action, event.metadata);
   };

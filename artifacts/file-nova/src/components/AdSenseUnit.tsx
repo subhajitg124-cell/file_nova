@@ -20,8 +20,7 @@ export const AdSenseUnit = memo(function AdSenseUnit({ type = "display", classNa
     if (premiumEnabled || adType !== "adsense") return;
 
     try {
-      // @ts-ignore
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
+      ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
     } catch (e) {
       // Catch silently as AdSense SDK might load asynchronously or be blocked
       console.debug("AdSense push execution:", e);
