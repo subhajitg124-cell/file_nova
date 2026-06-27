@@ -54,6 +54,39 @@ export function FloatingSidePanel() {
     setLocation(href);
   };
 
+  const fab = (
+    <motion.button
+      onClick={() => setIsOpen(!isOpen)}
+      whileHover={{ scale: 1.08 }}
+      whileTap={{ scale: 0.92 }}
+      className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-premium cursor-pointer animate-pulse-glow"
+      aria-label="Open navigation menu"
+    >
+      {isOpen ? <X className="w-5 h-5" /> : <FileText className="w-5 h-5" />}
+    </motion.button>
+  );
+
+  const bottomSheet = (
+    <motion.div
+      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 20, scale: 0.95 }}
+      transition={{ duration: 0.15, ease: "easeOut" }}
+      className="absolute bottom-16 left-0 w-56 rounded-2xl border border-border/60 bg-background/95 backdrop-blur-xl p-2 shadow-2xl"
+    >
+      {LINKS.map((link) => (
+        <button
+          key={link.href}
+          onClick={() => navigate(link.href)}
+          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-foreground hover:bg-muted/80 transition-colors cursor-pointer ${link.accent}`}
+        >
+          {link.icon}
+          <span>{tText(link.label)}</span>
+        </button>
+      ))}
+    </motion.div>
+  );
+
   return (
     <>
       {/* Desktop: vertical pill dock — always visible on lg+ */}
@@ -75,41 +108,26 @@ export function FloatingSidePanel() {
         </div>
       </div>
 
-      {/* Mobile: FAB button */}
-      <div ref={containerRef} className="lg:hidden fixed bottom-6 right-6 z-50">
-        <motion.button
-          onClick={() => setIsOpen(!isOpen)}
-          whileHover={{ scale: 1.08 }}
-          whileTap={{ scale: 0.92 }}
-          className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-premium cursor-pointer animate-pulse-glow"
-          aria-label="Open navigation menu"
-        >
-          {isOpen ? <X className="w-5 h-5" /> : <FileText className="w-5 h-5" />}
-        </motion.button>
-
+      {/* Mobile: FAB + bottom sheet */}
+      <div ref={containerRef} className="lg:hidden fixed bottom-6 left-6 z-45">
+        {fab}
         <AnimatePresence>
-          {isOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.95 }}
-              transition={{ duration: 0.15, ease: "easeOut" }}
-              className="absolute bottom-16 right-0 w-56 rounded-2xl border border-border/60 bg-background/95 backdrop-blur-xl p-2 shadow-2xl"
-            >
-              {LINKS.map((link) => (
-                <button
-                  key={link.href}
-                  onClick={() => navigate(link.href)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-foreground hover:bg-muted/80 transition-colors cursor-pointer ${link.accent}`}
-                >
-                  {link.icon}
-                  <span>{tText(link.label)}</span>
-                </button>
-              ))}
-            </motion.div>
-          )}
+          {isOpen && bottomSheet}
         </AnimatePresence>
       </div>
+
+      {/* Mobile backdrop */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsOpen(false)}
+            className="lg:hidden fixed inset-0 bg-background/60 backdrop-blur-sm z-40"
+          />
+        )}
+      </AnimatePresence>
     </>
   );
 }
