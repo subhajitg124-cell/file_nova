@@ -69,6 +69,7 @@ const mockDb: Record<string, Map<string, any>> = {
   subscriptions: new Map(),
   files: new Map(),
   ip_usage: new Map(),
+  notifications: new Map(),
 };
 
 // Pre-seed default super_admin and test user
@@ -83,6 +84,23 @@ mockDb.users.set(defaultAdminId, {
   premiumEnabled: true,
   password_hash: hashPasswordAtRuntime("Subhajit@56"),
   referralCode: "REF12345",
+  phoneVerified: true,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  lastActiveAt: new Date(),
+});
+
+const devUserId = "11111111-1111-1111-1111-111111111111";
+mockDb.users.set(devUserId, {
+  id: devUserId,
+  email: "subhajitgho123@gmail.com",
+  name: "Subhajit Developer",
+  role: "developer",
+  tier: "elite",
+  premiumTier: "elite",
+  premiumEnabled: true,
+  password_hash: hashPasswordAtRuntime("Subhajit@56"),
+  referralCode: "DEV12345",
   phoneVerified: true,
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -364,6 +382,20 @@ export async function initDatabase() {
         start_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         end_date TIMESTAMP,
         payment_id VARCHAR(255)
+      )
+    `);
+
+    // Notifications table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS notifications (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+        type VARCHAR(50) NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        message TEXT NOT NULL,
+        is_read BOOLEAN DEFAULT FALSE,
+        link TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
 

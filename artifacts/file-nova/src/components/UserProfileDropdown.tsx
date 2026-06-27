@@ -1,6 +1,6 @@
 import React, { memo, useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { User, LogOut, Zap, Sparkles, Clock, CreditCard, ChevronDown, Key, Gift, Sliders, Code, Terminal, Globe, Sun, Moon, HelpCircle, LifeBuoy, Settings, FileText } from "lucide-react";
+import { User, LogOut, Zap, Sparkles, Clock, CreditCard, ChevronDown, Key, Gift, Sliders, Code, Terminal, Globe, Sun, Moon, HelpCircle, LifeBuoy, Settings, FileText, Percent } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useTheme } from "@/hooks/useTheme";
@@ -13,7 +13,7 @@ export const UserProfileDropdown = memo(function UserProfileDropdown() {
   const { theme, toggleTheme } = useTheme();
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const isDev = user?.role === 'developer';
+  const isDev = user?.role === 'developer' || user?.role === 'admin' || user?.role === 'super_admin';
   const [, setLocation] = useLocation();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -85,15 +85,15 @@ export const UserProfileDropdown = memo(function UserProfileDropdown() {
       {user ? (
         <button
           onClick={() => setDropdownOpen(!dropdownOpen)}
-          className="inline-flex items-center gap-2 fn-neu !rounded-full border border-[var(--fn-border)] px-3.5 py-2 text-xs font-bold text-[var(--fn-text-primary)] hover:bg-[var(--fn-surface-elevated)] transition duration-300 cursor-pointer select-none whitespace-nowrap"
+          className="inline-flex items-center gap-2 fn-neu !rounded-full border border-[var(--fn-border)] px-2 py-1.5 sm:px-3 sm:py-2 text-xs font-bold text-[var(--fn-text-primary)] hover:bg-[var(--fn-surface-elevated)] transition duration-300 cursor-pointer select-none whitespace-nowrap"
           aria-haspopup="menu"
-          aria-expanded={dropdownOpen}
+          {...(dropdownOpen ? { "aria-expanded": "true" } : { "aria-expanded": "false" })}
           aria-label="User menu"
         >
-          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--fn-accent-primary)]/10 text-[var(--fn-accent-primary)] shrink-0">
-            <User className="h-3 w-3" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-500/10 text-indigo-400 font-bold text-xs shrink-0 select-none">
+            {((user.name || user.email || "U").charAt(0)).toUpperCase()}
           </div>
-          <span className="max-w-[100px] truncate">{user.name || user.email}</span>
+          <span className="max-w-[80px] truncate text-sm hidden sm:block">{user.name || user.email}</span>
           <ChevronDown className={`h-3 w-3 text-[var(--fn-text-secondary)] transition-transform duration-300 shrink-0 ${dropdownOpen ? "rotate-180" : ""}`} />
         </button>
       ) : (
@@ -107,16 +107,16 @@ export const UserProfileDropdown = memo(function UserProfileDropdown() {
       )}
 
       {dropdownOpen && user && (
-        <div role="menu" aria-label="User menu" className="absolute right-0 top-full mt-2 w-72 rounded-2xl fn-glass shadow-[var(--fn-shadow-elevated)] p-4 z-[9999] animate-scale-in text-[var(--fn-text-primary)] max-h-[80vh] overflow-y-auto">
+        <div className="absolute right-0 top-full mt-2 w-72 rounded-2xl fn-glass shadow-[var(--fn-shadow-elevated)] p-4 z-[9999] animate-scale-in text-[var(--fn-text-primary)] max-h-[80vh] overflow-y-auto">
           {/* Account section */}
-          <div className="border-b border-border pb-3.5 mb-3.5">
-            <p className="text-xs font-black text-foreground truncate">{user.name || "FileNova User"}</p>
-            <p className="text-[10px] text-muted-foreground truncate mt-0.5">{user.email}</p>
+          <div className="border-b border-border pb-3.5 mb-3.5 break-all">
+            <p className="text-xs font-black text-foreground leading-snug">{user.name || "FileNova User"}</p>
+            <p className="text-[10px] text-muted-foreground mt-1 leading-snug">{user.email}</p>
             {user.phoneNumber && <p className="text-[10px] text-muted-foreground mt-1.5">{user.phoneNumber}</p>}
-            {user.role === 'developer' && (
+            {isDev && (
               <span className="inline-flex items-center gap-1 mt-2 rounded-md bg-gradient-to-r from-indigo-500/15 to-purple-500/15 px-2 py-0.5 text-[9px] font-black text-indigo-400 border border-indigo-500/20">
                 <Code className="h-2.5 w-2.5" />
-                DEVELOPER BUILD
+                {user.role === 'developer' ? 'DEVELOPER BUILD' : 'ADMIN BUILD'}
               </span>
             )}
           </div>
@@ -150,6 +150,27 @@ export const UserProfileDropdown = memo(function UserProfileDropdown() {
               </div>
             )}
           </div>
+
+          {/* Admin Tools section */}
+          {(user.role === 'admin' || user.role === 'super_admin') && (
+            <div className="mb-3.5">
+              {sectionHeader("Admin Tools")}
+              <div className="space-y-1">
+                <button onClick={() => { setLocation("/nova-control"); setDropdownOpen(false); }} className="w-full text-left py-2 px-3 rounded-lg text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/80 transition flex items-center gap-2 cursor-pointer">
+                  <Sliders className="h-3.5 w-3.5 text-indigo-400" />
+                  <span>Admin Control Panel</span>
+                </button>
+                <button onClick={() => { setLocation("/admin/discount-codes"); setDropdownOpen(false); }} className="w-full text-left py-2 px-3 rounded-lg text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/80 transition flex items-center gap-2 cursor-pointer">
+                  <Percent className="h-3.5 w-3.5 text-emerald-400" />
+                  <span>Discount Code Manager</span>
+                </button>
+                <button onClick={() => { setLocation("/admin/coupons"); setDropdownOpen(false); }} className="w-full text-left py-2 px-3 rounded-lg text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/80 transition flex items-center gap-2 cursor-pointer">
+                  <Percent className="h-3.5 w-3.5 text-purple-400" />
+                  <span>Coupons & Offers</span>
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Developer Tools section */}
           {isDev && (

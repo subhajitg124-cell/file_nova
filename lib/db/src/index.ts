@@ -74,6 +74,7 @@ const mockDb: Record<string, Map<string, any>> = {
   discount_code_usages: new Map(),
   referrals: new Map(),
   referral_rewards: new Map(),
+  notifications: new Map(),
 };
 
 // Pre-seed default super_admin and test user
@@ -87,6 +88,22 @@ mockDb.users.set(defaultAdminId, {
   premiumEnabled: true,
   passwordHash: hashPasswordAtRuntime("Subhajit@56"),
   referralCode: "REF12345",
+  phoneVerified: true,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  lastActiveAt: new Date(),
+});
+
+const devUserId = "11111111-1111-1111-1111-111111111111";
+mockDb.users.set(devUserId, {
+  id: devUserId,
+  email: "subhajitgho123@gmail.com",
+  name: "Subhajit Developer",
+  role: "developer",
+  premiumTier: "elite",
+  premiumEnabled: true,
+  passwordHash: hashPasswordAtRuntime("Subhajit@56"),
+  referralCode: "DEV12345",
   phoneVerified: true,
   createdAt: new Date(),
   updatedAt: new Date(),

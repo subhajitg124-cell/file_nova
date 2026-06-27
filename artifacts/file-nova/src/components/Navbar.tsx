@@ -1,6 +1,6 @@
-import React, { memo, useState, useEffect } from "react";
+import React, { memo, useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import {
   Settings2, Crown, Menu, X, Check, Bell, CreditCard, FileText
 } from "lucide-react";
@@ -14,6 +14,8 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
 import { SmartSearchBar } from "@/components/SmartSearchBar";
 import { PopularToolsDropdown } from "@/components/PopularToolsDropdown";
+import { BACKEND_URL, HAS_BACKEND } from "@/lib/api";
+import { useFileStore } from "@/store/useFileStore";
 
 interface NavbarProps {
   showSearch?: boolean;
@@ -22,8 +24,120 @@ interface NavbarProps {
 export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
   const { tText } = useTranslation();
   const { user } = useAuthStore();
+  const [, setLocation] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const notificationsRef = useRef<HTMLDivElement>(null);
+
+  const fetchNotifications = useCallback(async () => {
+    if (!user) return;
+    try {
+      const token = localStorage.getItem("filenova_token");
+      const isMock = !HAS_BACKEND || useFileStore.getState().isMockMode || (token && token.startsWith("local_"));
+      
+      let data;
+      if (isMock) {
+        const raw = localStorage.getItem("filenova_mock_notifications");
+        let list = raw ? JSON.parse(raw) : [];
+        if (list.length === 0) {
+          list = [{
+            id: "welcome-mock-id",
+            userId: user.id,
+            type: "welcome",
+            title: "Welcome to FileNova AI! 🚀",
+            message: "Experience fast, secure, and offline-first document productivity. Your files never leave your device for standalone tools.",
+            isRead: false,
+            link: "/workspace",
+            createdAt: new Date().toISOString()
+          }];
+          localStorage.setItem("filenova_mock_notifications", JSON.stringify(list));
+        }
+        data = { success: true, notifications: list };
+      } else {
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json'
+        };
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        const res = await fetch(`${BACKEND_URL}/api/v1/notifications`, {
+          credentials: 'include',
+          headers
+        });
+        if (res.ok) {
+          data = await res.json();
+        }
+      }
+
+      if (data && data.success) {
+        setNotifications(data.notifications);
+        setUnreadCount(data.notifications.filter((n: any) => !n.isRead).length);
+      }
+    } catch (e) {
+      console.warn("Failed to fetch notifications:", e);
+    }
+  }, [user]);
+
+  const markAsRead = async (id: string, link?: string) => {
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
+    setUnreadCount(prev => Math.max(0, prev - 1));
+
+    try {
+      const token = localStorage.getItem("filenova_token");
+      const isMock = !HAS_BACKEND || useFileStore.getState().isMockMode || (token && token.startsWith("local_"));
+      
+      if (isMock) {
+        const raw = localStorage.getItem("filenova_mock_notifications");
+        if (raw) {
+          const list = JSON.parse(raw);
+          const updated = list.map((n: any) => n.id === id ? { ...n, isRead: true } : n);
+          localStorage.setItem("filenova_mock_notifications", JSON.stringify(updated));
+        }
+      } else {
+        const headers: Record<string, string> = {};
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        await fetch(`${BACKEND_URL}/api/v1/notifications/${id}/read`, {
+          method: "PATCH",
+          credentials: "include",
+          headers
+        });
+      }
+    } catch (e) {
+      console.warn("Failed to mark notification as read:", e);
+    }
+
+    if (link) {
+      setNotificationsOpen(false);
+      setLocation(link);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchNotifications();
+      const interval = setInterval(fetchNotifications, 60000);
+      return () => clearInterval(interval);
+    } else {
+      setNotifications([]);
+      setUnreadCount(0);
+    }
+  }, [user, fetchNotifications]);
+
+  useEffect(() => {
+    if (!notificationsOpen) return;
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (notificationsRef.current && !notificationsRef.current.contains(e.target as Node)) {
+        setNotificationsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [notificationsOpen]);
 
   useEffect(() => {
     if (!mobileMenuOpen && !settingsOpen) return;
@@ -89,14 +203,75 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
             </nav>
 
             {/* Notification bell */}
-            <button
-              className="relative hidden md:flex items-center justify-center p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all cursor-pointer"
-              aria-label="Notifications"
-              title="Notifications"
-            >
-              <Bell className="h-4 w-4" />
-              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
-            </button>
+            {user && (
+              <div className="relative flex items-center justify-center" ref={notificationsRef}>
+                <button
+                  onClick={() => setNotificationsOpen(!notificationsOpen)}
+                  className="relative hidden md:flex items-center justify-center p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all cursor-pointer"
+                  aria-label="Notifications"
+                  title="Notifications"
+                >
+                  <Bell className="h-4 w-4" />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                  )}
+                </button>
+                <AnimatePresence>
+                  {notificationsOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      transition={{ duration: 0.15, ease: "easeOut" }}
+                      className="absolute right-0 top-full mt-3 fn-glass rounded-2xl shadow-[var(--fn-shadow-elevated)] p-4 z-[9999] w-80 text-[var(--fn-text-primary)] border border-border"
+                    >
+                      <div className="flex items-center justify-between border-b border-border pb-2.5 mb-2.5">
+                        <p className="text-xs font-black text-foreground">Notifications</p>
+                        {unreadCount > 0 && (
+                          <span className="text-[10px] font-black text-rose-500 bg-rose-500/10 px-2 py-0.5 rounded-full">
+                            {unreadCount} unread
+                          </span>
+                        )}
+                      </div>
+                      <div className="space-y-2 max-h-64 overflow-y-auto scrollbar-none">
+                        {notifications.length === 0 ? (
+                          <div className="py-8 text-center text-xs text-muted-foreground font-medium">
+                            No notifications yet.
+                          </div>
+                        ) : (
+                          notifications.map((n) => (
+                            <div
+                              key={n.id}
+                              onClick={() => markAsRead(n.id, n.link)}
+                              className={`p-2.5 rounded-xl border transition-all cursor-pointer text-left ${
+                                n.isRead
+                                  ? "bg-transparent border-transparent hover:bg-muted/40"
+                                  : "bg-indigo-500/5 border-indigo-500/10 hover:bg-indigo-500/8 hover:border-indigo-500/20"
+                              }`}
+                            >
+                              <div className="flex items-start justify-between gap-1.5">
+                                <p className={`text-xs font-bold ${n.isRead ? "text-foreground/80" : "text-foreground"}`}>
+                                  {n.title}
+                                </p>
+                                {!n.isRead && (
+                                  <span className="h-1.5 w-1.5 rounded-full bg-rose-500 shrink-0 mt-1" />
+                                )}
+                              </div>
+                              <p className="text-[10px] text-muted-foreground mt-1 leading-normal">
+                                {n.message}
+                              </p>
+                              <span className="text-[8px] text-muted-foreground/60 block mt-1.5 font-mono">
+                                {new Date(n.createdAt).toLocaleDateString()}
+                              </span>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
 
             {/* Settings */}
             <div className="relative hidden md:block">
@@ -104,7 +279,7 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
                 onClick={() => setSettingsOpen(!settingsOpen)}
                 className="flex items-center justify-center p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all cursor-pointer"
                 aria-label="Settings"
-                aria-expanded={settingsOpen}
+                {...(settingsOpen ? { "aria-expanded": "true" } : { "aria-expanded": "false" })}
                 title="Settings"
               >
                 <Settings2 className="h-4 w-4" />
@@ -134,7 +309,7 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
             {/* Smart Premium / Upgrade button */}
             {(() => {
               const tier = user?.premiumTier || 'free';
-              const isDev = user?.role === 'developer';
+              const isDev = user?.role === 'developer' || user?.role === 'admin' || user?.role === 'super_admin';
               if (isDev) {
                 return <DevBadge />;
               }
@@ -176,7 +351,7 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 hover:bg-accent/50 rounded-lg text-muted-foreground hover:text-foreground lg:hidden cursor-pointer"
               aria-label="Toggle mobile menu"
-              aria-expanded={mobileMenuOpen}
+              {...(mobileMenuOpen ? { "aria-expanded": "true" } : { "aria-expanded": "false" })}
               title="Toggle mobile menu"
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -203,7 +378,7 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
             <div className="flex flex-col gap-2 pt-2 border-t border-border">
               {(() => {
                 const tier = user?.premiumTier || 'free';
-                const isDev = user?.role === 'developer';
+                const isDev = user?.role === 'developer' || user?.role === 'admin' || user?.role === 'super_admin';
                 if (isDev) {
                   return (
                     <Link onClick={() => setMobileMenuOpen(false)} href="/dev" className="flex items-center justify-center gap-2 text-sm font-black text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 py-2.5 rounded-lg">

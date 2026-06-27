@@ -183,6 +183,28 @@ export const fileHistoryRelations = relations(fileHistoryTable, ({ one }) => ({
   }),
 }));
 
+export const notificationsTable = pgTable("notifications", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
+  type: varchar("type", { length: 50 }).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  message: text("message").notNull(),
+  isRead: boolean("is_read").notNull().default(false),
+  link: text("link"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const notificationsRelations = relations(notificationsTable, ({ one }) => ({
+  user: one(usersTable, {
+    fields: [notificationsTable.userId],
+    references: [usersTable.id],
+  }),
+}));
+
+export const insertNotificationSchema = createInsertSchema(notificationsTable).omit({ id: true, createdAt: true });
+export type Notification = typeof notificationsTable.$inferSelect;
+export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+
 export const insertUserSchema = createInsertSchema(usersTable).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertEventRuleSchema = createInsertSchema(eventRulesTable).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertDocumentRuleSchema = createInsertSchema(documentRulesTable).omit({ id: true });

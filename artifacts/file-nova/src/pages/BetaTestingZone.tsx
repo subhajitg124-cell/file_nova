@@ -57,9 +57,15 @@ export default function BetaTestingZone() {
   const { premiumTier, refreshStatus } = useSubscription();
   const { isMockMode, toggleMockMode, clearStore } = useFileStore();
 
-  // Redirect if not developer (subhajitgho123@gmail.com or super_admin)
+  // Redirect if not developer (subhajitgho123@gmail.com, super_admin, admin, or developer)
   useEffect(() => {
-    if (!user || (user.email?.toLowerCase() !== "subhajitgho123@gmail.com" && user.role !== "super_admin")) {
+    const isDeveloperOrAdmin = user && (
+      user.email?.toLowerCase() === "subhajitgho123@gmail.com" || 
+      user.role === "super_admin" || 
+      user.role === "admin" || 
+      user.role === "developer"
+    );
+    if (!isDeveloperOrAdmin) {
       toast.error("Access Denied: Developer Whitelist Required.");
       setLocation("/");
     }
@@ -228,7 +234,13 @@ export default function BetaTestingZone() {
     toast.error("Simulated client error boundary triggered.");
   };
 
-  if (!user || (user.email?.toLowerCase() !== "subhajitgho123@gmail.com" && user.role !== "super_admin")) {
+  const isDeveloperOrAdmin = user && (
+    user.email?.toLowerCase() === "subhajitgho123@gmail.com" || 
+    user.role === "super_admin" || 
+    user.role === "admin" || 
+    user.role === "developer"
+  );
+  if (!isDeveloperOrAdmin) {
     return null;
   }
 

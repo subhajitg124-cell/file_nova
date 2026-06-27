@@ -3,10 +3,23 @@ import { motion } from "framer-motion";
 
 export const LoadingScreen: React.FC = memo(() => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background text-foreground font-sans overflow-hidden relative">
+    <div className="min-h-screen flex items-center justify-center bg-[#080C14] text-white font-sans overflow-hidden relative splash-screen">
+      <style>{`
+        .splash-screen {
+          animation: fadeOut 0.4s ease forwards;
+          animation-delay: 1.2s;
+        }
+        @keyframes fadeOut {
+          to {
+            opacity: 0;
+            pointer-events: none;
+          }
+        }
+      `}</style>
+      
       {/* Premium ambient glows */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-purple-500/10 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/20 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-purple-500/20 rounded-full blur-[100px] pointer-events-none" />
       
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
@@ -34,7 +47,7 @@ export const LoadingScreen: React.FC = memo(() => {
           <motion.div
             animate={{ y: [0, -6, 0] }}
             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            className="w-16 h-16 rounded-2xl bg-card/90 border border-white/10 backdrop-blur-md flex items-center justify-center shadow-2xl shadow-indigo-950/50"
+            className="w-16 h-16 rounded-2xl bg-[#0f172a]/90 border border-white/10 backdrop-blur-md flex items-center justify-center shadow-2xl shadow-indigo-950/50"
           >
             <img src="/logo.png" alt="FileNova - AI PDF & Image Tools" className="w-10 h-10 object-contain" width="40" height="40" fetchPriority="high" />
           </motion.div>
@@ -51,7 +64,7 @@ export const LoadingScreen: React.FC = memo(() => {
         </motion.h1>
 
         {/* Shimmer line indicator */}
-        <div className="w-32 h-1 bg-card/5 rounded-full overflow-hidden mb-4 border border-white/5">
+        <div className="w-32 h-1 bg-white/5 rounded-full overflow-hidden mb-4 border border-white/5">
           <motion.div
             animate={{ x: ["-100%", "100%"] }}
             transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
@@ -67,7 +80,7 @@ export const LoadingScreen: React.FC = memo(() => {
           className="flex items-center gap-2"
         >
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          <p className="text-muted-foreground/80 text-[10px] font-black tracking-widest uppercase">Initializing Workspace</p>
+          <p className="text-indigo-200/80 text-[10px] font-black tracking-widest uppercase">Initializing Workspace</p>
         </motion.div>
       </motion.div>
     </div>

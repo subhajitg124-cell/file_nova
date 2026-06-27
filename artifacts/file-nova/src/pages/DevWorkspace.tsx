@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, type ReactNode } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
-import { useLocation } from "wouter";
+import { Link as WouterLink, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, Bot, BarChart3, Activity, Zap, Shield, Search, Package,
@@ -9,7 +9,8 @@ import {
   Smartphone, Link, Trash2, Droplets, Variable, Key, Download, Upload,
   ScanLine, Beaker, BookOpen, Code, FileText, ExternalLink, Check,
   Clock, Users, HardDrive, Thermometer, RefreshCw,
-  Layers, Server, Wifi, Hash, PanelLeftClose, PanelLeft, Search as SearchIcon
+  Layers, Server, Wifi, Hash, PanelLeftClose, PanelLeft, Search as SearchIcon,
+  SlidersHorizontal, Percent
 } from "lucide-react";
 
 const BUILD_VERSION = import.meta.env.VITE_APP_VERSION || "2.0.0-dev";
@@ -148,7 +149,7 @@ export default function DevWorkspace() {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [paletteQuery, setPaletteQuery] = useState("");
 
-  const isDev = user?.role === "developer";
+  const isDev = user?.role === "developer" || user?.role === "admin" || user?.role === "super_admin";
 
   // ── Command palette shortcut ──
   useEffect(() => {
@@ -539,6 +540,28 @@ function DashboardView() {
           </div>
         </div>
       </div>
+
+      {/* Quick Links section */}
+      <div className="rounded-xl border border-border bg-card p-5 space-y-4 mt-6">
+        <h2 className="text-xs font-black text-foreground uppercase tracking-wider flex items-center gap-2">
+          <SlidersHorizontal className="h-4 w-4 text-indigo-500" />
+          Quick Actions & Admin Tools
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <WouterLink href="/nova-control" className="flex items-center gap-2.5 p-3 rounded-xl border border-border bg-card/30 hover:bg-muted/50 transition font-bold text-xs text-foreground cursor-pointer group">
+            <SlidersHorizontal className="h-4 w-4 text-indigo-500 group-hover:scale-110 transition-transform" />
+            <span>Admin Control Panel</span>
+          </WouterLink>
+          <WouterLink href="/admin/discount-codes" className="flex items-center gap-2.5 p-3 rounded-xl border border-border bg-card/30 hover:bg-muted/50 transition font-bold text-xs text-foreground cursor-pointer group">
+            <Percent className="h-4 w-4 text-emerald-500 group-hover:scale-110 transition-transform" />
+            <span>Discount Code Manager</span>
+          </WouterLink>
+          <WouterLink href="/admin/coupons" className="flex items-center gap-2.5 p-3 rounded-xl border border-border bg-card/30 hover:bg-muted/50 transition font-bold text-xs text-foreground cursor-pointer group">
+            <Percent className="h-4 w-4 text-purple-500 group-hover:scale-110 transition-transform" />
+            <span>Coupons & Offers</span>
+          </WouterLink>
+        </div>
+      </div>
     </div>
   );
 }
@@ -580,7 +603,7 @@ function AIStudioView() {
 
       {/* Controls */}
       <div className="flex flex-wrap gap-3">
-        <select value={model} onChange={(e) => setModel(e.target.value)} className="px-3 py-1.5 rounded-lg border border-border bg-background text-xs font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 cursor-pointer">
+        <select value={model} onChange={(e) => setModel(e.target.value)} title="Select AI Model" aria-label="Select AI Model" className="px-3 py-1.5 rounded-lg border border-border bg-background text-xs font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 cursor-pointer">
           <option>gemini-2.0-flash</option>
           <option>gemini-2.0-pro</option>
           <option>gemini-1.5-pro</option>
@@ -588,7 +611,7 @@ function AIStudioView() {
         </select>
         <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
           <span>Temp:</span>
-          <input type="range" min={0} max={2} step={0.1} value={temp} onChange={(e) => setTemp(parseFloat(e.target.value))} className="w-20" />
+          <input type="range" min={0} max={2} step={0.1} value={temp} onChange={(e) => setTemp(parseFloat(e.target.value))} className="w-20" title="Temperature" aria-label="Temperature" />
           <span>{temp.toFixed(1)}</span>
         </div>
         <Badge label={`Cost: $${cost.toFixed(4)}`} variant="warning" />
@@ -800,10 +823,10 @@ function APIExplorerView() {
     <div className="max-w-4xl mx-auto space-y-6">
       <div><h1 className="text-xl font-black text-foreground">API Explorer</h1><p className="text-xs text-muted-foreground mt-1">Test API endpoints interactively.</p></div>
       <div className="flex gap-2">
-        <select value={method} onChange={(e) => setMethod(e.target.value)} className="px-3 py-2 rounded-lg border border-border bg-background text-xs font-bold text-foreground focus:outline-none cursor-pointer">
+        <select value={method} onChange={(e) => setMethod(e.target.value)} title="HTTP Method" aria-label="HTTP Method" className="px-3 py-2 rounded-lg border border-border bg-background text-xs font-bold text-foreground focus:outline-none cursor-pointer">
           <option>GET</option><option>POST</option><option>PUT</option><option>DELETE</option>
         </select>
-        <input type="text" value={endpoint} onChange={(e) => setEndpoint(e.target.value)} className="flex-1 h-10 px-4 rounded-xl border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono" />
+        <input type="text" value={endpoint} onChange={(e) => setEndpoint(e.target.value)} placeholder="API Endpoint" aria-label="API Endpoint" className="flex-1 h-10 px-4 rounded-xl border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono" />
         <button onClick={handleCall} className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-black text-primary-foreground transition cursor-pointer">Send</button>
       </div>
       {result && (
@@ -957,7 +980,7 @@ function ThemeLabView() {
             {[{ label: "Border Radius", value: radius, set: setRadius, max: 32 }, { label: "Glass Intensity", value: glass, set: setGlass, max: 100 }, { label: "Shadow Intensity", value: shadow, set: setShadow, max: 100 }].map((s) => (
               <div key={s.label}>
                 <div className="flex justify-between text-[10px] font-bold text-muted-foreground"><span>{s.label}</span><span>{s.value}%</span></div>
-                <input type="range" min={0} max={s.max} value={s.value} onChange={(e) => s.set(parseInt(e.target.value))} className="w-full" />
+                <input type="range" min={0} max={s.max} value={s.value} onChange={(e) => s.set(parseInt(e.target.value))} className="w-full" title={s.label} aria-label={s.label} />
               </div>
             ))}
           </div>

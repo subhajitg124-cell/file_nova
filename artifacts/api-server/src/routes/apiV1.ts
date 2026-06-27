@@ -12,6 +12,7 @@ import premiumRouter from "./premium";
 import subscriptionRouter from "./subscriptions";
 import authRouter from "./auth";
 import referralRouter from "./referral";
+import notificationsRouter from "./notifications";
 import { checkUsageLimit } from "../middlewares/limits";
 import { authMiddleware, type AuthRequest } from "../middlewares/auth";
 import { db, fileHistoryTable } from "@workspace/db";
@@ -682,5 +683,6 @@ router.use("/premium", premiumRouter);
 router.use("/premium/subscription", subscriptionRouter);
 router.use("/auth", authRouter);
 router.use("/referral", referralRouter);
+router.use(notificationsRouter);
 
 export default router;

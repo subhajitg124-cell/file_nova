@@ -129,6 +129,12 @@ function App({ ssrPath }: { ssrPath?: string } = {}) {
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [isOnline, setIsOnline] = useState(() => typeof navigator !== "undefined" ? navigator.onLine : true);
   const [retryTrigger, setRetryTrigger] = useState(0);
+  const [splashDone, setSplashDone] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setSplashDone(true), 1600);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -249,7 +255,7 @@ function App({ ssrPath }: { ssrPath?: string } = {}) {
       .catch(() => {});
   }, []);
 
-  if (!initialized && !ssrPath) {
+  if ((!initialized || !splashDone) && !ssrPath) {
     return <LoadingScreen />;
   }
 

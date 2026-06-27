@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, AlertCircle, Loader2, FileText, Image, Video, FileSpreadsheet, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -124,6 +124,36 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
     openEditor(file, resolveEditorType(file));
   };
 
+  const [importingMessage, setImportingMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!document.getElementById("google-gapi-js")) {
+      const script = document.createElement("script");
+      script.id = "google-gapi-js";
+      script.src = "https://apis.google.com/js/api.js";
+      script.onload = () => {
+        (window as any).gapi.load('picker', {
+          callback: () => console.log("Google Picker loaded"),
+          onerror: () => console.error("Google Picker load error")
+        });
+      };
+      document.body.appendChild(script);
+    } else if ((window as any).gapi && !(window as any).gapi.picker) {
+      (window as any).gapi.load('picker', {
+        callback: () => console.log("Google Picker loaded"),
+        onerror: () => console.error("Google Picker load error")
+      });
+    }
+
+    if (!document.getElementById("dropboxjs")) {
+      const script = document.createElement("script");
+      script.id = "dropboxjs";
+      script.src = "https://www.dropbox.com/static/api/2/dropins.js";
+      script.setAttribute("data-app-key", import.meta.env.VITE_DROPBOX_APP_KEY || "3crmlb7g779pcsc");
+      document.body.appendChild(script);
+    }
+  }, []);
+
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (acceptedFiles.length === 0) return;
     setError(null); setMismatchError(null); setPendingRedirect(null);
@@ -206,14 +236,126 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
     openEditor(file, resolveEditorType(file));
   }, [allowedCategory, setError, openEditor, user, subscription, setSelectedSection, jobId, setJobId, addRawFiles, addFiles, isMockMode]);
 
+  const importFileFromUrl = async (fileUrl: string, fileName: string, mimeType: string, isDrive: boolean, accessToken?: string) => {
+    setImportingMessage(isDrive ? "Importing from Drive..." : "Importing from Dropbox...");
+    setError(null);
+    try {
+      const headers: Record<string, string> = {};
+      if (isDrive && accessToken) {
+        headers["Authorization"] = `Bearer ${accessToken}`;
+      }
+      
+      const response = await fetch(fileUrl, { headers });
+      if (!response.ok) {
+        throw new Error(`Failed to download file from cloud storage. Status: ${response.status}`);
+      }
+      
+      const blob = await response.blob();
+      const file = new File([blob], fileName, { type: mimeType || blob.type });
+      
+      setImportingMessage(null);
+      await onDrop([file]);
+    } catch (err: any) {
+      console.error(err);
+      setError(`Failed to import file: ${err.message || err}`);
+      setImportingMessage(null);
+    }
+  };
+
+  const openGooglePicker = (accessToken: string) => {
+    try {
+      const picker = new (window as any).google.picker.PickerBuilder()
+        .addView((window as any).google.picker.ViewId.DOCS)
+        .setOAuthToken(accessToken)
+        .setCallback(async (data: any) => {
+          if (data.action === (window as any).google.picker.Action.PICKED) {
+            const doc = data.docs[0];
+            const fileId = doc.id;
+            const fileName = doc.name;
+            const mimeType = doc.mimeType;
+            const fileUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
+            await importFileFromUrl(fileUrl, fileName, mimeType, true, accessToken);
+          }
+        })
+        .build();
+      picker.setVisible(true);
+    } catch (err: any) {
+      setError(`Failed to build Google Picker: ${err.message || err}`);
+    }
+  };
+
   const launchGoogleDrive = () => {
-    setCloudSource('Google Drive');
-    setCloudModalOpen(true);
+    setError(null);
+    if (isMockMode) {
+      setCloudSource('Google Drive');
+      setCloudModalOpen(true);
+      return;
+    }
+
+    if (typeof (window as any).gapi === "undefined" || typeof (window as any).google === "undefined") {
+      setError("Google SDKs not loaded. Please try again in a few seconds.");
+      return;
+    }
+
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    if (!clientId) {
+      setError("Google Client ID is missing. Check your configuration.");
+      return;
+    }
+
+    try {
+      const tokenClient = (window as any).google.accounts.oauth2.initTokenClient({
+        client_id: clientId,
+        scope: "https://www.googleapis.com/auth/drive.readonly",
+        callback: async (tokenResponse: any) => {
+          if (tokenResponse.error !== undefined) {
+            setError(`Google auth failed: ${tokenResponse.error}`);
+            return;
+          }
+          
+          const accessToken = tokenResponse.access_token;
+          openGooglePicker(accessToken);
+        },
+      });
+      tokenClient.requestAccessToken({ prompt: "consent" });
+    } catch (err: any) {
+      setError(`Failed to open Google Drive authentication: ${err.message || err}`);
+    }
   };
 
   const launchDropbox = () => {
-    setCloudSource('Dropbox');
-    setCloudModalOpen(true);
+    setError(null);
+    if (isMockMode) {
+      setCloudSource('Dropbox');
+      setCloudModalOpen(true);
+      return;
+    }
+
+    if (typeof (window as any).Dropbox === "undefined") {
+      setError("Dropbox chooser SDK not loaded. Please refresh the page and try again.");
+      return;
+    }
+
+    try {
+      (window as any).Dropbox.choose({
+        success: async (files: any[]) => {
+          if (files && files.length > 0) {
+            const dbxFile = files[0];
+            const fileUrl = dbxFile.link;
+            const fileName = dbxFile.name;
+            await importFileFromUrl(fileUrl, fileName, "", false);
+          }
+        },
+        cancel: () => {
+          console.log("Dropbox Chooser cancelled");
+        },
+        linkType: "direct",
+        multiselect: false,
+        extensions: [".pdf", ".docx", ".pptx", ".xlsx", ".jpg", ".png", ".jpeg", ".zip"]
+      });
+    } catch (err: any) {
+      setError(`Failed to open Dropbox Chooser: ${err.message || err}`);
+    }
   };
 
   const handleSelectMockCloudFile = async (mockFileMeta: { name: string; size: number; mime: string }) => {
@@ -315,7 +457,19 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
         <div className="absolute bottom-3 right-3 h-4 w-4 border-b-2 border-r-2 border-border/40 rounded-br-lg pointer-events-none transition-colors group-hover:border-brand-primary/30" />
 
         <div className="relative flex flex-col items-center justify-center gap-4 sm:gap-5 p-5 sm:p-10 text-center">
-          {isUploading ? (
+          {importingMessage ? (
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center gap-4">
+              <div className="relative">
+                <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
+                  <Loader2 className="h-7 w-7 text-indigo-500 animate-spin" />
+                </div>
+              </div>
+              <div>
+                <p className="font-bold text-foreground">{importingMessage}</p>
+                <p className="text-xs text-muted-foreground mt-1">Please wait while transferring cloud file...</p>
+              </div>
+            </motion.div>
+          ) : isUploading ? (
             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center gap-4">
               <div className="relative">
                 <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">

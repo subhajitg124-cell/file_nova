@@ -436,7 +436,7 @@ export function GlobalCommandPalette() {
   const inputRef = useRef<HTMLInputElement>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
 
-  const isDev = user?.role === 'developer';
+  const isDev = user?.role === 'developer' || user?.role === 'admin' || user?.role === 'super_admin';
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -748,7 +748,7 @@ function DesktopContent({
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               role="tab"
-              aria-selected={isActive}
+              {...(isActive ? { "aria-selected": "true" } : { "aria-selected": "false" })}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg whitespace-nowrap transition-all cursor-pointer shrink-0 ${
                 isActive
                   ? 'bg-primary/10 text-primary border border-primary/20 shadow-sm'
@@ -772,8 +772,6 @@ function DesktopContent({
         ref={listRef}
         onScroll={handleScroll}
         className="flex-1 overflow-y-auto py-2 px-2 scrollbar-thin"
-        role="listbox"
-        aria-label="Search results"
       >
         {Object.keys(grouped).length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 px-4 text-center" role="status">
@@ -794,77 +792,79 @@ function DesktopContent({
                 </span>
                 <div className="flex-1 h-px bg-border/50" />
               </div>
-              {groupEntries.map((entry: CmdEntry) => {
-                const Icon = entry.icon;
-                const fav = isFavorite(entry.id);
-                return (
-                  <button
-                    key={entry.id}
-                    onClick={(ev: React.MouseEvent) => { (ev.ctrlKey || ev.metaKey ? handleSelectNewTab : handleSelect)(entry); }}
-                    onMouseDown={(ev: React.MouseEvent) => {
-                      if (ev.button === 1) {
+              <div role="listbox" aria-label={groupName} className="space-y-0.5">
+                {groupEntries.map((entry: CmdEntry) => {
+                  const Icon = entry.icon;
+                  const fav = isFavorite(entry.id);
+                  return (
+                    <button
+                      key={entry.id}
+                      onClick={(ev: React.MouseEvent) => { (ev.ctrlKey || ev.metaKey ? handleSelectNewTab : handleSelect)(entry); }}
+                      onMouseDown={(ev: React.MouseEvent) => {
+                        if (ev.button === 1) {
+                          ev.preventDefault();
+                          toggleFavorite(entry.id);
+                        }
+                      }}
+                      onContextMenu={(ev: React.MouseEvent) => {
                         ev.preventDefault();
                         toggleFavorite(entry.id);
-                      }
-                    }}
-                    onContextMenu={(ev: React.MouseEvent) => {
-                      ev.preventDefault();
-                      toggleFavorite(entry.id);
-                    }}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-accent/60 hover:border-border/60 transition-all border border-transparent group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:outline-none"
-                    role="option"
-                    aria-selected={false}
-                    tabIndex={0}
-                    onKeyDown={(ev: React.KeyboardEvent) => {
-                      if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) {
-                        ev.preventDefault();
-                        handleSelectNewTab(entry);
-                      } else if (ev.key === 'Enter') {
-                        handleSelect(entry);
-                      } else if (ev.key === ' ') {
-                        ev.preventDefault();
-                        handleSelect(entry);
-                      } else if (ev.key === 'Delete' || ev.key === 'Backspace') {
-                        ev.preventDefault();
-                        toggleFavorite(entry.id);
-                      }
-                    }}
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-muted/60 border border-border/40 flex items-center justify-center shrink-0">
-                      <Icon className="h-4 w-4 text-foreground/70" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-foreground truncate">{entry.label}</span>
-                        {entry.badge && (
-                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 shrink-0">
-                            {entry.badge}
-                          </span>
+                      }}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-accent/60 hover:border-border/60 transition-all border border-transparent group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:outline-none"
+                      role="option"
+                      aria-selected="false"
+                      tabIndex={0}
+                      onKeyDown={(ev: React.KeyboardEvent) => {
+                        if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) {
+                          ev.preventDefault();
+                          handleSelectNewTab(entry);
+                        } else if (ev.key === 'Enter') {
+                          handleSelect(entry);
+                        } else if (ev.key === ' ') {
+                          ev.preventDefault();
+                          handleSelect(entry);
+                        } else if (ev.key === 'Delete' || ev.key === 'Backspace') {
+                          ev.preventDefault();
+                          toggleFavorite(entry.id);
+                        }
+                      }}
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-muted/60 border border-border/40 flex items-center justify-center shrink-0">
+                        <Icon className="h-4 w-4 text-foreground/70" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold text-foreground truncate">{entry.label}</span>
+                          {entry.badge && (
+                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 shrink-0">
+                              {entry.badge}
+                            </span>
+                          )}
+                        </div>
+                        {entry.description && (
+                          <p className="text-xs text-muted-foreground/70 truncate mt-0.5">{entry.description}</p>
                         )}
                       </div>
-                      {entry.description && (
-                        <p className="text-xs text-muted-foreground/70 truncate mt-0.5">{entry.description}</p>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-1 shrink-0">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleFavorite(entry.id);
-                        }}
-                        className={`p-1 rounded-md transition-all opacity-0 group-hover:opacity-100 focus-visible:opacity-100 hover:bg-muted cursor-pointer ${
-                          fav ? 'text-amber-400 opacity-100' : 'text-muted-foreground'
-                        }`}
-                        aria-label={fav ? 'Remove from favorites' : 'Add to favorites'}
-                        tabIndex={-1}
-                      >
-                        <Star className={`h-3.5 w-3.5 ${fav ? 'fill-amber-400' : ''}`} />
-                      </button>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground/30 group-hover:text-muted-foreground/60 transition-colors" />
-                    </div>
-                  </button>
-                );
-              })}
+                      <div className="flex items-center gap-1 shrink-0">
+                        <span
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleFavorite(entry.id);
+                          }}
+                          className={`p-1 rounded-md transition-all opacity-0 group-hover:opacity-100 focus-visible:opacity-100 hover:bg-muted cursor-pointer ${
+                            fav ? 'text-amber-400 opacity-100' : 'text-muted-foreground'
+                          }`}
+                          aria-label={fav ? 'Remove from favorites' : 'Add to favorites'}
+                          role="img"
+                        >
+                          <Star className={`h-3.5 w-3.5 ${fav ? 'fill-amber-400' : ''}`} />
+                        </span>
+                        <ChevronRight className="h-4 w-4 text-muted-foreground/30 group-hover:text-muted-foreground/60 transition-colors" />
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           ) : null
         )}
