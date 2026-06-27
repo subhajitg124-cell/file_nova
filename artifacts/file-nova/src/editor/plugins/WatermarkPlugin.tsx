@@ -25,7 +25,7 @@ const WatermarkSection: React.FC<SectionProps> = ({ config, onConfigChange, mode
           <Type className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
           <input type="text" value={config.watermarkText || ""} onChange={(e) => onConfigChange("watermarkText", e.target.value)}
             placeholder="e.g. CONFIDENTIAL"
-            className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-950 pl-8 pr-3 py-2 text-xs text-slate-800 dark:text-white outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/30" disabled={disabled} />
+            className="w-full rounded-xl border border-border dark:border-border bg-card dark:bg-background pl-8 pr-3 py-2 text-xs text-foreground dark:text-foreground outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/30" disabled={disabled} />
         </div>
       </SettingRow>
     </BentoCard>
@@ -74,10 +74,10 @@ const WatermarkSection: React.FC<SectionProps> = ({ config, onConfigChange, mode
           <div className="grid grid-cols-2 gap-2">
             <input type="number" value={config.watermarkMarginX || 20} onChange={(e) => onConfigChange("watermarkMarginX", Number(e.target.value))}
               placeholder="X" title="Margin X"
-              className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-800 dark:text-white outline-none focus:border-purple-500" disabled={disabled} />
+              className="w-full rounded-xl border border-border dark:border-border bg-card dark:bg-background px-3 py-2 text-xs text-foreground dark:text-foreground outline-none focus:border-purple-500" disabled={disabled} />
             <input type="number" value={config.watermarkMarginY || 20} onChange={(e) => onConfigChange("watermarkMarginY", Number(e.target.value))}
               placeholder="Y" title="Margin Y"
-              className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-800 dark:text-white outline-none focus:border-purple-500" disabled={disabled} />
+              className="w-full rounded-xl border border-border dark:border-border bg-card dark:bg-background px-3 py-2 text-xs text-foreground dark:text-foreground outline-none focus:border-purple-500" disabled={disabled} />
           </div>
         </SettingRow>
       </BentoCard>

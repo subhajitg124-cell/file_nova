@@ -8,9 +8,9 @@ interface GlassPanelProps {
 }
 
 const intensityMap = {
-  light: "bg-white/5 dark:bg-white/5 backdrop-blur-md",
-  medium: "bg-white/10 dark:bg-white/10 backdrop-blur-lg",
-  heavy: "bg-white/15 dark:bg-white/15 backdrop-blur-xl",
+  light: "bg-card/5 dark:bg-card/5 backdrop-blur-md",
+  medium: "bg-card/10 dark:bg-card/10 backdrop-blur-lg",
+  heavy: "bg-card/15 dark:bg-card/15 backdrop-blur-xl",
 };
 
 export const GlassPanel: React.FC<GlassPanelProps> = ({
@@ -19,7 +19,7 @@ export const GlassPanel: React.FC<GlassPanelProps> = ({
   <div
     className={[
       intensityMap[intensity],
-      border ? "border border-white/10 dark:border-white/10" : "",
+      border ? "border border-white/10 dark:border-border" : "",
       "shadow-lg shadow-black/5",
       "rounded-2xl",
       className,

@@ -75,7 +75,23 @@ const createLocalUser = (email: string, name: string | null, phoneNumber: string
 
 const processUser = (user: UserProfile | null): UserProfile | null => {
   if (!user) return null;
-  
+
+  // For server-backed users: never generate a client-side code — server owns it
+  if (!user.id.startsWith("local_")) {
+    const isDev = import.meta.env.DEV;
+    if (isDev && user.email?.toLowerCase() === 'subhajitgho123@gmail.com') {
+      return {
+        ...user,
+        role: 'super_admin',
+        premiumTier: 'elite',
+        premiumEnabled: true,
+        phoneVerified: true,
+      };
+    }
+    return user;
+  }
+
+  // Local-only users: generate a code once and persist it
   if (!user.referralCode) {
     const REFERRAL_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
     let suffix = "";
@@ -83,8 +99,7 @@ const processUser = (user: UserProfile | null): UserProfile | null => {
       suffix += REFERRAL_ALPHABET[Math.floor(Math.random() * REFERRAL_ALPHABET.length)];
     }
     user.referralCode = `FN-${suffix}`;
-    
-    // Save back to local storage if it was loaded from there
+
     try {
       const raw = localStorage.getItem(LOCAL_USER_KEY);
       if (raw) {
@@ -94,7 +109,7 @@ const processUser = (user: UserProfile | null): UserProfile | null => {
           localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(localSession));
         }
       }
-      
+
       const localUsers = getLocalUsers();
       const key = user.email.toLowerCase();
       if (localUsers[key]) {

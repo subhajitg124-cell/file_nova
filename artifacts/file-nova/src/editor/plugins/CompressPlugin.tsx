@@ -27,13 +27,13 @@ const CompressSection: React.FC<SectionProps> = ({ config, onConfigChange, mode,
       <SettingRow label={`Quality ${Math.round((config.quality || 0.65) * 100)}%`}>
         <input type="range" min={10} max={100} value={config.quality * 100 || 65}
           onChange={(e) => onConfigChange("quality", Number(e.target.value) / 100)}
-          className="h-1 w-full rounded-lg appearance-none cursor-pointer accent-purple-500 bg-slate-200 dark:bg-slate-800" disabled={disabled} />
+          className="h-1 w-full rounded-lg appearance-none cursor-pointer accent-purple-500 bg-muted dark:bg-muted" disabled={disabled} />
       </SettingRow>
     </BentoCard>
 
     <BentoCard size="sm" hover={false} accent="success">
       <div className="flex items-center justify-between">
-        <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500">Estimated Size</span>
+        <span className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground/80 dark:text-muted-foreground">Estimated Size</span>
         <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 font-mono">{config.estimatedSize || "—"}</span>
       </div>
     </BentoCard>
@@ -48,10 +48,10 @@ const CompressSection: React.FC<SectionProps> = ({ config, onConfigChange, mode,
             { key: "optimizeFonts", label: "Optimize Fonts", icon: <FileSymlink className="h-3 w-3" /> },
             { key: "optimizeImages", label: "Optimize Images", icon: <Image className="h-3 w-3" /> },
           ].map(({ key, label, icon }) => (
-            <label key={key} className="flex items-center gap-3 rounded-lg border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-slate-950/60 px-3 py-2 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 transition">
+            <label key={key} className="flex items-center gap-3 rounded-lg border border-border dark:border-border bg-card/80 dark:bg-background/60 px-3 py-2 cursor-pointer hover:bg-muted/80 dark:hover:bg-muted transition">
               <input type="checkbox" checked={!!config[key]} onChange={(e) => onConfigChange(key, e.target.checked)}
-                className="h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-purple-500 focus:ring-purple-500/30 cursor-pointer" disabled={disabled} />
-              <span className="flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-300">
+                className="h-4 w-4 rounded border-border dark:border-muted text-purple-500 focus:ring-purple-500/30 cursor-pointer" disabled={disabled} />
+              <span className="flex items-center gap-1.5 text-xs font-bold text-foreground/80 dark:text-foreground/90">
                 {icon}{label}
               </span>
             </label>

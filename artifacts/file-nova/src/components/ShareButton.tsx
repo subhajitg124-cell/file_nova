@@ -85,7 +85,7 @@ export function ShareButton({ url, message, filename }: ShareButtonProps) {
       
       <button
         onClick={handleTwitterShare}
-        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition font-semibold text-sm"
+        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-card text-foreground hover:bg-muted transition font-semibold text-sm"
         aria-label="Share on Twitter/X"
       >
         <Twitter className="h-4 w-4" />

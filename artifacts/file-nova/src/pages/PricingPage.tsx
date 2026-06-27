@@ -515,6 +515,7 @@ export default function PricingPage() {
     if (code === "STUDENT20") return 20;
     if (code === "CYBER50" && planId === "elite") return 50;
     if (code === "FIRST30") return 30;
+    if (code === "WB10") return 10;
     return 0;
   };
 

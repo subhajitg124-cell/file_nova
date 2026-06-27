@@ -40,7 +40,7 @@ const SplitSection: React.FC<SectionProps> = ({ config, onConfigChange, mode, di
       <BentoCard size="sm" hover={false}>
         <SettingRow label="Every X Pages">
           <input type="number" min={1} value={config.splitEvery || 2} onChange={(e) => onConfigChange("splitEvery", Number(e.target.value))}
-            className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-800 dark:text-white outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/30" disabled={disabled} />
+            className="w-full rounded-xl border border-border dark:border-border bg-card dark:bg-background px-3 py-2 text-xs text-foreground dark:text-foreground outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/30" disabled={disabled} />
         </SettingRow>
       </BentoCard>
     )}
@@ -50,7 +50,7 @@ const SplitSection: React.FC<SectionProps> = ({ config, onConfigChange, mode, di
         <SettingRow label="Page Numbers" helpText="e.g. 1,3,5">
           <input type="text" value={config.extractPages || ""} onChange={(e) => onConfigChange("extractPages", e.target.value)}
             placeholder="1,3,5"
-            className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-800 dark:text-white outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/30" disabled={disabled} />
+            className="w-full rounded-xl border border-border dark:border-border bg-card dark:bg-background px-3 py-2 text-xs text-foreground dark:text-foreground outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/30" disabled={disabled} />
         </SettingRow>
       </BentoCard>
     )}

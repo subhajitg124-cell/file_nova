@@ -30,7 +30,7 @@ const AnnotateSection: React.FC<SectionProps> = ({ config, onConfigChange, disab
               className={`flex flex-col items-center gap-1 rounded-xl border py-2 text-[10px] font-bold transition-all cursor-pointer ${
                 activeMode === mode
                   ? "border-purple-500/50 bg-purple-500/10 text-purple-600 dark:text-purple-400 shadow-sm"
-                  : "border-slate-200 dark:border-white/10 bg-white/80 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900"
+                  : "border-border dark:border-border bg-card/80 dark:bg-background/60 text-muted-foreground dark:text-muted-foreground/80 hover:bg-muted/80 dark:hover:bg-muted"
               }`} disabled={disabled}>
               {icon}
               <span>{label}</span>
@@ -41,12 +41,12 @@ const AnnotateSection: React.FC<SectionProps> = ({ config, onConfigChange, disab
 
       <BentoCard size="sm" hover={false}>
         <div className="flex items-center gap-2">
-          <Palette className="h-3 w-3 text-slate-400" />
+          <Palette className="h-3 w-3 text-muted-foreground/80" />
           <div className="flex gap-1.5">
             {colors.map((color) => (
               <button key={color.value} type="button" onClick={() => onConfigChange("drawColor", color.value)}
                 className={`h-7 w-7 rounded-full border-2 transition-all cursor-pointer ${
-                  drawColor === color.value ? "border-purple-500 scale-110 shadow-sm" : "border-slate-200 dark:border-white/20 hover:scale-105"
+                  drawColor === color.value ? "border-purple-500 scale-110 shadow-sm" : "border-border dark:border-border hover:scale-105"
                 }`}
                 style={{ backgroundColor: color.value }} aria-label={color.label} title={color.label} disabled={disabled} />
             ))}
@@ -57,7 +57,7 @@ const AnnotateSection: React.FC<SectionProps> = ({ config, onConfigChange, disab
       {annotations.length > 0 && (
         <BentoCard size="sm" hover={false}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500">{annotations.length} placed</span>
+            <span className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground/80 dark:text-muted-foreground">{annotations.length} placed</span>
             <button type="button" onClick={() => onConfigChange("annotations", [])}
               className="text-[10px] text-red-500 hover:text-red-400 transition cursor-pointer flex items-center gap-1" disabled={disabled}>
               <Trash2 className="h-3 w-3" /> Clear All
@@ -65,13 +65,13 @@ const AnnotateSection: React.FC<SectionProps> = ({ config, onConfigChange, disab
           </div>
           <div className="space-y-1 max-h-36 overflow-y-auto">
             {annotations.map((ann: Annotation, i: number) => (
-              <div key={i} className="flex items-center justify-between rounded-lg border border-slate-200 dark:border-white/5 bg-white/80 dark:bg-slate-950/60 px-2.5 py-1.5 text-[10px] text-slate-500 dark:text-slate-400">
+              <div key={i} className="flex items-center justify-between rounded-lg border border-border dark:border-border bg-card/80 dark:bg-background/60 px-2.5 py-1.5 text-[10px] text-muted-foreground dark:text-muted-foreground/80">
                 <span className="flex items-center gap-1.5">
                   <span className="h-2 w-2 rounded-full" style={{ backgroundColor: ann.color }} />
                   <span>{ann.type === "path" ? "Signature" : `"${ann.text?.slice(0, 12)}..."`}</span>
                 </span>
                 <button type="button" onClick={() => onConfigChange("removeAnnotationIndex", i)}
-                  className="text-slate-400 hover:text-red-500 transition cursor-pointer" disabled={disabled}>
+                  className="text-muted-foreground/80 hover:text-red-500 transition cursor-pointer" disabled={disabled}>
                   <X className="h-3 w-3" />
                 </button>
               </div>

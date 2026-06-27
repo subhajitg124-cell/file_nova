@@ -12,7 +12,7 @@ const MergeSection: React.FC<SectionProps> = ({ config, onConfigChange, onStatus
       <BentoCard size="sm" hover={false}>
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500">Documents ({files.length})</span>
+            <span className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground/80 dark:text-muted-foreground">Documents ({files.length})</span>
             <label className="flex items-center gap-1.5 text-[10px] font-bold text-purple-500 hover:text-purple-400 cursor-pointer">
               <Plus className="h-3 w-3" />
               <input type="file" accept="application/pdf" multiple
@@ -29,23 +29,23 @@ const MergeSection: React.FC<SectionProps> = ({ config, onConfigChange, onStatus
           </div>
           <div className="space-y-1 max-h-44 overflow-y-auto pr-1">
             {files.length === 0 ? (
-              <div className="text-center py-4 text-[11px] text-slate-400 dark:text-slate-500 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950/30">
+              <div className="text-center py-4 text-[11px] text-muted-foreground/80 dark:text-muted-foreground border-2 border-dashed border-border dark:border-border rounded-xl bg-muted/50 dark:bg-background/30">
                 Drop PDFs or click Add Files
               </div>
             ) : files.map((f, i) => (
               <div key={f.id || i}
-                className="flex items-center justify-between rounded-xl border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-slate-950/60 px-3 py-2.5 text-xs transition hover:bg-slate-100 dark:hover:bg-slate-900 group">
+                className="flex items-center justify-between rounded-xl border border-border dark:border-border bg-card/80 dark:bg-background/60 px-3 py-2.5 text-xs transition hover:bg-muted/80 dark:hover:bg-muted group">
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 w-5">{i + 1}.</span>
-                  <span className="truncate max-w-[140px] text-slate-600 dark:text-slate-300 font-medium">{f.name}</span>
+                  <span className="text-[10px] font-mono text-muted-foreground/80 dark:text-muted-foreground w-5">{i + 1}.</span>
+                  <span className="truncate max-w-[140px] text-foreground/80 dark:text-foreground/90 font-medium">{f.name}</span>
                 </div>
                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition">
                   <button type="button" onClick={() => { const a = [...files]; if (i > 0) { [a[i - 1], a[i]] = [a[i], a[i - 1]]; onConfigChange("mergeFiles", a); } }}
-                    className="h-6 w-6 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 transition cursor-pointer" disabled={disabled || i === 0}>
+                    className="h-6 w-6 flex items-center justify-center rounded-lg text-muted-foreground/80 hover:text-foreground/80 dark:hover:text-foreground hover:bg-muted dark:hover:bg-muted transition cursor-pointer" disabled={disabled || i === 0}>
                     <ArrowUp className="h-3 w-3" />
                   </button>
                   <button type="button" onClick={() => { const a = [...files]; if (i < a.length - 1) { [a[i], a[i + 1]] = [a[i + 1], a[i]]; onConfigChange("mergeFiles", a); } }}
-                    className="h-6 w-6 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 transition cursor-pointer" disabled={disabled || i === files.length - 1}>
+                    className="h-6 w-6 flex items-center justify-center rounded-lg text-muted-foreground/80 hover:text-foreground/80 dark:hover:text-foreground hover:bg-muted dark:hover:bg-muted transition cursor-pointer" disabled={disabled || i === files.length - 1}>
                     <ArrowDown className="h-3 w-3" />
                   </button>
                   <button type="button" onClick={() => onConfigChange("mergeFiles", files.filter((_, idx) => idx !== i))}
@@ -68,7 +68,7 @@ const MergeSection: React.FC<SectionProps> = ({ config, onConfigChange, onStatus
               { key: "duplicateLast", label: "Duplicate Last", icon: <Copy className="h-3.5 w-3.5" /> },
             ].map(({ key, label, icon }) => (
               <button key={key} type="button" onClick={() => { onConfigChange(key, true); setTimeout(() => onConfigChange(key, false), 200); }}
-                className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-slate-950 py-2 text-[11px] font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 transition cursor-pointer" disabled={disabled}>
+                className="flex items-center justify-center gap-1.5 rounded-xl border border-border dark:border-border bg-card/80 dark:bg-background py-2 text-[11px] font-bold text-muted-foreground dark:text-muted-foreground/80 hover:bg-muted/80 dark:hover:bg-muted transition cursor-pointer" disabled={disabled}>
                 {icon}{label}
               </button>
             ))}

@@ -26,16 +26,16 @@ const AadhaarMaskSection: React.FC<SectionProps> = ({ config, onConfigChange, di
 
     <BentoCard size="sm" hover={false}>
       <div className="space-y-2">
-        <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500">Fields to Mask</p>
+        <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground/80 dark:text-muted-foreground">Fields to Mask</p>
         {[
           { key: "maskAadhaar", label: "Aadhaar Number", icon: <Hash className="h-3 w-3" /> },
           { key: "maskName", label: "Full Name", icon: <User className="h-3 w-3" /> },
           { key: "maskAddress", label: "Address", icon: <Type className="h-3 w-3" /> },
         ].map(({ key, label, icon }) => (
-          <label key={key} className="flex items-center gap-3 rounded-lg border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-slate-950/60 px-3 py-2 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 transition">
+          <label key={key} className="flex items-center gap-3 rounded-lg border border-border dark:border-border bg-card/80 dark:bg-background/60 px-3 py-2 cursor-pointer hover:bg-muted/80 dark:hover:bg-muted transition">
             <input type="checkbox" defaultChecked={true} checked={config[key] !== false} onChange={(e) => onConfigChange(key, e.target.checked)}
-              className="h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-purple-500 focus:ring-purple-500/30 cursor-pointer" disabled={disabled} />
-            <span className="flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-300">
+              className="h-4 w-4 rounded border-border dark:border-muted text-purple-500 focus:ring-purple-500/30 cursor-pointer" disabled={disabled} />
+            <span className="flex items-center gap-1.5 text-xs font-bold text-foreground/80 dark:text-foreground/90">
               {icon}{label}
             </span>
           </label>

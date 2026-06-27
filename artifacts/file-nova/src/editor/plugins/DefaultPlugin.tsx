@@ -7,11 +7,11 @@ const DefaultSection: React.FC<SectionProps> = ({ file }) => (
   <div className="space-y-3">
     <BentoCard size="sm" hover={false}>
       <div className="flex flex-col items-center text-center py-6">
-        <div className="h-12 w-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3">
-          <FileText className="h-6 w-6 text-slate-400 dark:text-slate-500" />
+        <div className="h-12 w-12 rounded-2xl bg-muted/80 dark:bg-muted flex items-center justify-center mb-3">
+          <FileText className="h-6 w-6 text-muted-foreground/80 dark:text-muted-foreground" />
         </div>
-        <p className="text-xs font-bold text-slate-600 dark:text-slate-300">Ready to Process</p>
-        <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 max-w-[180px]">
+        <p className="text-xs font-bold text-foreground/80 dark:text-foreground/90">Ready to Process</p>
+        <p className="text-[10px] text-muted-foreground/80 dark:text-muted-foreground mt-1 max-w-[180px]">
           {file ? "Click Done to save your changes." : "Upload a file to get started."}
         </p>
       </div>

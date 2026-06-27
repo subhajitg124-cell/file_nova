@@ -22,11 +22,11 @@ const ExportSection: React.FC<SectionProps> = ({ config, onConfigChange, disable
               className={`flex flex-col items-center rounded-xl border p-3 transition-all cursor-pointer ${
                 config.exportFormat === fmt.id
                   ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shadow-sm"
-                  : "border-slate-200 dark:border-white/10 bg-white/80 dark:bg-slate-950 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900"
+                  : "border-border dark:border-border bg-card/80 dark:bg-background text-muted-foreground dark:text-muted-foreground/80 hover:bg-muted/80 dark:hover:bg-muted"
               }`} disabled={disabled}>
               <span className="mb-1">{fmt.icon}</span>
               <span className="text-[11px] uppercase font-bold">{fmt.label}</span>
-              <span className="text-[8px] text-slate-400 dark:text-slate-500 mt-0.5">{fmt.desc}</span>
+              <span className="text-[8px] text-muted-foreground/80 dark:text-muted-foreground mt-0.5">{fmt.desc}</span>
             </button>
           ))}
         </div>
@@ -37,7 +37,7 @@ const ExportSection: React.FC<SectionProps> = ({ config, onConfigChange, disable
       <SettingRow label={`Quality ${config.exportQuality || 85}%`}>
         <input type="range" min={10} max={100} value={config.exportQuality || 85}
           onChange={(e) => onConfigChange("exportQuality", Number(e.target.value))}
-          className="h-1 w-full rounded-lg appearance-none cursor-pointer accent-emerald-500 bg-slate-200 dark:bg-slate-800" disabled={disabled} />
+          className="h-1 w-full rounded-lg appearance-none cursor-pointer accent-emerald-500 bg-muted dark:bg-muted" disabled={disabled} />
       </SettingRow>
     </BentoCard>
   </div>

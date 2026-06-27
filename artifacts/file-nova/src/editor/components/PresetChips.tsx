@@ -32,7 +32,7 @@ export const PresetChips: React.FC<PresetChipsProps> = ({
             "rounded-lg border font-bold transition-all cursor-pointer",
             value === chip.id
               ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shadow-sm shadow-emerald-500/10"
-              : "border-white/10 dark:border-white/10 bg-white/5 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:bg-white/10 dark:hover:bg-white/10 hover:text-slate-700 dark:hover:text-slate-200",
+              : "border-white/10 dark:border-border bg-card/5 dark:bg-card/5 text-muted-foreground dark:text-muted-foreground/80 hover:bg-card/10 dark:hover:bg-card/10 hover:text-foreground/90 dark:hover:text-foreground/90",
             disabled ? "opacity-50 cursor-not-allowed" : "",
           ].filter(Boolean).join(" ")}
         >
