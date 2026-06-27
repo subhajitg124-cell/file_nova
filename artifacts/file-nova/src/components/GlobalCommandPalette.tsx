@@ -451,9 +451,8 @@ export function GlobalCommandPalette() {
     setOpen(false);
   }, [setOpen]);
 
-  const handleLogout = useCallback(async () => {
-    const { useAuthStore: auth } = await import('@/store/useAuthStore');
-    auth.getState().logout();
+  const handleLogout = useCallback(() => {
+    useAuthStore.getState().logout();
     setOpen(false);
     setLocation('/');
   }, [setOpen, setLocation]);
@@ -490,18 +489,25 @@ export function GlobalCommandPalette() {
     return smartSearch(q, entries).slice(0, 20);
   }, [searchQuery, entries, activeTab, isDev, recentEntries, favoriteList]);
 
-  const handleSelect = useCallback(
-    (entry: CmdEntry) => {
-      addRecent(entry.id);
-      setOpen(false);
-      if (entry.route) {
-        setLocation(entry.route);
-      } else if (entry.action) {
-        entry.action();
-      }
-    },
-    [addRecent, setOpen, setLocation]
-  );
+  const handleSelect = (entry: CmdEntry) => {
+    addRecent(entry.id);
+    setOpen(false);
+    if (entry.route) {
+      setLocation(entry.route);
+    } else if (entry.action) {
+      entry.action();
+    }
+  };
+
+  const handleSelectNewTab = (entry: CmdEntry) => {
+    addRecent(entry.id);
+    setOpen(false);
+    if (entry.route) {
+      window.open(entry.route, '_blank', 'noopener,noreferrer');
+    } else if (entry.action) {
+      entry.action();
+    }
+  };
 
   const visibleTabs = TABS.filter((tab) => !tab.requireDev || isDev);
 
@@ -512,7 +518,16 @@ export function GlobalCommandPalette() {
         e.preventDefault();
         setOpen(!open);
       }
+      if (e.key === 'p' && e.shiftKey && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setOpen(true);
+      }
+      if (e.key === '/' && !open && !(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) {
+        e.preventDefault();
+        setOpen(true);
+      }
       if (e.key === 'Escape' && open) {
+        e.preventDefault();
         setOpen(false);
       }
     };
@@ -575,8 +590,9 @@ export function GlobalCommandPalette() {
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
                 visibleTabs={visibleTabs}
-                handleSelect={handleSelect}
-                isFavorite={isFavorite}
+               handleSelect={handleSelect}
+               handleSelectNewTab={handleSelectNewTab}
+               isFavorite={isFavorite}
                 toggleFavorite={toggleFavorite}
                 setOpen={setOpen}
                 isDev={isDev}
@@ -622,8 +638,9 @@ export function GlobalCommandPalette() {
               activeTab={activeTab}
               setActiveTab={setActiveTab}
               visibleTabs={visibleTabs}
-              handleSelect={handleSelect}
-              isFavorite={isFavorite}
+                handleSelect={handleSelect}
+                handleSelectNewTab={handleSelectNewTab}
+                isFavorite={isFavorite}
               toggleFavorite={toggleFavorite}
               setOpen={setOpen}
               isDev={isDev}
@@ -647,6 +664,7 @@ interface ContentProps {
   setActiveTab: (t: TabId) => void;
   visibleTabs: TabDef[];
   handleSelect: (entry: CmdEntry) => void;
+  handleSelectNewTab: (entry: CmdEntry) => void;
   isFavorite: (id: string) => boolean;
   toggleFavorite: (id: string) => void;
   setOpen: (o: boolean) => void;
@@ -659,7 +677,7 @@ interface ContentProps {
 
 function DesktopContent({
   filteredEntries, searchQuery, setSearchQuery, activeTab, setActiveTab, visibleTabs,
-  handleSelect, isFavorite, toggleFavorite, inputRef, entries, recentEntries, favoriteList,
+  handleSelect, handleSelectNewTab, isFavorite, toggleFavorite, inputRef, entries, recentEntries, favoriteList,
 }: ContentProps) {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
@@ -782,26 +800,32 @@ function DesktopContent({
                 return (
                   <button
                     key={entry.id}
-                    onClick={() => handleSelect(entry)}
-                    onMouseDown={(e) => {
-                      // middle click to favorite
-                      if (e.button === 1) {
-                        e.preventDefault();
+                    onClick={(ev: React.MouseEvent) => { (ev.ctrlKey || ev.metaKey ? handleSelectNewTab : handleSelect)(entry); }}
+                    onMouseDown={(ev: React.MouseEvent) => {
+                      if (ev.button === 1) {
+                        ev.preventDefault();
                         toggleFavorite(entry.id);
                       }
                     }}
-                    onContextMenu={(e) => {
-                      e.preventDefault();
+                    onContextMenu={(ev: React.MouseEvent) => {
+                      ev.preventDefault();
                       toggleFavorite(entry.id);
                     }}
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-accent/60 hover:border-border/60 transition-all border border-transparent group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:outline-none"
                     role="option"
                     aria-selected={false}
                     tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleSelect(entry);
-                      if (e.key === 'Delete' || e.key === 'Backspace') {
-                        e.preventDefault();
+                    onKeyDown={(ev: React.KeyboardEvent) => {
+                      if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) {
+                        ev.preventDefault();
+                        handleSelectNewTab(entry);
+                      } else if (ev.key === 'Enter') {
+                        handleSelect(entry);
+                      } else if (ev.key === ' ') {
+                        ev.preventDefault();
+                        handleSelect(entry);
+                      } else if (ev.key === 'Delete' || ev.key === 'Backspace') {
+                        ev.preventDefault();
                         toggleFavorite(entry.id);
                       }
                     }}
@@ -861,6 +885,9 @@ function DesktopContent({
           <span className="hidden md:inline-flex items-center gap-1">
             <kbd className="px-1.5 py-0.5 rounded border border-border/50 bg-muted/50 font-mono text-[9px]">Tab</kbd> Switch tab
           </span>
+          <span className="hidden sm:inline-flex items-center gap-1">
+            <kbd className="px-1.5 py-0.5 rounded border border-border/50 bg-muted/50 font-mono text-[9px]">⌘Enter</kbd> New tab
+          </span>
           <span className="inline-flex items-center gap-1">
             <kbd className="px-1.5 py-0.5 rounded border border-border/50 bg-muted/50 font-mono text-[9px]">⌘K</kbd> Toggle
           </span>
@@ -878,7 +905,7 @@ function DesktopContent({
 
 function MobileContent({
   filteredEntries, searchQuery, setSearchQuery, activeTab, setActiveTab, visibleTabs,
-  handleSelect, isFavorite, toggleFavorite, setOpen, inputRef, recentEntries, favoriteList, reducedMotion,
+  handleSelect, handleSelectNewTab, isFavorite, toggleFavorite, setOpen, inputRef, recentEntries, favoriteList, reducedMotion,
 }: ContentProps) {
   const grouped = useMemo(() => {
     if (searchQuery.trim()) {
@@ -972,7 +999,7 @@ function MobileContent({
                 return (
                   <button
                     key={entry.id}
-                    onClick={() => handleSelect(entry)}
+                    onClick={(ev: React.MouseEvent) => { (ev.ctrlKey || ev.metaKey ? handleSelectNewTab : handleSelect)(entry); }}
                     className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-accent/50 transition-all cursor-pointer text-left"
                   >
                     <div className="w-7 h-7 rounded-lg bg-muted/60 border border-border/30 flex items-center justify-center shrink-0">
@@ -985,8 +1012,8 @@ function MobileContent({
                       )}
                     </div>
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation();
+                      onClick={(ev: React.MouseEvent) => {
+                        ev.stopPropagation();
                         toggleFavorite(entry.id);
                       }}
                       className={`p-1 rounded-md ${fav ? 'text-amber-400' : 'text-muted-foreground'}`}
@@ -1002,5 +1029,30 @@ function MobileContent({
         )}
       </div>
     </>
+  );
+}
+
+export function MobileSearchFab() {
+  const { open, setOpen } = useCommandPalette();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
+  if (!isMobile || open) return null;
+
+  return (
+    <button
+      onClick={() => setOpen(true)}
+      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9998] flex items-center gap-2 px-5 py-3 rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-200 active:scale-95 sm:hidden"
+      aria-label="Open search"
+    >
+      <Search className="h-4 w-4" />
+      <span className="text-sm font-semibold">Search tools...</span>
+    </button>
   );
 }

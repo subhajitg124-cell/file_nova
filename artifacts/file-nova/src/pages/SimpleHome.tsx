@@ -22,7 +22,6 @@ import { PlanBadge } from "@/components/PlanBadge";
 import { ToolSearch } from "@/components/ToolSearch";
 import { useSEO } from "@/hooks/useSEO";
 import { PopularToolsGrid } from "@/components/PopularToolsGrid";
-import { SmartSearchBar } from "@/components/SmartSearchBar";
 import { PopularToolsDropdown } from "@/components/PopularToolsDropdown";
 import { ReactableGreeting } from "@/components/events/ReactableGreeting";
 import { Navbar } from "@/components/Navbar";

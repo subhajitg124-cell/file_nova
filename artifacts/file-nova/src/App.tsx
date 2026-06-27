@@ -25,7 +25,7 @@ import { EditingWindow } from "@/components/EditingWindow";
 import { apiClient, apiMock } from "@/lib/api";
 import { setupFetchInterceptor } from "@/lib/fetchInterceptor";
 import { CheckoutModal } from "@/components/CheckoutModal";
-import { GlobalCommandPalette } from "@/components/GlobalCommandPalette";
+import { GlobalCommandPalette, MobileSearchFab } from "@/components/GlobalCommandPalette";
 
 const queryClient = new QueryClient();
 
@@ -287,6 +287,7 @@ function App({ ssrPath }: { ssrPath?: string } = {}) {
                       usage={modalUsage}
                     />
                     <CheckoutModal />
+                    <MobileSearchFab />
                     <GlobalCommandPalette />
                     {editorOpen && editorFile && (
                       <EditingWindow

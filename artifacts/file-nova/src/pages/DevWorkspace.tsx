@@ -1,17 +1,15 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, type ReactNode } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, Bot, BarChart3, Activity, Zap, Shield, Search, Package,
   Puzzle, Rocket, Terminal, Database, Globe, FolderOpen, BrainCircuit, Bug,
-  Radio, Cpu, ToggleLeft, FlaskConical, Palette, Play, Accessibility,
+  Radio, ToggleLeft, FlaskConical, Palette, Play, Accessibility,
   Smartphone, Link, Trash2, Droplets, Variable, Key, Download, Upload,
-  ScanLine, Beaker, BookOpen, ChevronRight, Sun, Moon, Monitor,
-  Settings2, Code, Home, FileText, Bell, ExternalLink, X, Check,
-  Clock, Users, HardDrive, Thermometer, RefreshCw, AlertTriangle,
-  FileCheck, Layers, Server, Wifi, Gauge, Sliders, Image, HelpCircle,
-  LifeBuoy, Hash, PanelLeftClose, PanelLeft, Search as SearchIcon
+  ScanLine, Beaker, BookOpen, Code, FileText, ExternalLink, Check,
+  Clock, Users, HardDrive, Thermometer, RefreshCw,
+  Layers, Server, Wifi, Hash, PanelLeftClose, PanelLeft, Search as SearchIcon
 } from "lucide-react";
 
 const BUILD_VERSION = import.meta.env.VITE_APP_VERSION || "2.0.0-dev";
@@ -28,7 +26,7 @@ type Section =
 
 interface SidebarItem {
   id: Section;
-  icon: React.ReactNode;
+  icon: ReactNode;
   label: string;
   badge?: string;
 }
@@ -114,7 +112,7 @@ function Toggle({ on, onChange, label }: { on: boolean; onChange: (v: boolean) =
   return (
     <button onClick={() => onChange(!on)} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-bold transition-all cursor-pointer ${on ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-500" : "bg-muted/30 border-border text-muted-foreground"}`}>
       <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition ${on ? "border-emerald-500 bg-emerald-500" : "border-muted-foreground"}`}>
-        {on && <Check className="h-2.5 w-2.5 text-white" />}
+        {on && <Check className="h-2.5 w-2.5 text-primary-foreground" />}
       </span>
       {label}
     </button>
@@ -246,7 +244,7 @@ export default function DevWorkspace() {
         {/* Sidebar header */}
         <div className="flex items-center gap-2 px-3 h-14 border-b border-border shrink-0">
           <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shrink-0">
-            <Code className="h-3.5 w-3.5 text-white" />
+            <Code className="h-3.5 w-3.5 text-primary-foreground" />
           </div>
           {sidebarOpen && (
             <motion.span initial={false} animate={{ opacity: sidebarOpen ? 1 : 0 }} className="text-xs font-black text-foreground truncate whitespace-nowrap">
@@ -599,7 +597,7 @@ function AIStudioView() {
       {/* Prompt input */}
       <div className="flex gap-2">
         <input type="text" value={prompt} onChange={(e) => setPrompt(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSend()} placeholder="Enter a prompt to test..." className="flex-1 h-10 px-4 rounded-xl border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" aria-label="Test prompt" />
-        <button onClick={handleSend} className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-black text-white transition cursor-pointer">Send</button>
+        <button onClick={handleSend} className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-black text-primary-foreground transition cursor-pointer">Send</button>
       </div>
 
       {/* Responses */}
@@ -806,7 +804,7 @@ function APIExplorerView() {
           <option>GET</option><option>POST</option><option>PUT</option><option>DELETE</option>
         </select>
         <input type="text" value={endpoint} onChange={(e) => setEndpoint(e.target.value)} className="flex-1 h-10 px-4 rounded-xl border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono" />
-        <button onClick={handleCall} className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-black text-white transition cursor-pointer">Send</button>
+        <button onClick={handleCall} className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-black text-primary-foreground transition cursor-pointer">Send</button>
       </div>
       {result && (
         <div className="rounded-xl border border-border bg-card p-4 font-mono text-[11px] whitespace-pre-wrap text-foreground/90">
