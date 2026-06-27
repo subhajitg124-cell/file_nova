@@ -57,8 +57,11 @@ const API_TIMEOUT_MS = 30000;
 const getInitialUser = (): UserProfile | null => {
   try {
     const raw = localStorage.getItem(LOCAL_USER_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
+    const parsed = raw ? JSON.parse(raw) : null;
+    console.log("[AUTH DEBUG] " + new Date().toISOString() + " - getInitialUser: read raw=" + raw + ", parsed=" + (parsed ? parsed.email : "null"));
+    return parsed;
+  } catch (e) {
+    console.log("[AUTH DEBUG] " + new Date().toISOString() + " - getInitialUser error:", e);
     return null;
   }
 };
@@ -362,15 +365,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   clearError: () => set({ error: null }),
 
   fetchMe: async () => {
+    console.log("[AUTH DEBUG] " + new Date().toISOString() + " - fetchMe starting. Current user in store:", get().user?.email);
     set({ loading: true, error: null });
     const startTime = Date.now();
     try {
       if (isMockActive()) {
+        console.log("[AUTH DEBUG] " + new Date().toISOString() + " - fetchMe (mock mode active)");
         const localUser = processUser(getLocalSession());
         const elapsed = Date.now() - startTime;
         if (elapsed < 1000) {
           await new Promise((resolve) => setTimeout(resolve, 1000 - elapsed));
         }
+        console.log("[AUTH DEBUG] " + new Date().toISOString() + " - fetchMe (mock mode active) setting user:", localUser?.email);
         set({
           user: localUser,
           subscription: processSubscription(localUser ? freeSubscription : null, localUser),
@@ -390,14 +396,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       });
       clearTimeout(timeoutId);
 
+      console.log("[AUTH DEBUG] " + new Date().toISOString() + " - fetchMe backend response status:", res.status);
+
       if (res.ok) {
         const data = await safeJsonParse(res);
+        console.log("[AUTH DEBUG] " + new Date().toISOString() + " - fetchMe backend success payload:", data.success, data.user?.email);
         if (data.success && data.user) {
           const processedUser = processUser(data.user);
           const elapsed = Date.now() - startTime;
           if (elapsed < 1000) {
             await new Promise((resolve) => setTimeout(resolve, 1000 - elapsed));
           }
+          console.log("[AUTH DEBUG] " + new Date().toISOString() + " - fetchMe setting valid user:", processedUser?.email);
           set({
             user: processedUser,
             subscription: processSubscription(data.subscription, processedUser),
@@ -408,6 +418,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           if (elapsed < 1000) {
             await new Promise((resolve) => setTimeout(resolve, 1000 - elapsed));
           }
+          console.log("[AUTH DEBUG] " + new Date().toISOString() + " - fetchMe user payload empty, clearing session");
           set({ user: null, subscription: null, initialized: true });
         }
       } else {
@@ -415,14 +426,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         if (elapsed < 1000) {
           await new Promise((resolve) => setTimeout(resolve, 1000 - elapsed));
         }
+        console.log("[AUTH DEBUG] " + new Date().toISOString() + " - fetchMe backend response not ok, clearing session");
         set({ user: null, subscription: null, initialized: true });
       }
     } catch (err: any) {
+      console.log("[AUTH DEBUG] " + new Date().toISOString() + " - fetchMe caught error:", err.message);
       const localUser = processUser(getLocalSession());
       const elapsed = Date.now() - startTime;
       if (elapsed < 1000) {
         await new Promise((resolve) => setTimeout(resolve, 1000 - elapsed));
       }
+      console.log("[AUTH DEBUG] " + new Date().toISOString() + " - fetchMe error fallback user:", localUser?.email);
       set({
         user: localUser,
         subscription: processSubscription(localUser ? freeSubscription : null, localUser),
@@ -430,6 +444,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         error: err.message || 'Failed to fetch user profile',
       });
     } finally {
+      console.log("[AUTH DEBUG] " + new Date().toISOString() + " - fetchMe finally. New user in store:", get().user?.email);
       set({ loading: false });
     }
   },
@@ -543,10 +558,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   loginWithGoogle: async (credential) => {
+    console.log("[AUTH DEBUG] " + new Date().toISOString() + " - loginWithGoogle starting");
     set({ loading: true, error: null });
     try {
       if (isMockActive()) {
         const profile = decodeGoogleCredential(credential);
+        console.log("[AUTH DEBUG] " + new Date().toISOString() + " - loginWithGoogle (mock mode) decoded profile:", profile.email);
         if (!profile.email) {
           throw new Error('Google did not return an email address.');
         }
@@ -556,10 +573,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         setLocalSession(processedUser!);
         localStorage.removeItem('filenova_referral_code');
         localStorage.removeItem('filenova_referral_tracking_id');
+        console.log("[AUTH DEBUG] " + new Date().toISOString() + " - loginWithGoogle (mock mode) setting user:", processedUser?.email);
         set({ user: processedUser, subscription: processSubscription(freeSubscription, processedUser) });
         return true;
       }
 
+      console.log("[AUTH DEBUG] " + new Date().toISOString() + " - loginWithGoogle sending backend request");
       const res = await safeFetch(`${BACKEND_URL}/api/v1/auth/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -571,28 +590,34 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         }),
       });
       const data = await safeJsonParse(res);
+      console.log("[AUTH DEBUG] " + new Date().toISOString() + " - loginWithGoogle backend response:", res.status, data.success);
       if (!res.ok || !data.success) {
         throw new Error(data.error || 'Google login failed');
       }
       const processedUser = processUser(data.user);
+      console.log("[AUTH DEBUG] " + new Date().toISOString() + " - loginWithGoogle setting user in store:", processedUser?.email);
       set({
         user: processedUser,
         subscription: processSubscription(data.subscription, processedUser),
         initialized: true,
       });
       if (data.token) {
+        console.log("[AUTH DEBUG] " + new Date().toISOString() + " - loginWithGoogle storing token");
         localStorage.setItem(SESSION_TOKEN_KEY, data.token);
       }
       if (processedUser) {
+        console.log("[AUTH DEBUG] " + new Date().toISOString() + " - loginWithGoogle storing user in localStorage");
         localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(processedUser));
       }
       localStorage.removeItem('filenova_referral_code');
       localStorage.removeItem('filenova_referral_tracking_id');
       return true;
     } catch (err: any) {
+      console.log("[AUTH DEBUG] " + new Date().toISOString() + " - loginWithGoogle caught error:", err.message);
       set({ error: err.message || 'Google authentication failed' });
       return false;
     } finally {
+      console.log("[AUTH DEBUG] " + new Date().toISOString() + " - loginWithGoogle finally finished");
       set({ loading: false });
     }
   },

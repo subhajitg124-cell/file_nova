@@ -37,6 +37,7 @@ interface BillingItem {
 export default function DashboardPage() {
   const [, setLocation] = useLocation();
   const { user } = useAuthStore();
+  console.log("[AUTH DEBUG] " + new Date().toISOString() + " - DashboardPage render. user from hook:", user?.email);
   const { 
     premiumTier, 
     premiumEnabled, 
@@ -60,10 +61,13 @@ export default function DashboardPage() {
   // Authentication Route Protection
   useEffect(() => {
     const checkAuth = async () => {
+      console.log("[AUTH DEBUG] " + new Date().toISOString() + " - DashboardPage checkAuth starting (waiting 100ms). current user in hook:", user?.email);
       // Delay slightly to let state load
       await new Promise((resolve) => setTimeout(resolve, 100));
       const currentUser = useAuthStore.getState().user;
+      console.log("[AUTH DEBUG] " + new Date().toISOString() + " - DashboardPage checkAuth evaluated. currentUser in store:", currentUser?.email);
       if (!currentUser) {
+        console.log("[AUTH DEBUG] " + new Date().toISOString() + " - DashboardPage checkAuth REDIRECTING to login!");
         setLocation(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
       }
     };

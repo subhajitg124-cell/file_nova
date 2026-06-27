@@ -108,6 +108,7 @@ class ErrorBoundary extends Component<Props, State> {
 
 function App({ ssrPath }: { ssrPath?: string } = {}) {
   const { initialized, fetchMe } = useAuthStore();
+  console.log("[AUTH DEBUG] " + new Date().toISOString() + " - App render. initialized:", initialized);
   const {
     isMockMode,
     editorOpen,
@@ -161,6 +162,7 @@ function App({ ssrPath }: { ssrPath?: string } = {}) {
   }, [isOnline, apiStatus, isMockMode]);
 
   useEffect(() => {
+    console.log("[AUTH DEBUG] " + new Date().toISOString() + " - App mount effect calling fetchMe()");
     fetchMe();
   }, [fetchMe]);
 
@@ -255,6 +257,7 @@ function App({ ssrPath }: { ssrPath?: string } = {}) {
       .catch(() => {});
   }, []);
 
+  console.log("[AUTH DEBUG] " + new Date().toISOString() + " - App rendering children check. initialized:", initialized, "splashDone:", splashDone);
   if ((!initialized || !splashDone) && !ssrPath) {
     return <LoadingScreen />;
   }
