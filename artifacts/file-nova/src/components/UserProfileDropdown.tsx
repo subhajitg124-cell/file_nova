@@ -1,6 +1,6 @@
 import React, { memo, useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { User, LogOut, Zap, Sparkles, Clock, CreditCard, ChevronDown, Key, Gift, Sliders } from "lucide-react";
+import { User, LogOut, Zap, Sparkles, Clock, CreditCard, ChevronDown, Key, Gift, Sliders, Code, Terminal, Globe } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useSubscription } from "@/hooks/useSubscription";
 import { AuthModal } from "./AuthModal";
@@ -11,7 +11,7 @@ export const UserProfileDropdown = memo(function UserProfileDropdown() {
   const { cancelSubscription, loading: subLoading, premiumTier } = useSubscription();
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const isDev = user?.role === 'super_admin' || user?.email?.toLowerCase() === 'subhajitgho123@gmail.com';
+  const isDev = user?.role === 'developer';
   const [, setLocation] = useLocation();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -78,13 +78,16 @@ export const UserProfileDropdown = memo(function UserProfileDropdown() {
   };
 
   const getNavbarBadge = () => {
+    if (user?.role === 'developer') {
+      return <span className="inline-flex items-center rounded-md bg-gradient-to-r from-indigo-500/20 to-purple-500/20 px-2 py-1 text-[10px] font-black text-indigo-400 border border-indigo-500/30">DEVELOPER</span>;
+    }
     switch (premiumTier) {
       case "basic":
         return <span className="inline-flex items-center rounded-md bg-blue-500/10 px-2 py-1 text-[10px] font-bold text-blue-500 border border-blue-500/20">BASIC</span>;
       case "pro":
-        return <span className="inline-flex items-center rounded-md bg-purple-500/10 px-2 py-1 text-[10px] font-bold text-purple-500 border border-purple-500/20">PRO ⚡</span>;
+        return <span className="inline-flex items-center rounded-md bg-purple-500/10 px-2 py-1 text-[10px] font-bold text-purple-500 border border-purple-500/20">PRO</span>;
       case "elite":
-        return <span className="inline-flex items-center rounded-md bg-amber-500/10 px-2 py-1 text-[10px] font-bold text-amber-500 border border-amber-500/20">ELITE 👑</span>;
+        return <span className="inline-flex items-center rounded-md bg-amber-500/10 px-2 py-1 text-[10px] font-bold text-amber-500 border border-amber-500/20">ELITE</span>;
       case "free":
       default:
         return <span className="inline-flex items-center rounded-md bg-muted px-2 py-1 text-[10px] font-bold text-muted-foreground border border-border">FREE</span>;
@@ -137,12 +140,18 @@ export const UserProfileDropdown = memo(function UserProfileDropdown() {
       {/* Dropdown Menu */}
       {dropdownOpen && user && (
         <div className="absolute right-0 top-full mt-2 w-72 rounded-2xl fn-glass shadow-[var(--fn-shadow-elevated)] p-4 z-[9999] animate-scale-in text-[var(--fn-text-primary)]">
-          {/* User info */}
+          {/* Account section */}
           <div className="border-b border-border pt-1 pb-3.5 mb-3.5">
             <p className="text-xs font-black text-foreground truncate">{user.name || "FileNova User"}</p>
             <p className="text-[10px] text-muted-foreground truncate mt-0.5">{user.email}</p>
             {user.phoneNumber && (
               <p className="text-[10px] text-muted-foreground mt-1.5">{user.phoneNumber}</p>
+            )}
+            {user.role === 'developer' && (
+              <span className="inline-flex items-center gap-1 mt-2 rounded-md bg-gradient-to-r from-indigo-500/15 to-purple-500/15 px-2 py-0.5 text-[9px] font-black text-indigo-400 border border-indigo-500/20">
+                <Code className="h-2.5 w-2.5" />
+                DEVELOPER BUILD
+              </span>
             )}
           </div>
 
@@ -177,17 +186,39 @@ export const UserProfileDropdown = memo(function UserProfileDropdown() {
             )}
           </div>
 
-          {/* Action Links */}
+          {/* Developer Tools section */}
+          {isDev && (
+            <div className="mb-3.5">
+              <p className="text-[9px] font-bold uppercase tracking-wider text-indigo-400 mb-1.5 px-1">Developer Tools</p>
+              <div className="space-y-1">
+                <button
+                  onClick={() => { setLocation("/beta-test"); setDropdownOpen(false); }}
+                  className="w-full text-left py-2 px-3 rounded-lg text-xs font-black text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/10 border border-indigo-500/10 hover:border-indigo-500/20 transition flex items-center gap-2 cursor-pointer"
+                >
+                  <Sliders className="h-3.5 w-3.5 text-indigo-400" />
+                  <span>Beta Testing Zone</span>
+                </button>
+                <button
+                  onClick={() => { setLocation("/beta-test"); setDropdownOpen(false); }}
+                  className="w-full text-left py-2 px-3 rounded-lg text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/80 transition flex items-center gap-2 cursor-pointer"
+                >
+                  <Terminal className="h-3.5 w-3.5 text-purple-400" />
+                  <span>API Console</span>
+                </button>
+                <button
+                  onClick={() => { setLocation("/beta-test"); setDropdownOpen(false); }}
+                  className="w-full text-left py-2 px-3 rounded-lg text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/80 transition flex items-center gap-2 cursor-pointer"
+                >
+                  <Globe className="h-3.5 w-3.5 text-cyan-400" />
+                  <span>Environment Info</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Main Actions */}
           <div className="space-y-1 mb-3.5">
-            {isDev && (
-              <button
-                onClick={() => { setLocation("/beta-test"); setDropdownOpen(false); }}
-                className="w-full text-left py-2 px-3 rounded-lg text-xs font-black text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/10 border border-indigo-500/10 hover:border-indigo-500/20 transition flex items-center gap-2 cursor-pointer mb-1"
-              >
-                <Sliders className="h-3.5 w-3.5 text-indigo-400" />
-                <span>Beta Testing Zone</span>
-              </button>
-            )}
+            <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5 px-1">Account</p>
             <button
               onClick={() => { setLocation("/dashboard"); setDropdownOpen(false); }}
               className="w-full text-left py-2 px-3 rounded-lg text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/80 transition flex items-center gap-2 cursor-pointer"
@@ -216,6 +247,10 @@ export const UserProfileDropdown = memo(function UserProfileDropdown() {
               <Gift className="h-3.5 w-3.5 text-emerald-500" />
               <span>Refer & Earn</span>
             </button>
+          </div>
+
+          {/* Upgrade / Cancel CTA */}
+          <div className="mb-3.5">
             {!plan.isPremium ? (
               <button
                 onClick={() => { setLocation("/pricing"); setDropdownOpen(false); }}

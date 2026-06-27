@@ -15,6 +15,7 @@ import { GlobalNotice } from "@/components/GlobalNotice";
 import { ConnectionStatusIndicator } from "@/components/ConnectionStatusIndicator";
 import { FileNovaAssistant } from "@/components/FileNovaAssistant";
 import { FloatingShortcuts } from "@/components/FloatingShortcuts";
+import { FloatingSidePanel } from "@/components/FloatingSidePanel";
 import { FloatingParticles, CursorGlow } from "@/components/AnimatedEffects";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useFileStore } from "@/store/useFileStore";
@@ -269,6 +270,7 @@ function App({ ssrPath }: { ssrPath?: string } = {}) {
                   <FloatingParticles />
                   <CursorGlow />
                   <FloatingShortcuts />
+                  <FloatingSidePanel />
                   <FileNovaAssistant isOpen={assistantOpen} onClose={() => setAssistantOpen(false)} />
                   <AdminProvider>
                     <EventProvider>

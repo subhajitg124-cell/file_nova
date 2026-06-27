@@ -12,7 +12,7 @@ export interface UserProfile {
   name: string | null;
   phoneNumber: string | null;
   phoneVerified: boolean;
-  role: 'user' | 'operator' | 'admin' | 'super_admin';
+  role: 'user' | 'operator' | 'admin' | 'super_admin' | 'developer';
   premiumTier: 'free' | 'basic' | 'pro' | 'elite';
   premiumEnabled: boolean;
   referralCode?: string | null;
@@ -82,7 +82,7 @@ const processUser = (user: UserProfile | null): UserProfile | null => {
     if (isDev && user.email?.toLowerCase() === 'subhajitgho123@gmail.com') {
       return {
         ...user,
-        role: 'super_admin',
+        role: 'developer',
         premiumTier: 'elite',
         premiumEnabled: true,
         phoneVerified: true,
@@ -123,7 +123,7 @@ const processUser = (user: UserProfile | null): UserProfile | null => {
   if (isDev && user.email?.toLowerCase() === 'subhajitgho123@gmail.com') {
     return {
       ...user,
-      role: 'super_admin',
+      role: 'developer',
       premiumTier: 'elite',
       premiumEnabled: true,
       phoneVerified: true,

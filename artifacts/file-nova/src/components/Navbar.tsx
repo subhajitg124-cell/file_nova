@@ -2,7 +2,7 @@ import React, { memo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "wouter";
 import {
-  Settings2, Crown, Menu, X, Zap, FileText
+  Settings2, Crown, Menu, X, Check
 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
@@ -11,7 +11,6 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { PlanBadge } from "@/components/PlanBadge";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
-import { PopularToolsDropdown } from "@/components/PopularToolsDropdown";
 import { SmartSearchBar } from "@/components/SmartSearchBar";
 
 interface NavbarProps {
@@ -23,10 +22,9 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
   const { user } = useAuthStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
 
   useEffect(() => {
-    if (!mobileMenuOpen && !settingsOpen && !moreMenuOpen) return;
+    if (!mobileMenuOpen && !settingsOpen) return;
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
       const header = document.querySelector("header");
@@ -37,13 +35,11 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
       ) return;
       if (mobileMenuOpen) setMobileMenuOpen(false);
       if (settingsOpen) setSettingsOpen(false);
-      if (moreMenuOpen) setMoreMenuOpen(false);
     };
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setMobileMenuOpen(false);
         setSettingsOpen(false);
-        setMoreMenuOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -52,7 +48,7 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscape);
     };
-  }, [mobileMenuOpen, settingsOpen, moreMenuOpen]);
+  }, [mobileMenuOpen, settingsOpen]);
 
   return (
     <>
@@ -110,57 +106,28 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
               </AnimatePresence>
             </div>
 
-            <nav aria-label="Main navigation" className="hidden xl:flex items-center gap-2">
-              <PopularToolsDropdown />
-              <Link href="/india-tools" className="flex items-center gap-1.5 text-sm text-[var(--fn-text-primary)] font-medium py-1.5 px-3 rounded-full border border-[var(--fn-border)] hover:bg-[var(--fn-surface-elevated)] transition-colors duration-150 whitespace-nowrap">
-                🇮🇳 {tText("India Tools")}
-              </Link>
-              <Link href="/workflows" className="flex items-center gap-1.5 text-sm text-[var(--fn-text-primary)] font-medium py-1.5 px-3 rounded-full border border-[var(--fn-border)] hover:bg-[var(--fn-surface-elevated)] transition-colors duration-150 whitespace-nowrap">
-                <Zap className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />
-                {tText("Workflows")}
-              </Link>
-              <Link href="/workspace" className="flex items-center gap-1.5 text-sm text-[var(--fn-text-primary)] font-medium py-1.5 px-3 rounded-full border border-[var(--fn-border)] hover:bg-[var(--fn-surface-elevated)] transition-colors duration-150 whitespace-nowrap">
-                <FileText className="h-3.5 w-3.5 text-[var(--fn-text-secondary)]" />
-                {tText("Workspace")}
-              </Link>
-            </nav>
-
-            <div className="hidden lg:block xl:hidden relative">
-              <button
-                onClick={() => setMoreMenuOpen(!moreMenuOpen)}
-                className="flex items-center gap-1.5 text-sm text-[var(--fn-text-primary)] font-medium py-1.5 px-3 rounded-full border border-[var(--fn-border)] hover:bg-[var(--fn-surface-elevated)] transition-colors duration-150 cursor-pointer whitespace-nowrap"
-              >
-                <Menu className="h-3.5 w-3.5" />
-                {tText("Menu")}
-              </button>
-              <AnimatePresence>
-                {moreMenuOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    transition={{ duration: 0.15, ease: "easeOut" }}
-                    className="absolute right-0 top-full mt-3 fn-glass rounded-xl shadow-[var(--fn-shadow-elevated)] p-2 z-[9999] min-w-[190px] space-y-0.5 text-[var(--fn-text-primary)]"
-                  >
-                    <div className="px-2 py-1.5"><PopularToolsDropdown /></div>
-                    <Link href="/india-tools" onClick={() => setMoreMenuOpen(false)} className="flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-bold text-emerald-500 hover:bg-accent/60 transition-colors">
-                      🇮🇳 {tText("India Tools")}
-                    </Link>
-                    <Link href="/workflows" onClick={() => setMoreMenuOpen(false)} className="flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-bold text-indigo-500 hover:bg-accent/60 transition-colors">
-                      <Zap className="h-4 w-4" /> {tText("Workflows")}
-                    </Link>
-                    <Link href="/workspace" onClick={() => setMoreMenuOpen(false)} className="flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-bold text-foreground hover:bg-accent/60 transition-colors">
-                      <FileText className="h-4 w-4" /> {tText("Workspace")}
-                    </Link>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            <button onClick={() => useCheckoutStore.getState().openCheckout("pro")} className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-black text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 px-3.5 py-2 rounded-full transition-all shadow-md hover:shadow-lg hover:scale-[1.02] whitespace-nowrap shrink-0 active:scale-95">
-              <Crown className="h-3.5 w-3.5 fill-current" />
-              {tText("Premium")}
-            </button>
+            {/* Smart Premium / Upgrade button — adapts to user tier */}
+            {(() => {
+              const tier = user?.premiumTier || 'free';
+              const isDev = user?.role === 'developer';
+              if (isDev) return null;
+              if (tier === 'elite') {
+                return (
+                  <Link href="/pricing" className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 px-3.5 py-2 rounded-full transition-all whitespace-nowrap shrink-0">
+                    <Check className="h-3.5 w-3.5" />
+                    {tText("Member")}
+                  </Link>
+                );
+              }
+              const targetPlan = tier === 'free' ? 'pro' : 'elite';
+              const label = tier === 'free' ? 'Upgrade' : 'Go Elite';
+              return (
+                <button onClick={() => useCheckoutStore.getState().openCheckout(targetPlan)} className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-black text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 px-3.5 py-2 rounded-full transition-all shadow-md hover:shadow-lg hover:scale-[1.02] whitespace-nowrap shrink-0 active:scale-95">
+                  <Crown className="h-3.5 w-3.5 fill-current" />
+                  {tText(label)}
+                </button>
+              );
+            })()}
 
             <div className="flex items-center gap-1.5 shrink-0">
               <div className="hidden sm:block">
@@ -206,19 +173,29 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
               </div>
             )}
             <div className="flex flex-col gap-2 pt-2 border-t border-border">
-              <button onClick={() => { setMobileMenuOpen(false); useCheckoutStore.getState().openCheckout("pro"); }} className="flex items-center justify-center gap-2 text-sm font-black text-white bg-gradient-to-r from-amber-500 to-orange-600 py-2.5 rounded-lg">
-                <Crown className="h-4 w-4 fill-current" />
-                {tText("Premium Suite")}
-              </button>
-              <Link onClick={() => setMobileMenuOpen(false)} href="/workspace" className="text-center text-sm bg-card border border-border text-foreground font-bold py-2 rounded-lg">
-                <FileText className="h-4 w-4 inline-block mr-1.5" />{tText("Open Document Workspace")}
-              </Link>
-              <Link onClick={() => setMobileMenuOpen(false)} href="/workflows" className="flex items-center justify-center gap-2 text-sm text-indigo-500 font-bold py-2 border border-indigo-500/20 bg-indigo-500/5 rounded-lg">
-                <Zap className="h-4 w-4" />
-                {tText("Workflows")}
-              </Link>
-              <Link onClick={() => setMobileMenuOpen(false)} href="/india-tools" className="flex items-center justify-center gap-2 text-sm text-emerald-500 font-bold py-2 border border-emerald-500/20 bg-emerald-500/5 rounded-lg">
-                🇮🇳 {tText("India Tools")}
+              {(() => {
+                const tier = user?.premiumTier || 'free';
+                const isDev = user?.role === 'developer';
+                if (isDev) return null;
+                if (tier === 'elite') {
+                  return (
+                    <Link onClick={() => setMobileMenuOpen(false)} href="/pricing" className="flex items-center justify-center gap-2 text-sm font-black text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 py-2.5 rounded-lg">
+                      <Check className="h-4 w-4" />
+                      {tText("Member — Elite")}
+                    </Link>
+                  );
+                }
+                const targetPlan = tier === 'free' ? 'pro' : 'elite';
+                const label = tier === 'free' ? 'Premium Suite' : 'Go Elite';
+                return (
+                  <button onClick={() => { setMobileMenuOpen(false); useCheckoutStore.getState().openCheckout(targetPlan); }} className="flex items-center justify-center gap-2 text-sm font-black text-white bg-gradient-to-r from-amber-500 to-orange-600 py-2.5 rounded-lg">
+                    <Crown className="h-4 w-4 fill-current" />
+                    {tText(label)}
+                  </button>
+                );
+              })()}
+              <Link onClick={() => setMobileMenuOpen(false)} href="/pricing" className="text-center text-sm border border-border text-foreground font-bold py-2 rounded-lg">
+                {tText("View Plans & Pricing")}
               </Link>
               <Link onClick={() => setMobileMenuOpen(false)} href="/contact" className="text-center text-sm border border-border text-foreground font-bold py-2 rounded-lg">
                 {tText("Contact Support")}
