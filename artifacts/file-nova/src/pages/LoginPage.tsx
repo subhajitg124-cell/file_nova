@@ -14,7 +14,6 @@ type AuthTab = "login" | "signup";
 
 export default function LoginPage() {
   const { login, signup, loginWithGoogle, loading, error, clearError, user } = useAuthStore();
-  console.log("[AUTH DEBUG] " + new Date().toISOString() + " - LoginPage render. user from hook:", user?.email);
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState<AuthTab>("login");
   const [loginIdentifier, setLoginIdentifier] = useState("");
@@ -31,11 +30,9 @@ export default function LoginPage() {
   useEffect(() => {
     // Only redirect if the user was already logged in on initial mount/init
     const initialUser = useAuthStore.getState().user;
-    console.log("[AUTH DEBUG] " + new Date().toISOString() + " - LoginPage mount redirect useEffect. initialUser in store:", initialUser?.email);
     if (initialUser) {
       const redirectPath = new URLSearchParams(window.location.search).get("redirect") || "/dashboard";
       const decodedRedirect = decodeURIComponent(redirectPath);
-      console.log("[AUTH DEBUG] " + new Date().toISOString() + " - LoginPage redirecting already logged-in user to:", decodedRedirect);
       setLocation(decodedRedirect, { replace: true });
     }
   }, [setLocation]);
@@ -71,10 +68,8 @@ export default function LoginPage() {
   const finishAuth = (message: string) => {
     const redirectPath = new URLSearchParams(window.location.search).get("redirect") || "/dashboard";
     const decodedRedirect = decodeURIComponent(redirectPath);
-    console.log("[AUTH DEBUG] " + new Date().toISOString() + " - LoginPage finishAuth called. redirecting to:", decodedRedirect);
     setLocation(decodedRedirect, { replace: true });
     setTimeout(() => {
-      console.log("[AUTH DEBUG] " + new Date().toISOString() + " - LoginPage success toast displaying:", message);
       toast.success(message);
     }, 150);
   };
@@ -90,14 +85,12 @@ const isValidationError = (err: string): boolean => {
 };
 
   const handleGoogleSuccess = async (response: CredentialResponse) => {
-    console.log("[AUTH DEBUG] " + new Date().toISOString() + " - LoginPage handleGoogleSuccess triggered");
     if (!response.credential) {
       toast.error("Google did not return a credential.");
       return;
     }
 
     const success = await loginWithGoogle(response.credential);
-    console.log("[AUTH DEBUG] " + new Date().toISOString() + " - LoginPage handleGoogleSuccess loginWithGoogle result:", success);
     if (success) {
       finishAuth("Signed in with Google.");
     } else if (isNetworkError(useAuthStore.getState().error || "")) {

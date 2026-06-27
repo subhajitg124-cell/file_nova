@@ -37,7 +37,6 @@ interface BillingItem {
 export default function DashboardPage() {
   const [, setLocation] = useLocation();
   const { user } = useAuthStore();
-  console.log("[AUTH DEBUG] " + new Date().toISOString() + " - DashboardPage render. user from hook:", user?.email);
   const { 
     premiumTier, 
     premiumEnabled, 
@@ -61,18 +60,13 @@ export default function DashboardPage() {
   // Authentication Route Protection
   useEffect(() => {
     const checkAuth = async () => {
-      console.log("[AUTH DEBUG] " + new Date().toISOString() + " - DashboardPage checkAuth starting (waiting 100ms). current user in hook:", user?.email);
-      // Delay slightly to let state load
-      await new Promise((resolve) => setTimeout(resolve, 100));
       const currentUser = useAuthStore.getState().user;
-      console.log("[AUTH DEBUG] " + new Date().toISOString() + " - DashboardPage checkAuth evaluated. currentUser in store:", currentUser?.email);
       if (!currentUser) {
-        console.log("[AUTH DEBUG] " + new Date().toISOString() + " - DashboardPage checkAuth REDIRECTING to login!");
         setLocation(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
       }
     };
     checkAuth();
-  }, [user, setLocation]);
+  }, []);
 
   useEffect(() => {
     refreshStatus();
@@ -80,15 +74,18 @@ export default function DashboardPage() {
   }, [refreshStatus]);
 
   const fetchBillingAndUser = async () => {
+    const token = localStorage.getItem("filenova_token");
+    if (!token) {
+      return;
+    }
     setLoadingHistory(true);
     try {
-      const token = localStorage.getItem("filenova_token");
-      const headers: Record<string, string> = {};
-      if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
-      }
+      const headers: Record<string, string> = {
+        "Authorization": `Bearer ${token}`,
+      };
       const response = await fetch(`${BACKEND_URL}/api/payments/history`, {
-        headers
+        headers,
+        credentials: 'include',
       });
 
       if (response.ok) {
