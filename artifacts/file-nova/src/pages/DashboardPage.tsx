@@ -88,6 +88,10 @@ export default function DashboardPage() {
         credentials: 'include',
       });
 
+      console.log("%c[DASH] fetchBillingAndUser response", "color:green", {
+        status: response.status,
+        timestamp: new Date().toISOString(),
+      });
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.history) {

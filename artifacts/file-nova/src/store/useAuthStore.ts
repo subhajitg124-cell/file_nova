@@ -413,6 +413,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           if (existingUser) {
             set({ initialized: true });
           } else {
+            console.log("%c[AUTH] fetchMe cleared user (no existing session)", "color:orange", {
+              status: res.status,
+              timestamp: new Date().toISOString(),
+            });
             set({ user: null, subscription: null, initialized: true });
           }
         }
@@ -421,6 +425,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         if (elapsed < 1000) {
           await new Promise((resolve) => setTimeout(resolve, 1000 - elapsed));
         }
+        console.log("%c[AUTH] fetchMe got non-ok response", "color:orange", {
+          status: res.status,
+          timestamp: new Date().toISOString(),
+        });
         set({ user: null, subscription: null, initialized: true });
       }
     } catch (err: any) {
@@ -616,6 +624,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (_) {
       // Proceed with local logout even if request fails
     } finally {
+      console.log("%c[AUTH] logout() called", "color:red;font-size:14px;font-weight:bold", {
+        hadToken: !!localStorage.getItem(SESSION_TOKEN_KEY),
+        hadLocalUser: !!localStorage.getItem(LOCAL_USER_KEY),
+        timestamp: new Date().toISOString(),
+        stack: new Error().stack?.split("\n").slice(2, 6).join("\n"),
+      });
       localStorage.removeItem(SESSION_TOKEN_KEY);
       localStorage.removeItem(LOCAL_USER_KEY);
       set({ user: null, subscription: null, loading: false });

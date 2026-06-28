@@ -1,7 +1,9 @@
 import React from "react";
 import { useLocation } from "wouter";
-import { Upload, Camera, Clipboard, FileQuestion, Shield } from "lucide-react";
+import { Upload, Camera, Clipboard, FileQuestion, Shield, HardDrive } from "lucide-react";
 import { FileDropZone } from "./FileDropZone";
+import { CloudImportHub } from "./CloudImportHub";
+import { googleDriveProvider } from "@/lib/providers";
 import { TOOL_REGISTRY } from "@/lib/toolPlugin";
 
 interface WorkspaceUploadHubProps {
@@ -34,6 +36,14 @@ export function WorkspaceUploadHub({
           <button title="Upload document" className="flex items-center gap-1 p-2 rounded-xl bg-muted/60 border border-border hover:bg-muted/80 transition"><Upload className="h-4 w-4 text-indigo-400" /> Upload Any File</button>
           <button title="Take photo from camera" className="flex items-center gap-1 p-2 rounded-xl bg-muted/60 border border-border hover:bg-muted/80 transition"><Camera className="h-4 w-4 text-emerald-400" /> Camera</button>
           <button title="Paste image from clipboard" className="flex items-center gap-1 p-2 rounded-xl bg-muted/60 border border-border hover:bg-muted/80 transition"><Clipboard className="h-4 w-4 text-sky-400" /> Paste Image</button>
+          <button title="Import from Google Drive" onClick={async () => {
+            try {
+              const files = await googleDriveProvider.pickFiles({ multiple: true });
+              if (files.length > 0) onFilesSelected(files);
+            } catch (err: any) {
+              console.error("Google Drive import failed:", err);
+            }
+          }} className="flex items-center gap-1 p-2 rounded-xl bg-muted/60 border border-border hover:bg-muted/80 transition"><HardDrive className="h-4 w-4 text-amber-400" /> Google Drive</button>
         </div>
 
         <h2 className="text-sm font-black uppercase tracking-wider text-foreground">
@@ -47,6 +57,8 @@ export function WorkspaceUploadHub({
           onFilesSelected={onFilesSelected}
           accentColor={accentColor}
         />
+
+        <CloudImportHub onFilesSelected={onFilesSelected} />
 
         {detectedType && (
           <div className="p-4 bg-muted/80 border border-border rounded-2xl space-y-2 text-left animate-fade-up">

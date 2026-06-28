@@ -87,6 +87,13 @@ export function setupFetchInterceptor(
       try {
         const { useAuthStore } = await import("@/store/useAuthStore");
         const { user, logout } = useAuthStore.getState();
+        console.log("%c[AUTH] 401 interceptor triggered", "color:red;font-weight:bold", {
+          url: typeof input === "string" ? input : input?.url || "unknown",
+          hadUser: !!user,
+          userEmail: user?.email,
+          token: (localStorage.getItem("filenova_token") || "").substring(0, 20),
+          timestamp: new Date().toISOString(),
+        });
         if (user) {
           logout();
         }

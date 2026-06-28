@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, AlertCircle, Loader2, FileText, Image, Video, FileSpreadsheet, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -10,6 +10,7 @@ import { useAdmin } from '@/lib/admin';
 import { apiClient, apiMock } from '@/lib/api';
 import { detectFileType, getWorkspaceCategory } from '@/lib/file-detection';
 import { AutoDetectAnimation } from '@/components/shared/AutoDetectAnimation';
+import { CloudImportHub } from '@/components/workspace/CloudImportHub';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -52,27 +53,6 @@ const getUploadPlan = (user: UserProfile | null, subscription: UserSubscription 
 
 const getPlanLabel = (plan: PlanName) => plan === 'free' ? 'Free' : plan.charAt(0).toUpperCase() + plan.slice(1);
 
-const MOCK_CLOUD_FILES: Record<string, Array<{ name: string; size: number; mime: string }>> = {
-  pdf: [
-    { name: "admit_card_2026.pdf", size: 120 * 1024, mime: "application/pdf" },
-    { name: "aadhaar_card_original.pdf", size: 2.1 * 1024 * 1024, mime: "application/pdf" },
-    { name: "income_certificate_signed.pdf", size: 450 * 1024, mime: "application/pdf" },
-  ],
-  image: [
-    { name: "passport_photo_raw.jpg", size: 240 * 1024, mime: "image/jpeg" },
-    { name: "pan_card_scan.png", size: 850 * 1024, mime: "image/png" },
-    { name: "marksheet_copy.jpeg", size: 1.2 * 1024 * 1024, mime: "image/jpeg" },
-  ],
-  video: [
-    { name: "tutorial_mp4.mp4", size: 4.8 * 1024 * 1024, mime: "video/mp4" },
-    { name: "intro_clip.webm", size: 2.1 * 1024 * 1024, mime: "video/webm" },
-  ],
-  office: [
-    { name: "resume_draft.docx", size: 45 * 1024, mime: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
-    { name: "project_data.xlsx", size: 110 * 1024, mime: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" },
-  ],
-};
-
 export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }) => {
   const { isMockMode, jobId, setJobId, setError, error, setSelectedSection, openEditor, addRawFiles, addFiles } = useFileStore();
   const { user, subscription } = useAuthStore();
@@ -97,19 +77,6 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
     mime: string;
   } | null>(null);
 
-  // Cloud Storage States
-  const [cloudModalOpen, setCloudModalOpen] = useState(false);
-  const [cloudSource, setCloudSource] = useState<'Google Drive' | 'Dropbox'>('Google Drive');
-  const [cloudDownloading, setCloudDownloading] = useState(false);
-  const [selectedCloudFileName, setSelectedCloudFileName] = useState('');
-
-  const getMockCloudFiles = () => {
-    if (allowedCategory && MOCK_CLOUD_FILES[allowedCategory]) {
-      return MOCK_CLOUD_FILES[allowedCategory];
-    }
-    return Object.values(MOCK_CLOUD_FILES).flat();
-  };
-
   const resolveEditorType = (file: File): 'image' | 'pdf' | 'document' => {
     if (file.type.startsWith('image/')) return 'image';
     if (file.type === 'application/pdf') return 'pdf';
@@ -123,36 +90,6 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
     setError(null);
     openEditor(file, resolveEditorType(file));
   };
-
-  const [importingMessage, setImportingMessage] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!document.getElementById("google-gapi-js")) {
-      const script = document.createElement("script");
-      script.id = "google-gapi-js";
-      script.src = "https://apis.google.com/js/api.js";
-      script.onload = () => {
-        (window as any).gapi.load('picker', {
-          callback: () => console.log("Google Picker loaded"),
-          onerror: () => console.error("Google Picker load error")
-        });
-      };
-      document.body.appendChild(script);
-    } else if ((window as any).gapi && !(window as any).gapi.picker) {
-      (window as any).gapi.load('picker', {
-        callback: () => console.log("Google Picker loaded"),
-        onerror: () => console.error("Google Picker load error")
-      });
-    }
-
-    if (!document.getElementById("dropboxjs")) {
-      const script = document.createElement("script");
-      script.id = "dropboxjs";
-      script.src = "https://www.dropbox.com/static/api/2/dropins.js";
-      script.setAttribute("data-app-key", import.meta.env.VITE_DROPBOX_APP_KEY || "3crmlb7g779pcsc");
-      document.body.appendChild(script);
-    }
-  }, []);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (acceptedFiles.length === 0) return;
@@ -236,146 +173,23 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
     openEditor(file, resolveEditorType(file));
   }, [allowedCategory, setError, openEditor, user, subscription, setSelectedSection, jobId, setJobId, addRawFiles, addFiles, isMockMode]);
 
-  const importFileFromUrl = async (fileUrl: string, fileName: string, mimeType: string, isDrive: boolean, accessToken?: string) => {
-    setImportingMessage(isDrive ? "Importing from Drive..." : "Importing from Dropbox...");
-    setError(null);
-    try {
-      const headers: Record<string, string> = {};
-      if (isDrive && accessToken) {
-        headers["Authorization"] = `Bearer ${accessToken}`;
-      }
-      
-      const response = await fetch(fileUrl, { headers });
-      if (!response.ok) {
-        throw new Error(`Failed to download file from cloud storage. Status: ${response.status}`);
-      }
-      
-      const blob = await response.blob();
-      const file = new File([blob], fileName, { type: mimeType || blob.type });
-      
-      setImportingMessage(null);
-      await onDrop([file]);
-    } catch (err: any) {
-      console.error(err);
-      setError(`Failed to import file: ${err.message || err}`);
-      setImportingMessage(null);
-    }
-  };
-
-  const openGooglePicker = (accessToken: string) => {
-    try {
-      const picker = new (window as any).google.picker.PickerBuilder()
-        .addView((window as any).google.picker.ViewId.DOCS)
-        .setOAuthToken(accessToken)
-        .setCallback(async (data: any) => {
-          if (data.action === (window as any).google.picker.Action.PICKED) {
-            const doc = data.docs[0];
-            const fileId = doc.id;
-            const fileName = doc.name;
-            const mimeType = doc.mimeType;
-            const fileUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
-            await importFileFromUrl(fileUrl, fileName, mimeType, true, accessToken);
-          }
-        })
-        .build();
-      picker.setVisible(true);
-    } catch (err: any) {
-      setError(`Failed to build Google Picker: ${err.message || err}`);
-    }
-  };
-
-  const launchGoogleDrive = () => {
-    setError(null);
-    if (isMockMode) {
-      setCloudSource('Google Drive');
-      setCloudModalOpen(true);
-      return;
-    }
-
-    if (typeof (window as any).gapi === "undefined" || typeof (window as any).google === "undefined") {
-      setError("Google SDKs not loaded. Please try again in a few seconds.");
-      return;
-    }
-
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    if (!clientId) {
-      setError("Google Client ID is missing. Check your configuration.");
-      return;
-    }
-
-    try {
-      const tokenClient = (window as any).google.accounts.oauth2.initTokenClient({
-        client_id: clientId,
-        scope: "https://www.googleapis.com/auth/drive.readonly",
-        callback: async (tokenResponse: any) => {
-          if (tokenResponse.error !== undefined) {
-            setError(`Google auth failed: ${tokenResponse.error}`);
-            return;
-          }
-          
-          const accessToken = tokenResponse.access_token;
-          openGooglePicker(accessToken);
-        },
+  const handleCloudFiles = useCallback(async (files: File[]) => {
+    if (files.length === 0) return;
+    const plan = getUploadPlan(user, subscription);
+    const limitMb = FILE_SIZE_LIMITS_MB[plan];
+    const limitBytes = limitMb * 1024 * 1024;
+    const oversized = files.find((f) => f.size > limitBytes);
+    if (oversized) {
+      setSizeLimitModal({
+        fileName: oversized.name,
+        fileSizeMb: formatFileSizeMb(oversized.size),
+        plan,
+        limitMb,
       });
-      tokenClient.requestAccessToken({ prompt: "consent" });
-    } catch (err: any) {
-      setError(`Failed to open Google Drive authentication: ${err.message || err}`);
-    }
-  };
-
-  const launchDropbox = () => {
-    setError(null);
-    if (isMockMode) {
-      setCloudSource('Dropbox');
-      setCloudModalOpen(true);
       return;
     }
-
-    if (typeof (window as any).Dropbox === "undefined") {
-      setError("Dropbox chooser SDK not loaded. Please refresh the page and try again.");
-      return;
-    }
-
-    try {
-      (window as any).Dropbox.choose({
-        success: async (files: any[]) => {
-          if (files && files.length > 0) {
-            const dbxFile = files[0];
-            const fileUrl = dbxFile.link;
-            const fileName = dbxFile.name;
-            await importFileFromUrl(fileUrl, fileName, "", false);
-          }
-        },
-        cancel: () => {
-          console.log("Dropbox Chooser cancelled");
-        },
-        linkType: "direct",
-        multiselect: false,
-        extensions: [".pdf", ".docx", ".pptx", ".xlsx", ".jpg", ".png", ".jpeg", ".zip"]
-      });
-    } catch (err: any) {
-      setError(`Failed to open Dropbox Chooser: ${err.message || err}`);
-    }
-  };
-
-  const handleSelectMockCloudFile = async (mockFileMeta: { name: string; size: number; mime: string }) => {
-    setCloudDownloading(true);
-    setSelectedCloudFileName(mockFileMeta.name);
-    
-    // Simulate remote file transfer delay
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
-    setCloudDownloading(false);
-    setCloudModalOpen(false);
-
-    try {
-      const mockBlob = new Blob([new Uint8Array(mockFileMeta.size)], { type: mockFileMeta.mime });
-      const mockFile = new File([mockBlob], mockFileMeta.name, { type: mockFileMeta.mime });
-      onDrop([mockFile]);
-    } catch (err: any) {
-      setError(err.message || 'Cloud download failed');
-    }
-  };
+    await onDrop(files);
+  }, [user, subscription, onDrop]);
 
   const plan = getUploadPlan(user, subscription);
   const isPro = plan === 'pro';
@@ -432,10 +246,8 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
       >
         <input {...getInputProps()} />
 
-        {/* Dynamic cursor shine glow sweep */}
         <div className="absolute inset-0 bg-gradient-to-tr from-brand-primary/0 via-brand-primary/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-        {/* Background glow layer on drag */}
         <AnimatePresence>
           {isDragActive && (
             <motion.div
@@ -450,26 +262,13 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
           )}
         </AnimatePresence>
 
-        {/* Corner decorations */}
         <div className="absolute top-3 left-3 h-4 w-4 border-t-2 border-l-2 border-border/40 rounded-tl-lg pointer-events-none transition-colors group-hover:border-brand-primary/30" />
         <div className="absolute top-3 right-3 h-4 w-4 border-t-2 border-r-2 border-border/40 rounded-tr-lg pointer-events-none transition-colors group-hover:border-brand-primary/30" />
         <div className="absolute bottom-3 left-3 h-4 w-4 border-b-2 border-l-2 border-border/40 rounded-bl-lg pointer-events-none transition-colors group-hover:border-brand-primary/30" />
         <div className="absolute bottom-3 right-3 h-4 w-4 border-b-2 border-r-2 border-border/40 rounded-br-lg pointer-events-none transition-colors group-hover:border-brand-primary/30" />
 
         <div className="relative flex flex-col items-center justify-center gap-4 sm:gap-5 p-5 sm:p-10 text-center">
-          {importingMessage ? (
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center gap-4">
-              <div className="relative">
-                <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
-                  <Loader2 className="h-7 w-7 text-indigo-500 animate-spin" />
-                </div>
-              </div>
-              <div>
-                <p className="font-bold text-foreground">{importingMessage}</p>
-                <p className="text-xs text-muted-foreground mt-1">Please wait while transferring cloud file...</p>
-              </div>
-            </motion.div>
-          ) : isUploading ? (
+          {isUploading ? (
             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center gap-4">
               <div className="relative">
                 <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
@@ -487,9 +286,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
               transition={{ type: 'spring', stiffness: 300, damping: 20 }}
               className="flex flex-col items-center gap-4 sm:gap-5"
             >
-              {/* Icon */}
               <div className="relative">
-                {/* Outer ring */}
                 <motion.div
                   animate={isDragActive ? { scale: 1.3, opacity: 0 } : { scale: 1.2, opacity: 0.4 }}
                   transition={{ duration: 0.8, repeat: isDragActive ? 0 : Infinity, repeatType: 'reverse', ease: 'easeInOut' }}
@@ -514,7 +311,6 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
                 </motion.div>
               </div>
 
-              {/* Text */}
               <div className="space-y-1.5">
                 <p className={`text-base sm:text-lg font-bold transition-colors ${isDragActive ? 'text-primary' : 'text-foreground'}`}>
                   {getHeadline()}
@@ -528,13 +324,11 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
                 </p>
               </div>
 
-              {/* Accept label pill */}
               <div className="flex max-w-full items-center gap-1.5 px-3 py-1.5 rounded-xl sm:rounded-full bg-muted/60 border border-border text-[11px] sm:text-xs text-muted-foreground font-medium text-center">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0" />
                 {getAcceptLabel()}
               </div>
 
-              {/* Plan-aware size limit */}
               <p className="text-[11px] sm:text-xs text-muted-foreground">
                 Max file size: {fileSizeLimitMb}MB ({planLabel})
                 {plan === 'free' ? ' · Upgrade for larger files' : ''}
@@ -548,40 +342,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
         </div>
       </motion.div>
 
-      {/* Cloud Picker trigger buttons */}
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-4 text-xs select-none">
-        <span className="text-muted-foreground font-semibold">Or import from cloud:</span>
-        <div className="flex items-center gap-2.5">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={launchGoogleDrive}
-            className="flex items-center gap-1.5 h-8 border border-border/80 hover:border-indigo-500/30 bg-card hover:bg-muted text-xs font-bold text-foreground cursor-pointer transition-all duration-300 shadow-sm"
-          >
-            <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12.24 10.285L9.36 15.285H15.12L12.24 10.285Z" fill="#0F9D58" />
-              <path d="M15.12 15.285H20.88L15.12 5.285H9.36L15.12 15.285Z" fill="#4285F4" />
-              <path d="M9.36 15.285L3.6 5.285H9.36L15.12 15.285Z" fill="#FFC107" />
-            </svg>
-            Google Drive
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={launchDropbox}
-            className="flex items-center gap-1.5 h-8 border border-border/80 hover:border-indigo-500/30 bg-card hover:bg-muted text-xs font-bold text-foreground cursor-pointer transition-all duration-300 shadow-sm"
-          >
-            <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M6 2L2 6L6 10L10 6L6 2Z" fill="#0061FE" />
-              <path d="M18 2L14 6L18 10L22 6L18 2Z" fill="#0061FE" />
-              <path d="M2 14L6 18L10 14L6 10L2 14Z" fill="#0061FE" />
-              <path d="M14 14L18 18L22 14L18 10L14 14Z" fill="#0061FE" />
-              <path d="M6 20.5L12 24.5L18 20.5L12 16.5L6 20.5Z" fill="#0061FE" />
-            </svg>
-            Dropbox
-          </Button>
-        </div>
-      </div>
+      <CloudImportHub onFilesSelected={handleCloudFiles} allowedCategory={allowedCategory} disabled={!admin.settings.editingEnabled} />
 
       <Dialog open={Boolean(sizeLimitModal)} onOpenChange={(open) => !open && setSizeLimitModal(null)}>
         <DialogContent>
@@ -634,7 +395,6 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
         </DialogContent>
       </Dialog>
 
-      {/* Auto-detect redirect */}
       {pendingRedirect && (
         <AutoDetectAnimation
           fileName={pendingRedirect.file.name}
@@ -645,7 +405,6 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
         />
       )}
 
-      {/* Mismatch error */}
       <AnimatePresence>
         {mismatchError && (
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
@@ -676,7 +435,6 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
         )}
       </AnimatePresence>
 
-      {/* Upload error */}
       <AnimatePresence>
         {error && (
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
@@ -686,68 +444,6 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ allowedCategory = null }
           </motion.div>
         )}
       </AnimatePresence>
-      {/* Cloud Storage Mock Dialog */}
-      <Dialog open={cloudModalOpen} onOpenChange={setCloudModalOpen}>
-        <DialogContent className="sm:max-w-md bg-card border border-border rounded-2xl shadow-xl">
-          <DialogHeader>
-            <DialogTitle className="text-base font-black flex items-center gap-2 text-foreground">
-              {cloudSource === 'Google Drive' ? (
-                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12.24 10.285L9.36 15.285H15.12L12.24 10.285Z" fill="#0F9D58" />
-                  <path d="M15.12 15.285H20.88L15.12 5.285H9.36L15.12 15.285Z" fill="#4285F4" />
-                  <path d="M9.36 15.285L3.6 5.285H9.36L15.12 15.285Z" fill="#FFC107" />
-                </svg>
-              ) : (
-                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M6 2L2 6L6 10L10 6L6 2Z" fill="#0061FE" />
-                  <path d="M18 2L14 6L18 10L22 6L18 2Z" fill="#0061FE" />
-                  <path d="M2 14L6 18L10 14L6 10L2 14Z" fill="#0061FE" />
-                  <path d="M14 14L18 18L22 14L18 10L14 14Z" fill="#0061FE" />
-                  <path d="M6 20.5L12 24.5L18 20.5L12 16.5L6 20.5Z" fill="#0061FE" />
-                </svg>
-              )}
-              Import from {cloudSource}
-            </DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground mt-1 leading-relaxed">
-              {cloudDownloading 
-                ? `Downloading "${selectedCloudFileName}" securely to your local browser workspace...`
-                : `Select a file from your connected ${cloudSource} account. Files are processed locally in your browser.`
-              }
-            </DialogDescription>
-          </DialogHeader>
-
-          {cloudDownloading ? (
-            <div className="py-10 flex flex-col items-center justify-center gap-4 text-center">
-              <Loader2 className="h-8 w-8 text-primary animate-spin" />
-              <p className="text-xs font-bold text-foreground">Fetching file...</p>
-            </div>
-          ) : (
-            <div className="space-y-2.5 max-h-60 overflow-y-auto pr-1 py-1">
-              {getMockCloudFiles().map((fileMeta) => (
-                <button
-                  key={fileMeta.name}
-                  onClick={() => handleSelectMockCloudFile(fileMeta)}
-                  className="w-full flex items-center justify-between p-3 border border-border/60 rounded-xl hover:border-indigo-500/30 hover:bg-muted text-left text-xs font-semibold text-foreground transition-all cursor-pointer group"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">📄</span>
-                    <span className="truncate group-hover:text-primary transition-colors">{fileMeta.name}</span>
-                  </div>
-                  <span className="text-[10px] text-muted-foreground shrink-0 font-mono">
-                    {formatFileSizeMb(fileMeta.size)}MB
-                  </span>
-                </button>
-              ))}
-            </div>
-          )}
-
-          <DialogFooter className="mt-4">
-            <Button variant="outline" size="sm" onClick={() => setCloudModalOpen(false)} disabled={cloudDownloading} className="h-9 font-bold text-xs">
-              Cancel
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

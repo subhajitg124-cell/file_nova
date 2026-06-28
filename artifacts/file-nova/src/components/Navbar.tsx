@@ -67,6 +67,10 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
           credentials: 'include',
           headers
         });
+        console.log("%c[NAV] notifications fetch response", "color:purple", {
+          status: res.status,
+          timestamp: new Date().toISOString(),
+        });
         if (res.ok) {
           data = await res.json();
         }
