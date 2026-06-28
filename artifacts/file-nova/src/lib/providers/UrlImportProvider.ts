@@ -1,3 +1,4 @@
+import React from "react";
 import type { CloudProvider } from "./types";
 import { Link } from "lucide-react";
 
@@ -45,7 +46,7 @@ function isAllowed(url: string): { valid: boolean; reason?: string } {
 export class UrlImportProvider implements CloudProvider {
   id = "url-import";
   name = "URL Import";
-  icon = Link({ className: "h-5 w-5" });
+  icon = React.createElement(Link, { className: "h-5 w-5" });
 
   isAvailable() { return true; }
   supportsImageOnly() { return false; }

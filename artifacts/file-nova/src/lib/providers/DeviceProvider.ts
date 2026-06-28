@@ -1,10 +1,11 @@
+import React from "react";
 import type { CloudProvider } from "./types";
 import { Upload } from "lucide-react";
 
 export class DeviceProvider implements CloudProvider {
   id = "device";
   name = "Device";
-  icon = Upload({ className: "h-5 w-5" });
+  icon = React.createElement(Upload, { className: "h-5 w-5" });
   private _inputEl: HTMLInputElement | null = null;
 
   async authenticate() {}
