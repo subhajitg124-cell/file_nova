@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Upload, FileText, Image as ImageIcon, Video, Trash2, ArrowUp, ArrowDown, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -37,12 +37,37 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
   const { rawFiles, files, removeFile } = useFileStore();
   const theme = THEME_COLORS[accentColor] || THEME_COLORS.violet;
 
+  // Premium UI & animation states
+  const [rotateX, setRotateX] = useState(0);
+  const [rotateY, setRotateY] = useState(0);
+  const [isDropping, setIsDropping] = useState(false);
+  const [flashActive, setFlashActive] = useState(false);
+  const [burstParticles, setBurstParticles] = useState<any[]>([]);
+
   // Render PDF thumbnails via standard hook
   const pdfMeta = usePdfThumbnails(rawFiles, 80);
 
   const onDrop = useCallback(
     (accepted: File[]) => {
       if (accepted.length > 0) {
+        setIsDropping(true);
+        setTimeout(() => setIsDropping(false), 200);
+        setFlashActive(true);
+        setTimeout(() => setFlashActive(false), 400);
+
+        // Burst particles
+        const newParticles = Array.from({ length: 12 }).map((_, i) => ({
+          id: i,
+          x: 0,
+          y: 0,
+          targetX: (Math.random() - 0.5) * 180,
+          targetY: (Math.random() - 0.5) * 180,
+          color: ["bg-indigo-500", "bg-purple-500", "bg-pink-500", "bg-cyan-500", "bg-emerald-500"][Math.floor(Math.random() * 5)],
+          size: Math.random() * 5 + 3,
+        }));
+        setBurstParticles(newParticles);
+        setTimeout(() => setBurstParticles([]), 800);
+
         onFilesSelected(accepted);
       }
     },
@@ -54,6 +79,26 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
     maxFiles: maxFiles - files.length,
     disabled: files.length >= maxFiles,
   });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    const tiltX = ((centerY - y) / centerY) * 4;
+    const tiltY = ((x - centerX) / centerX) * 4;
+    
+    setRotateX(tiltX);
+    setRotateY(tiltY);
+  };
+
+  const handleMouseLeave = () => {
+    setRotateX(0);
+    setRotateY(0);
+  };
 
   const formatSize = (bytes: number) => {
     if (bytes === 0) return "0 Bytes";
@@ -109,11 +154,22 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
     useFileStore.setState({ files: newFiles, rawFiles: newRaw });
   };
 
-  // State mapping for files from zustand
   const storeFiles = files || [];
 
   return (
     <div className="space-y-4">
+      {/* Screen Backdrop Darken & Blur on Drag */}
+      <AnimatePresence>
+        {isDragActive && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-background/60 backdrop-blur-sm z-40 pointer-events-none"
+          />
+        )}
+      </AnimatePresence>
+
       {/* List of uploaded files */}
       {storeFiles.length > 0 && (
         <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
@@ -128,7 +184,7 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
                   exit={{ opacity: 0, height: 0 }}
                   className="flex items-center gap-3 p-2.5 rounded-xl border border-border bg-card/60 hover:bg-card transition-colors group"
                 >
-                    <div className="h-10 w-10 shrink-0 bg-muted border border-border rounded flex items-center justify-center overflow-hidden">
+                  <div className="h-10 w-10 shrink-0 bg-muted border border-border rounded flex items-center justify-center overflow-hidden">
                     {renderThumbnail(rawFile)}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -144,6 +200,7 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
                           disabled={index === 0}
                           className="p-1 rounded hover:bg-white/5 disabled:opacity-25 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                           title="Move up"
+                          aria-label="Move up"
                         >
                           <ArrowUp className="h-3.5 w-3.5" />
                         </button>
@@ -153,6 +210,7 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
                           disabled={index === storeFiles.length - 1}
                           className="p-1 rounded hover:bg-white/5 disabled:opacity-25 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                           title="Move down"
+                          aria-label="Move down"
                         >
                           <ArrowDown className="h-3.5 w-3.5" />
                         </button>
@@ -163,6 +221,7 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
                       onClick={() => removeFile(fileRecord.id)}
                       className="p-1.5 rounded hover:bg-red-500/10 text-muted-foreground hover:text-red-400 transition-colors cursor-pointer"
                       title="Remove file"
+                      aria-label="Remove file"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -176,23 +235,77 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
 
       {/* Upload Zone element (only show if space available or not compact and no files) */}
       {storeFiles.length < maxFiles && (!compact || storeFiles.length === 0) && (
-        <div
+        <motion.div
           {...(getRootProps() as any)}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          animate={{
+            rotateX,
+            rotateY,
+            scale: isDropping ? 0.96 : (isDragActive ? 1.03 : 1),
+          }}
+          style={{
+            transformStyle: "preserve-3d",
+            perspective: 800,
+          }}
           className={`
-            relative cursor-pointer rounded-2xl border-2 transition-all duration-300 min-h-[140px] flex items-center justify-center text-center p-4
+            relative cursor-pointer rounded-2xl border transition-all duration-300 min-h-[140px] flex items-center justify-center text-center p-4 overflow-hidden group
             ${isDragActive
-              ? `border-${accentColor}-500 bg-card border-march ${theme.activeBg}`
-              : `fn-glass rounded-2xl border-dashed border-[var(--fn-border-strong)] hover:border-[var(--fn-border-strong)]/80 hover:bg-white/[0.05]`
+              ? `bg-card border-transparent shadow-glow`
+              : `bg-card/45 border-dashed border-border/80 hover:bg-white/[0.03]`
             }
           `}
         >
           <input {...getInputProps()} />
 
-          <div className="flex flex-col items-center gap-3">
-            <div className={`p-3 rounded-full bg-muted/60 border border-border ${theme.color}`}>
+          {/* Dynamic Light Sweep Highlight on Hover */}
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent pointer-events-none"
+            initial={{ x: "-100%" }}
+            whileHover={{ x: "100%" }}
+            transition={{ duration: 1.2, ease: "easeInOut" }}
+          />
+
+          {/* Drop Flash */}
+          <AnimatePresence>
+            {flashActive && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.3 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-white dark:bg-brand-primary pointer-events-none rounded-2xl z-20"
+              />
+            )}
+          </AnimatePresence>
+
+          {/* Drop Burst Particles */}
+          {burstParticles.map(p => (
+            <motion.div
+              key={p.id}
+              className={`absolute rounded-full ${p.color} pointer-events-none z-20`}
+              style={{ width: p.size, height: p.size, top: "50%", left: "50%" }}
+              initial={{ x: 0, y: 0, scale: 1, opacity: 1 }}
+              animate={{ x: p.targetX, y: p.targetY, scale: 0, opacity: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+            />
+          ))}
+
+          {/* Rotating Gradient border active on drag / hover */}
+          <div className="absolute inset-0 -z-10 rounded-2xl overflow-hidden p-[1.5px] pointer-events-none">
+            <div className={`absolute inset-[-50%] bg-[conic-gradient(from_0deg,#6366f1,#a855f7,#ec4899,#6366f1)] animate-[spin_6s_linear_infinite] transition-opacity duration-300
+              ${isDragActive ? 'opacity-90' : 'opacity-20 group-hover:opacity-50'}
+            `} />
+            <div className="w-full h-full rounded-[15px] bg-card" />
+          </div>
+
+          <div className="flex flex-col items-center gap-3 relative z-10">
+            {/* Aurora glow background */}
+            <div className="absolute -inset-4 bg-gradient-to-r from-brand-primary to-brand-accent rounded-full blur-xl opacity-10 group-hover:opacity-20 transition-opacity duration-700 animate-pulse pointer-events-none" />
+
+            <div className={`p-3 rounded-full bg-muted/60 border border-border ${theme.color} relative z-10`}>
               <Upload className="h-5 w-5 animate-pulse" />
             </div>
-            <div>
+            <div className="relative z-10">
               <p className="text-xs font-bold text-foreground">
                 {isDragActive ? "Drop files here!" : "Drag & Drop files"}
               </p>
@@ -200,11 +313,11 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
                 or click to browse local files
               </p>
             </div>
-            <div className="px-2.5 py-1 rounded-lg bg-muted/40 border border-border text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
+            <div className="px-2.5 py-1 rounded-lg bg-muted/40 border border-border text-[9px] font-bold text-muted-foreground uppercase tracking-wider relative z-10">
               Accepted: {acceptedTypes.join(", ")}
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* "Add More Files" Inline Button */}

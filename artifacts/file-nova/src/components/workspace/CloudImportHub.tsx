@@ -164,6 +164,7 @@ export const CloudImportHub: React.FC<CloudImportHubProps> = ({ onFilesSelected,
                   const colors = PROVIDER_COLORS[entry.provider.id] || PROVIDER_COLORS["google-drive"];
                   return (
                     <button
+                      id={`btn-cloud-${entry.provider.id}`}
                       key={entry.provider.id}
                       onClick={() => handleProviderPick(idx)}
                       disabled={disabled || entry.state === "importing"}
@@ -227,7 +228,10 @@ export const CloudImportHub: React.FC<CloudImportHubProps> = ({ onFilesSelected,
                     />
                     {urlInput && (
                       <button
+                        type="button"
                         onClick={() => setUrlInput("")}
+                        title="Clear URL input"
+                        aria-label="Clear URL input"
                         className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-muted-foreground hover:text-foreground"
                       >
                         <X className="h-3.5 w-3.5" />
@@ -285,10 +289,13 @@ export const CloudImportHub: React.FC<CloudImportHubProps> = ({ onFilesSelected,
                             <span className="text-muted-foreground font-mono text-[9px] uppercase">{file.source}</span>
                             <span className="flex-1 truncate text-foreground font-medium">{file.name}</span>
                             <button
+                              type="button"
                               onClick={() => {
                                 cloudStore.togglePin(file);
                                 setRecentFiles(cloudStore.getAll());
                               }}
+                              title={cloudStore.isPinned(file) ? "Unpin file" : "Pin file"}
+                              aria-label={cloudStore.isPinned(file) ? "Unpin file" : "Pin file"}
                               className={`p-0.5 transition-colors ${cloudStore.isPinned(file) ? "text-amber-400" : "text-muted-foreground hover:text-amber-400"}`}
                             >
                               <Pin className="h-3 w-3" />
