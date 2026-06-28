@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { BACKEND_URL, HAS_BACKEND } from '@/lib/api';
 import { useFileStore } from './useFileStore';
 
@@ -31,6 +32,7 @@ interface AuthState {
   loading: boolean;
   error: string | null;
   initialized: boolean;
+  token: string | null;
   fetchMe: () => Promise<void>;
   login: (identifier: string, password: string) => Promise<boolean>;
   signup: (email: string, phoneNumber: string | null, password: string, name: string | null) => Promise<boolean>;
@@ -348,13 +350,16 @@ async function safeFetch(input: RequestInfo, init?: RequestInit): Promise<Respon
   }
 }
 
-export const useAuthStore = create<AuthState>((set, get) => ({
-  user: getInitialUser(),
-  subscription: null,
-  loading: false,
-  error: null,
-  initialized: false,
-  isLoginModalOpen: false,
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set, get) => ({
+      user: getInitialUser(),
+      subscription: null,
+      loading: false,
+      error: null,
+      initialized: false,
+      token: localStorage.getItem(SESSION_TOKEN_KEY),
+      isLoginModalOpen: false,
   loginModalMessage: null,
 
   openLoginModal: (message) => set({ isLoginModalOpen: true, loginModalMessage: typeof message === 'string' ? message : null }),
@@ -403,6 +408,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             user: processedUser,
             subscription: processSubscription(data.subscription, processedUser),
             initialized: true,
+            token: localStorage.getItem(SESSION_TOKEN_KEY),
           });
         } else {
           const elapsed = Date.now() - startTime;
@@ -414,7 +420,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           });
           localStorage.removeItem(SESSION_TOKEN_KEY);
           localStorage.removeItem(LOCAL_USER_KEY);
-          set({ user: null, subscription: null, initialized: true });
+          set({ user: null, subscription: null, token: null, initialized: true });
         }
       } else {
         const elapsed = Date.now() - startTime;
@@ -425,7 +431,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           status: res.status,
           timestamp: new Date().toISOString(),
         });
-        set({ user: null, subscription: null, initialized: true });
+        set({ user: null, subscription: null, token: null, initialized: true });
       }
     } catch (err: any) {
       const localUser = processUser(getLocalSession());
@@ -437,6 +443,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         user: localUser,
         subscription: processSubscription(localUser ? freeSubscription : null, localUser),
         initialized: true,
+        token: localStorage.getItem(SESSION_TOKEN_KEY),
         error: err.message || 'Failed to fetch user profile',
       });
     } finally {
@@ -456,7 +463,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         }
         const processedUser = processUser(saved.user);
         setLocalSession(processedUser!);
-        set({ user: processedUser, subscription: processSubscription(freeSubscription, processedUser) });
+        set({ user: processedUser, token: localStorage.getItem(SESSION_TOKEN_KEY), subscription: processSubscription(freeSubscription, processedUser) });
         return true;
       }
 
@@ -473,6 +480,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const processedUser = processUser(data.user);
       set({
         user: processedUser,
+        token: data.token || null,
         subscription: processSubscription(data.subscription, processedUser),
         initialized: true,
       });
@@ -508,7 +516,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         setLocalSession(processedUser!);
         localStorage.removeItem('filenova_referral_code');
         localStorage.removeItem('filenova_referral_tracking_id');
-        set({ user: processedUser, subscription: processSubscription(freeSubscription, processedUser) });
+        set({ user: processedUser, token: localStorage.getItem(SESSION_TOKEN_KEY), subscription: processSubscription(freeSubscription, processedUser) });
         return true;
       }
 
@@ -532,6 +540,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const processedUser = processUser(data.user);
       set({
         user: processedUser,
+        token: data.token || null,
         subscription: processSubscription(null, processedUser),
         initialized: true,
       });
@@ -566,7 +575,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         setLocalSession(processedUser!);
         localStorage.removeItem('filenova_referral_code');
         localStorage.removeItem('filenova_referral_tracking_id');
-        set({ user: processedUser, subscription: processSubscription(freeSubscription, processedUser) });
+        set({ user: processedUser, token: localStorage.getItem(SESSION_TOKEN_KEY), subscription: processSubscription(freeSubscription, processedUser) });
         return true;
       }
 
@@ -587,6 +596,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const processedUser = processUser(data.user);
       set({
         user: processedUser,
+        token: data.token || null,
         subscription: processSubscription(data.subscription, processedUser),
         initialized: true,
       });
@@ -628,7 +638,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       });
       localStorage.removeItem(SESSION_TOKEN_KEY);
       localStorage.removeItem(LOCAL_USER_KEY);
-      set({ user: null, subscription: null, loading: false });
+      set({ user: null, subscription: null, token: null, loading: false });
     }
   },
 
@@ -722,7 +732,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         }
         localStorage.removeItem(SESSION_TOKEN_KEY);
         localStorage.removeItem(LOCAL_USER_KEY);
-        set({ user: null, subscription: null });
+        set({ user: null, subscription: null, token: null });
         return true;
       }
 
@@ -737,7 +747,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
       localStorage.removeItem(SESSION_TOKEN_KEY);
       localStorage.removeItem(LOCAL_USER_KEY);
-      set({ user: null, subscription: null });
+      set({ user: null, subscription: null, token: null });
       return true;
     } catch (err: any) {
       set({ error: err.message || 'Failed to delete account' });
@@ -816,6 +826,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ loading: false });
     }
   },
+}), {
+  name: 'fn-auth',
+  storage: createJSONStorage(() => localStorage),
+  partialize: (state) => ({
+    user: state.user,
+    token: state.token,
+    subscription: state.subscription,
+  }),
 }));
 
 if (typeof window !== 'undefined') {

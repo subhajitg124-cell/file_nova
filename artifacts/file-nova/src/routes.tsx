@@ -17,6 +17,21 @@ import { LoadingScreen } from "@/components/LoadingScreen";
 import { useAdmin } from "@/lib/admin";
 import { useAuthStore } from "@/store/useAuthStore";
 
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { user, initialized } = useAuthStore();
+  const [location] = useLocation();
+
+  if (!initialized) {
+    return <LoadingScreen />;
+  }
+
+  if (!user) {
+    return <Redirect to={`/login?redirect=${encodeURIComponent(location)}`} replace />;
+  }
+
+  return <>{children}</>;
+}
+
 
 const MergePdf = React.lazy(() => import("@/pages/tools/MergePdf"));
 const SplitPdf = React.lazy(() => import("@/pages/tools/SplitPdf"));
@@ -265,7 +280,9 @@ export function Router() {
             <LoginPage />
           </Route>
           <Route path="/dashboard">
-            <DashboardPage />
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
           </Route>
           <Route path="/history">
             <HistoryPage />
@@ -295,7 +312,9 @@ export function Router() {
             <ContactPage />
           </Route>
           <Route path="/profile">
-            <ProfilePage />
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
           </Route>
           <Route path="/privacy">
             <PrivacyPolicy />

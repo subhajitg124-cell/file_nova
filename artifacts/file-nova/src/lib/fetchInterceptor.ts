@@ -12,6 +12,37 @@ export function setupFetchInterceptor(
     const [input, init] = args;
     let newInit = init ? { ...init } : {};
 
+    const url = typeof input === "string"
+      ? input
+      : (input instanceof URL
+        ? input.toString()
+        : (input && (input as Request).url ? (input as Request).url : ""));
+
+    if (url && (url.includes("/api/") || url.startsWith("/api/"))) {
+      const token = localStorage.getItem("filenova_token");
+      if (token && !token.startsWith("local_")) {
+        if (!newInit.headers) {
+          newInit.headers = { "Authorization": `Bearer ${token}` };
+        } else if (newInit.headers instanceof Headers) {
+          if (!newInit.headers.has("Authorization")) {
+            newInit.headers.set("Authorization", `Bearer ${token}`);
+          }
+        } else if (Array.isArray(newInit.headers)) {
+          const hasAuth = newInit.headers.some(([k]) => k.toLowerCase() === "authorization");
+          if (!hasAuth) {
+            newInit.headers.push(["Authorization", `Bearer ${token}`]);
+          }
+        } else {
+          const headers = { ...newInit.headers } as Record<string, string>;
+          const hasAuth = Object.keys(headers).some(k => k.toLowerCase() === "authorization");
+          if (!hasAuth) {
+            headers["Authorization"] = `Bearer ${token}`;
+            newInit.headers = headers;
+          }
+        }
+      }
+    }
+
     // Sanitize headers: remove local_ mock tokens to ensure backend cookie authentication works
     if (newInit.headers) {
       if (newInit.headers instanceof Headers) {
@@ -34,11 +65,7 @@ export function setupFetchInterceptor(
       }
     }
 
-    const url = typeof input === "string"
-      ? input
-      : (input instanceof URL
-        ? input.toString()
-        : (input && (input as Request).url ? (input as Request).url : ""));
+
 
     if (url && (url.includes("/api/") || url.startsWith("/api/"))) {
       const latencyStr = localStorage.getItem("filenova_simulated_latency");
