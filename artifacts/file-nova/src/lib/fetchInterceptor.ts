@@ -1,5 +1,5 @@
 import { useFileStore } from "@/store/useFileStore";
-import { BACKEND_URL } from "@/lib/api";
+const BACKEND_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || "";
 
 export function setupFetchInterceptor(
   setLimitModalOpen: (open: boolean) => void,
