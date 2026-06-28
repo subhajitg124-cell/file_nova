@@ -58,7 +58,9 @@ export function useFileUpload(options?: { accept?: string; maxSizeMB?: number; o
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault();
-    setIsDragging(false);
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setIsDragging(false);
+    }
   }, []);
 
   const clearFile = useCallback(() => setFile(null), []);

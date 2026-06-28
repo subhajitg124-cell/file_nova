@@ -619,6 +619,31 @@
     border: 1px solid rgba(31,77,122,0.12);
   }
 
+  /* ── Universal Drop-Zone Drag Glow ────────────────────────────────────── */
+  /* Apply .drop-zone-glow to any dashed upload zone for animated border glow on drag.
+     Paired with .drop-zone-glow-active toggled via isDragging state. */
+  .drop-zone-glow {
+    position: relative;
+    border: 2px dashed var(--border, rgba(79,111,161,0.3));
+    border-radius: 12px;
+    transition: border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .drop-zone-glow-active {
+    border-color: var(--primary) !important;
+    background-color: color-mix(in srgb, var(--primary) 5%, transparent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 10%, transparent),
+                0 0 20px color-mix(in srgb, var(--primary) 18%, transparent);
+    transform: scale(1.01);
+  }
+  .drop-zone-glow-active .drop-zone-icon {
+    color: var(--primary);
+    transform: translateY(-4px);
+    transition: all 0.3s ease;
+  }
+
   /* ── Gradient text ──────────────────────────────────────────────────────── */
   .gradient-text {
     background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 45%, #06b6d4 100%);

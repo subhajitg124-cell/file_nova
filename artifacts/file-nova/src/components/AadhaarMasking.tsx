@@ -41,6 +41,7 @@ export function AadhaarMasking() {
   const [file, setFile] = useState<File | null>(null);
   const [fileUploading, setFileUploading] = useState(false);
   const [fileMaskResult, setFileMaskResult] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const extractAadhaar = (text: string): string | null => {
     const match = text.match(/\b\d{4}\s?\d{4}\s?\d{4}\b/);
@@ -107,10 +108,19 @@ export function AadhaarMasking() {
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setIsDragging(false);
+    }
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
+    setIsDragging(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       setFile(e.dataTransfer.files[0]);
       setFileMaskResult(null);
@@ -216,8 +226,9 @@ export function AadhaarMasking() {
           {!file ? (
             <div
               onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
               onDrop={handleDrop}
-              className="border-2 border-dashed border-border hover:border-primary/50 transition rounded-xl p-8 text-center flex flex-col items-center justify-center gap-3 bg-background/30 cursor-pointer relative"
+              className={`drop-zone-glow ${isDragging ? 'drop-zone-glow-active' : 'hover:border-primary/50'} rounded-xl p-8 text-center flex flex-col items-center justify-center gap-3 bg-background/30 cursor-pointer relative`}
             >
               <input
                 type="file"
@@ -227,7 +238,7 @@ export function AadhaarMasking() {
                 title="Upload Aadhaar Card file"
                 className="absolute inset-0 opacity-0 cursor-pointer"
               />
-              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary drop-zone-icon">
                 <Upload className="h-6 w-6" />
               </div>
               <div>

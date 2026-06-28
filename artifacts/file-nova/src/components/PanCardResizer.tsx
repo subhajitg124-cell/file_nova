@@ -46,11 +46,7 @@ function UploadZone({ onFileSelect, isLoading }: UploadZoneProps) {
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      className={`relative border-2 border-dashed rounded-xl p-8 transition-all duration-200 text-center ${
-        isDragOver
-          ? 'border-indigo-500 bg-indigo-500/10'
-          : 'border-white/20 bg-white/5 hover:border-white/30 hover:bg-white/10'
-      }`}
+      className={`drop-zone-glow ${isDragOver ? 'drop-zone-glow-active' : ''} relative rounded-xl p-8 text-center bg-background/30`}
     >
       <input
         type="file"
@@ -61,9 +57,9 @@ function UploadZone({ onFileSelect, isLoading }: UploadZoneProps) {
         disabled={isLoading}
       />
       <label htmlFor="pan-file-input" className="cursor-pointer block">
-        <Upload className="h-12 w-12 mx-auto mb-4 text-indigo-400" />
+        <Upload className="h-12 w-12 mx-auto mb-4 text-primary drop-zone-icon" />
         <p className="text-lg font-semibold mb-2">Drag image here or click to upload</p>
-        <p className="text-sm text-white/60">PNG, JPG, WebP, GIF (max 10 MB)</p>
+        <p className="text-sm text-muted-foreground">PNG, JPG, WebP, GIF (max 10 MB)</p>
       </label>
     </div>
   );
