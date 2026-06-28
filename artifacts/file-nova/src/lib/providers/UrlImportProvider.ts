@@ -26,19 +26,19 @@ const ALLOWED_EXTENSIONS = [
   ".mp4", ".webm", ".mp3", ".wav", ".ogg",
 ];
 
-function isAllowed(url: string): { allowed: boolean; reason?: string } {
+function isAllowed(url: string): { valid: boolean; reason?: string } {
   try {
     const parsed = new URL(url);
     if (!["http:", "https:"].includes(parsed.protocol)) {
-      return { allowed: false, reason: "Only HTTP and HTTPS URLs are supported" };
+      return { valid: false, reason: "Only HTTP and HTTPS URLs are supported" };
     }
     const ext = parsed.pathname.toLowerCase().split(".").pop();
     if (ext && !ALLOWED_EXTENSIONS.includes(`.${ext}`)) {
-      return { allowed: false, reason: `File extension .${ext} is not supported` };
+      return { valid: false, reason: `File extension .${ext} is not supported` };
     }
-    return { allowed: true };
+    return { valid: true };
   } catch {
-    return { allowed: false, reason: "Invalid URL format" };
+    return { valid: false, reason: "Invalid URL format" };
   }
 }
 
@@ -64,7 +64,7 @@ export class UrlImportProvider implements CloudProvider {
 
   async pickFromUrl(url: string): Promise<File | null> {
     const check = isAllowed(url);
-    if (!check.allowed) throw new Error(check.reason!);
+    if (!check.valid) throw new Error(check.reason!);
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);

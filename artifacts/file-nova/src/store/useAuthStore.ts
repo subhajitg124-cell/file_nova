@@ -380,9 +380,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         return;
       }
 
-      // Enforce a fast 2-second timeout for the profile check to ensure the initial loader fades quickly if the backend is down
+      // Enforce a 10-second timeout to allow database cold starts to complete
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2000);
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
 
       const res = await fetch(`${BACKEND_URL}/api/v1/auth/me`, {
         credentials: 'include',
@@ -409,16 +409,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           if (elapsed < 1000) {
             await new Promise((resolve) => setTimeout(resolve, 1000 - elapsed));
           }
-          const existingUser = get().user;
-          if (existingUser) {
-            set({ initialized: true });
-          } else {
-            console.log("%c[AUTH] fetchMe cleared user (no existing session)", "color:orange", {
-              status: res.status,
-              timestamp: new Date().toISOString(),
-            });
-            set({ user: null, subscription: null, initialized: true });
-          }
+          console.warn("%c[AUTH] fetchMe returned user: null. Explicitly clearing invalid session.", "color:red", {
+            timestamp: new Date().toISOString(),
+          });
+          localStorage.removeItem(SESSION_TOKEN_KEY);
+          localStorage.removeItem(LOCAL_USER_KEY);
+          set({ user: null, subscription: null, initialized: true });
         }
       } else {
         const elapsed = Date.now() - startTime;

@@ -1,4 +1,5 @@
 import { useFileStore } from "@/store/useFileStore";
+import { BACKEND_URL } from "@/lib/api";
 
 export function setupFetchInterceptor(
   setLimitModalOpen: (open: boolean) => void,
@@ -84,20 +85,45 @@ export function setupFetchInterceptor(
 
     const response = await originalFetch(input, newInit);
     if (response.status === 401) {
-      try {
-        const { useAuthStore } = await import("@/store/useAuthStore");
-        const { user, logout } = useAuthStore.getState();
-        console.log("%c[AUTH] 401 interceptor triggered", "color:red;font-weight:bold", {
-          url: typeof input === "string" ? input : input?.url || "unknown",
-          hadUser: !!user,
-          userEmail: user?.email,
-          token: (localStorage.getItem("filenova_token") || "").substring(0, 20),
-          timestamp: new Date().toISOString(),
-        });
-        if (user) {
-          logout();
+      const urlStr = typeof input === "string" ? input : (input instanceof URL ? input.toString() : (input && (input as Request).url ? (input as Request).url : ""));
+      if (!urlStr.includes("/api/v1/auth/me") && !urlStr.includes("/api/health")) {
+        try {
+          const { useAuthStore } = await import("@/store/useAuthStore");
+          const { user, logout } = useAuthStore.getState();
+          if (user) {
+            console.log("%c[AUTH] 401 interceptor triggered. Verifying session integrity...", "color:orange;font-weight:bold", {
+              url: urlStr,
+              timestamp: new Date().toISOString(),
+            });
+
+            const token = localStorage.getItem("filenova_token");
+            const headers: Record<string, string> = { "Content-Type": "application/json" };
+            if (token && !token.startsWith("local_")) {
+              headers["Authorization"] = `Bearer ${token}`;
+            }
+
+            const checkRes = await originalFetch(`${BACKEND_URL}/api/v1/auth/me`, {
+              method: "GET",
+              headers,
+              credentials: "include",
+            });
+
+            if (checkRes.status === 200) {
+              const data = await checkRes.json().catch(() => null);
+              if (data && data.success && data.user === null) {
+                console.warn("%c[AUTH] Session confirmed invalid by backend. Triggering logout.", "color:red;font-weight:bold");
+                logout();
+              } else {
+                console.log("%c[AUTH] Session verification check passed or returned valid data. Retaining session.", "color:green;font-weight:bold");
+              }
+            } else {
+              console.log(`%c[AUTH] Session verification endpoint returned status ${checkRes.status}. Retaining session as transient failure.`, "color:yellow;font-weight:bold");
+            }
+          }
+        } catch (err) {
+          console.error("[AUTH] Session verification error: ", err);
         }
-      } catch (_) {}
+      }
     }
     if (response.status === 403) {
       const clone = response.clone();

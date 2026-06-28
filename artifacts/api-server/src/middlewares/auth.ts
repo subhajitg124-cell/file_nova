@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 export interface AuthRequest extends Request {
   user?: typeof usersTable.$inferSelect;
   sessionToken?: string;
+  dbError?: unknown;
 }
 
 /**
@@ -66,7 +67,8 @@ export async function authMiddleware(req: AuthRequest, res: Response, next: Next
         .catch(() => {});
     }
   } catch (err) {
-    // Database connection could be down, fallback silently
+    // Database connection could be down, fallback silently but flag the error
+    req.dbError = err;
   }
   next();
 }
@@ -75,6 +77,10 @@ export async function authMiddleware(req: AuthRequest, res: Response, next: Next
  * Guard middleware that rejects unauthenticated requests with a 401 response.
  */
 export function requireAuth(req: AuthRequest, res: Response, next: NextFunction) {
+  if (req.dbError) {
+    res.status(500).json({ error: "Database connection failed. Please try again in a few seconds." });
+    return;
+  }
   if (!req.user) {
     res.status(401).json({ error: "Authentication required. Please log in first." });
     return;

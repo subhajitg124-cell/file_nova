@@ -268,15 +268,17 @@ router.post("/google", async (req, res): Promise<void> => {
 
     if (existingUsers.length > 0) {
       user = existingUsers[0];
-      // Update Google ID if not set
-      if (!user.googleSubject) {
-        const [updatedUser] = await db
-          .update(usersTable)
-          .set({ googleSubject: payload.sub, updatedAt: new Date() })
-          .where(eq(usersTable.id, user.id))
-          .returning();
-        user = updatedUser;
-      }
+      // Always update Google ID and lastActiveAt on login to prevent account cleanup
+      const [updatedUser] = await db
+        .update(usersTable)
+        .set({ 
+          googleSubject: payload.sub, 
+          lastActiveAt: new Date(),
+          updatedAt: new Date() 
+        })
+        .where(eq(usersTable.id, user.id))
+        .returning();
+      user = updatedUser;
     } else {
       // Create user
       const referralCode = await generateUniqueReferralCode();
