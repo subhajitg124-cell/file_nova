@@ -192,6 +192,11 @@ const Footer: React.FC = memo(() => {
                 </Link>
               </li>
               <li>
+                <Link href="/partners" className="text-muted-foreground hover:text-primary transition-colors">
+                  {tText("Partners & Deals")}
+                </Link>
+              </li>
+              <li>
                 <Link href="/careers" className="text-muted-foreground hover:text-primary transition-colors">
                   {tText("Careers")}
                 </Link>
@@ -211,6 +216,11 @@ const Footer: React.FC = memo(() => {
               <li>
                 <Link href="/student-offer" className="text-muted-foreground hover:text-primary transition-colors">
                   {tText("Student Offers")}
+                </Link>
+              </li>
+              <li>
+                <Link href="/templates" className="text-muted-foreground hover:text-primary transition-colors">
+                  {tText("Templates")}
                 </Link>
               </li>
               <li>

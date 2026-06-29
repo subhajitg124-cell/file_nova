@@ -6,7 +6,7 @@
 import React, { useRef, useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { Sparkles, CheckCircle2, ShieldCheck, Zap, Loader, Copy, QrCode, Check, X } from "lucide-react";
+import { Sparkles, CheckCircle2, ShieldCheck, Zap, Loader, Copy, QrCode, Check, X, Building2, ServerCog, MessageCircle } from "lucide-react";
 import { useSubscription, type PremiumTier, isTestingPeriodActive } from "@/hooks/useSubscription";
 import type { PlanType } from "@/store/useCheckoutStore";
 import { TestingNotice } from "@/components/TestingNotice";
@@ -707,6 +707,76 @@ export default function PricingPage() {
             </SpotlightCard>
           </div>
         </motion.div>
+
+        {/* Enterprise and API Pricing */}
+        <motion.section
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-5 max-w-5xl mx-auto"
+        >
+          <SpotlightCard className="fn-glass rounded-2xl p-6 text-[var(--fn-text-primary)]">
+            <div className="flex h-full flex-col gap-5">
+              <div className="flex items-start gap-3">
+                <div className="h-11 w-11 rounded-xl border border-[var(--fn-border)] bg-[var(--fn-surface-elevated)] flex items-center justify-center text-[var(--fn-accent-primary)]">
+                  <Building2 className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-wider text-[var(--fn-accent-primary)]">Enterprise</p>
+                  <h2 className="mt-1 text-xl font-black text-[var(--fn-text-primary)] font-display">Custom plans for institutes and cyber cafe chains</h2>
+                </div>
+              </div>
+              <p className="text-xs leading-relaxed text-[var(--fn-text-secondary)]">
+                Need seats for a college office, CSC network, coaching center, or high-volume document desk? Get pooled usage, priority support, onboarding, and custom retention controls.
+              </p>
+              <ul className="grid gap-2 text-xs font-semibold text-[var(--fn-text-secondary)] sm:grid-cols-2">
+                {["Bulk operator seats", "Custom file limits", "Priority onboarding", "Dedicated support channel"].map((item) => (
+                  <li key={item} className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/contact" className="mt-auto inline-flex items-center justify-center gap-2 rounded-full bg-[var(--fn-accent-primary)] px-5 py-2.5 text-xs font-black text-white transition hover:opacity-90">
+                <MessageCircle className="h-4 w-4" />
+                Contact for pricing
+              </Link>
+            </div>
+          </SpotlightCard>
+
+          <SpotlightCard className="fn-glass rounded-2xl p-6 text-[var(--fn-text-primary)]">
+            <div className="flex h-full flex-col gap-5">
+              <div className="flex items-start gap-3">
+                <div className="h-11 w-11 rounded-xl border border-[var(--fn-border)] bg-[var(--fn-surface-elevated)] flex items-center justify-center text-[var(--fn-accent-primary)]">
+                  <ServerCog className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-wider text-[var(--fn-accent-primary)]">Developer API</p>
+                  <h2 className="mt-1 text-xl font-black text-[var(--fn-text-primary)] font-display">API tiers are being prepared</h2>
+                </div>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-3">
+                {[
+                  { name: "Starter", price: "Coming soon", limit: "1K jobs/mo" },
+                  { name: "Growth", price: "Coming soon", limit: "10K jobs/mo" },
+                  { name: "Scale", price: "Talk to us", limit: "Custom volume" },
+                ].map((tier) => (
+                  <div key={tier.name} className="rounded-xl border border-[var(--fn-border)] bg-[var(--fn-surface-elevated)] p-3">
+                    <p className="text-xs font-black text-[var(--fn-text-primary)]">{tier.name}</p>
+                    <p className="mt-1 text-[11px] font-bold text-[var(--fn-accent-primary)]">{tier.price}</p>
+                    <p className="mt-2 text-[10px] text-[var(--fn-text-secondary)]">{tier.limit}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs leading-relaxed text-[var(--fn-text-secondary)]">
+                Public API keys, usage dashboards, and webhook controls are planned. Until then, teams can request private access for vetted workflows.
+              </p>
+              <Link href="/contact" className="mt-auto inline-flex items-center justify-center gap-2 rounded-full border border-[var(--fn-border)] bg-[var(--fn-surface-elevated)] px-5 py-2.5 text-xs font-black text-[var(--fn-text-primary)] transition hover:bg-[var(--fn-surface)]">
+                Request API access
+              </Link>
+            </div>
+          </SpotlightCard>
+        </motion.section>
       </main>
 
       <OTPVerificationModal

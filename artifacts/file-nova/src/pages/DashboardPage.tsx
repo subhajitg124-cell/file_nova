@@ -19,12 +19,14 @@ import {
   Gift,
   LayoutDashboard,
   Copy,
+  BrainCircuit,
+  Star,
 } from "lucide-react";
 import { useSubscription, type PremiumTier } from "@/hooks/useSubscription";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
 import { toast } from "sonner";
-import { BACKEND_URL, apiClient } from "@/lib/api";
+import { apiClient } from "@/lib/api";
 
 interface BillingItem {
   id: string;
@@ -177,7 +179,7 @@ export default function DashboardPage() {
           {/* Card 1: Usage Meter */}
           <div className="rounded-3xl border border-border bg-card p-6 shadow-premium flex flex-col justify-between space-y-6 relative overflow-hidden group/stats">
             <div className="absolute top-0 right-0 -translate-y-12 translate-x-12 w-32 h-32 bg-sky-500/[0.02] rounded-full blur-2xl group-hover/stats:bg-sky-500/[0.04] transition-all duration-700 pointer-events-none" />
-            
+
             <div className="flex items-center justify-between relative z-10">
               <div className="space-y-1">
                 <h2 className="text-base font-black flex items-center gap-2 text-foreground">
@@ -275,7 +277,7 @@ export default function DashboardPage() {
           {/* Card 2: Subscription Details */}
           <div className="rounded-3xl border border-border bg-card p-6 shadow-premium flex flex-col justify-between space-y-6 relative overflow-hidden group/sub">
             <div className="absolute top-0 right-0 -translate-y-12 translate-x-12 w-32 h-32 bg-indigo-500/[0.02] rounded-full blur-2xl group-hover/sub:bg-indigo-500/[0.04] transition-all duration-700 pointer-events-none" />
-            
+
             <div className="space-y-1 relative z-10">
               <h2 className="text-base font-black flex items-center gap-2 text-foreground">
                 <CreditCard className="h-5 w-5 text-indigo-400" />
@@ -409,13 +411,89 @@ export default function DashboardPage() {
           )}
         </section>
 
+        {/* AI Credits Section */}
+        {(() => {
+          const AI_LIMITS: Record<string, { label: string; monthly: number | null }> = {
+            free:     { label: "Free",       monthly: 5 },
+            basic:    { label: "Basic",      monthly: 50 },
+            pro:      { label: "Pro",        monthly: 200 },
+            elite:    { label: "Elite",      monthly: null },
+            pass_24h: { label: "Day Pass",   monthly: 20 },
+            pass_7d:  { label: "Week Pass",  monthly: 100 },
+          };
+          const aiLimit = AI_LIMITS[premiumTier] ?? AI_LIMITS.free;
+          const estimatedAiUsage = Math.max(0, useCount * 2);
+          const aiUsed = aiLimit.monthly === null ? estimatedAiUsage : Math.min(estimatedAiUsage, aiLimit.monthly);
+          const aiPct  = aiLimit.monthly ? Math.min(100, (aiUsed / aiLimit.monthly) * 100) : 0;
+          return (
+            <section className="rounded-3xl border border-border bg-card p-6 shadow-premium space-y-5">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-black flex items-center gap-2">
+                  <BrainCircuit className="h-5 w-5 text-fuchsia-500" />
+                  AI Credits
+                </h2>
+                <span className="text-xs font-black text-muted-foreground bg-muted border border-border rounded-full px-3 py-1">
+                  {aiLimit.label} Plan
+                </span>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-3">
+                {/* Used */}
+                <div className="rounded-2xl border border-border bg-background/60 p-4 text-center space-y-1">
+                  <p className="text-2xl font-black text-foreground">{aiLimit.monthly === null ? "∞" : aiUsed}</p>
+                  <p className="text-[11px] text-muted-foreground font-semibold">AI Ops Used (est.)</p>
+                </div>
+                {/* Remaining */}
+                <div className="rounded-2xl border border-fuchsia-500/20 bg-fuchsia-500/5 p-4 text-center space-y-1">
+                  <p className="text-2xl font-black text-fuchsia-500">
+                    {aiLimit.monthly === null ? "∞" : Math.max(0, aiLimit.monthly - aiUsed)}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground font-semibold">Remaining This Month</p>
+                </div>
+                {/* Total */}
+                <div className="rounded-2xl border border-border bg-background/60 p-4 text-center space-y-1">
+                  <p className="text-2xl font-black text-foreground">{aiLimit.monthly === null ? "∞" : aiLimit.monthly}</p>
+                  <p className="text-[11px] text-muted-foreground font-semibold">Monthly Allowance</p>
+                </div>
+              </div>
+
+              {aiLimit.monthly !== null && (
+                <div className="space-y-2">
+                  <div className="h-2.5 w-full bg-muted border border-border rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${aiPct}%` }}
+                      transition={{ type: "spring", stiffness: 80, damping: 15 }}
+                      className="h-full rounded-full bg-gradient-to-r from-fuchsia-500 to-purple-600"
+                    />
+                  </div>
+                  <div className="flex justify-between text-[10px] text-muted-foreground font-bold">
+                    <span>0% used</span>
+                    <span>{Math.round(aiPct)}% of monthly AI limit</span>
+                  </div>
+                </div>
+              )}
+
+              {premiumTier === "free" && (
+                <button
+                  onClick={() => useCheckoutStore.getState().openCheckout("pro")}
+                  className="w-full py-3 inline-flex items-center justify-center gap-2 rounded-xl border border-fuchsia-500/20 bg-fuchsia-500/5 hover:bg-fuchsia-500/10 text-fuchsia-500 transition text-xs font-black"
+                >
+                  <Star className="h-4 w-4 animate-pulse" />
+                  Upgrade to Pro for 200 monthly AI operations
+                </button>
+              )}
+            </section>
+          );
+        })()}
+
         {/* Billing History Section */}
         <section className="rounded-3xl border border-border bg-card p-6 shadow-premium space-y-4">
           <h2 className="text-lg font-black flex items-center gap-2">
             <History className="h-5 w-5 text-violet-500" />
-            Billing & Invoices
+            Billing &amp; Invoices
           </h2>
-          
+
           {loadingHistory ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="h-8 w-8 text-primary animate-spin" />

@@ -14,6 +14,7 @@ import { useFileStore } from "@/store/useFileStore";
 import { WB_REQUIREMENTS, SchemeRequirement, DocumentSpec } from "@/data/wbRequirements";
 import { Confetti } from "@/components/AnimatedEffects";
 import { toast } from "sonner";
+import { getFeaturedAffiliateLinks, sanitizeAffiliateUrl } from "@/data/affiliateLinks";
 
 interface ValidationResult {
   docName: string;
@@ -31,7 +32,7 @@ export default function ResourcesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<"all" | "scholarship" | "examination" | "admission" | "scheme">("all");
   const [selectedScheme, setSelectedScheme] = useState<SchemeRequirement>(WB_REQUIREMENTS[0]);
-  
+
   // File Checker states
   const [checkingDocSpec, setCheckingDocSpec] = useState<DocumentSpec | null>(null);
   const [validationResults, setValidationResults] = useState<Record<string, ValidationResult>>({});
@@ -42,6 +43,7 @@ export default function ResourcesPage() {
   const [upiOpen, setUpiOpen] = useState(false);
   const [upiAmount, setUpiAmount] = useState(10);
   const [upiNote, setUpiNote] = useState("Chai for FileNova");
+  const partnerRecommendations = getFeaturedAffiliateLinks(4);
 
   const triggerUpi = (e: React.MouseEvent, amount: number, note: string) => {
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -102,11 +104,11 @@ export default function ResourcesPage() {
     const fileName = file.name;
     const fileSizeKB = file.size / 1024;
     const extension = fileName.split(".").pop()?.toUpperCase() || "";
-    
+
     // Check format
     const errors: string[] = [];
     const expectedFormat = spec.format;
-    
+
     // Simple format normalization
     let isFormatValid = false;
     if (expectedFormat === "PDF" && extension === "PDF") {
@@ -396,7 +398,7 @@ export default function ResourcesPage() {
 
               {/* Right Column: Portal Details & Interactive Checker */}
               <div className="lg:col-span-8 space-y-6">
-                
+
                 {/* Information Desk */}
                 <div className="bg-card dark:bg-slate-900/40 border border-border dark:border-border rounded-3xl p-6 backdrop-blur-xl shadow-xl space-y-6">
                   <div>
@@ -457,7 +459,7 @@ export default function ResourcesPage() {
                                   )}
                                 </div>
                                 <p className="text-xs text-slate-600 dark:text-slate-400 leading-normal">{doc.description}</p>
-                                
+
                                 {/* Constraints badges */}
                                 <div className="flex flex-wrap gap-1.5 mt-2">
                                   <span className="text-[9px] bg-card px-2 py-0.5 rounded text-slate-600 dark:text-slate-400 font-bold border border-border dark:border-border">Format: {doc.format}</span>
@@ -510,7 +512,7 @@ export default function ResourcesPage() {
                                     <span>{err}</span>
                                   </div>
                                 ))}
-                                
+
                                 {/* Quick Fix Shortcuts */}
                                 <div className="flex gap-2 pt-2 border-t border-rose-500/10 mt-2">
                                   {doc.format === "PDF" ? (
@@ -619,7 +621,7 @@ export default function ResourcesPage() {
                       <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">{rec.category}</p>
                       <h3 className="mt-1.5 text-lg font-black text-slate-900 dark:text-white">{rec.title}</h3>
                       <p className="mt-3 text-xs leading-relaxed text-slate-600 dark:text-slate-400">{rec.desc}</p>
-                      
+
                       <ul className="mt-5 space-y-2">
                         {rec.features.map((feature, idx) => (
                           <li key={idx} className="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-400">
@@ -629,7 +631,7 @@ export default function ResourcesPage() {
                         ))}
                       </ul>
                     </div>
-                    
+
                     <div className="mt-6 pt-5 border-t border-border dark:border-border/50">
                       <a
                         href={rec.ctaUrl}
@@ -643,6 +645,42 @@ export default function ResourcesPage() {
                     </div>
                   </div>
                 ))}
+              </div>
+
+              <div className="rounded-3xl border border-border bg-card/70 p-6 shadow-md">
+                <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-wider text-indigo-500">Recommended</p>
+                    <h2 className="mt-1 text-lg font-black text-slate-900 dark:text-white">Partner tools from FileNova catalog</h2>
+                    <p className="mt-1 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
+                      Centralized recommendations for operators. Paid placements are labeled as sponsored.
+                    </p>
+                  </div>
+                  <Link href="/partners" className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-2 text-xs font-black text-foreground transition hover:bg-muted">
+                    All partners
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {partnerRecommendations.map((partner) => (
+                    <a
+                      key={partner.id}
+                      href={sanitizeAffiliateUrl(partner.url)}
+                      target="_blank"
+                      rel="noopener noreferrer sponsored"
+                      className="rounded-2xl border border-border bg-background/70 p-4 transition hover:border-indigo-500/35 hover:bg-card"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm font-black text-slate-900 dark:text-white">{partner.name}</p>
+                        <span className="rounded-full bg-muted px-2 py-0.5 text-[9px] font-black text-muted-foreground">
+                          {partner.isSponsored ? "Sponsored" : "Recommended"}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-[11px] font-bold text-indigo-500">{partner.tagline}</p>
+                      <p className="mt-3 text-xs leading-relaxed text-slate-600 dark:text-slate-400 line-clamp-3">{partner.description}</p>
+                    </a>
+                  ))}
+                </div>
               </div>
             </motion.div>
           )}
