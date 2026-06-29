@@ -117,7 +117,7 @@ export function ToolStructuredData() {
         dateModified: post.date,
         author: { "@type": "Organization", name: "FileNova", url: SITE_URL },
         publisher: { "@type": "Organization", name: "FileNova", url: SITE_URL },
-        image: `${SITE_URL}${post.thumbnail}`,
+        image: `${SITE_URL}${post.image}`,
         mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE_URL}${pathname}` },
       };
       scripts.push({

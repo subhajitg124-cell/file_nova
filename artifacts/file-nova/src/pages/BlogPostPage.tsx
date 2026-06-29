@@ -26,15 +26,16 @@ export default function BlogPostPage() {
       { property: "og:description", content: post.description },
       { property: "og:type", content: "article" },
       { property: "og:url", content: `${SITE_URL}/blog/${post.slug}` },
-      { property: "og:image", content: `${SITE_URL}${post.thumbnail}` },
+      { property: "og:image", content: `${SITE_URL}${post.image}` },
       { property: "og:site_name", content: "FileNova" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: `${post.title} | FileNova Blog` },
       { name: "twitter:description", content: post.description },
-      { name: "twitter:image", content: `${SITE_URL}${post.thumbnail}` },
+      { name: "twitter:image", content: `${SITE_URL}${post.image}` },
     ] : [],
     link: post ? [
       { rel: "canonical", href: `${SITE_URL}/blog/${post.slug}` },
+      { rel: "preload", as: "image", href: post.image },
     ] : [],
   });
 
@@ -61,13 +62,23 @@ export default function BlogPostPage() {
       </header>
 
       <article className="mx-auto max-w-4xl px-4 py-10">
-        <div className="mb-6 flex flex-wrap items-center gap-3 text-xs font-bold text-muted-foreground">
-          <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-4 w-4" /> {new Date(post.date).toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" })}</span>
-          <span className="inline-flex items-center gap-1.5"><Clock className="h-4 w-4" /> {post.readTime}</span>
+        <div className="overflow-hidden rounded-2xl border border-border bg-card mb-8">
+          <img
+            src={post.image}
+            alt={`${post.title} - FileNova Blog`}
+            className="h-auto w-full object-cover"
+            width="1200"
+            height="675"
+          />
         </div>
 
         <h1 className="text-3xl font-black leading-tight tracking-tight sm:text-5xl">{post.title}</h1>
-        <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground">{post.description}</p>
+
+        <div className="mt-4 mb-6 flex flex-wrap items-center gap-3 text-xs font-bold text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-4 w-4" /> {new Date(post.date).toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" })}</span>
+          <span aria-hidden="true">•</span>
+          <span className="inline-flex items-center gap-1.5"><Clock className="h-4 w-4" /> {post.readTime}</span>
+        </div>
 
         <div className="mt-6 flex flex-wrap gap-2">
           <a href={`https://wa.me/?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-black text-white">
@@ -82,10 +93,6 @@ export default function BlogPostPage() {
             <Copy className="h-4 w-4" />
             Copy Link
           </button>
-        </div>
-
-        <div className="mt-8 overflow-hidden rounded-lg border border-border bg-card">
-          <img src={post.thumbnail} alt={`${post.title} - FileNova Blog`} className="h-auto w-full object-cover" loading="lazy" width="1200" height="630" />
         </div>
 
         <div className="prose prose-slate dark:prose-invert mt-10 max-w-none prose-headings:font-black prose-p:leading-8">

@@ -5,6 +5,7 @@ export interface BlogPost {
   date: string;
   readTime: string;
   thumbnail: string;
+  image: string;
   keywords: string;
   sections: {
     heading: string;
@@ -20,6 +21,7 @@ export const blogPosts: BlogPost[] = [
     date: "2026-01-08",
     readTime: "7 min read",
     thumbnail: "/document_processing_mockup.png",
+    image: "/BlogPoster/blog1.png",
     keywords: "compress pdf free, pdf compressor online, reduce pdf size, FileNova PDF tools",
     sections: [
       {
@@ -59,6 +61,7 @@ export const blogPosts: BlogPost[] = [
     date: "2026-01-09",
     readTime: "8 min read",
     thumbnail: "/document_processing_mockup.png",
+    image: "/BlogPoster/blog2.png",
     keywords: "merge pdf online free, combine pdf files, pdf merge guide, FileNova merge PDF",
     sections: [
       {
@@ -98,6 +101,7 @@ export const blogPosts: BlogPost[] = [
     date: "2026-01-10",
     readTime: "7 min read",
     thumbnail: "/photo_resize_mockup.png",
+    image: "/BlogPoster/blog3.png",
     keywords: "image to pdf mobile, convert image to PDF Android, image to PDF iOS, FileNova mobile PDF",
     sections: [
       {
@@ -137,6 +141,7 @@ export const blogPosts: BlogPost[] = [
     date: "2026-01-11",
     readTime: "8 min read",
     thumbnail: "/document_processing_mockup.png",
+    image: "/BlogPoster/blog4.png",
     keywords: "free pdf tools india, student PDF tools, PDF tools for students, FileNova India",
     sections: [
       {
@@ -176,6 +181,7 @@ export const blogPosts: BlogPost[] = [
     date: "2026-01-12",
     readTime: "8 min read",
     thumbnail: "/aadhaar_mask_mockup.png",
+    image: "/BlogPoster/blog5.png",
     keywords: "aadhaar form fill online, fill Aadhaar PDF, Aadhaar PDF form, FileNova Aadhaar tools",
     sections: [
       {
@@ -214,6 +220,7 @@ export const blogPosts: BlogPost[] = [
     date: "2026-02-15",
     readTime: "6 min read",
     thumbnail: "/aadhaar_privacy_guide.png",
+    image: "/BlogPoster/blog6.png",
     keywords: "aadhaar masking, mask aadhaar card online, download masked aadhaar, privacy india, FileNova aadhaar tool",
     sections: [
       {
@@ -246,6 +253,7 @@ export const blogPosts: BlogPost[] = [
     date: "2026-03-01",
     readTime: "7 min read",
     thumbnail: "/portal_photo_resize_guide.png",
+    image: "/BlogPoster/blog7.png",
     keywords: "resize passport photo online, signature size compressor, wbjee photo crop, neet application photo, scholarship document utility",
     sections: [
       {
@@ -278,6 +286,7 @@ export const blogPosts: BlogPost[] = [
     date: "2026-03-15",
     readTime: "8 min read",
     thumbnail: "/document_processing_mockup.png",
+    image: "/BlogPoster/blog8.png",
     keywords: "pdf vs word, pdf or docx, when to use pdf, convert word to pdf india, pdf format explained",
     sections: [
       {
@@ -317,6 +326,7 @@ export const blogPosts: BlogPost[] = [
     date: "2026-03-20",
     readTime: "6 min read",
     thumbnail: "/photo_resize_mockup.png",
+    image: "/BlogPoster/blog9.png",
     keywords: "pan card photo size, pan card photo requirements, nsdl pan card photo, uti pan card signature size, pan application photo resize",
     sections: [
       {
@@ -349,6 +359,7 @@ export const blogPosts: BlogPost[] = [
     date: "2026-04-01",
     readTime: "7 min read",
     thumbnail: "/photo_resize_mockup.png",
+    image: "/BlogPoster/blog10.png",
     keywords: "passport photo size india, passport photo dimensions, passport application photo india, photo size passport seva, 35x45mm passport photo",
     sections: [
       {
@@ -381,6 +392,7 @@ export const blogPosts: BlogPost[] = [
     date: "2026-04-10",
     readTime: "9 min read",
     thumbnail: "/document_processing_mockup.png",
+    image: "/BlogPoster/blog11.png",
     keywords: "ocr online free, extract text from pdf, image to text india, hindi ocr free, bengali ocr online, scan to text converter",
     sections: [
       {
@@ -420,6 +432,7 @@ export const blogPosts: BlogPost[] = [
     date: "2026-04-20",
     readTime: "8 min read",
     thumbnail: "/document_processing_mockup.png",
+    image: "/BlogPoster/blog12.png",
     keywords: "digital signature india, esign india, dsc digital signature certificate, sign pdf online india, electronic signature legal india",
     sections: [
       {
@@ -452,6 +465,7 @@ export const blogPosts: BlogPost[] = [
     date: "2026-05-01",
     readTime: "7 min read",
     thumbnail: "/document_processing_mockup.png",
+    image: "/BlogPoster/blog13.png",
     keywords: "svmcm scholarship documents, nsp scholarship zip, scholarship document pack, scholarship application pdf, wbmdfc scholarship upload",
     sections: [
       {
@@ -484,6 +498,7 @@ export const blogPosts: BlogPost[] = [
     date: "2026-05-15",
     readTime: "8 min read",
     thumbnail: "/document_processing_mockup.png",
+    image: "/BlogPoster/blog14.png",
     keywords: "protect pdf with password, pdf security india, encrypt pdf online free, restrict pdf editing, pdf watermark online, secure pdf document",
     sections: [
       {
@@ -523,6 +538,7 @@ export const blogPosts: BlogPost[] = [
     date: "2026-05-28",
     readTime: "9 min read",
     thumbnail: "/document_processing_mockup.png",
+    image: "/BlogPoster/blog15.png",
     keywords: "csc operator guide, cyber cafe document tools, csc pdf tools, common service centre india, csc document processing",
     sections: [
       {
@@ -562,6 +578,7 @@ export const blogPosts: BlogPost[] = [
     date: "2026-06-01",
     readTime: "6 min read",
     thumbnail: "/document_processing_mockup.png",
+    image: "/BlogPoster/blog16.png",
     keywords: "split pdf online free, extract pdf pages, divide pdf, pdf page extractor, split pdf india",
     sections: [
       {

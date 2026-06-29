@@ -1,8 +1,31 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
 import { ArrowRight, CalendarDays, Clock, FileText, Search, Tag, ArrowLeft, BookOpen } from "lucide-react";
 import { blogPosts } from "@/data/blogPosts";
 import Footer from "@/components/Footer";
+import { useHead } from "@unhead/react";
+
+function useStaggerReveal() {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("blog-revealed");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+    el.querySelectorAll(".blog-card-stagger").forEach((child) => observer.observe(child));
+    return () => observer.disconnect();
+  }, []);
+  return ref;
+}
 
 const CATEGORIES = [
   { label: "All", value: "all" },
@@ -37,9 +60,28 @@ export default function BlogPage() {
   });
 
   const featured = blogPosts[blogPosts.length - 1];
+  const staggerRef = useStaggerReveal();
+
+  useHead({
+    link: [
+      { rel: "preload", as: "image", href: featured.image },
+    ],
+  });
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
+      <style>{`
+        .blog-card-stagger { opacity: 0; transform: translateY(24px); transition: opacity 0.4s ease, transform 0.4s ease; }
+        .blog-revealed { opacity: 1 !important; transform: translateY(0) !important; }
+        .blog-card-stagger:nth-child(1) { transition-delay: 0s; }
+        .blog-card-stagger:nth-child(2) { transition-delay: 0.08s; }
+        .blog-card-stagger:nth-child(3) { transition-delay: 0.16s; }
+        .blog-card-stagger:nth-child(4) { transition-delay: 0.24s; }
+        .blog-card-stagger:nth-child(5) { transition-delay: 0.32s; }
+        .blog-card-stagger:nth-child(6) { transition-delay: 0.4s; }
+        .blog-card-img-zoom { transition: transform 0.35s ease; }
+        .blog-card:hover .blog-card-img-zoom { transform: scale(1.05); }
+      `}</style>
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3">
@@ -89,9 +131,15 @@ export default function BlogPage() {
             <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
               <Tag className="h-3.5 w-3.5" /> Latest Article
             </p>
-            <Link href={`/blog/${featured.slug}`} className="group grid md:grid-cols-2 gap-0 rounded-2xl border border-border bg-card overflow-hidden hover:border-primary/50 hover:shadow-lg transition-all">
-              <div className="aspect-video md:aspect-auto bg-gradient-to-br from-primary/10 to-indigo-500/10 flex items-center justify-center p-8 min-h-[200px]">
-                <FileText className="h-24 w-24 text-primary/30" />
+            <Link href={`/blog/${featured.slug}`} className="group grid md:grid-cols-2 gap-0 rounded-2xl border border-border bg-card overflow-hidden hover:border-primary/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+              <div className="aspect-video md:aspect-auto overflow-hidden bg-muted/30">
+                <img
+                  src={featured.image}
+                  alt={`${featured.title} - FileNova Blog`}
+                  className="h-full w-full object-cover blog-card-img-zoom"
+                  width="1200"
+                  height="675"
+                />
               </div>
               <div className="p-6 flex flex-col justify-center gap-4">
                 <div className="flex flex-wrap items-center gap-3 text-[11px] font-bold text-muted-foreground">
@@ -147,15 +195,23 @@ export default function BlogPage() {
               </button>
             </div>
           ) : (
-            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            <div ref={staggerRef} className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {filtered.map((post) => (
                 <Link
                   key={post.slug}
                   href={`/blog/${post.slug}`}
-                  className="group overflow-hidden rounded-2xl border border-border bg-card transition-all hover:border-primary/50 hover:shadow-lg hover:-translate-y-0.5"
+                  className="blog-card blog-card-stagger group overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:border-primary/50 hover:shadow-xl hover:-translate-y-1.5"
                 >
-                  <div className="aspect-[16/9] bg-gradient-to-br from-primary/5 to-indigo-500/5 flex items-center justify-center border-b border-border">
-                    <FileText className="h-12 w-12 text-primary/20 group-hover:text-primary/40 transition-colors" />
+                  <div className="aspect-[16/9] overflow-hidden bg-muted/30">
+                    <img
+                      src={post.image}
+                      alt={`${post.title} - FileNova Blog`}
+                      className="h-full w-full object-cover blog-card-img-zoom"
+                      loading="lazy"
+                      decoding="async"
+                      width="640"
+                      height="360"
+                    />
                   </div>
                   <div className="space-y-3 p-5">
                     <div className="flex flex-wrap items-center gap-3 text-[11px] font-bold text-muted-foreground">
