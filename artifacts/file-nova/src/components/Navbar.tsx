@@ -201,10 +201,6 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
                 <CreditCard className="h-3.5 w-3.5" />
                 {tText("Pricing")}
               </Link>
-              <Link href="/workspace" className="flex items-center gap-1.5 text-sm text-muted-foreground font-medium py-1.5 px-3 rounded-full hover:bg-muted/60 transition-colors duration-150 whitespace-nowrap">
-                <FileText className="h-3.5 w-3.5" />
-                {tText("Workspace")}
-              </Link>
               {isDev && (
                 <Link href="/dev" className="flex items-center gap-1.5 text-sm text-indigo-400 font-black py-1.5 px-3 rounded-full hover:bg-indigo-500/10 border border-indigo-500/10 hover:border-indigo-500/20 transition-all duration-150 whitespace-nowrap">
                   <Code className="h-3.5 w-3.5" />
@@ -343,9 +339,11 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
             })()}
 
             <div className="flex items-center gap-1.5 shrink-0">
-              <div className="hidden sm:block">
-                <PlanBadge />
-              </div>
+              {!isDev && (
+                <div className="hidden sm:block">
+                  <PlanBadge />
+                </div>
+              )}
               {user ? (
                 <UserProfileDropdown />
               ) : (
