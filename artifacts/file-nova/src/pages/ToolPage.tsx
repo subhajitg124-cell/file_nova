@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, lazy, Suspense } from "react";
 import { useLocation } from "wouter";
 import { useFileStore } from "@/store/useFileStore";
 import { TOOLS } from "@/components/workspace/ToolGrid";
 import ScholarshipZIPMaker from "@/pages/ScholarshipZIPMaker";
-import Workspace from "@/pages/Home";
 import { Loader2 } from "lucide-react";
 import { apiClient, apiMock } from "@/lib/api";
+
+const Workspace = lazy(() => import("@/pages/Home"));
 
 interface ToolPageProps {
   params: {
@@ -141,5 +142,20 @@ export default function ToolPage({ params }: ToolPageProps) {
     return <ScholarshipZIPMaker />;
   }
 
-  return <Workspace />;
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-slate-100">
+        <div className="text-center space-y-4">
+          <div className="h-12 w-12 rounded-xl bg-slate-900 border border-slate-800 shadow-xl flex items-center justify-center mx-auto">
+            <Loader2 className="h-5 w-5 text-indigo-400 animate-spin" />
+          </div>
+          <div>
+            <p className="text-sm font-bold">Loading workspace...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <Workspace />
+    </Suspense>
+  );
 }

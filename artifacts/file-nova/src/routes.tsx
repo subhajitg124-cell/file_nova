@@ -2,7 +2,7 @@ import { Switch, Route, Redirect, useLocation } from "wouter";
 import React, { useEffect, useRef } from "react";
 import { BACKEND_URL, HAS_BACKEND } from "@/lib/api";
 import Home from "@/pages/SimpleHome";
-import Workspace from "@/pages/Home";
+const Workspace = React.lazy(() => import("@/pages/Home"));
 import ToolsPage from "@/pages/ToolsPage";
 import ToolPage from "@/pages/ToolPage";
 import { ToolSEO } from "@/seo/ToolSEO";

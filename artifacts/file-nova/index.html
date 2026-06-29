@@ -1,116 +1,273 @@
 <!DOCTYPE html>
 <html lang="en-IN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Site Name for Google Search -->
-    <meta name="apple-mobile-web-app-title" content="FileNova" />
-    <meta name="application-name" content="FileNova" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-    <!-- SEO: Primary Title & Description (SPA fallback) -->
-    <title>FileNova – AI PDF & Image Tools | Fast, Secure & Free</title>
-    <meta name="description" content="FileNova offers 30+ free online PDF and image tools for Indian students and professionals. Merge PDF, compress PDF, Aadhaar masking, PAN resize, scholarship ZIP, OCR in Hindi & Bengali. 100% browser-based, files never uploaded." />
-    <meta name="keywords" content="filenova, free pdf tools india, ai pdf tools, pdf editor online free, pdf compressor, aadhaar masking online free, pan card resize online, scholarship zip maker, compress pdf india, ocr hindi bengali free" />
+  <!-- Site Name for Google Search -->
+  <meta name="apple-mobile-web-app-title" content="FileNova" />
+  <meta name="application-name" content="FileNova" />
 
-    <!-- Geographic targeting -->
-    <meta name="geo.region" content="IN" />
-    <meta name="geo.country" content="India" />
-    <meta name="language" content="en-IN" />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-    <meta name="googlebot" content="index, follow" />
+  <!-- SEO: Primary Title & Description (SPA fallback) -->
+  <title>FileNova – AI PDF & Image Tools | Fast, Secure & Free</title>
+  <meta name="description"
+    content="FileNova offers 30+ free online PDF and image tools for Indian students and professionals. Merge PDF, compress PDF, Aadhaar masking, PAN resize, scholarship ZIP, OCR in Hindi & Bengali. 100% browser-based, files never uploaded." />
+  <meta name="keywords"
+    content="filenova, free pdf tools india, ai pdf tools, pdf editor online free, pdf compressor, aadhaar masking online free, pan card resize online, scholarship zip maker, compress pdf india, ocr hindi bengali free" />
 
-    <!-- Open Graph -->
-    <meta property="og:title" content="FileNova – AI PDF & Image Tools | Fast, Secure & Free" />
-    <meta property="og:description" content="30+ free online PDF and image tools. Merge, compress, convert PDFs. Aadhaar masking, PAN resize, scholarship ZIP, OCR. 100% browser-based, files never uploaded." />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://filenova.in" />
-    <meta property="og:site_name" content="FileNova" />
-    <meta property="og:image" content="https://filenova.in/opengraph.jpg" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:type" content="image/jpeg" />
-    <meta property="og:locale" content="en_IN" />
+  <!-- Geographic targeting -->
+  <meta name="geo.region" content="IN" />
+  <meta name="geo.country" content="India" />
+  <meta name="language" content="en-IN" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta name="googlebot" content="index, follow" />
 
-    <!-- Twitter / X Card -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@filenovaapp" />
-    <meta name="twitter:title" content="FileNova – AI PDF & Image Tools | Fast, Secure & Free" />
-    <meta name="twitter:description" content="30+ free online PDF and image tools. Merge, compress, convert PDFs. Aadhaar masking, PAN resize, scholarship ZIP, OCR." />
-    <meta name="twitter:image" content="https://filenova.in/opengraph.jpg" />
+  <!-- Open Graph -->
+  <meta property="og:title" content="FileNova – AI PDF & Image Tools | Fast, Secure & Free" />
+  <meta property="og:description"
+    content="30+ free online PDF and image tools. Merge, compress, convert PDFs. Aadhaar masking, PAN resize, scholarship ZIP, OCR. 100% browser-based, files never uploaded." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://filenova.in" />
+  <meta property="og:site_name" content="FileNova" />
+  <meta property="og:image" content="https://filenova.in/opengraph.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:locale" content="en_IN" />
 
-    <!-- Canonical -->
-    <link rel="canonical" href="https://filenova.in" />
-    <link rel="alternate" hreflang="en-IN" href="https://filenova.in" />
-    <link rel="alternate" hreflang="x-default" href="https://filenova.in" />
+  <!-- Twitter / X Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@filenovaapp" />
+  <meta name="twitter:title" content="FileNova – AI PDF & Image Tools | Fast, Secure & Free" />
+  <meta name="twitter:description"
+    content="30+ free online PDF and image tools. Merge, compress, convert PDFs. Aadhaar masking, PAN resize, scholarship ZIP, OCR." />
+  <meta name="twitter:image" content="https://filenova.in/opengraph.jpg" />
 
-    <!-- Favicon & Icons -->
-    <link rel="icon" type="image/x-icon" href="/favicons/favicon.ico" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png" />
-    <link rel="icon" type="image/png" sizes="48x48" href="/favicons/favicon-48x48.png" />
-    <link rel="icon" type="image/png" sizes="96x96" href="/favicons/favicon-96x96.png" />
-    <link rel="icon" type="image/png" sizes="128x128" href="/favicons/favicon-128x128.png" />
-    <link rel="icon" type="image/png" sizes="192x192" href="/favicons/favicon-192x192.png" />
-    <link rel="icon" type="image/png" sizes="256x256" href="/favicons/favicon-256x256.png" />
-    <link rel="icon" type="image/png" sizes="512x512" href="/favicons/favicon-512x512.png" />
+  <!-- Canonical -->
+  <link rel="canonical" href="https://filenova.in" />
+  <link rel="alternate" hreflang="en-IN" href="https://filenova.in" />
+  <link rel="alternate" hreflang="x-default" href="https://filenova.in" />
 
-    <!-- Apple Touch Icons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png" />
-    <link rel="apple-touch-icon" sizes="167x167" href="/favicons/apple-touch-icon-167x167.png" />
-    <link rel="apple-touch-icon" sizes="152x152" href="/favicons/apple-touch-icon-152x152.png" />
-    <link rel="apple-touch-icon" sizes="120x120" href="/favicons/apple-touch-icon-120x120.png" />
+  <!-- Favicon & Icons -->
+  <link rel="icon" type="image/x-icon" href="/favicons/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/favicons/favicon-48x48.png" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicons/favicon-96x96.png" />
+  <link rel="icon" type="image/png" sizes="128x128" href="/favicons/favicon-128x128.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicons/favicon-192x192.png" />
+  <link rel="icon" type="image/png" sizes="256x256" href="/favicons/favicon-256x256.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicons/favicon-512x512.png" />
 
-    <!-- Android Chrome Icons -->
-    <link rel="icon" type="image/png" sizes="192x192" href="/favicons/android-chrome-192x192.png" />
-    <link rel="icon" type="image/png" sizes="512x512" href="/favicons/android-chrome-512x512.png" />
+  <!-- Apple Touch Icons -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png" />
+  <link rel="apple-touch-icon" sizes="167x167" href="/favicons/apple-touch-icon-167x167.png" />
+  <link rel="apple-touch-icon" sizes="152x152" href="/favicons/apple-touch-icon-152x152.png" />
+  <link rel="apple-touch-icon" sizes="120x120" href="/favicons/apple-touch-icon-120x120.png" />
 
-    <!-- Safari Pinned Tab -->
-    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
+  <!-- Android Chrome Icons -->
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicons/android-chrome-192x192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicons/android-chrome-512x512.png" />
 
-    <!-- Windows Tiles -->
-    <meta name="msapplication-TileColor" content="#0d1b2a" />
-    <meta name="msapplication-TileImage" content="/favicons/favicon-144x144.png" />
+  <!-- Safari Pinned Tab -->
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
 
-    <!-- Theme Color -->
-    <meta name="theme-color" content="#0d1b2a" />
+  <!-- Windows Tiles -->
+  <meta name="msapplication-TileColor" content="#0d1b2a" />
+  <meta name="msapplication-TileImage" content="/favicons/favicon-144x144.png" />
 
-    <!-- Web App Manifest -->
-    <link rel="manifest" href="/site.webmanifest" />
+  <!-- Theme Color -->
+  <meta name="theme-color" content="#0d1b2a" />
 
-    <!-- Early preconnect to own origin (speeds up TLS negotiation) -->
-    <link rel="preconnect" href="https://filenova.in" />
+  <!-- Web App Manifest -->
+  <link rel="manifest" href="/site.webmanifest" />
 
-    <!-- DNS Prefetch -->
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-    <link rel="dns-prefetch" href="https://accounts.google.com" />
-    <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
-    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+  <!-- Early preconnect to own origin (speeds up TLS negotiation) -->
+  <link rel="preconnect" href="https://filenova.in" />
 
-    <!-- Preconnect: Critical third-party origins -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://accounts.google.com" crossorigin />
-    <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin />
+  <!-- DNS Prefetch -->
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+  <link rel="dns-prefetch" href="https://accounts.google.com" />
+  <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
 
-    <!-- Fonts: subset to only used weights, display=swap, preload critical variants -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@600;700;800;900&display=swap" as="style" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <!-- Preconnect: Critical third-party origins -->
+  <link rel="preconnect" href="https://accounts.google.com" crossorigin />
+  <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin />
 
-    <!-- Preload: LCP-critical assets -->
-    <link rel="preload" href="/logo.svg" as="image" type="image/svg+xml" />
-    <link rel="preload" href="/opengraph.jpg" as="image" type="image/jpeg" />
-    <link rel="preload" href="/pdf.worker.min.js" as="script" fetchpriority="low" />
+  <!-- Fonts: subset to only used weights, display=swap, preload critical variants -->
+  <link rel="preload"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@600;700;800;900&display=swap"
+    as="style" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@600;700;800;900&display=swap"
+    rel="stylesheet" />
 
-    <!-- Google AdSense (deferred — not LCP-critical) -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1022082801397971" crossorigin="anonymous"></script>
+  <!-- Critical CSS for Instant Rendering of Navbar, Logo, Search, and Hero -->
+  <style>
+    :root {
+      --background: #fafafa;
+      --foreground: #0f172a;
+      --border: rgba(15, 23, 42, 0.08);
+    }
 
-    <!-- Google Identity Services SDK (deferred) -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    html.dark,
+    :root.dark {
+      --background: #080C14;
+      --foreground: #F1F5F9;
+      --border: rgba(255, 255, 255, 0.08);
+    }
 
-    <!-- Inline critical JSON-LD: Organization + WebSite schema -->
-    <script type="application/ld+json">
+    html,
+    body {
+      background-color: #080C14 !important;
+      color: #F1F5F9 !important;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    /* Navbar container */
+    header.sticky {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      width: 100%;
+      padding: 12px 16px;
+      box-sizing: border-box;
+    }
+
+    header.sticky>div {
+      max-width: 1152px;
+      margin: 0 auto;
+      height: 56px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(15, 22, 38, 0.75);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+      box-sizing: border-box;
+    }
+
+    /* Logo styles */
+    header.sticky a[href="/"] {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    header.sticky a[href="/"] img {
+      height: 32px;
+      width: auto;
+    }
+
+    header.sticky a[href="/"] span {
+      font-weight: 800;
+      font-size: 14px;
+      color: #F1F5F9;
+    }
+
+    /* Search component */
+    header.sticky .lg\:block {
+      position: relative;
+      max-width: 320px;
+      width: 100%;
+      display: none;
+    }
+
+    @media (min-width: 1024px) {
+      header.sticky .lg\:block {
+        display: block;
+      }
+    }
+
+    header.sticky .lg\:block input {
+      width: 100%;
+      height: 38px;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 0 16px 0 38px;
+      color: #94A3B8;
+      font-size: 12.5px;
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    /* Hero Section */
+    section.pt-20 {
+      padding-top: 80px;
+      padding-bottom: 64px;
+      padding-left: 16px;
+      padding-right: 16px;
+      text-align: center;
+      position: relative;
+      z-index: 10;
+    }
+
+    section.pt-20>div {
+      max-width: 768px;
+      margin: 0 auto;
+    }
+
+    section.pt-20 h1 {
+      font-size: 36px;
+      font-weight: 900;
+      letter-spacing: -0.025em;
+      color: #F1F5F9;
+      margin-bottom: 24px;
+      line-height: 1.25;
+    }
+
+    @media (min-width: 768px) {
+      section.pt-20 h1 {
+        font-size: 60px;
+      }
+    }
+
+    section.pt-20 p {
+      color: #94A3B8;
+      font-size: 14px;
+      margin-bottom: 48px;
+      max-w: 576px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.625;
+    }
+
+    @media (min-width: 768px) {
+      section.pt-20 p {
+        font-size: 18px;
+      }
+    }
+  </style>
+
+  <!-- Preload: LCP-critical assets -->
+  <link rel="preload" href="/logo.svg" as="image" type="image/svg+xml" />
+  <link rel="preload" href="/opengraph.jpg" as="image" type="image/jpeg" />
+  <link rel="preload" href="/pdf.worker.min.js" as="script" fetchpriority="low" />
+
+  <!-- Google AdSense (deferred — not LCP-critical) -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1022082801397971"
+    crossorigin="anonymous"></script>
+
+  <!-- Google Identity Services SDK (deferred) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <!-- Inline critical JSON-LD: Organization + WebSite schema -->
+  <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Organization",
@@ -125,7 +282,7 @@
       ]
     }
     </script>
-    <script type="application/ld+json">
+  <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
@@ -144,35 +301,41 @@
       }
     }
     </script>
-  </head>
-  <body>
-    <a href="#main-content" class="skip-link" tabindex="1">Skip to main content</a>
-    <style>
-      .skip-link {
-        position: absolute;
-        top: -9999px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 99999;
-        padding: 10px 20px;
-        background: var(--primary, #6366f1);
-        color: #fff;
-        font-size: 14px;
-        font-weight: 700;
-        border-radius: 0 0 8px 8px;
-        text-decoration: none;
-      }
-      .skip-link:focus {
-        top: 0;
-      }
-    </style>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-    <script>
+</head>
+
+<body>
+  <a href="#main-content" class="skip-link" tabindex="1">Skip to main content</a>
+  <style>
+    .skip-link {
+      position: absolute;
+      top: -9999px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 99999;
+      padding: 10px 20px;
+      background: var(--primary, #6366f1);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 0 0 8px 8px;
+      text-decoration: none;
+    }
+
+    .skip-link:focus {
+      top: 0;
+    }
+  </style>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+  <script>
+    window.addEventListener('load', function () {
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js')
-          .then(function() { console.log('SW registered'); });
+          .then(function () { console.log('SW registered'); })
+          .catch(function (err) { console.error('SW registration failed', err); });
       }
-    </script>
-  </body>
+    });
+  </script>
+</body>
+
 </html>

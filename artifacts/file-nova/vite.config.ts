@@ -6,6 +6,7 @@ import {execSync} from 'child_process';
 import {defineConfig} from 'vite';
 import { vitePrerenderPlugin } from 'vite-prerender-plugin';
 import { VitePWA } from 'vite-plugin-pwa';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 if (typeof globalThis.DOMMatrix === 'undefined') {
   globalThis.DOMMatrix = class DOMMatrix {
@@ -199,7 +200,12 @@ export default defineConfig(() => {
             process.exit(0);
           }, 100);
         }
-      }
+      },
+      visualizer({
+        filename: 'stats.html',
+        gzipSize: true,
+        brotliSize: true,
+      })
     ],
     root: __dirname,
     envDir: path.resolve(__dirname, '../../'),
@@ -210,6 +216,7 @@ export default defineConfig(() => {
       },
     },
     build: {
+      cssCodeSplit: true,
       // Enable code splitting and chunk optimization
       rollupOptions: {
         output: {
