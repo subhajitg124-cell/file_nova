@@ -190,6 +190,31 @@ const Contact: React.FC = () => {
           <WhatsAppSupport />
         </div>
 
+        {/* Support Details & Business Hours */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-card border border-border rounded-2xl p-6 mb-8 text-left"
+        >
+          <div>
+            <h3 className="text-lg font-bold text-foreground mb-3">Support & Business Hours</h3>
+            <ul className="space-y-2.5 text-sm text-muted-foreground">
+              <li><strong>Business Hours:</strong> Monday - Saturday (9:00 AM - 8:00 PM IST)</li>
+              <li><strong>Email Response Time:</strong> Within 12-24 hours for standard accounts</li>
+              <li><strong>Premium Priority:</strong> Instant routing via Telegram & WhatsApp</li>
+              <li><strong>Office Location:</strong> West Bengal, India</li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-foreground mb-3">Billing & Template Inquiries</h3>
+            <ul className="space-y-2 text-xs text-muted-foreground leading-relaxed">
+              <li><strong>Payment Queries:</strong> If subscription is delayed, email transaction IDs directly to subhajiteditz90@gmail.com. We resolve all billing checks within 1 hour.</li>
+              <li><strong>Portal Presets:</strong> If an Indian portal changes dimensions, contact us to request new layout crops or document compression specifications.</li>
+            </ul>
+          </div>
+        </motion.div>
+
         {/* Social Media */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

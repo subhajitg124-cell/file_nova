@@ -94,6 +94,8 @@ const ReferralPage = React.lazy(() => import("@/pages/ReferralPage"));
 const StudentOfferPage = React.lazy(() => import("@/pages/StudentOfferPage"));
 const ResourcesPage = React.lazy(() => import("@/pages/ResourcesPage"));
 const ContactPage = React.lazy(() => import("@/pages/Contact"));
+const AboutPage = React.lazy(() => import("@/pages/About"));
+const HelpPage = React.lazy(() => import("@/pages/Help"));
 const WorkflowsPage = React.lazy(() => import("@/pages/WorkflowsPage"));
 const IndiaToolsPage = React.lazy(() => import("@/pages/IndiaToolsPage"));
 const ProfilePage = React.lazy(() => import("@/pages/ProfilePage"));
@@ -223,6 +225,10 @@ export function Router() {
           <Route path="/pdf-merge"><Redirect to="/merge-pdf" /></Route>
           <Route path="/image-to-pdf"><Redirect to="/jpg-to-pdf" /></Route>
           <Route path="/pdf-to-image"><Redirect to="/pdf-to-jpg" /></Route>
+          <Route path="/careers"><Redirect to="/about" /></Route>
+          <Route path="/changelog"><Redirect to="/blog" /></Route>
+          <Route path="/status"><Redirect to="/contact" /></Route>
+          <Route path="/api"><Redirect to="/resources" /></Route>
 
           <Route path="/tools/compress-pdf"><Redirect to="/compress-pdf" /></Route>
           <Route path="/tools/merge-pdf"><Redirect to="/merge-pdf" /></Route>
@@ -321,6 +327,12 @@ export function Router() {
           </Route>
           <Route path="/contact">
             <ContactPage />
+          </Route>
+          <Route path="/about">
+            <AboutPage />
+          </Route>
+          <Route path="/help">
+            <HelpPage />
           </Route>
           <Route path="/profile">
             <ProtectedRoute>

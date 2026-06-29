@@ -270,7 +270,324 @@ export const blogPosts: BlogPost[] = [
         ]
       }
     ]
+  },
+  {
+    title: "PDF vs Word: Which Format Should You Use for Documents?",
+    slug: "pdf-vs-word-which-format",
+    description: "Understand the practical differences between PDF and Word formats and when to use each for government forms, college applications, business documents, and everyday tasks in India.",
+    date: "2026-03-15",
+    readTime: "8 min read",
+    thumbnail: "/document_processing_mockup.png",
+    keywords: "pdf vs word, pdf or docx, when to use pdf, convert word to pdf india, pdf format explained",
+    sections: [
+      {
+        heading: "Why format choice matters more than you think",
+        body: [
+          "Choosing the wrong file format for a government submission, college application, or business proposal can cause unnecessary rejection. Both PDF and Word (DOCX) are widely used in India, but they serve very different purposes. PDF stands for Portable Document Format and was designed to preserve layout across every device and operating system. Word documents are editable, structured files used when collaboration and revision are expected.",
+          "Many Indian government portals, university admission systems, and scholarship websites explicitly require PDF format. Why? Because a PDF looks exactly the same whether opened on an Android phone, a Windows laptop, or a Mac. It cannot be accidentally edited after submission. For official and legal documents, this consistency and immutability is essential."
+        ]
+      },
+      {
+        heading: "When to use PDF",
+        body: [
+          "Use PDF whenever you are submitting a final document that should not be edited. This includes government forms, application letters, certificates, admit cards, mark sheets, bank statements, income proof, rent agreements, and court documents. PDFs preserve digital signatures, stamps, and government logos in their original positions. They also compress well, making them ideal for portal uploads with size restrictions.",
+          "If you have completed filling out a form in Word or Google Docs and now need to submit it, always convert to PDF first. FileNova's Word to PDF tool does this conversion instantly without any layout distortion, ensuring your submission looks professional and print-ready."
+        ]
+      },
+      {
+        heading: "When to use Word (DOCX)",
+        body: [
+          "Word format is best when you are still editing. A resume, a research paper, a project report, a business proposal, or any document where multiple people will add comments and revisions should stay in DOCX until it is finalized. Word supports track changes, comments, and real-time collaboration via Google Docs or Microsoft Office 365.",
+          "For academic work, professors often request assignments in DOCX because they can provide inline comments and suggestions. However, the moment the document needs to be officially submitted, printed, or distributed, converting it to PDF eliminates formatting inconsistencies across different computers."
+        ]
+      },
+      {
+        heading: "Converting between formats with FileNova",
+        body: [
+          "FileNova supports conversion in both directions. Use PDF to Word to extract editable content from a PDF for further editing, or use Word to PDF to finalize a document for submission. Both tools are free for standard files and run with zero watermarks. The conversion preserves fonts, paragraph spacing, and table structures as closely as possible.",
+          "Always review the converted output before submitting. Complex layouts with multiple columns, headers, or embedded images may require minor adjustments after conversion. Keep the original file as backup to avoid losing your work."
+        ]
+      }
+    ]
+  },
+  {
+    title: "PAN Card Photo Requirements: Exact Size, Format & How to Resize",
+    slug: "pan-card-photo-requirements",
+    description: "Complete guide on PAN card photo and signature requirements for NSDL and UTI applications. Learn the exact pixel dimensions, file sizes, and how to use FileNova to resize correctly.",
+    date: "2026-03-20",
+    readTime: "6 min read",
+    thumbnail: "/photo_resize_mockup.png",
+    keywords: "pan card photo size, pan card photo requirements, nsdl pan card photo, uti pan card signature size, pan application photo resize",
+    sections: [
+      {
+        heading: "PAN card photo specifications for NSDL and UTI",
+        body: [
+          "Applying for a new PAN card or requesting a PAN correction on the NSDL Protean or UTI portal requires uploading a photograph and signature that strictly meet defined specifications. Getting these wrong is one of the most common reasons PAN applications are delayed or rejected.",
+          "As per current NSDL guidelines, the photograph must be in JPEG format, between 20KB and 50KB in file size, and show a clear frontal face with a white or light plain background. The signature must also be in JPEG format, between 10KB and 20KB, and show a clear black ink signature on white paper with no background decorations."
+        ]
+      },
+      {
+        heading: "How to resize your PAN card photo with FileNova",
+        body: [
+          "FileNova's PAN Card Resize tool is specifically built for this task. Upload your original photograph, select the NSDL or UTI preset, and the tool will automatically crop, resize, and compress the image to fall within the accepted file size range while maintaining a passport-style aspect ratio.",
+          "For best results, start with a photo taken in good natural light against a plain white wall. Avoid mobile filters, beauty modes, or HDR enhancements. The face should be clearly visible with no sunglasses or heavy shadows. FileNova processes the image directly in your browser — your private photograph never gets uploaded to any remote server."
+        ]
+      },
+      {
+        heading: "Common mistakes and how to avoid them",
+        body: [
+          "The most common mistake is uploading a photo that is too large (over 50KB) or too small (under 20KB). Both will fail validation. Another frequent error is uploading a PNG file instead of JPEG — the portals are strict about format. A third issue is using a photo with a colored or patterned background instead of plain white.",
+          "For signatures, many applicants accidentally upload the full paper sheet instead of cropping to just the signature area. This results in a very large file with too much blank space. Use FileNova's crop tool to isolate just the signature area before converting and compressing."
+        ]
+      }
+    ]
+  },
+  {
+    title: "Best Passport Photo Size for India: Requirements for All Portals",
+    slug: "best-passport-photo-size-india",
+    description: "A complete reference guide for passport photo sizes accepted by Indian passport offices, embassies, and online portals including DigiLocker, Passport Seva, and CKGS.",
+    date: "2026-04-01",
+    readTime: "7 min read",
+    thumbnail: "/photo_resize_mockup.png",
+    keywords: "passport photo size india, passport photo dimensions, passport application photo india, photo size passport seva, 35x45mm passport photo",
+    sections: [
+      {
+        heading: "Standard passport photo dimensions in India",
+        body: [
+          "Indian passport applications require a photo of 35mm x 45mm (width x height), which translates to approximately 413 x 531 pixels at 300 DPI resolution. The background must be plain white or off-white. The face must occupy 70-80% of the frame. There should be no shadows on the face or background, and the eyes must be clearly open and looking directly at the camera.",
+          "For online applications through Passport Seva Portal, the photo must be in JPEG format with a file size between 10KB and 500KB. The Passport Office in India requires a recent photograph taken within the last 6 months. Spectacles are generally not allowed in recent years per updated guidelines."
+        ]
+      },
+      {
+        heading: "Photo requirements by embassy and visa type",
+        body: [
+          "Different embassies have slightly different requirements. US visa applications require 2x2 inch (51x51mm) photos at 600 DPI. UK Tier visas require 45x35mm photos. Schengen (European) visa photos must be 35x45mm. UAE work permits and GCC visa applications generally follow the 40x60mm format. When applying abroad, always check the specific embassy page for the current accepted dimensions.",
+          "FileNova includes presets for the most commonly required formats. Rather than memorizing different dimensions, select the destination country or portal type and the tool will automatically configure the correct crop size and output specifications."
+        ]
+      },
+      {
+        heading: "How to create a passport-quality photo at home",
+        body: [
+          "You do not need a professional studio to get a passport-quality photo in 2026. A smartphone in good lighting can produce acceptable results. Stand near a window in the daytime for natural, shadow-free lighting. Place yourself against a plain white wall or hang a plain white sheet behind you. Hold the phone at eye level and have someone else take the photo, or use a timer on a stable surface.",
+          "After taking the photo, upload it to FileNova's Passport Photo Resize tool. Select the correct country/portal preset, adjust the crop box to frame your face correctly (eyes between 56-69% of image height as per ISO standards), and download the resized output. The tool handles DPI settings and JPEG compression automatically."
+        ]
+      }
+    ]
+  },
+  {
+    title: "OCR Explained: How to Extract Text from Scanned PDFs and Images",
+    slug: "ocr-extract-text-images-pdf",
+    description: "Learn how Optical Character Recognition (OCR) works, when to use it, and how FileNova's OCR tool extracts text from scanned documents in Hindi, Bengali, and English.",
+    date: "2026-04-10",
+    readTime: "9 min read",
+    thumbnail: "/document_processing_mockup.png",
+    keywords: "ocr online free, extract text from pdf, image to text india, hindi ocr free, bengali ocr online, scan to text converter",
+    sections: [
+      {
+        heading: "What is OCR and why does it matter?",
+        body: [
+          "OCR stands for Optical Character Recognition. It is the technology that converts images of text — whether from a photographed document, a scanned page, or an image-based PDF — into actual machine-readable text that you can copy, edit, search, and process programmatically. Without OCR, a scanned document is just a picture; with OCR, it becomes living, searchable content.",
+          "In India, OCR is particularly valuable because vast amounts of important documents still exist only in physical or scanned form. Old marksheets, government records, court documents, land records, medical reports, and handwritten certificates often come as low-quality scans. OCR allows students, legal professionals, government workers, and businesses to digitize this content efficiently."
+        ]
+      },
+      {
+        heading: "How OCR works",
+        body: [
+          "Modern OCR systems use neural network-based image recognition trained on millions of text samples. When you upload an image or PDF to an OCR tool, it analyzes the pixel patterns within the image, identifies characters, groups them into words, and reconstructs the text in the correct reading order. Advanced OCR systems can also detect paragraph structure, tables, and multi-column layouts.",
+          "FileNova's OCR tool supports English, Hindi, and Bengali text recognition. For best results, upload a high-resolution scan (at least 200 DPI) with good contrast between text and background. Handwritten text is partially supported but is naturally less accurate than printed text."
+        ]
+      },
+      {
+        heading: "When to use OCR",
+        body: [
+          "Use OCR when you receive a scanned PDF of a signed agreement and need to extract the clause text. Use it when you photograph a printed certificate and want to copy the details into a digital form. Use it when you receive old government orders in image format and need to create a searchable digital archive. OCR is also invaluable for accessibility — converting image-only PDFs to text allows screen readers to function on those documents.",
+          "For students, OCR can extract questions from printed question papers, saving hours of retyping. For professionals, it can extract data tables from scanned financial reports. For legal researchers, it can convert dozens of scanned court orders into searchable text databases."
+        ]
+      },
+      {
+        heading: "Privacy in OCR processing",
+        body: [
+          "OCR involves reading sensitive document content, which raises legitimate privacy concerns. FileNova's OCR processing runs on our secure servers with full SSL encryption. Documents are immediately deleted after processing is complete and are never shared with third parties. For extremely sensitive documents, consider redacting or masking sensitive numbers (like Aadhaar or bank account numbers) before using OCR if you only need to extract specific non-sensitive portions.",
+          "Always verify OCR output before using it for official purposes. Accuracy depends heavily on scan quality, font type, and image resolution. Numbers and special characters require extra attention as they are more prone to misrecognition."
+        ]
+      }
+    ]
+  },
+  {
+    title: "Digital Signature Explained: How to Sign Documents Online in India",
+    slug: "digital-signature-explained-india",
+    description: "A complete beginner guide to understanding digital signatures in India — the difference between eSign, DSC, and image signatures, and when each is legally valid.",
+    date: "2026-04-20",
+    readTime: "8 min read",
+    thumbnail: "/document_processing_mockup.png",
+    keywords: "digital signature india, esign india, dsc digital signature certificate, sign pdf online india, electronic signature legal india",
+    sections: [
+      {
+        heading: "Types of signatures used in India",
+        body: [
+          "India recognizes three types of digital signatures for legal and official purposes. The first is a scanned wet ink signature — a photograph of a handwritten signature placed on a document as an image. This is the most commonly used in student portals, college admission forms, scholarship applications, and general business documents. It is accepted for most non-critical purposes.",
+          "The second is an Aadhaar-based eSign — an electronic signature linked to your Aadhaar number and authenticated via OTP. This has strong legal standing under the IT Act 2008 and is accepted for banking, insurance, and government contracts. The third is a DSC (Digital Signature Certificate) — a cryptographic key stored on a USB token, issued by certified authorities. DSC is mandatory for GST filings, company registrations, and legal court submissions."
+        ]
+      },
+      {
+        heading: "How scanned signature images work for portals",
+        body: [
+          "For most student and scholarship portals in India, an image signature is sufficient. You sign your name in dark ink on plain white paper, photograph it clearly, and upload the JPG or PNG file. The portal uses this as a visual representation of your consent and identity, not as a cryptographic proof.",
+          "The key requirement for portal signatures is file size and background cleanliness. Most portals accept signatures between 10KB and 50KB in JPG format, with a white background. FileNova's signature resize tool helps you crop just the signature area and compress it to the correct range without losing clarity of your pen strokes."
+        ]
+      },
+      {
+        heading: "Getting a DSC for professional use",
+        body: [
+          "If you need a DSC, you must apply through a certified authority like eMudhra, Sify, or NSDL e-Governance. The process involves identity verification, a fee, and receives a USB token with your certificate. DSCs are valid for 1-2 years and must be renewed. They are available in Class 3 format for most business and legal uses.",
+          "For everyday document signing needs — contracts, offer letters, invoices, or proposals — the Aadhaar eSign service is more convenient and increasingly accepted. Services like DigiLocker, VLE eSign, and various banking portals integrate Aadhaar eSign for authenticated document workflows."
+        ]
+      }
+    ]
+  },
+  {
+    title: "Scholarship ZIP Guide: How to Pack Documents for SVMCM & NSP Portals",
+    slug: "scholarship-zip-document-guide",
+    description: "Step-by-step guide to preparing a ZIP file with correctly formatted documents for West Bengal SVMCM, NSP, and other scholarship portals. Avoid common rejection errors.",
+    date: "2026-05-01",
+    readTime: "7 min read",
+    thumbnail: "/document_processing_mockup.png",
+    keywords: "svmcm scholarship documents, nsp scholarship zip, scholarship document pack, scholarship application pdf, wbmdfc scholarship upload",
+    sections: [
+      {
+        heading: "Why scholarship portals require ZIP files",
+        body: [
+          "Several Indian state scholarship portals — including SVMCM (Swami Vivekananda Merit-cum-Means), NSP (National Scholarship Portal), WBMDFC, Oasis, Kanyashree, and post-matric scholarship programs — require applicants to upload all required documents as a single ZIP archive instead of individual files. This makes it easier for reviewers to download and verify all documents together.",
+          "The challenge is that each portal has specific requirements about what must be inside the ZIP. Some require specific PDF file names. Others have file size limits per document. Many require photographs and signatures at exact resolutions. Uploading an incorrectly structured ZIP is the leading reason for scholarship application delays."
+        ]
+      },
+      {
+        heading: "Common SVMCM document checklist",
+        body: [
+          "For SVMCM renewal and fresh applications, the typical required documents include: last qualifying examination marksheet (PDF, under 500KB), income certificate issued by appropriate authority (PDF), Aadhaar card copy (masked PDF preferred), caste certificate if applicable (PDF), passport photo (JPG, 10KB-50KB), signature (JPG, 10KB-20KB), and bank passbook or account proof (PDF). Always verify the current list from the official SVMCM portal as requirements change between academic years.",
+          "For NSP applications, document requirements vary by scholarship scheme, but typically include: domicile proof, income certificate, previous year marksheet, institutional details, bank account details linked to Aadhaar, and photo/signature. The NSP portal allows document upload per category rather than a ZIP in most cases."
+        ]
+      },
+      {
+        heading: "Using FileNova's Scholarship ZIP Maker",
+        body: [
+          "FileNova's Scholarship ZIP tool simplifies the entire process. You can upload all your documents, and the tool verifies individual file sizes, converts images to PDF where needed, applies appropriate compression, and packages everything into a correctly structured ZIP archive ready for submission.",
+          "The tool includes preset configurations for SVMCM and common NSP formats. This means you can select the portal type and FileNova will guide you through uploading each required document in the correct format and name. After all documents are verified, click Generate ZIP to download the submission-ready archive."
+        ]
+      }
+    ]
+  },
+  {
+    title: "PDF Security Best Practices: How to Protect Your PDF Documents",
+    slug: "pdf-security-best-practices",
+    description: "Learn how to protect PDF files with passwords, restrict printing and editing, add watermarks, and handle sensitive documents safely. A practical guide for Indian users.",
+    date: "2026-05-15",
+    readTime: "8 min read",
+    thumbnail: "/document_processing_mockup.png",
+    keywords: "protect pdf with password, pdf security india, encrypt pdf online free, restrict pdf editing, pdf watermark online, secure pdf document",
+    sections: [
+      {
+        heading: "Why PDF security matters in 2026",
+        body: [
+          "PDF files are one of the most commonly shared document formats in India for legal agreements, financial statements, salary slips, property documents, business contracts, and certificates. Unfortunately, they are also frequently misused — shared without consent, printed without authorization, or edited to misrepresent original content. Understanding basic PDF security protects your documents and your reputation.",
+          "Modern PDF encryption uses AES 256-bit encryption, the same standard used by banks and governments. A password-protected PDF cannot be opened, printed, or edited without the correct password. Watermarks can visually mark a document as confidential or draft. Restricting printing prevents unauthorized physical copies from being made."
+        ]
+      },
+      {
+        heading: "Types of PDF protection available",
+        body: [
+          "There are two types of PDF passwords. An Open Password (also called a User Password) restricts who can open the document. When someone tries to open the PDF, they must enter the correct password. An Owners Password (also called a Permissions Password) does not restrict opening but limits actions like printing, editing, copying text, or adding annotations. You can apply both for maximum security.",
+          "FileNova's Protect PDF tool lets you add either or both types of passwords. You can also choose to restrict specific permissions — for example, allow viewing and printing but prevent copying text or editing content. This is ideal for sharing official documents, legal drafts, or creative work samples that should be reviewed but not modified."
+        ]
+      },
+      {
+        heading: "Using watermarks for document control",
+        body: [
+          "Watermarks are semi-transparent text or images overlaid across PDF pages. Common uses include 'CONFIDENTIAL', 'DRAFT', 'COPY', the company name, or a website URL. Watermarks signal ownership and discourage unauthorized distribution. For certificates and sensitive documents, a custom watermark can help track the source if the document is shared without permission.",
+          "FileNova's PDF watermark tool allows you to add text watermarks with custom opacity, font size, rotation angle, and position. Apply a watermark before sharing any sensitive PDF that you want to track. For official business documents, adding your company watermark creates a professional and protective layer."
+        ]
+      },
+      {
+        heading: "Safe habits for sharing PDF documents",
+        body: [
+          "Beyond technical protection, safe PDF sharing is about habits. Avoid sending sensitive documents over public WhatsApp groups. Use password-protected PDFs when emailing financial or legal documents. Keep original signed documents separate from copies shared with third parties. Regularly audit what sensitive PDFs you have stored in cloud drives and delete unnecessary copies.",
+          "For Aadhaar cards and identity documents, always share only masked versions unless the full number is explicitly required. FileNova's Aadhaar masking tool makes this easy. For salary slips, contracts, and bank statements shared with landlords, employers, or agents, consider adding a watermark with the recipient's name or purpose to track misuse."
+        ]
+      }
+    ]
+  },
+  {
+    title: "CSC Operator Document Guide: Fast PDF Processing for Kiosk Services",
+    slug: "csc-operator-document-guide",
+    description: "A practical guide for CSC (Common Service Centre) operators and cyber cafe owners on efficiently processing government documents using FileNova tools.",
+    date: "2026-05-28",
+    readTime: "9 min read",
+    thumbnail: "/document_processing_mockup.png",
+    keywords: "csc operator guide, cyber cafe document tools, csc pdf tools, common service centre india, csc document processing",
+    sections: [
+      {
+        heading: "The daily challenges of CSC document processing",
+        body: [
+          "CSC (Common Service Centre) operators across India handle thousands of document requests daily. Customers bring scanned certificates, mobile screenshots, photographs, and handwritten forms that need to be converted, compressed, and formatted for government portal submissions. Working at speed with zero errors is essential because delays cost both the operator and the customer.",
+          "Common daily tasks include: resizing passport photos and signatures for exam forms (JEE, NEET, WBJEE), preparing scholarship application documents (SVMCM, NSP, Oasis), compressing Aadhaar and PAN card PDFs for form uploads, merging multiple certificates into a single submission file, converting scanned images to PDF, and preparing ZIP archives for scholarship portals."
+        ]
+      },
+      {
+        heading: "Essential FileNova tools for CSC operators",
+        body: [
+          "FileNova's India-specific toolkit is built with CSC workflows in mind. The PAN Card Resize tool handles NSDL and UTI photo specifications in one click. The Scholarship ZIP Maker packages SVMCM documents in the correct format automatically. The Aadhaar Masking tool creates compliant masked copies without any server upload, protecting customer privacy. The PDF Compressor brings large scanned documents under portal size limits instantly.",
+          "For operators serving exam applicants, the Photo Resize tool includes presets for JEE Main, NEET, WBJEE, CUET, UPSC, and state board entrance exams. This eliminates the guesswork of finding correct specifications for each portal and saves 3-5 minutes per customer — which adds up to hours of saved time over a busy day."
+        ]
+      },
+      {
+        heading: "Batch processing for high-volume days",
+        body: [
+          "During scholarship renewal season (October-November) and exam registration periods (December-March), CSC operators experience extreme document volume. FileNova Pro accounts support batch file processing, allowing operators to process multiple PDF compressions, multiple image resizes, and multiple ZIP preparations simultaneously without queue delays.",
+          "Operators can also use FileNova's workspace feature to organize ongoing multi-document projects, saving partially processed files and returning to them without losing progress. This is particularly useful for complex applications that require gathering documents over multiple customer visits."
+        ]
+      },
+      {
+        heading: "Best practices for CSC document security",
+        body: [
+          "When processing customer documents containing Aadhaar numbers, PAN numbers, bank account details, or medical records, always follow strict privacy protocols. Delete downloaded files from the workspace after the customer collects their processed documents. Use FileNova's client-side processing tools (those marked as browser-based) for the most sensitive documents, as these never transmit document data to any server.",
+          "Educate customers about Aadhaar masking — when submitting for college admissions or scholarship portals, a masked Aadhaar is legally sufficient and protects customer identity. Using masked versions is both a security best practice and increasingly a UIDAI recommendation."
+        ]
+      }
+    ]
+  },
+  {
+    title: "How to Split PDF: Extract Specific Pages from Any Document",
+    slug: "how-to-split-pdf-extract-pages",
+    description: "A step-by-step tutorial on splitting PDF files online — how to extract individual pages, divide by page range, and download split results instantly using FileNova.",
+    date: "2026-06-01",
+    readTime: "6 min read",
+    thumbnail: "/document_processing_mockup.png",
+    keywords: "split pdf online free, extract pdf pages, divide pdf, pdf page extractor, split pdf india",
+    sections: [
+      {
+        heading: "When do you need to split a PDF?",
+        body: [
+          "Splitting PDFs is one of the most practical document tasks. You may receive a combined marksheet PDF from your school with all subjects in one file, but the scholarship portal only accepts individual subject mark copies. Or a bank may send you a 12-month statement in one PDF and you need to extract only the last 3 months. Or you may have a large legal agreement and need to share only the relevant clauses with a third party.",
+          "Government offices in India increasingly share combined documents — property records, revenue certificates, court orders, and gazette notifications often arrive as multi-page PDFs where you need only specific pages. Being able to split PDF files efficiently saves time and avoids sending unnecessary confidential pages."
+        ]
+      },
+      {
+        heading: "Three ways to split a PDF in FileNova",
+        body: [
+          "FileNova supports three splitting methods. First, split every page — this creates a separate PDF for each individual page, useful when you need to share one certificate from a combined marks document. Second, split by range — specify ranges like pages 1-4 and pages 5-8 to create two separate documents with those page groups. Third, extract specific pages — pick individual page numbers like 2, 5, and 9 to create a new PDF with just those pages.",
+          "All three methods produce zero-quality-loss output. The pages are extracted as-is, without any re-rendering or re-compression. Text remains sharp, images remain crisp, and any interactive links or form fields are preserved in the split files."
+        ]
+      },
+      {
+        heading: "Downloading and organizing split files",
+        body: [
+          "When you split a PDF into multiple files, FileNova offers two download options. You can download each split file individually by clicking its download button, or you can download all split files together as a single ZIP archive with one click. The ZIP option is more convenient when splitting into many pages.",
+          "After splitting, rename your files descriptively before submitting or sharing. Instead of page-1.pdf or split-1.pdf, use names like marksheet-science-2025.pdf or bank-statement-jan-march.pdf. Clear file names help recipients understand what each document contains without opening it, and also help you stay organized during complex multi-document submissions."
+        ]
+      }
+    ]
   }
 ];
 
 export const getBlogPost = (slug: string) => blogPosts.find((post) => post.slug === slug);
+

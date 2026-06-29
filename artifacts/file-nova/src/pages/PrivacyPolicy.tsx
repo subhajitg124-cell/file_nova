@@ -102,11 +102,22 @@ export default function PrivacyPolicy() {
 
             <section className="space-y-3">
               <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-                <span className="text-indigo-400">3.</span> {tText("Cookies & Local Storage")}
+                <span className="text-indigo-400">3.</span> {tText("Cookies, Google Ads & Third-Party Analytics")}
               </h2>
               <p>
-                {tText("We use localized variables (LocalStorage and cookies) strictly to maintain your session, keep you logged in, save your translation preferences, and apply coupons correctly. We do not use tracking cookies for third-party targeted advertising.")}
+                {tText("FileNova uses cookies and LocalStorage to optimize user experience. These include essential cookies (to keep you logged in and track session state), analytics cookies, and Google Adsense advertising cookies:")}
               </p>
+              <ul className="list-disc pl-6 space-y-2 font-medium">
+                <li>
+                  <strong className="text-foreground">{tText("Google AdSense & DoubleClick Cookie:")}</strong> {tText(" As a third-party vendor, Google uses cookies to serve ads on FileNova. Google's use of the DoubleClick cookie enables it and its partners to serve ads to our users based on their visits to our site and other sites on the Internet.")}
+                </li>
+                <li>
+                  <strong className="text-foreground">{tText("Opt-Out Options:")}</strong> {tText(" Users may opt out of personalized advertising by visiting Google Ads Settings (https://www.google.com/settings/ads) or through consent options on our cookie banner.")}
+                </li>
+                <li>
+                  <strong className="text-foreground">{tText("Google OAuth & Cloud Sync (Drive/Dropbox):")}</strong> {tText(" If you log in via Google or link your cloud storage, we only use necessary permissions to read/write files as requested. We never access, store, or share unauthorized private files or data.")}
+                </li>
+              </ul>
             </section>
 
             <section className="space-y-3">

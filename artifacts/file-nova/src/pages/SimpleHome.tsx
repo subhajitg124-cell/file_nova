@@ -972,6 +972,55 @@ export default function SimpleHome() {
         </div>
       </section>
 
+      {/* Security & Trust Section */}
+      <section className="py-20 bg-[var(--fn-bg)] border-t border-[var(--fn-border)] relative z-10">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wider mb-4">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              {tText("Secure & Trustworthy")}
+            </div>
+            <h2 className="text-2xl md:text-3xl font-black text-[var(--fn-text-primary)] mb-3 font-display">
+              {tText("Privacy-First Document Processing")}
+            </h2>
+            <p className="text-[var(--fn-text-secondary)] text-sm max-w-lg mx-auto">
+              {tText("We secure your digital operations with strict browser-side code execution and military-grade safety protocols.")}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            {[
+              { icon: <Lock className="h-5 w-5 text-indigo-500" />, title: tText("256-bit Encryption"), desc: tText("All file transits use enterprise-level SSL/TLS 256-bit encryption layers.") },
+              { icon: <Globe className="h-5 w-5 text-emerald-500" />, title: tText("Local Processing"), desc: tText("Sensitive processes run entirely inside your browser cache. Zero server upload.") },
+              { icon: <Clock className="h-5 w-5 text-rose-500" />, title: tText("Auto-Delete"), desc: tText("Any temporary files uploaded for cloud tasks are permanently purged in 2 hours.") },
+              { icon: <ShieldCheck className="h-5 w-5 text-amber-500" />, title: tText("Privacy Compliant"), desc: tText("100% compliant with standard privacy principles and Google AdSense guidelines.") },
+            ].map((item, idx) => (
+              <div key={idx} className="p-5 fn-glass border border-[var(--fn-border)] rounded-2xl text-left space-y-3">
+                <div className="h-9 w-9 bg-muted border border-[var(--fn-border)] rounded-xl flex items-center justify-center">
+                  {item.icon}
+                </div>
+                <h4 className="font-extrabold text-sm text-[var(--fn-text-primary)]">{item.title}</h4>
+                <p className="text-[11px] text-[var(--fn-text-secondary)] leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="border-t border-[var(--fn-border)] pt-10 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+            {[
+              { value: "20,000+", label: tText("Active Users") },
+              { value: "100,000+", label: tText("Processed Files") },
+              { value: "15+", label: tText("Countries Supported") },
+              { value: "99.9%", label: tText("Service Uptime") }
+            ].map((stat, idx) => (
+              <div key={idx} className="space-y-1">
+                <div className="text-2xl font-black text-foreground">{stat.value}</div>
+                <div className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <Footer />
 
       {/* Global Drag and Drop Overlay */}

@@ -172,42 +172,37 @@ const Footer: React.FC = memo(() => {
             </ul>
           </div>
 
-          {/* Quick Links */}
+          {/* Company & Support */}
           <div>
-            <h4 className="font-semibold mb-4 text-foreground">{tText("Quick Links")}</h4>
+            <h4 className="font-semibold mb-4 text-foreground">{tText("Company")}</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/tools" className="text-muted-foreground hover:text-primary transition-colors">
-                  {tText("All Tools")}
+                <Link href="/about" className="text-muted-foreground hover:text-primary transition-colors">
+                  {tText("About Us")}
                 </Link>
               </li>
               <li>
-                <Link href="/pricing" className="text-muted-foreground hover:text-primary transition-colors">
-                  {tText("Pricing")}
+                <Link href="/help" className="text-muted-foreground hover:text-primary transition-colors">
+                  {tText("Help Center")}
                 </Link>
               </li>
               <li>
-                <Link href="/resources" className="text-muted-foreground hover:text-primary transition-colors">
-                  {tText("Resources")}
+                <Link href="/blog" className="text-muted-foreground hover:text-primary transition-colors">
+                  {tText("Latest Blog")}
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-muted-foreground hover:text-primary transition-colors">
-                  {tText("Contact")}
+                <Link href="/careers" className="text-muted-foreground hover:text-primary transition-colors">
+                  {tText("Careers")}
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Learn & Earn */}
+          {/* Resources & Developers */}
           <div>
-            <h4 className="font-semibold mb-4 text-foreground">{tText("Resources & Blog")}</h4>
+            <h4 className="font-semibold mb-4 text-foreground">{tText("Developers")}</h4>
             <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="/blog" className="text-muted-foreground hover:text-primary transition-colors">
-                  {tText("Latest Blog & News")}
-                </Link>
-              </li>
               <li>
                 <Link href="/referral" className="text-muted-foreground hover:text-primary transition-colors">
                   {tText("Referral Program")}
@@ -218,14 +213,28 @@ const Footer: React.FC = memo(() => {
                   {tText("Student Offers")}
                 </Link>
               </li>
+              <li>
+                <Link href="/api" className="text-muted-foreground hover:text-primary transition-colors">
+                  {tText("Developer API")}
+                </Link>
+              </li>
+              <li>
+                <Link href="/status" className="text-muted-foreground hover:text-primary transition-colors">
+                  {tText("System Status")}
+                </Link>
+              </li>
+              <li>
+                <Link href="/changelog" className="text-muted-foreground hover:text-primary transition-colors">
+                  {tText("Changelog")}
+                </Link>
+              </li>
             </ul>
           </div>
-
 
           {/* Contact & Social */}
           <div>
             <h4 className="font-semibold mb-4 text-foreground">{tText("Contact & Support")}</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
+            <ul className="space-y-2 text-sm text-muted-foreground mb-4">
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-muted-foreground" />
                 <a
@@ -237,6 +246,11 @@ const Footer: React.FC = memo(() => {
               </li>
               <TelegramContact />
               <WhatsAppContact />
+              <li>
+                <a href="/sitemap.xml" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors text-xs text-muted-foreground/80">
+                  {tText("Sitemap (XML)")}
+                </a>
+              </li>
             </ul>
 
             <div className="mt-4">

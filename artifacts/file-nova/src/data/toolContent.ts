@@ -48,11 +48,12 @@ export const toolContentMap: Record<string, ToolContent> = {
     toolDescription:
       "Free online tool to merge multiple PDF files into one combined document instantly, with no signup required.",
     seoBody: [
-      "Merging PDF files is one of the most common document tasks — whether you're combining scanned pages, joining chapters of a report, or assembling multiple invoices into a single file for submission.",
-      "FileNova's free PDF merger lets you upload multiple PDF files, arrange them in any order using drag-and-drop, and download the merged result instantly. No account creation, no watermarks, no file size tricks.",
-      "This tool is especially useful for Indian users who need to combine documents for government portal submissions — like clubbing your Aadhaar, PAN, and income proof into a single PDF for scholarship or loan applications.",
-      "All files are processed securely in your browser or on our encrypted servers, and permanently deleted after download. FileNova never stores your documents.",
-      "After merging, you might also need to [Compress PDF](compress-pdf) for reducing file size or [Split PDF](split-pdf) to extract specific pages from the combined file.",
+      "What is it: FileNova PDF Merger is a premium, high-speed document combination utility designed to assemble multiple PDF pages or documents into a single, unified PDF file. Whether you are a student gathering academic certificates or a business operator consolidating receipts, this tool organizes and binds your files instantly.",
+      "How it works: The PDF merger executes either directly inside your browser cache using WebAssembly or processes on our high-performance encrypted servers. When you upload files, the visual layout lets you sort and drag files into the exact sequence you want. Once you click 'Merge', FileNova's engine stitches the document objects, references, and fonts into a clean, zero-loss output file.",
+      "When to use: Use this tool to combine academic transcripts (class 10th and 12th board results), ID credentials (Aadhaar, PAN Card, Voter Card), or financial proofs (bank statements, salary slips) into a single PDF for college admissions, scholarship applications (like SVMCM or NSP), and visa applications. It is also perfect for billing operators who need to compile monthly invoices for accounting audits.",
+      "Benefits: Unlike standard online tools, FileNova does not attach watermarks, throttle your speeds, or force you to sign up. It is completely free, respects your privacy with client-side execution, and works flawlessly across mobile devices, tablets, and desktops.",
+      "Supported formats: The merger natively handles PDF files (.pdf). Additionally, you can upload common image formats (.jpg, .jpeg, .png) which the tool automatically converts and merges into your output PDF.",
+      "Privacy: Data confidentiality is our highest priority. Scanned files compiled locally inside your browser never leave your computer. For cloud-processed tasks, documents are fully protected with SSL 256-bit encryption and automatically purged from our servers within 2 hours.",
     ],
     faqs: [
       {
@@ -75,6 +76,14 @@ export const toolContentMap: Record<string, ToolContent> = {
         q: "Can I reorder pages after merging?",
         a: "You can reorder the input PDF files before merging. For page-level reordering within a merged document, use FileNova's PDF editor after merging.",
       },
+      {
+        q: "Does merging PDFs preserve hyperlinks and form fields?",
+        a: "Yes, FileNova's stitching engine retains all interactive PDF properties, including hyperlinks, bookmarks, and form fields from the original files.",
+      },
+      {
+        q: "What file formats can be merged besides PDF?",
+        a: "You can upload JPG, JPEG, and PNG images alongside PDFs. Our tool converts images to PDF format automatically and blends them into the final merged document.",
+      }
     ],
     relatedTools: [
       { label: "Split PDF", slug: "split-pdf", icon: "scissors" },
@@ -112,11 +121,12 @@ export const toolContentMap: Record<string, ToolContent> = {
     toolDescription:
       "Free online PDF splitter to divide a single PDF into multiple files or extract specific page ranges.",
     seoBody: [
-      "Need to extract just a few pages from a large PDF report? Or split a combined document into separate files for different recipients? FileNova's Split PDF tool makes this instant and free.",
-      "Choose from three split modes: split every page into a separate PDF, split by page ranges (e.g. pages 1–5, 6–12), or extract specific individual pages. Download all output files as a ZIP.",
-      "This is especially handy for Indian students and professionals who receive combined mark sheets, certificates, or government letters in a single PDF and need to share specific pages separately.",
-      "No installation required. Works entirely in your browser on any device — Android phone, iPhone, Windows PC, or Mac.",
-      "After splitting, you can [Merge PDF](merge-pdf) to combine relevant pages back together, or [Compress PDF](compress-pdf) to reduce individual file sizes.",
+      "What is it: FileNova PDF Splitter is an intelligent, browser-based utility built to divide large PDF documents into multiple individual files or extract selected page ranges. It gives you precise, granular control over document structures, letting you isolate relevant sections in seconds.",
+      "How it works: Our tool reads the page trees and structural dictionaries of your PDF directly in your browser cache. You can specify whether to extract every single page as an individual file, split by custom page ranges (e.g., pages 1-4, 5-8), or extract specific pages (e.g., pages 2, 5, 9). The splitting process executes without decoding or re-compressing the pages, guaranteeing zero quality loss.",
+      "When to use: PDF splitting is vital when you receive combined government documents, multi-page bills, or digital textbooks but only need to submit or share specific sections. For example, you can extract your individual Aadhaar card or income certificate page from a combined family document, or isolate specific chapters of a PDF textbook for homework assignments.",
+      "Benefits: FileNova's PDF Splitter is 100% free, requires no signup or software installation, and processes files at lightning speed. It produces zero watermarks and allows you to download all split files individually or as a single neatly organized ZIP archive.",
+      "Supported formats: The tool supports standard PDF documents (.pdf), including password-protected PDFs (after unlocking) and scanned document files.",
+      "Privacy: Since the PDF parsing and page extraction run locally inside your browser via client-side scripts, your private document never leaves your computer or uploads to any remote server.",
     ],
     faqs: [
       {
@@ -135,6 +145,14 @@ export const toolContentMap: Record<string, ToolContent> = {
         q: "Will splitting a PDF reduce its quality?",
         a: "No. FileNova splits PDFs without re-rendering or compressing the content, so all text, images, and formatting remain identical to the original.",
       },
+      {
+        q: "Can I split password-protected PDF files?",
+        a: "Yes, but you must enter the correct password first to authenticate and decrypt the file. Once unlocked, you can split or extract pages normally.",
+      },
+      {
+        q: "What is the maximum file size I can split?",
+        a: "Free users can split files up to 20MB. Pro users enjoy unlimited size limits, allowing them to split large scanned registries or books easily.",
+      }
     ],
     relatedTools: [
       { label: "Merge PDF", slug: "merge-pdf", icon: "files" },
@@ -172,11 +190,12 @@ export const toolContentMap: Record<string, ToolContent> = {
     toolDescription:
       "Free online PDF compressor that reduces file size without significant quality loss, ideal for email attachments and government portal uploads.",
     seoBody: [
-      "Large PDF files are a constant headache — email attachments get rejected, WhatsApp has a 100MB limit, and government portals like DigiLocker or IRCTC often cap uploads at 200KB or 1MB.",
-      "FileNova's PDF compressor intelligently reduces file size by optimizing embedded images, removing redundant metadata, and compressing fonts — while preserving the readability of your document.",
-      "You can choose your compression level: Low (best quality), Medium (balanced), or High (smallest file size). For most government document uploads, Medium compression will bring a 2–3MB PDF down to under 500KB.",
-      "No watermarks. No quality surprise. No account needed. Just upload, compress, and download.",
-      "Need more file size control? Try [Compress for Upload](compress-pdf-for-upload) to hit an exact KB target, or [Merge PDF](merge-pdf) to combine multiple compressed files.",
+      "What is it: FileNova PDF Compressor is a high-ratio document size reduction utility. It analyzes your PDF structure, downsamples high-resolution embedded images, compresses embedded fonts, and strips redundant metadata—bringing your file size down to meet strict online submission thresholds.",
+      "How it works: The compressor employs advanced algorithms to inspect resource dictionaries. It provides three compression presets: Low Compression (retains perfect image quality, minor size reduction), Medium Compression (balanced layout optimization, recommended for most tasks), and High Compression (maximum size reduction for low-speed connections). Files are processed securely, maintaining clear, readable text.",
+      "When to use: Many government websites (like NSDL, UTI, SVMCM, NSP scholarship, and passports) limit PDF uploads to 200KB, 500KB, or 1MB. Use this tool to shrink scanned application forms, bank passbooks, marksheets, and identity proofs so they upload instantly without portal errors. It is also great for clearing space in email attachments.",
+      "Benefits: FileNova offers watermark-free PDF compression with no account requirements. It works locally or on secure cloud clusters depending on file size, ensuring optimal speed and high readability. It also provides immediate feedback showing the exact compression percentage achieved.",
+      "Supported formats: The tool accepts standard PDF files (.pdf) containing text, images, vector graphics, or scanned layers.",
+      "Privacy: All document files are fully encrypted in transit. Free tools delete files immediately after processing, and server-cached temp files are purged securely within 2 hours.",
     ],
     faqs: [
       {
@@ -195,6 +214,14 @@ export const toolContentMap: Record<string, ToolContent> = {
         q: "Is PDF compression free on FileNova?",
         a: "Yes. Compressing PDFs is completely free for all users. Pro users get batch compression and higher upload size limits.",
       },
+      {
+        q: "What compression level should I use for government portals?",
+        a: "We recommend 'Medium' compression. It reduces the file size by 50% to 80% while keeping text and official stamps perfectly clear for government verification agents.",
+      },
+      {
+        q: "Can I compress a scanned PDF document?",
+        a: "Yes. Scanned PDFs consist of large image layers which are prime targets for compression. The tool will optimize these image layers, resulting in significant size reduction.",
+      }
     ],
     relatedTools: [
       { label: "Merge PDF", slug: "merge-pdf", icon: "files" },

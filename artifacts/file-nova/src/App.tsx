@@ -16,6 +16,7 @@ import { ConnectionStatusIndicator } from "@/components/ConnectionStatusIndicato
 import { FileNovaAssistant } from "@/components/FileNovaAssistant";
 import { FloatingShortcuts } from "@/components/FloatingShortcuts";
 import { FloatingSidePanel } from "@/components/FloatingSidePanel";
+import { CookieConsent } from "@/components/CookieConsent";
 import { FloatingParticles, CursorGlow } from "@/components/AnimatedEffects";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useFileStore } from "@/store/useFileStore";
@@ -132,7 +133,7 @@ function App({ ssrPath }: { ssrPath?: string } = {}) {
   const [splashDone, setSplashDone] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setSplashDone(true), 1600);
+    const timer = setTimeout(() => setSplashDone(true), 800);
     return () => clearTimeout(timer);
   }, []);
 
@@ -285,6 +286,7 @@ function App({ ssrPath }: { ssrPath?: string } = {}) {
                   <CursorGlow />
                   <FloatingShortcuts />
                   <FloatingSidePanel />
+                  <CookieConsent />
                   <FileNovaAssistant isOpen={assistantOpen} onClose={() => setAssistantOpen(false)} />
                   <AdminProvider>
                     <EventProvider>

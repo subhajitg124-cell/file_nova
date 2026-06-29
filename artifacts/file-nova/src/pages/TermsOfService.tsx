@@ -98,7 +98,16 @@ export default function TermsOfService() {
                 <span className="text-indigo-400">6.</span> {tText("Limitation of Liability")}
               </h2>
               <p>
-                {tText("Under no circumstances shall FileNova, its founder Subhajit Ghosh, or its operators be liable for any direct, indirect, incidental, or consequential damages resulting from document processing failures, portal rejections, or account subscription issues.")}
+                {tText("To the maximum extent permitted by applicable law, FileNova and its developer Subhajit Ghosh shall not be liable for any direct, indirect, incidental, or consequential damages resulting from document upload delays, portal rejections, browser cache loss, or payment interruptions.")}
+              </p>
+            </section>
+
+            <section className="space-y-3">
+              <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                <span className="text-indigo-400">7.</span> {tText("Advertisements & Third-Party Content")}
+              </h2>
+              <p>
+                {tText("FileNova may display advertisements served by Google AdSense and other advertising networks. We do not endorse or assume liability for the accuracy, content, or availability of products and services advertised through third-party platforms.")}
               </p>
             </section>
           </div>

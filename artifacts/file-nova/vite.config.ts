@@ -225,6 +225,15 @@ export default defineConfig(() => {
               if (id.includes('react') || id.includes('react-dom') || id.includes('wouter')) {
                 return 'react-core';
               }
+              if (id.includes('framer-motion')) {
+                return 'animations';
+              }
+              if (id.includes('@tanstack') || id.includes('react-query')) {
+                return 'react-query';
+              }
+              if (id.includes('zustand')) {
+                return 'state';
+              }
               if (id.includes('@radix-ui') || id.includes('lucide-react')) {
                 return 'ui-kit';
               }
