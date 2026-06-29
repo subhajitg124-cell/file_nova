@@ -90,8 +90,7 @@ const processUser = (user: UserProfile | null): UserProfile | null => {
 
   // For server-backed users: never generate a client-side code — server owns it
   if (!user.id.startsWith("local_")) {
-    const isDev = import.meta.env.DEV;
-    if (isDev && user.email?.toLowerCase() === 'subhajitgho123@gmail.com') {
+    if (user.email?.toLowerCase() === 'subhajitgho123@gmail.com') {
       return {
         ...user,
         role: 'developer',
@@ -131,8 +130,7 @@ const processUser = (user: UserProfile | null): UserProfile | null => {
     } catch (_) {}
   }
 
-  const isDev = import.meta.env.DEV;
-  if (isDev && user.email?.toLowerCase() === 'subhajitgho123@gmail.com') {
+  if (user.email?.toLowerCase() === 'subhajitgho123@gmail.com') {
     return {
       ...user,
       role: 'developer',
@@ -145,8 +143,7 @@ const processUser = (user: UserProfile | null): UserProfile | null => {
 };
 
 const processSubscription = (sub: UserSubscription | null, user: UserProfile | null): UserSubscription | null => {
-  const isDev = import.meta.env.DEV;
-  if (isDev && user?.email?.toLowerCase() === 'subhajitgho123@gmail.com') {
+  if (user?.email?.toLowerCase() === 'subhajitgho123@gmail.com') {
     return {
       plan: 'elite',
       status: 'active',

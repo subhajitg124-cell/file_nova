@@ -2,7 +2,7 @@ import React, { memo, useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "wouter";
 import {
-  Settings2, Crown, Menu, X, Check, Bell, CreditCard, FileText
+  Settings2, Crown, Menu, X, Check, Bell, CreditCard, FileText, Code
 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
@@ -24,6 +24,7 @@ interface NavbarProps {
 export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
   const { tText } = useTranslation();
   const { user } = useAuthStore();
+  const isDev = user?.role === 'developer' || user?.role === 'admin' || user?.role === 'super_admin';
   const [, setLocation] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -204,6 +205,12 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
                 <FileText className="h-3.5 w-3.5" />
                 {tText("Workspace")}
               </Link>
+              {isDev && (
+                <Link href="/dev" className="flex items-center gap-1.5 text-sm text-indigo-400 font-black py-1.5 px-3 rounded-full hover:bg-indigo-500/10 border border-indigo-500/10 hover:border-indigo-500/20 transition-all duration-150 whitespace-nowrap">
+                  <Code className="h-3.5 w-3.5" />
+                  DevWorkspace
+                </Link>
+              )}
             </nav>
 
             {/* Notification bell */}

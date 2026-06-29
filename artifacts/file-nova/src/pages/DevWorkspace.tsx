@@ -10,7 +10,7 @@ import {
   ScanLine, Beaker, BookOpen, Code, FileText, ExternalLink, Check,
   Clock, Users, HardDrive, Thermometer, RefreshCw,
   Layers, Server, Wifi, Hash, PanelLeftClose, PanelLeft, Search as SearchIcon,
-  SlidersHorizontal, Percent
+  SlidersHorizontal, Percent, Menu, X
 } from "lucide-react";
 
 const BUILD_VERSION = import.meta.env.VITE_APP_VERSION || "2.0.0-dev";
@@ -148,6 +148,21 @@ export default function DevWorkspace() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [paletteQuery, setPaletteQuery] = useState("");
+  const [isLargeScreen, setIsLargeScreen] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    setIsLargeScreen(mq.matches);
+    const handler = (e: MediaQueryListEvent) => {
+      setIsLargeScreen(e.matches);
+      if (e.matches) {
+        setDrawerOpen(false);
+      }
+    };
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
 
   const isDev = user?.role === "developer" || user?.role === "admin" || user?.role === "super_admin";
 
@@ -169,6 +184,7 @@ export default function DevWorkspace() {
     setSection(s as Section);
     setPaletteOpen(false);
     setPaletteQuery("");
+    setDrawerOpen(false);
   }, []);
 
   const paletteResults = useMemo(() => {
@@ -236,11 +252,86 @@ export default function DevWorkspace() {
 
   return (
     <div className="h-screen flex bg-background text-foreground overflow-hidden">
-      {/* Sidebar */}
+      {/* Mobile/tablet Drawer Sidebar */}
+      <AnimatePresence>
+        {!isLargeScreen && drawerOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: rm ? 0 : 0.2 }}
+              onClick={() => setDrawerOpen(false)}
+              className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
+            />
+            {/* Drawer */}
+            <motion.aside
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed inset-y-0 left-0 w-64 bg-card border-r border-border z-50 flex flex-col lg:hidden shadow-2xl"
+            >
+              {/* Sidebar header inside drawer */}
+              <div className="flex items-center gap-2 px-3 h-14 border-b border-border shrink-0">
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shrink-0">
+                  <Code className="h-3.5 w-3.5 text-primary-foreground" />
+                </div>
+                <span className="text-xs font-black text-foreground truncate whitespace-nowrap">
+                  Dev Console
+                </span>
+                <button
+                  onClick={() => setDrawerOpen(false)}
+                  className="ml-auto p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition cursor-pointer shrink-0"
+                  aria-label="Close menu"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* Sidebar body inside drawer */}
+              <nav className="flex-1 overflow-y-auto overflow-x-hidden px-1.5 py-2 space-y-3 scrollbar-thin" aria-label="Developer workspace sections mobile">
+                {SIDEBAR_GROUPS.map((group) => (
+                  <div key={group.label}>
+                    <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/60 px-2 mb-1 mt-1 first:mt-0">{group.label}</p>
+                    {group.items.map((id) => {
+                      const item = SIDEBAR_SECTIONS.find(s => s.id === id)!;
+                      const active = section === id;
+                      return (
+                        <button
+                          key={id}
+                          onClick={() => { setSection(id); setDrawerOpen(false); }}
+                          title={item.label}
+                          className={`w-full flex items-center gap-2.5 px-2 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${active ? "bg-indigo-500/15 text-indigo-400 border border-indigo-500/20" : "text-muted-foreground hover:text-foreground hover:bg-muted/60 border border-transparent"}`}
+                        >
+                          <span className="shrink-0">{item.icon}</span>
+                          <span className="truncate whitespace-nowrap">{item.label}</span>
+                          {item.badge && (
+                            <span className="ml-auto text-[8px] font-black text-muted-foreground bg-muted px-1.5 py-0.5 rounded">{item.badge}</span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ))}
+              </nav>
+
+              {/* Sidebar footer inside drawer */}
+              <div className="border-t border-border px-3 py-2.5 text-[9px] text-muted-foreground font-semibold">
+                <p>v{BUILD_VERSION}</p>
+                <p className="font-mono mt-0.5">{GIT_HASH}</p>
+              </div>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Static Sidebar (Desktop) */}
       <motion.aside
         animate={{ width: sidebarOpen ? 220 : 56 }}
         transition={{ duration: rm ? 0 : 0.2, ease: "easeOut" }}
-        className="flex-shrink-0 border-r border-border bg-card/50 flex flex-col overflow-hidden"
+        className="hidden lg:flex flex-col flex-shrink-0 border-r border-border bg-card/50 overflow-hidden"
       >
         {/* Sidebar header */}
         <div className="flex items-center gap-2 px-3 h-14 border-b border-border shrink-0">
@@ -300,19 +391,28 @@ export default function DevWorkspace() {
       {/* Main area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top bar */}
-        <header className="flex items-center gap-3 px-5 h-14 border-b border-border bg-card/30 shrink-0">
+        <header className="flex items-center gap-3 px-3 sm:px-5 h-14 border-b border-border bg-card/30 shrink-0">
           <button
-            onClick={() => setPaletteOpen(true)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border bg-background text-xs text-muted-foreground hover:text-foreground hover:border-muted-foreground/30 transition-all cursor-pointer min-w-[200px]"
+            onClick={() => setDrawerOpen(true)}
+            className="lg:hidden p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition cursor-pointer shrink-0"
+            aria-label="Open developer menu"
+            title="Open developer menu"
           >
-            <SearchIcon className="h-3.5 w-3.5" />
-            <span className="flex-1 text-left">Search pages & tools...</span>
-            <kbd className="text-[8px] font-bold text-muted-foreground bg-muted px-1 py-0.5 rounded border border-border">⌘K</kbd>
+            <Menu className="h-4 w-4" />
           </button>
 
-          <div className="flex-1" />
+          <button
+            onClick={() => setPaletteOpen(true)}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border bg-background text-xs text-muted-foreground hover:text-foreground hover:border-muted-foreground/30 transition-all cursor-pointer flex-1 min-w-0 sm:flex-none sm:min-w-[200px]"
+          >
+            <SearchIcon className="h-3.5 w-3.5 shrink-0" />
+            <span className="flex-1 text-left truncate">Search...</span>
+            <kbd className="hidden sm:inline-block text-[8px] font-bold text-muted-foreground bg-muted px-1 py-0.5 rounded border border-border">⌘K</kbd>
+          </button>
 
-          <span className="text-xs font-bold text-muted-foreground hidden sm:block">
+          <div className="hidden sm:block sm:flex-1" />
+
+          <span className="text-xs font-bold text-muted-foreground hidden sm:block truncate max-w-[150px]">
             {currentLabel}
           </span>
 
@@ -452,7 +552,7 @@ function DashboardView() {
       </div>
 
       {/* KPI row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 min-[400px]:grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard label="Build" value={`v${stats.buildVersion}`} icon={<Code className="h-4 w-4 text-indigo-400" />} color="bg-indigo-500/10" subtitle={`Commit ${stats.gitHash}`} />
         <StatCard label="Environment" value={stats.env} icon={<Server className="h-4 w-4 text-blue-400" />} color="bg-blue-500/10" subtitle={`Uptime ${uptime}m`} />
         <StatCard label="Storage Used" value={`${stats.storageUsed} KB`} icon={<HardDrive className="h-4 w-4 text-amber-400" />} color="bg-amber-500/10" subtitle="LocalStorage" />
@@ -460,7 +560,7 @@ function DashboardView() {
       </div>
 
       {/* Second row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 min-[400px]:grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard label="Pages Indexed" value={String(stats.indexedPages)} icon={<FileText className="h-4 w-4 text-emerald-400" />} color="bg-emerald-500/10" subtitle="Prerendered routes" />
         <StatCard label="SEO Health" value={`${stats.seoHealth}%`} icon={<Search className="h-4 w-4 text-cyan-400" />} color="bg-cyan-500/10" subtitle="87/100 score" />
         <StatCard label="API Status" value={stats.apiHealth} icon={<Wifi className="h-4 w-4 text-green-400" />} color="bg-green-500/10" subtitle="All systems go" />
@@ -470,11 +570,11 @@ function DashboardView() {
       {/* Progress bars */}
       <div className="rounded-xl border border-border bg-card p-5 space-y-4">
         <h2 className="text-xs font-black text-foreground uppercase tracking-wider">Performance Scores</h2>
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <ProgressBar value={stats.perfScore} label="Performance" color="bg-amber-500" />
           <ProgressBar value={stats.a11yScore} label="Accessibility" color="bg-blue-500" />
         </div>
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <ProgressBar value={45} max={100} label="Unused JS" color="bg-rose-500" />
           <ProgressBar value={22} max={100} label="Unused CSS" color="bg-orange-500" />
           <ProgressBar value={88} max={100} label="Image Optimization" color="bg-emerald-500" />
@@ -482,7 +582,7 @@ function DashboardView() {
       </div>
 
       {/* Status cards */}
-      <div className="grid md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-center gap-2 mb-3">
             <Radio className="h-4 w-4 text-blue-500" />
@@ -569,7 +669,7 @@ function DashboardView() {
 // ── Simplified placeholder views ──
 function PlaceholderView({ title, description, icon }: { title: string; description: string; icon?: React.ReactNode }) {
   return (
-    <div className="max-w-3xl mx-auto text-center py-16">
+    <div className="max-w-3xl mx-auto text-center py-16 px-4">
       <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 flex items-center justify-center">
         {icon || <Code className="h-8 w-8 text-indigo-400" />}
       </div>
@@ -639,7 +739,7 @@ function AnalyticsView() {
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <div><h1 className="text-xl font-black text-foreground">Analytics</h1><p className="text-xs text-muted-foreground mt-1">Platform-wide usage metrics and event tracking.</p></div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 min-[400px]:grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard label="Total Users" value="1,247" icon={<Users className="h-4 w-4 text-blue-400" />} color="bg-blue-500/10" />
         <StatCard label="Files Processed" value="8,943" icon={<FileText className="h-4 w-4 text-emerald-400" />} color="bg-emerald-500/10" />
         <StatCard label="API Calls Today" value="3,218" icon={<Activity className="h-4 w-4 text-purple-400" />} color="bg-purple-500/10" />
@@ -650,11 +750,11 @@ function AnalyticsView() {
         <div className="space-y-2 text-xs">
           {[{ name: "Merge PDF", pct: 100 }, { name: "Compress PDF", pct: 87 }, { name: "OCR Scanner", pct: 65 }, { name: "Remove Background", pct: 52 }, { name: "PDF to Word", pct: 48 }].map((t) => (
             <div key={t.name} className="flex items-center gap-3">
-              <span className="w-28 text-muted-foreground font-semibold">{t.name}</span>
+              <span className="w-20 min-[375px]:w-28 text-muted-foreground font-semibold truncate shrink-0">{t.name}</span>
               <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
                 <div className="h-full bg-primary rounded-full" style={{ width: `${t.pct}%` }} />
               </div>
-              <span className="text-foreground font-bold w-8 text-right">{t.pct}%</span>
+              <span className="text-foreground font-bold w-8 text-right shrink-0">{t.pct}%</span>
             </div>
           ))}
         </div>
@@ -667,7 +767,7 @@ function UsageMetricsView() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div><h1 className="text-xl font-black text-foreground">Usage Metrics</h1><p className="text-xs text-muted-foreground mt-1">Real-time usage statistics per user tier.</p></div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 min-[400px]:grid-cols-2 md:grid-cols-4 gap-3">
         {[{ label: "Free Users", value: "892", color: "text-slate-400", bg: "bg-slate-500/10" }, { label: "Pro Users", value: "284", color: "text-purple-400", bg: "bg-purple-500/10" }, { label: "Elite Users", value: "71", color: "text-amber-400", bg: "bg-amber-500/10" }, { label: "Daily Active", value: "415", color: "text-green-400", bg: "bg-green-500/10" }].map((s) => (
           <div key={s.label} className="rounded-xl border border-border bg-card p-4">
             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{s.label}</p>
@@ -683,7 +783,7 @@ function PerformanceView() {
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <div><h1 className="text-xl font-black text-foreground">Performance</h1><p className="text-xs text-muted-foreground mt-1">Core Web Vitals, Lighthouse, and bundle analysis.</p></div>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 min-[400px]:grid-cols-2 md:grid-cols-3 gap-3">
         {[{ label: "LCP", value: "1.8s", color: "text-emerald-500" }, { label: "CLS", value: "0.08", color: "text-emerald-500" }, { label: "INP", value: "124ms", color: "text-emerald-500" }, { label: "FID", value: "45ms", color: "text-emerald-500" }, { label: "TTFB", value: "320ms", color: "text-amber-500" }, { label: "FCP", value: "1.2s", color: "text-emerald-500" }].map((m) => (
           <div key={m.label} className="rounded-xl border border-border bg-card p-4">
             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{m.label}</p>
@@ -701,10 +801,10 @@ function SecurityView() {
       <div><h1 className="text-xl font-black text-foreground">Security Center</h1><p className="text-xs text-muted-foreground mt-1">Headers, CSP, auth status, and rate limiting.</p></div>
       <div className="grid gap-3">
         {[{ name: "Content-Security-Policy", status: "Active" as const, detail: "script-src 'self' 'unsafe-inline' https:" }, { name: "X-Frame-Options", status: "Active" as const, detail: "DENY" }, { name: "Strict-Transport-Security", status: "Active" as const, detail: "max-age=31536000" }, { name: "X-Content-Type-Options", status: "Active" as const, detail: "nosniff" }, { name: "Rate Limiting", status: "Active" as const, detail: "100 req/min per IP" }].map((h) => (
-          <div key={h.name} className="flex items-center justify-between rounded-xl border border-border bg-card p-4">
-            <div>
-              <p className="text-xs font-bold text-foreground">{h.name}</p>
-              <p className="text-[10px] text-muted-foreground font-mono mt-0.5">{h.detail}</p>
+          <div key={h.name} className="flex items-center justify-between rounded-xl border border-border bg-card p-4 gap-4">
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-foreground truncate">{h.name}</p>
+              <p className="text-[10px] text-muted-foreground font-mono mt-0.5 break-all">{h.detail}</p>
             </div>
             <Badge label={h.status} variant="success" />
           </div>
@@ -718,7 +818,7 @@ function SEOView() {
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <div><h1 className="text-xl font-black text-foreground">SEO Center</h1><p className="text-xs text-muted-foreground mt-1">Metadata inspection, structured data, sitemap health, and indexability.</p></div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 min-[400px]:grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard label="Pages Indexed" value="92" icon={<FileText className="h-4 w-4 text-emerald-400" />} color="bg-emerald-500/10" />
         <StatCard label="Sitemap URLs" value="124" icon={<FolderOpen className="h-4 w-4 text-cyan-400" />} color="bg-cyan-500/10" />
         <StatCard label="Broken Links" value="0" icon={<Link className="h-4 w-4 text-green-400" />} color="bg-green-500/10" />
@@ -798,7 +898,7 @@ function DeploymentView() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div><h1 className="text-xl font-black text-foreground">Deployment Status</h1><p className="text-xs text-muted-foreground mt-1">Build and deployment pipeline overview.</p></div>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 min-[400px]:grid-cols-2 md:grid-cols-3 gap-3">
         {[{ label: "Last Build", value: "15 min ago", color: "text-green-400", bg: "bg-green-500/10" }, { label: "Build Time", value: "1m 32s", color: "text-blue-400", bg: "bg-blue-500/10" }, { label: "Version", value: BUILD_VERSION, color: "text-indigo-400", bg: "bg-indigo-500/10" }].map((s) => (
           <div key={s.label} className="rounded-xl border border-border bg-card p-4">
             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{s.label}</p>
@@ -822,15 +922,18 @@ function APIExplorerView() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div><h1 className="text-xl font-black text-foreground">API Explorer</h1><p className="text-xs text-muted-foreground mt-1">Test API endpoints interactively.</p></div>
-      <div className="flex gap-2">
-        <select value={method} onChange={(e) => setMethod(e.target.value)} title="HTTP Method" aria-label="HTTP Method" className="px-3 py-2 rounded-lg border border-border bg-background text-xs font-bold text-foreground focus:outline-none cursor-pointer">
-          <option>GET</option><option>POST</option><option>PUT</option><option>DELETE</option>
-        </select>
+      <div className="flex flex-col sm:flex-row gap-2">
+        <div className="flex gap-2 w-full sm:w-auto">
+          <select value={method} onChange={(e) => setMethod(e.target.value)} title="HTTP Method" aria-label="HTTP Method" className="flex-1 sm:flex-none px-3 py-2 rounded-lg border border-border bg-background text-xs font-bold text-foreground focus:outline-none cursor-pointer">
+            <option>GET</option><option>POST</option><option>PUT</option><option>DELETE</option>
+          </select>
+          <button onClick={handleCall} className="sm:hidden px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-black text-primary-foreground transition cursor-pointer">Send</button>
+        </div>
         <input type="text" value={endpoint} onChange={(e) => setEndpoint(e.target.value)} placeholder="API Endpoint" aria-label="API Endpoint" className="flex-1 h-10 px-4 rounded-xl border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono" />
-        <button onClick={handleCall} className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-black text-primary-foreground transition cursor-pointer">Send</button>
+        <button onClick={handleCall} className="hidden sm:block px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-black text-primary-foreground transition cursor-pointer">Send</button>
       </div>
       {result && (
-        <div className="rounded-xl border border-border bg-card p-4 font-mono text-[11px] whitespace-pre-wrap text-foreground/90">
+        <div className="rounded-xl border border-border bg-card p-4 font-mono text-[11px] whitespace-pre-wrap text-foreground/90 overflow-x-auto">
           {result}
         </div>
       )}
@@ -857,12 +960,12 @@ function ErrorLogsView() {
       <div className="rounded-xl border border-border bg-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-[10px] font-mono">
-            <thead><tr className="border-b border-border bg-muted/30 text-muted-foreground font-black uppercase tracking-wider"><th className="text-left p-3">Time</th><th className="text-left p-3">Level</th><th className="text-left p-3">Message</th><th className="text-right p-3">Count</th></tr></thead>
+            <thead><tr className="border-b border-border bg-muted/30 text-muted-foreground font-black uppercase tracking-wider"><th className="text-left p-3 hidden sm:table-cell">Time</th><th className="text-left p-3">Level</th><th className="text-left p-3">Message</th><th className="text-right p-3">Count</th></tr></thead>
             <tbody>{logs.map((l, i) => (
               <tr key={i} className="border-b border-border/50 last:border-0 hover:bg-muted/20 transition">
-                <td className="p-3 text-muted-foreground">{l.time}</td>
+                <td className="p-3 text-muted-foreground hidden sm:table-cell">{l.time}</td>
                 <td className="p-3"><Badge label={l.level} variant={l.level === "ERROR" ? "danger" : l.level === "WARN" ? "warning" : "info"} /></td>
-                <td className="p-3 text-foreground">{l.msg}</td>
+                <td className="p-3 text-foreground break-all">{l.msg}</td>
                 <td className="p-3 text-right text-foreground font-bold">{l.count}</td>
               </tr>
             ))}</tbody>
