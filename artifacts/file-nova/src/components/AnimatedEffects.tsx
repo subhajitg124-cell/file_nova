@@ -62,14 +62,14 @@ export const SuccessAnimation: React.FC<SuccessAnimationProps> = ({ show, onClos
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 flex items-center justify-center z-[200] bg-slate-950/45 backdrop-blur-sm"
+          className="fixed inset-0 flex items-center justify-center z-[200] bg-background/60 backdrop-blur-sm"
         >
           <motion.div
             initial={{ scale: 0.7, rotate: -25 }}
             animate={{ scale: 1, rotate: 0 }}
             exit={{ scale: 0.7, rotate: 25 }}
             transition={{ type: "spring", stiffness: 300, damping: 18 }}
-            className="bg-slate-900 border border-slate-800 rounded-3xl p-8 flex flex-col items-center shadow-premium"
+            className="bg-card border border-border rounded-3xl p-8 flex flex-col items-center shadow-premium"
           >
             <div className="relative h-20 w-20 flex items-center justify-center bg-emerald-500/10 border border-emerald-500/20 rounded-full mb-4">
               <motion.svg
@@ -96,8 +96,8 @@ export const SuccessAnimation: React.FC<SuccessAnimationProps> = ({ show, onClos
                 />
               </motion.svg>
             </div>
-            <h3 className="text-white font-extrabold text-base mb-1">Process Completed!</h3>
-            <p className="text-xs text-slate-400">File is processed and ready to save.</p>
+            <h3 className="text-foreground font-extrabold text-base mb-1">Process Completed!</h3>
+            <p className="text-xs text-muted-foreground">File is processed and ready to save.</p>
           </motion.div>
         </motion.div>
       )}
@@ -112,7 +112,7 @@ export const LoadingSkeleton: React.FC = () => {
       {[1, 2, 3].map((i) => (
         <motion.div
           key={i}
-          className="h-16 bg-slate-900/60 border border-border rounded-2xl w-full relative overflow-hidden"
+          className="h-16 bg-muted border border-border rounded-2xl w-full relative overflow-hidden"
           animate={{
             opacity: [0.4, 0.85, 0.4],
           }}
@@ -123,7 +123,6 @@ export const LoadingSkeleton: React.FC = () => {
             delay: i * 0.15,
           }}
         >
-          {/* Shimmer overlay */}
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-shimmer" />
         </motion.div>
       ))}

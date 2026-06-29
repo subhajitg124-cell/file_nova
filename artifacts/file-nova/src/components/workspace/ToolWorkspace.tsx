@@ -212,12 +212,12 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
   };
 
   // Compliance Tip Ticker Interval
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTipIndex(prev => (prev + 1) % COMPLIANCE_TIPS.length);
-    }, 8000);
-    return () => clearInterval(interval);
-  }, []);
+useEffect(() => {
+   const interval = setInterval(() => {
+     setTipIndex(prev => (prev + 1) % COMPLIANCE_TIPS.length);
+   }, 8000);
+   return () => clearInterval(interval);
+ }, []);
 
   // Online connection tracking
   useEffect(() => {

@@ -76,7 +76,7 @@ export function WorkspaceUploadHub({
                     onClick={() => {
                       setLocation(`/${toolId}`);
                     }}
-                    className="px-2.5 py-1.5 rounded-xl bg-indigo-600/10 hover:bg-indigo-600 text-white text-[10px] font-black border border-indigo-500/20 transition cursor-pointer"
+                    className="px-2.5 py-1.5 rounded-xl bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-black transition cursor-pointer hover:bg-indigo-600 hover:text-white"
                   >
                     {toolObj.name}
                   </button>

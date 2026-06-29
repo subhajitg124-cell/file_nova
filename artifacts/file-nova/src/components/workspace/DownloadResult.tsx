@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Download, Share2, Copy, Check, Star, RefreshCw, PhoneCall } from "lucide-react";
+import { motion } from "framer-motion";
 import { toast } from "sonner";
 
 interface DownloadResultProps {
@@ -59,18 +60,35 @@ export const DownloadResult: React.FC<DownloadResultProps> = ({
   };
 
   return (
-    <div className="bg-card border border-border rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden backdrop-blur-2xl">
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      className="bg-card border border-border rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden backdrop-blur-2xl"
+    >
       {/* Accent glowing boundary */}
       <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${btnGradient} opacity-60`} />
 
       <div className="text-center space-y-4">
         {/* Success badge */}
-        <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/5">
-          <span className="text-2xl text-emerald-400">✨</span>
-        </div>
+        <motion.div
+          initial={{ scale: 0.7 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.1 }}
+          className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/5"
+        >
+          <motion.span
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2, duration: 0.3 }}
+            className="text-2xl text-emerald-400"
+          >
+            ✓
+          </motion.span>
+        </motion.div>
 
         <div>
-          <h2 className="text-lg sm:text-xl font-black text-white">Your File is Ready!</h2>
+          <h2 className="text-lg sm:text-xl font-black text-foreground">Your File is Ready!</h2>
           <p className="text-xs text-muted-foreground mt-1">Processing completed successfully</p>
         </div>
 
@@ -177,7 +195,7 @@ export const DownloadResult: React.FC<DownloadResultProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 export default DownloadResult;

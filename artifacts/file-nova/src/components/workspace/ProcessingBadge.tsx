@@ -15,7 +15,7 @@ export function ProcessingBadge({ durationSeconds, isLocalOnly, toolName }: Proc
 
   return (
     <div
-      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold"
+      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold"
       role="status"
       aria-live="polite"
       aria-label={`Processing completed in ${formattedTime} seconds${isLocalOnly ? ', 100% on your device' : ''}`}
@@ -41,9 +41,9 @@ export default ProcessingBadge;
 
 export function ProcessingBadgeSkeleton() {
   return (
-    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 border border-border animate-pulse">
+    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 border border-border">
       <div className="h-3 w-16 bg-muted rounded" />
-      <div className="w-px h-4 bg-white/10" />
+      <div className="w-px h-4 bg-border" />
       <div className="h-3 w-20 bg-muted rounded" />
     </div>
   );

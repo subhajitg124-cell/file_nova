@@ -3,17 +3,17 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 function Empty({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="empty"
-      className={cn(
-        "flex min-w-0 flex-1 flex-col items-center justify-center gap-6 text-balance rounded-lg border-dashed p-6 text-center md:p-12",
-        className
-      )}
-      {...props}
-    />
-  )
-}
+   return (
+     <div
+       data-slot="empty"
+       className={cn(
+         "flex min-w-0 flex-1 flex-col items-center justify-center gap-6 text-balance rounded-xl border-dashed p-6 text-center md:p-12",
+         className
+       )}
+       {...props}
+     />
+   )
+ }
 
 function EmptyHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
@@ -44,19 +44,19 @@ const emptyMediaVariants = cva(
 )
 
 function EmptyMedia({
-  className,
-  variant = "default",
-  ...props
-}: React.ComponentProps<"div"> & VariantProps<typeof emptyMediaVariants>) {
-  return (
-    <div
-      data-slot="empty-icon"
-      data-variant={variant}
-      className={cn(emptyMediaVariants({ variant, className }))}
-      {...props}
-    />
-  )
-}
+   className,
+   variant = "default",
+   ...props
+ }: React.ComponentProps<"div"> & VariantProps<typeof emptyMediaVariants>) {
+   return (
+     <div
+       data-slot="empty-icon"
+       data-variant={variant}
+       className={cn(emptyMediaVariants({ variant, className }), variant === "icon" && "sm:rounded-xl")}
+       {...props}
+     />
+   )
+ }
 
 function EmptyTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
