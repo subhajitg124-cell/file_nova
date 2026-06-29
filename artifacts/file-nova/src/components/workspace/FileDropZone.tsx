@@ -212,12 +212,12 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
 
           <motion.div
             className="w-full h-full rounded-2xl border border-dashed bg-card absolute inset-0"
-            initial={{ borderColor: "rgba(15, 23, 42, 0.1)" }}
+            initial={{ borderColor: "var(--border)" }}
             animate={{
-              borderColor: isDragActive ? "rgba(99, 102, 241, 0.5)" : "rgba(15, 23, 42, 0.1)",
+              borderColor: isDragActive ? "var(--primary)" : "var(--border)",
               boxShadow: isDragActive
-                ? "0 0 0 2px rgba(99, 102, 241, 0.2), 0 0 20px 4px rgba(99, 102, 241, 0.15)"
-                : "0 0 0 1px rgba(15, 23, 42, 0.05)",
+                ? "0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent), 0 0 20px 4px color-mix(in srgb, var(--primary) 15%, transparent)"
+                : "0 0 0 1px color-mix(in srgb, var(--border) 5%, transparent)",
             }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
           />

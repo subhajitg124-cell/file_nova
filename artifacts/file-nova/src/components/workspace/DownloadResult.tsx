@@ -39,13 +39,15 @@ export const DownloadResult: React.FC<DownloadResultProps> = ({
   const [rating, setRating] = useState<number | null>(null);
   const [hoverRating, setHoverRating] = useState<number | null>(null);
 
+  const [copiedState, setCopiedState] = useState(false);
+
   const btnGradient = THEME_BUTTONS[accentColor] || THEME_BUTTONS.violet;
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(window.location.origin + downloadUrl);
-    setCopied(true);
+    setCopiedState(true);
     toast.success("Download link copied to clipboard!");
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopiedState(false), 2000);
   };
 
   const handleWhatsAppShare = () => {
@@ -138,22 +140,22 @@ export const DownloadResult: React.FC<DownloadResultProps> = ({
               WhatsApp Share
             </button>
 
-            <button
-              onClick={handleCopyLink}
-              className="py-2.5 bg-muted hover:bg-muted border border-border text-foreground font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 hover:scale-[1.02] active:scale-98 transition-all cursor-pointer"
-            >
-              {copied ? (
-                <>
-                  <Check className="h-3.5 w-3.5 text-emerald-400" />
-                  Copied!
-                </>
-              ) : (
-                <>
-                  <Copy className="h-3.5 w-3.5 text-muted-foreground" />
-                  Copy Link
-                </>
-              )}
-            </button>
+<button
+               onClick={handleCopyLink}
+               className="py-2.5 bg-muted hover:bg-muted border border-border text-foreground font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 hover:scale-[1.02] active:scale-98 transition-all cursor-pointer"
+             >
+               {copiedState ? (
+                 <>
+                   <Check className="h-3.5 w-3.5 text-emerald-400" />
+                   Copied!
+                 </>
+               ) : (
+                 <>
+                   <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+                   Copy Link
+                 </>
+               )}
+             </button>
           </div>
         </div>
 
