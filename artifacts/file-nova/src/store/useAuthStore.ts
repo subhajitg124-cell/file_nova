@@ -411,27 +411,22 @@ export const useAuthStore = create<AuthState>()(
             token: localStorage.getItem(SESSION_TOKEN_KEY),
           });
         } else {
-          const elapsed = Date.now() - startTime;
-          if (elapsed < 1000) {
-            await new Promise((resolve) => setTimeout(resolve, 1000 - elapsed));
-          }
-          console.warn("%c[AUTH] fetchMe returned user: null. Explicitly clearing invalid session.", "color:red", {
-            timestamp: new Date().toISOString(),
+          const localUser = processUser(getLocalSession());
+          set({
+            user: localUser,
+            subscription: processSubscription(localUser ? freeSubscription : null, localUser),
+            initialized: true,
+            token: localStorage.getItem(SESSION_TOKEN_KEY),
           });
-          localStorage.removeItem(SESSION_TOKEN_KEY);
-          localStorage.removeItem(LOCAL_USER_KEY);
-          set({ user: null, subscription: null, token: null, initialized: true });
         }
       } else {
-        const elapsed = Date.now() - startTime;
-        if (elapsed < 1000) {
-          await new Promise((resolve) => setTimeout(resolve, 1000 - elapsed));
-        }
-        console.log("%c[AUTH] fetchMe got non-ok response", "color:orange", {
-          status: res.status,
-          timestamp: new Date().toISOString(),
+        const localUser = processUser(getLocalSession());
+        set({
+          user: localUser,
+          subscription: processSubscription(localUser ? freeSubscription : null, localUser),
+          initialized: true,
+          token: localStorage.getItem(SESSION_TOKEN_KEY),
         });
-        set({ user: null, subscription: null, token: null, initialized: true });
       }
     } catch (err: any) {
       const localUser = processUser(getLocalSession());

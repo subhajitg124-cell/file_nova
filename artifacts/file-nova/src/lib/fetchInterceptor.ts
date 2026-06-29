@@ -116,7 +116,7 @@ export function setupFetchInterceptor(
       if (!urlStr.includes("/api/v1/auth/me") && !urlStr.includes("/api/health")) {
         try {
           const { useAuthStore } = await import("@/store/useAuthStore");
-          const { user, logout } = useAuthStore.getState();
+          const { user } = useAuthStore.getState();
           if (user) {
             console.log("%c[AUTH] 401 interceptor triggered. Verifying session integrity...", "color:orange;font-weight:bold", {
               url: urlStr,
@@ -138,8 +138,7 @@ export function setupFetchInterceptor(
             if (checkRes.status === 200) {
               const data = await checkRes.json().catch(() => null);
               if (data && data.success && data.user === null) {
-                console.warn("%c[AUTH] Session confirmed invalid by backend. Triggering logout.", "color:red;font-weight:bold");
-                logout();
+                console.warn("%c[AUTH] Session verification returned user:null — NOT logging out (may be transient). Preserving session from localStorage.", "color:red;font-weight:bold");
               } else {
                 console.log("%c[AUTH] Session verification check passed or returned valid data. Retaining session.", "color:green;font-weight:bold");
               }

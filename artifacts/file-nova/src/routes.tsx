@@ -1,5 +1,5 @@
 import { Switch, Route, Redirect, useLocation } from "wouter";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { BACKEND_URL, HAS_BACKEND } from "@/lib/api";
 import Home from "@/pages/SimpleHome";
 import Workspace from "@/pages/Home";
@@ -18,8 +18,19 @@ import { useAdmin } from "@/lib/admin";
 import { useAuthStore } from "@/store/useAuthStore";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, initialized } = useAuthStore();
+  const { user, initialized, fetchMe } = useAuthStore();
   const [location] = useLocation();
+  const restoredRef = useRef(false);
+
+  useEffect(() => {
+    if (initialized && !user && !restoredRef.current) {
+      const token = localStorage.getItem("filenova_token");
+      if (token && !token.startsWith("local_")) {
+        restoredRef.current = true;
+        fetchMe();
+      }
+    }
+  }, [initialized, user, fetchMe]);
 
   if (!initialized) {
     return <LoadingScreen />;
