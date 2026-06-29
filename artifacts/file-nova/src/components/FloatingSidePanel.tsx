@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation } from "wouter";
 import { Languages, Zap, FileText } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
@@ -6,6 +6,7 @@ import { useTranslation } from "@/lib/i18n";
 export function FloatingSidePanel() {
   const { tText } = useTranslation();
   const [location, setLocation] = useLocation();
+  const [open, setOpen] = useState(false);
 
   const HIDE_FAB_ROUTES = [
     '/login', '/signup', '/pricing', '/referral',
@@ -21,158 +22,187 @@ export function FloatingSidePanel() {
   const isWorkspacePage = location === '/workspace';
   const isDashboard = location === '/dashboard';
 
-  const showTranslate = !isDashboard;
+  const showIndianTools = !isDashboard;
+  const showWorkflows = true;
   const showWorkspace = !isWorkspacePage;
-  const showBolt = true;
+
+  const handleNavigate = (path: string) => {
+    setLocation(path);
+  };
 
   return (
     <>
       <style>{`
-        @keyframes fabSlideIn {
-          from { opacity: 0; transform: translateX(12px); }
-          to   { opacity: 1; transform: translateX(0); }
+        @keyframes fabUp {
+          from { opacity: 0; transform: translateY(10px) scale(0.9); }
+          to   { opacity: 1; transform: translateY(0) scale(1); }
         }
-        @media (prefers-reduced-motion: reduce) {
-          .fab-btn-glass {
-            animation: none !important;
-          }
+        @keyframes fabDown {
+          from { opacity: 1; transform: translateY(0) scale(1); }
+          to   { opacity: 0; transform: translateY(10px) scale(0.9); }
         }
-        .fab-btn-glass:nth-child(1) { animation: fabSlideIn 0.25s ease 0.05s both; }
-        .fab-btn-glass:nth-child(2) { animation: fabSlideIn 0.25s ease 0.10s both; }
-        .fab-btn-glass:nth-child(3) { animation: fabSlideIn 0.25s ease 0.15s both; }
 
         .fab-container {
           position: fixed;
           bottom: 24px;
-          right: 20px;
+          right: 16px;
           display: flex;
           flex-direction: column;
-          align-items: flex-end;
-          gap: 8px;
+          align-items: center;
+          gap: 10px;
           z-index: 9999;
         }
 
-        .fab-btn-glass {
-          width: 44px;
-          height: 44px;
-          border-radius: 14px;
-          background: rgba(15, 22, 38, 0.75);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4),
-                      0 1px 0 rgba(255, 255, 255, 0.05) inset;
+        .fab-btn {
+          width: 48px;
+          height: 48px;
+          border-radius: 16px;
+          background: #FFFFFF;
+          border: none;
+          box-shadow: 0 4px 14px rgba(0, 0, 0, 0.10),
+                      0 1px 3px rgba(0, 0, 0, 0.06);
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          transition: all 0.18s ease;
-          position: relative;
+          transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
         }
 
-        .fab-btn-glass:active {
-          transform: scale(0.92) !important;
+        .fab-btn:hover {
+          transform: scale(1.06);
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
         }
 
-        .fab-btn-translate:hover {
-          border-color: rgba(99, 102, 241, 0.5) !important;
-          box-shadow: 0 4px 20px rgba(99, 102, 241, 0.25) !important;
-        }
-        .fab-btn-bolt:hover {
-          border-color: rgba(245, 158, 11, 0.5) !important;
-          box-shadow: 0 4px 20px rgba(245, 158, 11, 0.2) !important;
-        }
-        .fab-btn-workspace:hover {
-          border-color: rgba(16, 185, 129, 0.5) !important;
-          box-shadow: 0 4px 20px rgba(16, 185, 129, 0.2) !important;
+        .fab-btn.active {
+          background: #6366F1;
+          box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
         }
 
-        .fab-tooltip-new {
-          position: absolute;
-          right: calc(100% + 10px);
-          top: 50%;
-          transform: translateY(-50%);
-          background: rgba(15, 22, 38, 0.9);
-          backdrop-filter: blur(8px);
-          -webkit-backdrop-filter: blur(8px);
-          border: 1px solid rgba(255, 255, 255, 0.15);
-          border-radius: 8px;
-          padding: 5px 10px;
-          font-size: 12px;
-          font-weight: 500;
-          color: #F1F5F9;
-          white-space: nowrap;
+        /* Dark Mode overrides */
+        .dark .fab-btn {
+          background: rgba(30, 38, 60, 0.9);
+          box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+        }
+
+        .dark .fab-btn.active {
+          background: #6366F1;
+          box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+        }
+
+        /* Toggle pill trigger button */
+        .fab-toggle-pill {
+          width: 32px;
+          height: 6px;
+          border-radius: 3px;
+          background: rgba(99, 102, 241, 0.3);
+          border: none;
+          cursor: pointer;
+          margin-top: 2px;
+          transition: background 0.15s ease;
+        }
+
+        .fab-toggle-pill:hover {
+          background: rgba(99, 102, 241, 0.5);
+        }
+
+        /* Animations and states */
+        .fab-btn-list {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .fab-btn-list.open .fab-btn {
+          visibility: visible;
+          pointer-events: auto;
+        }
+
+        .fab-btn-list.closed .fab-btn {
+          visibility: hidden;
           pointer-events: none;
-          opacity: 0;
-          transition: opacity 0.15s ease;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-          z-index: 10000;
+          transition: visibility 0s linear 0.2s;
         }
 
-        .fab-btn-glass:hover .fab-tooltip-new {
-          opacity: 1;
-        }
+        .fab-btn-list.open .fab-btn:nth-child(1) { animation: fabUp 0.2s ease 0.00s both; }
+        .fab-btn-list.open .fab-btn:nth-child(2) { animation: fabUp 0.2s ease 0.05s both; }
+        .fab-btn-list.open .fab-btn:nth-child(3) { animation: fabUp 0.2s ease 0.10s both; }
 
-        .fab-tooltip-new::after {
-          content: "";
-          position: absolute;
-          left: 100%;
-          top: 50%;
-          transform: translateY(-50%);
-          border: 5px solid transparent;
-          border-left-color: rgba(15, 22, 38, 0.9);
-        }
+        .fab-btn-list.closed .fab-btn:nth-child(1) { animation: fabDown 0.2s ease 0.10s both; }
+        .fab-btn-list.closed .fab-btn:nth-child(2) { animation: fabDown 0.2s ease 0.05s both; }
+        .fab-btn-list.closed .fab-btn:nth-child(3) { animation: fabDown 0.2s ease 0.00s both; }
 
-        /* Light Mode overrides */
-        html:not(.dark) .fab-btn-glass {
-          background: rgba(255, 255, 255, 0.8) !important;
-          border-color: rgba(15, 23, 42, 0.1) !important;
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1),
-                      0 1px 0 rgba(255, 255, 255, 0.9) inset !important;
-        }
-        html:not(.dark) .fab-tooltip-new {
-          background: rgba(255, 255, 255, 0.95) !important;
-          color: #0f172a !important;
-          border-color: rgba(15, 23, 42, 0.1) !important;
-        }
-        html:not(.dark) .fab-tooltip-new::after {
-          border-left-color: rgba(255, 255, 255, 0.95) !important;
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+          .fab-btn {
+            animation: none !important;
+            transition: none !important;
+          }
+          .fab-btn-list.closed {
+            display: none !important;
+          }
+          .fab-btn-list.open {
+            display: flex !important;
+          }
+          .fab-btn-list.open .fab-btn {
+            visibility: visible !important;
+            pointer-events: auto !important;
+          }
+          .fab-btn-list.closed .fab-btn {
+            visibility: hidden !important;
+            pointer-events: none !important;
+          }
         }
       `}</style>
 
-      <div className="fab-container" aria-label="Quick actions">
-        {showTranslate && (
-          <button
-            onClick={() => setLocation("/india-tools")}
-            className="fab-btn-glass fab-btn-translate"
-            aria-label="Translate"
-          >
-            <Languages className="h-[18px] w-[18px] shrink-0" style={{ color: "#818CF8" }} />
-            <span className="fab-tooltip-new">{tText("Translate")}</span>
-          </button>
-        )}
+      <div className="fab-container">
+        <div className={`fab-btn-list ${open ? "open" : "closed"}`}>
+          {showIndianTools && (
+            <button
+              onClick={() => handleNavigate("/india-tools")}
+              className={`fab-btn ${location === "/india-tools" ? "active" : ""}`}
+              aria-label="Indian Tools"
+            >
+              <Languages
+                className="h-[22px] w-[22px] shrink-0"
+                style={{ color: location === "/india-tools" ? "#FFFFFF" : "#6366F1" }}
+              />
+            </button>
+          )}
 
-        {showBolt && (
-          <button
-            onClick={() => setLocation("/workflows")}
-            className="fab-btn-glass fab-btn-bolt"
-            aria-label="AI Tools"
-          >
-            <Zap className="h-[18px] w-[18px] shrink-0" style={{ color: "#FCD34D" }} />
-            <span className="fab-tooltip-new">{tText("AI Tools")}</span>
-          </button>
-        )}
+          {showWorkflows && (
+            <button
+              onClick={() => handleNavigate("/workflows")}
+              className={`fab-btn ${location === "/workflows" ? "active" : ""}`}
+              aria-label="Workflows"
+            >
+              <Zap
+                className="h-[22px] w-[22px] shrink-0"
+                style={{ color: location === "/workflows" ? "#FFFFFF" : "#F59E0B" }}
+              />
+            </button>
+          )}
 
-        {showWorkspace && (
-          <button
-            onClick={() => setLocation("/workspace")}
-            className="fab-btn-glass fab-btn-workspace"
-            aria-label="Workspace"
-          >
-            <FileText className="h-[18px] w-[18px] shrink-0" style={{ color: "#34D399" }} />
-            <span className="fab-tooltip-new">{tText("Workspace")}</span>
-          </button>
-        )}
+          {showWorkspace && (
+            <button
+              onClick={() => handleNavigate("/workspace")}
+              className={`fab-btn ${location === "/workspace" ? "active" : ""}`}
+              aria-label="Workspace"
+            >
+              <FileText
+                className="h-[22px] w-[22px] shrink-0"
+                style={{ color: location === "/workspace" ? "#FFFFFF" : "#6366F1" }}
+              />
+            </button>
+          )}
+        </div>
+
+        <button
+          onClick={() => setOpen(!open)}
+          className="fab-toggle-pill"
+          aria-label="Toggle floating shortcuts"
+          {...(open ? { "aria-expanded": "true" } : { "aria-expanded": "false" })}
+        />
       </div>
     </>
   );

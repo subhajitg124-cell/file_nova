@@ -166,7 +166,7 @@ export function FloatingShortcuts() {
   ];
 
   return (
-    <div ref={containerRef} className="fixed bottom-6 right-6 z-50 font-sans flex items-end justify-end">
+    <div ref={containerRef} className="fixed bottom-6 left-6 z-50 font-sans flex items-end justify-start">
       {/* Floating Action Button (FAB) */}
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
@@ -239,7 +239,7 @@ export function FloatingShortcuts() {
               scale: window.innerWidth < 640 ? 1 : 0.95 
             }}
             transition={{ type: "spring", stiffness: 380, damping: 28 }}
-            className="fixed bottom-0 left-0 right-0 w-full rounded-t-3xl border-t border-white/10 bg-background/98 backdrop-blur-2xl p-6 z-45 sm:absolute sm:bottom-18 sm:right-0 sm:left-auto sm:w-[360px] sm:rounded-3xl sm:border sm:border-white/10 sm:p-5 sm:shadow-2xl overflow-hidden"
+            className="fixed bottom-0 left-0 right-0 w-full rounded-t-3xl border-t border-white/10 bg-background/98 backdrop-blur-2xl p-6 z-45 sm:absolute sm:bottom-18 sm:left-0 sm:right-auto sm:w-[360px] sm:rounded-3xl sm:border sm:border-white/10 sm:p-5 sm:shadow-2xl overflow-hidden"
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
