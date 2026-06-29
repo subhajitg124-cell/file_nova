@@ -17,13 +17,33 @@ const app: Express = express();
 
 app.use(helmet());
 
+const allowedOrigins = [
+  "https://filenova.in",
+  "https://www.filenova.in",
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "http://localhost:4173",
+];
+
 app.use(
   cors({
-    origin: ['https://filenova.in', 'http://localhost:5173', 'http://localhost:3000'],
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, postman, server-to-server)
+      if (!origin) return callback(null, true);
+      const isLocalhost = origin.startsWith("http://localhost:") || 
+                          origin.startsWith("http://127.0.0.1:") || 
+                          origin.startsWith("http://192.168.");
+      if (allowedOrigins.includes(origin) || isLocalhost) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cache-Control", "X-Requested-With", "Accept"],
     credentials: true,
-  }),
+    optionsSuccessStatus: 204,
+  })
 );
 
 app.use(

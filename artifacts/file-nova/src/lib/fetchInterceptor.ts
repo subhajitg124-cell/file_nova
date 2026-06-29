@@ -1,10 +1,21 @@
 import { useFileStore } from "@/store/useFileStore";
 const BACKEND_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || "";
 
+let isRefreshing = false;
+let refreshQueue: Array<(token: string | null) => void> = [];
+
+const processQueue = (err: Error | null, token: string | null = null) => {
+  refreshQueue.forEach((cb) => cb(token));
+  refreshQueue = [];
+};
+
 export function setupFetchInterceptor(
   setLimitModalOpen: (open: boolean) => void,
   setModalLimit: (limit: number) => void,
-  setModalUsage: (usage: number) => void
+  setModalUsage: (usage: number) => void,
+  getAuthState: () => { user: any; token: string | null },
+  logoutUser: () => Promise<void>,
+  setAuthToken: (token: string | null) => void
 ) {
   const originalFetch = window.fetch;
 
@@ -18,8 +29,10 @@ export function setupFetchInterceptor(
         ? input.toString()
         : (input && (input as Request).url ? (input as Request).url : ""));
 
+    // Attach Bearer token to API requests
     if (url && (url.includes("/api/") || url.startsWith("/api/"))) {
-      const token = localStorage.getItem("filenova_token");
+      const authState = getAuthState();
+      const token = authState.token || localStorage.getItem("filenova_token");
       if (token && !token.startsWith("local_")) {
         if (!newInit.headers) {
           newInit.headers = { "Authorization": `Bearer ${token}` };
@@ -65,8 +78,7 @@ export function setupFetchInterceptor(
       }
     }
 
-
-
+    // Simulation/Offline modes
     if (url && (url.includes("/api/") || url.startsWith("/api/"))) {
       const latencyStr = localStorage.getItem("filenova_simulated_latency");
       const latencyMs = latencyStr ? parseInt(latencyStr, 10) : 0;
@@ -78,6 +90,7 @@ export function setupFetchInterceptor(
       }
     }
 
+    // Add bonus limits header if present
     if (url && (url.includes("/api/") || url.startsWith("/api/"))) {
       try {
         const d = new Date();
@@ -110,47 +123,111 @@ export function setupFetchInterceptor(
       } catch (_) {}
     }
 
-    const response = await originalFetch(input, newInit);
+    const makeRequest = async (currentInit: RequestInit) => {
+      return originalFetch(input, currentInit);
+    };
+
+    let response = await makeRequest(newInit);
+
+    // If 401 Unauthorized, attempt refresh
     if (response.status === 401) {
       const urlStr = typeof input === "string" ? input : (input instanceof URL ? input.toString() : (input && (input as Request).url ? (input as Request).url : ""));
-      if (!urlStr.includes("/api/v1/auth/me") && !urlStr.includes("/api/health")) {
-        try {
-          const { useAuthStore } = await import("@/store/useAuthStore");
-          const { user } = useAuthStore.getState();
-          if (user) {
-            console.log("%c[AUTH] 401 interceptor triggered. Verifying session integrity...", "color:orange;font-weight:bold", {
-              url: urlStr,
-              timestamp: new Date().toISOString(),
+      const isAuthMe = urlStr.includes("/api/v1/auth/me");
+      const isRefresh = urlStr.includes("/api/v1/auth/refresh");
+      const isHealth = urlStr.includes("/api/health");
+
+      if (!isAuthMe && !isRefresh && !isHealth) {
+        const authState = getAuthState();
+        const token = authState.token || localStorage.getItem("filenova_token");
+
+        if (token && !token.startsWith("local_")) {
+          if (isRefreshing) {
+            return new Promise((resolve, reject) => {
+              refreshQueue.push((newToken) => {
+                if (newToken) {
+                  // Update authorization header in the retried request
+                  const retriedInit = { ...newInit };
+                  if (retriedInit.headers instanceof Headers) {
+                    retriedInit.headers.set("Authorization", `Bearer ${newToken}`);
+                  } else if (Array.isArray(retriedInit.headers)) {
+                    retriedInit.headers = retriedInit.headers.map(([k, v]) => 
+                      k.toLowerCase() === "authorization" ? ["Authorization", `Bearer ${newToken}`] : [k, v]
+                    );
+                  } else {
+                    retriedInit.headers = {
+                      ...(retriedInit.headers as Record<string, string>),
+                      "Authorization": `Bearer ${newToken}`
+                    };
+                  }
+                  resolve(makeRequest(retriedInit));
+                } else {
+                  reject(new Error("Session expired"));
+                }
+              });
             });
-
-            const token = localStorage.getItem("filenova_token");
-            const headers: Record<string, string> = { "Content-Type": "application/json" };
-            if (token && !token.startsWith("local_")) {
-              headers["Authorization"] = `Bearer ${token}`;
-            }
-
-            const checkRes = await originalFetch(`${BACKEND_URL}/api/v1/auth/me`, {
-              method: "GET",
-              headers,
-              credentials: "include",
-            });
-
-            if (checkRes.status === 200) {
-              const data = await checkRes.json().catch(() => null);
-              if (data && data.success && data.user === null) {
-                console.warn("%c[AUTH] Session verification returned user:null — NOT logging out (may be transient). Preserving session from localStorage.", "color:red;font-weight:bold");
-              } else {
-                console.log("%c[AUTH] Session verification check passed or returned valid data. Retaining session.", "color:green;font-weight:bold");
-              }
-            } else {
-              console.log(`%c[AUTH] Session verification endpoint returned status ${checkRes.status}. Retaining session as transient failure.`, "color:yellow;font-weight:bold");
-            }
           }
-        } catch (err) {
-          console.error("[AUTH] Session verification error: ", err);
+
+          isRefreshing = true;
+
+          try {
+            console.log("%c[AUTH] Token expired. Attempting refresh...", "color:orange;font-weight:bold");
+            
+            const refreshRes = await originalFetch(`${BACKEND_URL}/api/v1/auth/refresh`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+              },
+              credentials: "include"
+            });
+
+            if (refreshRes.ok) {
+              const refreshData = await refreshRes.json();
+              if (refreshData && refreshData.success && refreshData.token) {
+                const newToken = refreshData.token;
+                localStorage.setItem("filenova_token", newToken);
+                setAuthToken(newToken);
+
+                console.log("%c[AUTH] Token refreshed successfully.", "color:green;font-weight:bold");
+
+                // Update original request headers with new token
+                if (newInit.headers instanceof Headers) {
+                  newInit.headers.set("Authorization", `Bearer ${newToken}`);
+                } else if (Array.isArray(newInit.headers)) {
+                  newInit.headers = newInit.headers.map(([k, v]) => 
+                    k.toLowerCase() === "authorization" ? ["Authorization", `Bearer ${newToken}`] : [k, v]
+                  );
+                } else {
+                  newInit.headers = {
+                    ...(newInit.headers as Record<string, string>),
+                    "Authorization": `Bearer ${newToken}`
+                  };
+                }
+
+                // Process queued requests with the new token
+                processQueue(null, newToken);
+                isRefreshing = false;
+
+                // Retry original request
+                return await makeRequest(newInit);
+              }
+            }
+
+            // If refresh response is not OK, fail refresh
+            throw new Error("Refresh token invalid or expired");
+          } catch (err) {
+            console.error("[AUTH] Session refresh failed. Logging out...", err);
+            localStorage.removeItem("filenova_token");
+            setAuthToken(null);
+            processQueue(new Error("Refresh failed"), null);
+            isRefreshing = false;
+            await logoutUser();
+            return response; // Return original 401 response
+          }
         }
       }
     }
+
     if (response.status === 403) {
       const clone = response.clone();
       try {
@@ -162,6 +239,7 @@ export function setupFetchInterceptor(
         }
       } catch (_) {}
     }
+
     return response;
   };
 

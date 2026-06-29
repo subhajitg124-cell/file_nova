@@ -171,7 +171,14 @@ function App({ ssrPath }: { ssrPath?: string } = {}) {
   }, []);
 
   useEffect(() => {
-    return setupFetchInterceptor(setLimitModalOpen, setModalLimit, setModalUsage);
+    return setupFetchInterceptor(
+      setLimitModalOpen,
+      setModalLimit,
+      setModalUsage,
+      () => ({ user: useAuthStore.getState().user, token: useAuthStore.getState().token }),
+      () => useAuthStore.getState().logout(),
+      (token: string | null) => useAuthStore.setState({ token })
+    );
   }, []);
 
   useEffect(() => {

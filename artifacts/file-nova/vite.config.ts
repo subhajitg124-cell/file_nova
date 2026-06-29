@@ -213,22 +213,28 @@ export default defineConfig(() => {
       // Enable code splitting and chunk optimization
       rollupOptions: {
         output: {
-          manualChunks: {
-            // Separate vendor chunks for better caching
-            'react-vendor': ['react', 'react-dom'],
-            'ui-vendor': [
-              '@radix-ui/react-dialog',
-              '@radix-ui/react-dropdown-menu',
-              '@radix-ui/react-toast',
-              '@radix-ui/react-tabs',
-              '@radix-ui/react-select',
-              '@radix-ui/react-progress',
-            ],
-            // Heavy libraries in separate chunks (lazy loaded)
-            'pdf-lib': ['pdf-lib'],
-            'pdfjs': ['pdfjs-dist'],
-            'xlsx': ['xlsx'],
-            'jszip': ['jszip'],
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('react') || id.includes('react-dom') || id.includes('wouter')) {
+                return 'react-core';
+              }
+              if (id.includes('@radix-ui') || id.includes('lucide-react')) {
+                return 'ui-kit';
+              }
+              if (id.includes('pdf-lib') || id.includes('pdfjs-dist')) {
+                return 'pdf-utils';
+              }
+              if (id.includes('xlsx') || id.includes('jszip')) {
+                return 'excel-utils';
+              }
+              if (id.includes('recharts') || id.includes('d3')) {
+                return 'charts-vendor';
+              }
+              if (id.includes('@imgly') || id.includes('onnxruntime') || id.includes('tesseract.js')) {
+                return 'ai-models';
+              }
+              return 'vendor';
+            }
           },
         },
       },

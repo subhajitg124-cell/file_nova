@@ -24,7 +24,7 @@ import { useSubscription, type PremiumTier } from "@/hooks/useSubscription";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
 import { toast } from "sonner";
-import { BACKEND_URL } from "@/lib/api";
+import { BACKEND_URL, apiClient } from "@/lib/api";
 
 interface BillingItem {
   id: string;
@@ -80,23 +80,9 @@ export default function DashboardPage() {
     }
     setLoadingHistory(true);
     try {
-      const headers: Record<string, string> = {
-        "Authorization": `Bearer ${token}`,
-      };
-      const response = await fetch(`${BACKEND_URL}/api/payments/history`, {
-        headers,
-        credentials: 'include',
-      });
-
-      console.log("%c[DASH] fetchBillingAndUser response", "color:green", {
-        status: response.status,
-        timestamp: new Date().toISOString(),
-      });
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.history) {
-          setBillingHistory(data.history);
-        }
+      const data = await apiClient.getPaymentHistory();
+      if (data.success && data.history) {
+        setBillingHistory(data.history);
       }
     } catch (e) {
       console.error("Failed to fetch billing history:", e);

@@ -6,15 +6,31 @@ const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/icon-192x192.png',
-  '/icon-512x512.png'
+  '/logo.png',
+  '/logo.svg',
+  '/favicons/favicon.ico',
+  '/favicons/android-chrome-192x192.png',
+  '/favicons/android-chrome-512x512.png',
+  '/favicons/apple-touch-icon.png'
 ];
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
+      const cachePromises = STATIC_ASSETS.map((asset) => {
+        return fetch(asset)
+          .then((response) => {
+            if (response.ok) {
+              return cache.put(asset, response);
+            }
+            console.warn(`[SW] Skip caching missing asset: ${asset} (status: ${response.status})`);
+          })
+          .catch((err) => {
+            console.warn(`[SW] Failed to fetch asset for cache: ${asset}`, err);
+          });
+      });
+      return Promise.all(cachePromises);
     })
   );
   self.skipWaiting();

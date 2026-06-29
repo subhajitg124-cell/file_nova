@@ -366,6 +366,90 @@ router.get("/me", authMiddleware, async (req: AuthRequest, res): Promise<void> =
   }
 });
 
+// ── 4.5. POST /refresh ──
+router.post("/refresh", async (req, res): Promise<void> => {
+  let token = req.headers["authorization"]?.replace("Bearer ", "");
+
+  // Fallback to cookie
+  if (!token && req.headers.cookie) {
+    try {
+      const cookies = req.headers.cookie.split(";").reduce((acc, c) => {
+        const parts = c.trim().split("=");
+        const k = parts[0];
+        const v = parts.slice(1).join("=");
+        if (k && v) acc[k] = decodeURIComponent(v);
+        return acc;
+      }, {} as Record<string, string>);
+      token = cookies["session_token"];
+    } catch (_) {
+      // Ignore
+    }
+  }
+
+  if (!token) {
+    sendJson(res, { error: "No token provided for refresh" }, 401);
+    return;
+  }
+
+  try {
+    const [session] = await db
+      .select()
+      .from(sessionsTable)
+      .where(eq(sessionsTable.token, token))
+      .limit(1);
+
+    if (!session) {
+      sendJson(res, { error: "Session not found" }, 401);
+      return;
+    }
+
+    // Check if session has expired, allowing a 30-day grace period for refresh
+    const maxGracePeriod = 30 * 24 * 60 * 60 * 1000;
+    const sessionExpiredTime = new Date(session.expiresAt).getTime();
+    if (Date.now() > sessionExpiredTime + maxGracePeriod) {
+      try {
+        await db.delete(sessionsTable).where(eq(sessionsTable.token, token));
+      } catch (err) {
+        logger.error({ err }, "Failed to delete expired session during refresh");
+      }
+      res.clearCookie("session_token", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+      });
+      sendJson(res, { error: "Session expired beyond grace period" }, 401);
+      return;
+    }
+
+    // Generate new session token and update in database
+    const newToken = crypto.randomBytes(32).toString("hex");
+    const newExpiresAt = new Date(Date.now() + SESSION_DURATION_MS);
+
+    await db
+      .update(sessionsTable)
+      .set({
+        token: newToken,
+        expiresAt: newExpiresAt,
+      })
+      .where(eq(sessionsTable.token, token));
+
+    // Set cookie
+    res.cookie("session_token", newToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: SESSION_DURATION_MS,
+    });
+
+    sendJson(res, { success: true, token: newToken });
+  } catch (err: any) {
+    logger.error({ err }, "Session refresh error");
+    sendJson(res, { error: err.message || "Failed to refresh session" }, 500);
+  }
+});
+
 // ── 5. POST /logout ──
 router.post("/logout", authMiddleware, async (req: AuthRequest, res): Promise<void> => {
   try {

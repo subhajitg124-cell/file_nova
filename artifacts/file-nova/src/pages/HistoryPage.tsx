@@ -6,7 +6,7 @@ import {
   Monitor, Cloud, Trash2, Clock
 } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
-import { BACKEND_URL } from "@/lib/api";
+import { BACKEND_URL, apiClient } from "@/lib/api";
 import {
   getLocalHistory, clearLocalHistory,
   type LocalHistoryEntry,
@@ -143,12 +143,9 @@ function CloudHistoryTab() {
   const fetchHistory = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${BACKEND_URL}/api/v1/history`);
-      if (res.ok) {
-        const data = await res.json();
-        setHistory(data.history || []);
-        if (premiumTier === "free" && data.totalCount > 5) setShowUpgradePrompt(true);
-      }
+      const data = await apiClient.getHistory();
+      setHistory(data.history || []);
+      if (premiumTier === "free" && data.totalCount > 5) setShowUpgradePrompt(true);
     } catch (e) {
       console.error("Failed to fetch history", e);
     } finally {

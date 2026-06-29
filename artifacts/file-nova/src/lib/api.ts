@@ -18,7 +18,6 @@ const fetchWithRetry = async (input: RequestInfo, init?: RequestInit, retries = 
     return await fetch(input, init);
   } catch (error) {
     if (retries > 0 && error instanceof TypeError && error.message === 'Failed to fetch') {
-      // Wait for the delay period
       await new Promise(resolve => setTimeout(resolve, delay));
       return fetchWithRetry(input, init, retries - 1, delay);
     }
@@ -27,6 +26,56 @@ const fetchWithRetry = async (input: RequestInfo, init?: RequestInit, retries = 
 };
 
 export const apiClient = {
+  // Centralized request wrapper
+  async request<T>(path: string, options: RequestInit = {}, timeoutMs = 30000): Promise<T> {
+    const url = path.startsWith('http') ? path : `${BACKEND_URL}${path}`;
+    
+    // Attach authorization header if available
+    const token = localStorage.getItem('filenova_token');
+    const headers = new Headers(options.headers);
+    if (token && !token.startsWith('local_') && !headers.has('Authorization')) {
+      headers.set('Authorization', `Bearer ${token}`);
+    }
+    
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    
+    const fetchOptions: RequestInit = {
+      credentials: 'include',
+      ...options,
+      headers,
+      signal: controller.signal,
+    };
+    
+    try {
+      const res = await fetchWithRetry(url, fetchOptions);
+      clearTimeout(timer);
+      
+      if (!res.ok) {
+        let errorMessage = `Request failed with status ${res.status}`;
+        try {
+          const errData = await res.json();
+          errorMessage = errData.error || errData.detail || errorMessage;
+        } catch (_) {
+          // ignore JSON parse failure for error response
+        }
+        throw new Error(errorMessage);
+      }
+      
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        return await res.json();
+      }
+      return (await res.text()) as unknown as T;
+    } catch (error: any) {
+      clearTimeout(timer);
+      if (error.name === 'AbortError') {
+        throw new Error('Request timed out. Please try again.');
+      }
+      throw error;
+    }
+  },
+
   async checkHealth(): Promise<HealthCheckResult> {
     if (!HAS_BACKEND) {
       return {
@@ -36,11 +85,7 @@ export const apiClient = {
     }
 
     try {
-      const res = await fetchWithRetry(`${BACKEND_URL}/api/health`, {
-        signal: AbortSignal.timeout(3000),
-      });
-      if (!res.ok) throw new Error('Health check status not ok');
-      const data = await res.json();
+      const data = await this.request<any>('/api/health', {}, 3000);
       return {
         healthy: data.status === 'healthy' || data.status === 'degraded',
         capabilities: {
@@ -61,16 +106,12 @@ export const apiClient = {
     const formData = new FormData();
     formData.append('job_id', jobId);
     files.forEach((f) => formData.append('files', f));
-    const res = await fetchWithRetry(`${BACKEND_URL}/api/v1/upload`, {
+    
+    const data = await this.request<any>('/api/v1/upload', {
       method: 'POST',
-      credentials: 'include',
       body: formData,
     });
-    if (!res.ok) {
-      const errData = await res.json().catch(() => ({}));
-      throw new Error((errData as any).detail || 'File upload failed.');
-    }
-    const data = await res.json();
+
     return data.files.map((file: any) => ({
       id: file.temp_filename,
       name: file.filename,
@@ -83,31 +124,23 @@ export const apiClient = {
   },
 
   async startProcessing(jobId: string, operation: string, options: Record<string, any>): Promise<void> {
-    const res = await fetchWithRetry(`${BACKEND_URL}/api/v1/process?job_id=${jobId}`, {
+    await this.request<void>(`/api/v1/process?job_id=${jobId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ operation, options }),
     });
-    if (!res.ok) {
-      const errData = await res.json().catch(() => ({}));
-      throw new Error((errData as any).detail || 'Processing execution failed.');
-    }
   },
 
   async bulkProcess(files: File[], operation: string): Promise<{ filename: string; status: string; downloadUrl: string }[]> {
     const formData = new FormData();
     formData.append('operation', operation);
     files.forEach((f) => formData.append('files', f));
-    const res = await fetchWithRetry(`${BACKEND_URL}/api/v1/bulk-process`, {
+
+    const data = await this.request<any>('/api/v1/bulk-process', {
       method: 'POST',
-      credentials: 'include',
       body: formData,
     });
-    if (!res.ok) {
-      const errData = await res.json().catch(() => ({}));
-      throw new Error((errData as any).detail || 'Bulk processing failed.');
-    }
-    const data = await res.json();
+
     return data.results.map((result: any) => ({
       filename: result.filename,
       status: result.status,
@@ -115,10 +148,8 @@ export const apiClient = {
     }));
   },
 
-  async pollStatus(jobId: string) {
-    const res = await fetchWithRetry(`${BACKEND_URL}/api/v1/status/${jobId}`);
-    if (!res.ok) throw new Error('Failed to retrieve job status.');
-    return await res.json();
+  async pollStatus(jobId: string): Promise<any> {
+    return this.request<any>(`/api/v1/status/${jobId}`);
   },
 
   getDownloadUrl(jobId: string): string {
@@ -126,17 +157,11 @@ export const apiClient = {
   },
 
   async createSubscriptionOrder(plan: string, coupon?: string): Promise<any> {
-    const res = await fetch(`${BACKEND_URL}/api/v1/premium/subscription/order`, {
+    return this.request<any>('/api/v1/premium/subscription/order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify({ plan, coupon }),
     });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || 'Failed to create subscription order');
-    }
-    return res.json();
   },
 
   async verifySubscriptionPayment(payload: {
@@ -145,31 +170,19 @@ export const apiClient = {
     razorpay_signature?: string;
     plan: string;
   }): Promise<any> {
-    const res = await fetch(`${BACKEND_URL}/api/v1/premium/subscription/verify`, {
+    return this.request<any>('/api/v1/premium/subscription/verify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify(payload),
     });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || 'Payment verification failed');
-    }
-    return res.json();
   },
 
   async validateCoupon(coupon: string, plan: string): Promise<any> {
-    const res = await fetch(`${BACKEND_URL}/api/v1/premium/subscription/coupons/validate`, {
+    return this.request<any>('/api/v1/premium/subscription/coupons/validate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify({ coupon, plan }),
     });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || 'Coupon validation failed');
-    }
-    return res.json();
   },
 
   async submitUpiPayment(payload: {
@@ -178,66 +191,188 @@ export const apiClient = {
     plan: string;
     amount: number;
   }): Promise<any> {
-    const res = await fetch(`${BACKEND_URL}/api/upi-payment-verify`, {
+    return this.request<any>('/api/upi-payment-verify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify(payload),
     });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || 'UPI transaction submission failed');
-    }
-    return res.json();
   },
 
   async getPaymentHistory(): Promise<any> {
-    const res = await fetch(`${BACKEND_URL}/api/payments/history`, {
+    return this.request<any>('/api/payments/history', {
       method: 'GET',
-      credentials: 'include',
     });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || 'Failed to fetch payment history');
-    }
-    return res.json();
   },
 
   async cancelSubscription(): Promise<any> {
-    const res = await fetch(`${BACKEND_URL}/api/v1/premium/subscription/cancel`, {
+    return this.request<any>('/api/v1/premium/subscription/cancel', {
       method: 'POST',
-      credentials: 'include',
     });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || 'Subscription cancellation failed');
-    }
-    return res.json();
   },
 
   async getSubscriptionStatus(): Promise<any> {
-    const res = await fetch(`${BACKEND_URL}/api/v1/premium/subscription/status`, {
+    return this.request<any>('/api/v1/premium/subscription/status', {
       method: 'GET',
-      credentials: 'include',
     });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || 'Failed to fetch subscription status');
-    }
-    return res.json();
   },
 
   async getInvoice(subId: string): Promise<any> {
-    const res = await fetch(`${BACKEND_URL}/api/payments/invoice/${subId}`, {
+    return this.request<any>(`/api/payments/invoice/${subId}`, {
       method: 'GET',
-      credentials: 'include',
     });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || 'Failed to fetch invoice details');
-    }
-    return res.json();
-  }
+  },
+
+  // Dynamic user and workspace endpoints refactored for centralization
+  async getHistory(): Promise<any> {
+    return this.request<any>('/api/v1/history');
+  },
+
+  async trackReferral(trackingId: string, referralCode: string): Promise<any> {
+    return this.request<any>('/api/v1/referral/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ trackingId, referralCode }),
+    });
+  },
+
+  async getAIPPTOutline(topic: string, slideCount: number): Promise<any> {
+    return this.request<any>('/api/ai-ppt/outline', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ topic, slideCount }),
+    });
+  },
+
+  async regenerateAIPPTSlide(slideId: string, instructions: string): Promise<any> {
+    return this.request<any>('/api/ai-ppt/regenerate-slide', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slideId, instructions }),
+    });
+  },
+
+  async getPremiumSecurityStatus(): Promise<any> {
+    return this.request<any>('/api/v1/premium/security/status');
+  },
+
+  async getPremiumShares(): Promise<any> {
+    return this.request<any>('/api/v1/premium/shares');
+  },
+
+  async createPremiumShare(payload: any): Promise<any> {
+    return this.request<any>('/api/v1/premium/shares', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async sharePremiumOnWhatsapp(payload: any): Promise<any> {
+    return this.request<any>('/api/v1/premium/shares/whatsapp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async getPremiumShareDetails(token: string): Promise<any> {
+    return this.request<any>(`/api/v1/premium/shares/${token}`);
+  },
+
+  async verifyPremiumShare(token: string, details: any): Promise<any> {
+    return this.request<any>(`/api/v1/premium/shares/verify/${token}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(details),
+    });
+  },
+
+  async generatePremiumQR(payload: any): Promise<any> {
+    return this.request<any>('/api/v1/premium/qr/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+  },
+
+  // Admin Panel endpoints
+  async getAdminStats(): Promise<any> {
+    return this.request<any>('/api/v1/premium/subscription/admin/stats');
+  },
+
+  async getAdminUpiPayments(): Promise<any> {
+    return this.request<any>('/api/upi-payments');
+  },
+
+  async approveAdminUpiPayment(id: string): Promise<any> {
+    return this.request<any>(`/api/upi-payments/${id}/approve`, {
+      method: 'POST',
+    });
+  },
+
+  async getAdminDiscountCodes(): Promise<any> {
+    return this.request<any>('/api/v1/premium/subscription/admin/discount-codes');
+  },
+
+  async createAdminDiscountCode(payload: any): Promise<any> {
+    return this.request<any>('/api/v1/premium/subscription/admin/discount-codes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async deleteAdminDiscountCode(id: string): Promise<any> {
+    return this.request<any>(`/api/v1/premium/subscription/admin/discount-codes/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  async toggleAdminDiscountCode(id: string): Promise<any> {
+    return this.request<any>(`/api/v1/premium/subscription/admin/discount-codes/${id}/toggle`, {
+      method: 'POST',
+    });
+  },
+
+  async getAdminCoupons(): Promise<any> {
+    return this.request<any>('/api/v1/premium/subscription/admin/coupons');
+  },
+
+  async getAdminCouponDetails(id: string): Promise<any> {
+    return this.request<any>(`/api/v1/premium/subscription/admin/coupons/${id}`);
+  },
+
+  async saveAdminCoupon(id: string | null, payload: any): Promise<any> {
+    return this.request<any>(id ? `/api/v1/premium/subscription/admin/coupons/${id}` : '/api/v1/premium/subscription/admin/coupons', {
+      method: id ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async deleteAdminCoupon(id: string): Promise<any> {
+    return this.request<any>(`/api/v1/premium/subscription/admin/coupons/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  async toggleAdminCoupon(id: string): Promise<any> {
+    return this.request<any>(`/api/v1/premium/subscription/admin/coupons/${id}/toggle`, {
+      method: 'POST',
+    });
+  },
+
+  async getAdminSettings(): Promise<any> {
+    return this.request<any>('/api/v1/premium/subscription/settings');
+  },
+
+  async saveAdminSettings(payload: any): Promise<any> {
+    return this.request<any>('/api/v1/premium/subscription/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+  },
 };
 
 const createMockPreviewPlaceholder = (file: File): string => {
@@ -413,6 +548,7 @@ export const apiMock = {
         netAmount: 9900,
         gstRate: 18,
         baseAmount: 8390,
+        baseRate: 18,
         cgstAmount: 755,
         sgstAmount: 755,
         supportEmail: 'support@filenova.in',
