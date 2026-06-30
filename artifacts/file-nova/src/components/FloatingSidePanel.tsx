@@ -7,12 +7,13 @@ export function FloatingSidePanel() {
   const { tText } = useTranslation();
   const [location, setLocation] = useLocation();
   const [open, setOpen] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [mobileExpandedIcon, setMobileExpandedIcon] = useState<string | null>(null);
   const [longPressedIcon, setLongPressedIcon] = useState<string | null>(null);
   const [hintOpen, setHintOpen] = useState(false);
   const longPressTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hoverTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
   const HIDE_FAB_ROUTES = [
@@ -37,10 +38,17 @@ export function FloatingSidePanel() {
   }, []);
 
   useEffect(() => {
+    return () => {
+      if (hoverTimeout.current) clearTimeout(hoverTimeout.current);
+      if (longPressTimeout.current) clearTimeout(longPressTimeout.current);
+    };
+  }, []);
+
+  useEffect(() => {
     const handleClickOutside = (e: MouseEvent | TouchEvent) => {
       if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
         setOpen(false);
-        setIsHovered(false);
+        setHoveredItem(null);
         setMobileExpandedIcon(null);
       }
     };
@@ -72,7 +80,7 @@ export function FloatingSidePanel() {
 
   const handleButtonClick = (path: string, iconId: string, event: React.MouseEvent) => {
     if (isTouchDevice) {
-      const isCurrentlyExpanded = open || isHovered;
+      const isCurrentlyExpanded = open || hoveredItem;
       if (!isCurrentlyExpanded) {
         event.preventDefault();
         setOpen(true);
@@ -86,6 +94,19 @@ export function FloatingSidePanel() {
       }
     }
     handleNavigate(path);
+  };
+
+  const handleItemEnter = (iconId: string) => {
+    if (isTouchDevice) return;
+    if (hoverTimeout.current) clearTimeout(hoverTimeout.current);
+    setHoveredItem(iconId);
+  };
+
+  const handleItemLeave = () => {
+    if (isTouchDevice) return;
+    hoverTimeout.current = setTimeout(() => {
+      setHoveredItem(null);
+    }, 100);
   };
 
   const handleTouchStart = (iconId: string) => {
@@ -106,7 +127,7 @@ export function FloatingSidePanel() {
     }, 1500);
   };
 
-  const isExpanded = open || isHovered;
+  const isExpanded = open || hoveredItem !== null;
 
   return (
     <>
@@ -180,11 +201,18 @@ export function FloatingSidePanel() {
           justify-content: flex-start;
           gap: 12px;
           padding-left: 8px;
-          background: rgba(99, 102, 241, 0.02);
         }
         
-        .dark .fab-container.expanded .fab-btn {
+        .fab-container.expanded .fab-btn[data-hovered="true"] {
+          background: rgba(99, 102, 241, 0.02);
+        }
+
+        .dark .fab-container.expanded .fab-btn[data-hovered="true"] {
           background: rgba(255, 255, 255, 0.02);
+        }
+
+        .fab-container.expanded .fab-btn:not([data-hovered="true"]) {
+          background: transparent;
         }
 
         .fab-btn:hover {
@@ -213,7 +241,7 @@ export function FloatingSidePanel() {
           color: #cbd5e1;
         }
 
-        .fab-container.expanded .fab-btn-text {
+        .fab-container.expanded .fab-btn[data-hovered="true"] .fab-btn-text {
           opacity: 1;
           max-width: 110px;
           transform: translateX(0);
@@ -263,6 +291,12 @@ export function FloatingSidePanel() {
           padding-left: 8px;
           background: transparent;
           color: #6366F1;
+        }
+
+        .fab-container.expanded .fab-toggle-pill .fab-btn-text {
+          opacity: 1;
+          max-width: 110px;
+          transform: translateX(0);
         }
 
         .fab-container.expanded .fab-toggle-pill:hover {
@@ -329,6 +363,10 @@ export function FloatingSidePanel() {
         }
 
         .fab-container.expanded .fab-tooltip {
+          display: none !important;
+        }
+
+        .fab-btn[data-hovered="true"] .fab-tooltip {
           display: none !important;
         }
 
@@ -440,8 +478,9 @@ export function FloatingSidePanel() {
       <div 
         ref={panelRef}
         className={`fab-container ${isExpanded ? "expanded" : ""}`}
-        onMouseEnter={() => !isTouchDevice && setIsHovered(true)}
-        onMouseLeave={() => !isTouchDevice && setIsHovered(false)}
+        onMouseLeave={() => {
+          if (!open) setHoveredItem(null);
+        }}
       >
         <div className="fab-btn-list">
           {showIndianTools && (
@@ -449,7 +488,10 @@ export function FloatingSidePanel() {
               onClick={(e) => handleButtonClick("/india-tools", "india-tools", e)}
               onTouchStart={() => handleTouchStart("india-tools")}
               onTouchEnd={handleTouchEnd}
+              onMouseEnter={() => handleItemEnter("india-tools")}
+              onMouseLeave={handleItemLeave}
               className={`fab-btn ${location === "/india-tools" ? "active" : ""}`}
+              data-hovered={hoveredItem === "india-tools" ? "true" : "false"}
               aria-label={tText("Indian Tools")}
             >
               <Languages
@@ -468,7 +510,10 @@ export function FloatingSidePanel() {
               onClick={(e) => handleButtonClick("/workflows", "workflows", e)}
               onTouchStart={() => handleTouchStart("workflows")}
               onTouchEnd={handleTouchEnd}
+              onMouseEnter={() => handleItemEnter("workflows")}
+              onMouseLeave={handleItemLeave}
               className={`fab-btn ${location === "/workflows" ? "active" : ""}`}
+              data-hovered={hoveredItem === "workflows" ? "true" : "false"}
               aria-label={tText("Workflows")}
             >
               <Zap
@@ -487,7 +532,10 @@ export function FloatingSidePanel() {
               onClick={(e) => handleButtonClick("/workspace", "workspace", e)}
               onTouchStart={() => handleTouchStart("workspace")}
               onTouchEnd={handleTouchEnd}
+              onMouseEnter={() => handleItemEnter("workspace")}
+              onMouseLeave={handleItemLeave}
               className={`fab-btn ${location === "/workspace" ? "active" : ""}`}
+              data-hovered={hoveredItem === "workspace" ? "true" : "false"}
               aria-label={tText("Workspace")}
             >
               <FileText

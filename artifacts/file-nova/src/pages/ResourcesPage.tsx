@@ -43,7 +43,7 @@ export default function ResourcesPage() {
   const [upiOpen, setUpiOpen] = useState(false);
   const [upiAmount, setUpiAmount] = useState(10);
   const [upiNote, setUpiNote] = useState("Chai for FileNova");
-  const partnerRecommendations = getFeaturedAffiliateLinks(4);
+  // const partnerRecommendations = getFeaturedAffiliateLinks(4);
 
   const triggerUpi = (e: React.MouseEvent, amount: number, note: string) => {
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -647,6 +647,8 @@ export default function ResourcesPage() {
                 ))}
               </div>
 
+              {/* Partners section disabled — uncomment to re-enable */}
+              {/*
               <div className="rounded-3xl border border-border bg-card/70 p-6 shadow-md">
                 <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                   <div>
@@ -682,6 +684,7 @@ export default function ResourcesPage() {
                   ))}
                 </div>
               </div>
+              */}
             </motion.div>
           )}
         </AnimatePresence>

@@ -102,7 +102,7 @@ const ProfilePage = React.lazy(() => import("@/pages/ProfilePage"));
 const PrivacyPolicy = React.lazy(() => import("@/pages/PrivacyPolicy"));
 const TermsOfService = React.lazy(() => import("@/pages/TermsOfService"));
 const CookiePolicy = React.lazy(() => import("@/pages/CookiePolicy"));
-const PartnersPage = React.lazy(() => import("@/pages/PartnersPage"));
+// const PartnersPage = React.lazy(() => import("@/pages/PartnersPage"));
 const TemplateMarketplace = React.lazy(() => import("@/pages/TemplateMarketplace"));
 
 function ReferralRedirect({ code: propCode }: { code?: string }) {
@@ -350,9 +350,12 @@ export function Router() {
           <Route path="/cookie-policy">
             <CookiePolicy />
           </Route>
+          {/* Partners route disabled — uncomment to re-enable */}
+          {/*
           <Route path="/partners">
             <PartnersPage />
           </Route>
+          */}
           <Route path="/templates">
             <TemplateMarketplace />
           </Route>

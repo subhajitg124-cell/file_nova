@@ -191,11 +191,14 @@ const Footer: React.FC = memo(() => {
                   {tText("Latest Blog")}
                 </Link>
               </li>
+              {/* Partners link disabled — uncomment to re-enable */}
+              {/*
               <li>
                 <Link href="/partners" className="text-muted-foreground hover:text-primary transition-colors">
                   {tText("Partners & Deals")}
                 </Link>
               </li>
+              */}
               <li>
                 <Link href="/careers" className="text-muted-foreground hover:text-primary transition-colors">
                   {tText("Careers")}

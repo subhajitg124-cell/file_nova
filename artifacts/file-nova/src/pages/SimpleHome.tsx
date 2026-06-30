@@ -25,7 +25,7 @@ import { PopularToolsGrid } from "@/components/PopularToolsGrid";
 import { PopularToolsDropdown } from "@/components/PopularToolsDropdown";
 import { ReactableGreeting } from "@/components/events/ReactableGreeting";
 import { Navbar } from "@/components/Navbar";
-import { getFeaturedAffiliateLinks, sanitizeAffiliateUrl } from "@/data/affiliateLinks";
+// import { getFeaturedAffiliateLinks, sanitizeAffiliateUrl } from "@/data/affiliateLinks";
 
 
 // Curated tools to display on the homepage grid
@@ -215,7 +215,7 @@ export default function SimpleHome() {
   const [recentToolItems, setRecentToolItems] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [directoryExpanded, setDirectoryExpanded] = useState(false);
-  const partnerRecommendations = getFeaturedAffiliateLinks(3);
+  // const partnerRecommendations = getFeaturedAffiliateLinks(3);
 
   const pdfToolsList = [
     { id: "merge-pdf", title: tText("Merge PDF Files"), description: tText("Upload your PDFs. We'll join them together into one neat document in seconds."), icon: Merge, canonical: "/merge-pdf", category: "pdf", tags: ["merge", "combine", "pdf", "join"] },
@@ -746,8 +746,8 @@ export default function SimpleHome() {
         </div>
       </section>
 
-
-      {/* Sponsored Recommendations Section */}
+      {/* Partners section disabled — uncomment to re-enable */}
+      {/*
       <section className="py-16 bg-background border-t border-border relative z-10">
         <div className="max-w-5xl mx-auto px-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between mb-8">
@@ -792,6 +792,8 @@ export default function SimpleHome() {
           </div>
         </div>
       </section>
+      */}
+
       {/* Why FileNova Section */}
       <section className="py-20 bg-card border-t border-border relative z-10">
         <div className="max-w-4xl mx-auto px-4 text-center">
