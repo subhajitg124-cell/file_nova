@@ -37,8 +37,8 @@ const TOOL_PATHS = new Set([
   "/merge-pdf", "/split-pdf", "/protect-pdf", "/unlock-pdf",
   "/rotate-pdf", "/resize-pdf", "/pdf-to-word", "/pdf-to-jpg",
   "/jpg-to-pdf", "/word-to-pdf", "/resize-photo", "/resize-image",
-  "/compress-image", "/remove-background", "/ocr", "/compress-doc",
-  "/ai-ppt-maker", "/ai-pdf-summary", "/government-form-fill",
+  "/compress-image",   "/remove-background", "/ocr", "/compress-doc",
+  "/ai-pdf-summary", "/government-form-fill",
   "/tools", "/pdf-tools", "/image-tools", "/video-tools",
   "/document-tools", "/india-tools", "/tools/compress-pan-card",
 ]);
@@ -76,7 +76,6 @@ const CATEGORY_ITEMS_MAP: Record<string, Array<{ name: string; url: string; desc
   "/document-tools": [
     { name: "Word to PDF", url: "https://filenova.in/word-to-pdf", description: "Convert Word DOCX files to standard PDFs." },
     { name: "Compress Doc", url: "https://filenova.in/compress-doc", description: "Shrink office Word documents size free." },
-    { name: "AI PPT Maker", url: "https://filenova.in/ai-ppt-maker", description: "Generate beautiful presentation slides with AI." },
     { name: "OCR scan-to-text", url: "https://filenova.in/ocr", description: "Extract editable text from scanned pages and images." },
     { name: "AI PDF Summarizer", url: "https://filenova.in/ai-pdf-summary", description: "Summarize PDF documents in a few bullet points." },
   ],

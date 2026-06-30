@@ -145,7 +145,7 @@ const SLUG_CATEGORY: Record<string, string> = {
   "ocr": "ocr", "ai-pdf-summary": "document", "remove-background": "image",
   "compress-image": "image", "resize-image": "image", "scholarship-zip": "form",
   "aadhaar-mask-pdf": "form", "pan-card-resize": "form", "government-form-fill": "form",
-  "compress-pdf-for-upload": "pdf", "ai-ppt-maker": "document", "compress-doc": "document",
+  "compress-pdf-for-upload": "pdf", "compress-doc": "document",
 };
 
 const POPULAR_TOOLS: { label: string; slug: string; icon: string }[] = [
@@ -189,7 +189,7 @@ const CATEGORY_TOOLS: Record<string, { label: string; slug: string; icon: string
   document: [
     { label: "Word to PDF", slug: "word-to-pdf", icon: "file-word" },
     { label: "Compress Doc", slug: "compress-doc", icon: "file-zip" },
-    { label: "AI PPT Maker", slug: "ai-ppt-maker", icon: "sparkles" },
+    // { label: "AI PPT Maker", slug: "ai-ppt-maker", icon: "sparkles" },
   ],
   ocr: [
     { label: "OCR", slug: "ocr", icon: "scan" },

@@ -676,6 +676,8 @@ export const TOOL_REGISTRY: Record<string, ToolRegistryItem> = {
     description: "Convert DOCX/DOC files to PDF files instantly.",
     relatedTools: ["pdf-to-word", "merge-pdf"],
   },
+  // "ai-ppt-maker" entry disabled — uncomment to re-enable
+  /*
   "ai-ppt-maker": {
     id: "ai-ppt-maker",
     name: "AI Slide Maker",
@@ -706,6 +708,7 @@ export const TOOL_REGISTRY: Record<string, ToolRegistryItem> = {
       title: "AI PPT Maker Free – Topic to Presentation | FileNova",
       description: "Generate a complete, themed PowerPoint presentation from any topic or your notes for free. Choose theme and writing tone.",
     }
-  }
+  },
+  */
 };
 

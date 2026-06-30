@@ -179,13 +179,13 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
         transition={{ type: "spring", stiffness: 260, damping: 20 }}
         className="sticky top-0 z-40 w-full bg-transparent py-3 px-3 sm:px-4 transition-all duration-300"
       >
-        <div className="max-w-6xl mx-auto h-14 px-4 sm:px-6 flex items-center justify-between gap-2 rounded-full border border-border/60 relative group/nav">
-          <div className="absolute inset-0 bg-background/70 backdrop-blur-xl shadow-premium rounded-full -z-20 pointer-events-none" />
+        <div className="max-w-6xl mx-auto h-14 px-4 sm:px-6 flex items-center justify-between gap-2 rounded-full border border-[var(--fn-border)] relative group/nav">
+          <div className="absolute inset-0 bg-[var(--fn-surface-glass)] backdrop-blur-xl shadow-premium rounded-full -z-20 pointer-events-none" />
           <div className="absolute inset-0 bg-gradient-to-r from-brand-primary/0 via-brand-primary/10 to-brand-primary/0 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-500 pointer-events-none rounded-full -z-10" />
 
           <Link href="/" className="flex items-center gap-2.5 shrink-0 relative z-10">
             <img src="/logo.png" alt="FileNova - AI PDF & Image Tools" className="h-8 w-auto" width="32" height="32" fetchPriority="high" />
-            <span className="font-extrabold text-sm text-foreground hidden sm:block">FileNova</span>
+            <span className="font-extrabold text-sm text-[var(--fn-text-primary)] hidden sm:block">FileNova</span>
           </Link>
 
           {showSearch && (
@@ -197,12 +197,12 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
           <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 relative z-10">
             <nav className="hidden xl:flex items-center gap-1" aria-label="Main navigation">
               <PopularToolsDropdown />
-              <Link href="/pricing" className="flex items-center gap-1.5 text-sm text-muted-foreground font-medium py-1.5 px-3 rounded-full hover:bg-muted/60 transition-colors duration-150 whitespace-nowrap">
+              <Link href="/pricing" className="flex items-center gap-1.5 text-sm text-[var(--fn-text-secondary)] hover:text-[var(--fn-text-primary)] font-medium py-1.5 px-3 rounded-full hover:bg-[var(--fn-surface-elevated)] transition-colors duration-150 whitespace-nowrap">
                 <CreditCard className="h-3.5 w-3.5" />
                 {tText("Pricing")}
               </Link>
               {isDev && (
-                <Link href="/dev" className="flex items-center gap-1.5 text-sm text-indigo-400 font-black py-1.5 px-3 rounded-full hover:bg-indigo-500/10 border border-indigo-500/10 hover:border-indigo-500/20 transition-all duration-150 whitespace-nowrap">
+                <Link href="/dev" className="flex items-center gap-1.5 text-sm text-indigo-600 dark:text-indigo-400 font-black py-1.5 px-3 rounded-full hover:bg-indigo-500/5 dark:hover:bg-indigo-500/10 border border-indigo-500/10 dark:border-indigo-500/20 hover:border-indigo-500/20 dark:hover:border-indigo-400/30 transition-all duration-150 whitespace-nowrap">
                   <Code className="h-3.5 w-3.5" />
                   DevWorkspace
                 </Link>
@@ -377,7 +377,7 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.25, ease: "easeInOut" }}
             role="dialog" aria-modal="true" aria-label="Mobile navigation menu"
-            className="mobile-menu-panel lg:hidden border border-border/60 bg-background/95 backdrop-blur-xl p-4 space-y-3 rounded-2xl shadow-premium mt-2 mx-4 overflow-hidden relative z-30"
+            className="mobile-menu-panel lg:hidden border border-[var(--fn-border)] bg-background/95 dark:bg-card/95 backdrop-blur-xl p-4 space-y-3 rounded-2xl shadow-premium mt-2 mx-4 overflow-hidden relative z-30"
           >
             {showSearch && (
               <div className="relative">
@@ -390,7 +390,7 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
                 const isDev = user?.role === 'developer' || user?.role === 'admin' || user?.role === 'super_admin';
                 if (isDev) {
                   return (
-                    <Link onClick={() => setMobileMenuOpen(false)} href="/dev" className="flex items-center justify-center gap-2 text-sm font-black text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 py-2.5 rounded-lg">
+                    <Link onClick={() => setMobileMenuOpen(false)} href="/dev" className="flex items-center justify-center gap-2 text-sm font-black text-indigo-600 dark:text-indigo-400 bg-indigo-500/5 dark:bg-indigo-500/10 border border-indigo-500/10 dark:border-indigo-500/20 py-2.5 rounded-lg">
                       <span className="relative flex h-2 w-2">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75" />
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500" />

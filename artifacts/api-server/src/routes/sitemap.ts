@@ -44,7 +44,7 @@ const SITEMAP_URLS: SitemapUrl[] = [
   { loc: "/ocr",                                   changefreq: "weekly", priority: 0.9,   lastmod: "2026-06-15" },
 
   // AI Tools
-  { loc: "/ai-ppt-maker",                          changefreq: "weekly", priority: 0.9,   lastmod: "2026-06-20" },
+  // { loc: "/ai-ppt-maker", changefreq: "weekly", priority: 0.9, lastmod: "2026-06-20" },
   { loc: "/ai-pdf-summary",                        changefreq: "weekly", priority: 0.85,  lastmod: "2026-06-20" },
 
   // Office Tools

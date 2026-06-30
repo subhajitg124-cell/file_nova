@@ -64,7 +64,7 @@ const ScholarshipZip = React.lazy(() => import("@/pages/tools/ScholarshipZip"));
 const AiPdfSummary = React.lazy(() => import("@/pages/tools/AiPdfSummary"));
 const ResizeImage = React.lazy(() => import("@/pages/tools/ResizeImage"));
 const WordToPdf = React.lazy(() => import("@/pages/tools/WordToPdf"));
-const AIPPTMakerWorkspace = React.lazy(() => import("@/tools/ai-ppt/AIPPTMakerWorkspace"));
+// const AIPPTMakerWorkspace = React.lazy(() => import("@/tools/ai-ppt/AIPPTMakerWorkspace"));
 const CompressImage = React.lazy(() => import("@/pages/tools/CompressImage"));
 const CompressDoc = React.lazy(() => import("@/pages/tools/CompressDoc"));
 const PdfToolsPage = React.lazy(() => import("@/pages/PdfToolsPage"));
@@ -207,7 +207,7 @@ export function Router() {
           <Route path="/ai-pdf-summary"><AiPdfSummary /></Route>
           <Route path="/resize-photo"><ResizeImage /></Route>
           <Route path="/word-to-pdf"><WordToPdf /></Route>
-          <Route path="/ai-ppt-maker"><AIPPTMakerWorkspace /></Route>
+          {/* <Route path="/ai-ppt-maker"><AIPPTMakerWorkspace /></Route> */}
 
           <Route path="/pdf-tools"><PdfToolsPage /></Route>
           <Route path="/image-tools"><ImageToolsPage /></Route>

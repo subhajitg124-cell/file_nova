@@ -581,7 +581,7 @@ export function getBrandedFileName(slug: string, extension: string): string {
     "pdf-to-jpg": "filenovapdftojpg",
     "jpg-to-pdf": "filenovajpgtopdf",
     "word-to-pdf": "filenovawordtopdf",
-    "ai-ppt-maker": "filenovaaipptmaker",
+    // "ai-ppt-maker": "filenovaaipptmaker",
     "ai-pdf-summary": "filenovaaipdfsummary",
   };
   const baseName = mapping[slug] || `filenova${slug.replace(/-/g, "")}`;
@@ -599,8 +599,8 @@ export function getOutputExtensionForSlug(slug: string, inputFiles: any[] = []):
       return ".jpg";
     case "scholarship-zip":
       return ".zip";
-    case "ai-ppt-maker":
-      return ".pptx";
+    // case "ai-ppt-maker":
+    //   return ".pptx";
     case "remove-background":
       return ".png";
     case "ocr":

@@ -220,7 +220,7 @@ export default function Home() {
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 w-full bg-transparent py-3 px-3 sm:px-4 transition-all duration-300">
-        <div className="max-w-6xl mx-auto h-14 px-4 sm:px-6 flex items-center justify-between gap-2 rounded-full border border-border/60 bg-background/70 backdrop-blur-xl shadow-premium relative overflow-hidden group/nav">
+        <div className="max-w-6xl mx-auto h-14 px-4 sm:px-6 flex items-center justify-between gap-2 rounded-full border border-[var(--fn-border)] bg-[var(--fn-surface-glass)] backdrop-blur-xl shadow-premium relative overflow-hidden group/nav">
           <div className="absolute inset-0 bg-gradient-to-r from-brand-primary/0 via-brand-primary/10 to-brand-primary/0 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
           <button
@@ -232,7 +232,7 @@ export default function Home() {
               <img src="/logo.png" alt="FileNova - AI PDF and Image Tools" className="h-full w-full object-cover" width="32" height="32" fetchPriority="high" />
             </div>
             <div className="leading-tight text-left">
-              <span className="block text-sm font-extrabold tracking-tight text-foreground">FileNova</span>
+              <span className="block text-sm font-extrabold tracking-tight text-[var(--fn-text-primary)]">FileNova</span>
               <span className="block text-[9px] text-muted-foreground font-medium uppercase tracking-widest">Workspace</span>
             </div>
           </button>

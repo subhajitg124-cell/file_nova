@@ -56,7 +56,7 @@ export const DocumentToolsPage: React.FC = () => {
             transition={{ delay: 0.2 }}
             className="text-sm text-muted-foreground max-w-2xl mx-auto leading-relaxed"
           >
-            Convert between Word, PowerPoint, Excel formats and PDF. Clean Word documents, create AI PPT presentations, and manage spreadsheets easily.
+            Convert between Word, PowerPoint, Excel formats and PDF. Clean Word documents and manage spreadsheets easily.
           </motion.p>
         </div>
 
@@ -167,7 +167,6 @@ export const DocumentToolsPage: React.FC = () => {
             </p>
             <p>
               Our DOCX to PDF converter renders fonts, tables, and alignments accurately. Excel to CSV allows easy table imports.
-              We also feature AI PPT Maker to create presentation decks automatically.
               All operations are computed directly inside your browser Sandbox using client-side libraries, providing maximum privacy.
             </p>
           </div>

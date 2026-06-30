@@ -9,7 +9,7 @@ export function DevBadge() {
     <button
       onClick={() => setLocation("/dev")}
       title="Internal Developer Account"
-      className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 px-3 py-1.5 text-[10px] font-black text-indigo-400 border border-indigo-500/30 hover:from-indigo-500/30 hover:via-purple-500/30 hover:to-pink-500/30 hover:border-indigo-400/50 transition-all duration-300 cursor-pointer animate-pulse-glow shrink-0"
+      className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-indigo-500/10 dark:from-indigo-500/20 via-purple-500/10 dark:via-purple-500/20 to-pink-500/10 dark:to-pink-500/20 px-3 py-1.5 text-[10px] font-black text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 dark:border-indigo-500/30 hover:from-indigo-500/20 dark:hover:from-indigo-500/30 hover:via-purple-500/20 dark:hover:via-purple-500/30 hover:to-pink-500/20 dark:hover:to-pink-500/30 hover:border-indigo-400/40 dark:hover:border-indigo-400/50 transition-all duration-300 cursor-pointer animate-pulse-glow shrink-0"
     >
       <span className="relative flex h-2 w-2">
         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75" />

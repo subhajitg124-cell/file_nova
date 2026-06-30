@@ -845,7 +845,7 @@ function BundleView() {
     <div className="max-w-4xl mx-auto space-y-6">
       <div><h1 className="text-xl font-black text-foreground">Bundle Analyzer</h1><p className="text-xs text-muted-foreground mt-1">JavaScript bundle size breakdown by chunk.</p></div>
       <div className="grid gap-2">
-        {[{ name: "App (main)", size: "1,793 KB", gzip: "369 KB" }, { name: "ToolWorkspace", size: "210 KB", gzip: "33 KB" }, { name: "ToolPageLayout", size: "143 KB", gzip: "20 KB" }, { name: "AIPPTMakerWorkspace", size: "364 KB", gzip: "110 KB" }, { name: "AdminDashboard", size: "475 KB", gzip: "116 KB" }, { name: "React Vendor", size: "1.2 MB", gzip: "320 KB" }].map((c) => (
+        {[{ name: "App (main)", size: "1,793 KB", gzip: "369 KB" }, { name: "ToolWorkspace", size: "210 KB", gzip: "33 KB" }, { name: "ToolPageLayout", size: "143 KB", gzip: "20 KB" }, { name: "AdminDashboard", size: "475 KB", gzip: "116 KB" }, { name: "React Vendor", size: "1.2 MB", gzip: "320 KB" }].map((c) => (
           <div key={c.name} className="flex items-center justify-between rounded-xl border border-border bg-card p-3">
             <div>
               <p className="text-xs font-bold text-foreground">{c.name}</p>

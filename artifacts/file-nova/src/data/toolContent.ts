@@ -1241,6 +1241,8 @@ export const toolContentMap: Record<string, ToolContent> = {
     toolCategory: "document"
   },
 
+  // "ai-ppt-maker" entry disabled — uncomment to re-enable
+  /*
   "ai-ppt-maker": {
     slug: "ai-ppt-maker",
     title: "AI PPT Maker – Generate Presentations from Topic Free | FileNova",
@@ -1304,6 +1306,7 @@ export const toolContentMap: Record<string, ToolContent> = {
     howToName: "Create a Presentation with AI",
     toolCategory: "document"
   },
+  */
 
   "word-to-pdf": {
     slug: "word-to-pdf",

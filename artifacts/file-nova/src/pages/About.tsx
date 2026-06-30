@@ -16,7 +16,7 @@ export default function About() {
   const timeline = [
     { year: "2024", title: tText("The Spark"), desc: tText("FileNova was conceived to solve slow government portal submissions for common Indian users.") },
     { year: "2025", title: tText("Local Processing Era"), desc: tText("Migrated heavy PDF tasks directly to the client's browser using WebAssembly to eliminate server uploads.") },
-    { year: "2026", title: tText("AI Automation"), desc: tText("Introduced generative features like AI PPT Maker and AI Document Summarizers to boost operator productivity.") },
+    { year: "2026", title: tText("AI Automation"), desc: tText("Introduced generative features like AI Document Summarizers to boost operator productivity.") },
   ];
 
   return (

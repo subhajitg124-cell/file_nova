@@ -3,7 +3,7 @@ import { useLocation, Link } from "wouter";
 import {
   GitMerge, Scissors, FileArchive, RotateCw, Lock, Unlock,
   IdCard, Fingerprint, FileCheck2, FileUp, GraduationCap,
-  ScanLine, Sparkles, BrainCircuit, FileText, FileImage, Image, Presentation
+  ScanLine, Sparkles, BrainCircuit, FileText, FileImage, Image,
 } from "lucide-react";
 
 export interface Tool {
@@ -167,6 +167,8 @@ export const TOOLS: Tool[] = [
     gradient: "from-green-500/20 to-emerald-600/20",
     glow: "hover:shadow-green-500/30",
   },
+  // AI PPT Maker card disabled — uncomment to re-enable
+  /*
   {
     label: "AI Slide Maker",
     description: "Topic to PPT in seconds, with themes",
@@ -176,6 +178,7 @@ export const TOOLS: Tool[] = [
     glow: "hover:shadow-purple-500/30",
     badge: "AI",
   },
+  */
 ];
 
 interface ToolCardProps {

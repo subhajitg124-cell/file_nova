@@ -206,9 +206,12 @@ export function useSubscription() {
   // Max daily limit rules
   const getDailyLimit = useCallback((): number => {
     if (isTestingPeriodActive() || isDev) return Infinity;
+    // AI PPT Maker override disabled
+    /*
     if (typeof window !== "undefined" && window.location.pathname.includes("/ai-ppt-maker")) {
       return premiumTier === "free" ? 2 : 20;
     }
+    */
     if (dbLimit === -1) return Infinity;
     try {
       const today = getTodayKey();

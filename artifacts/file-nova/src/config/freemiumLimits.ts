@@ -1,3 +1,3 @@
 export const FREEMIUM_LIMITS = {
-  "ai-ppt-maker": { freeUsesPerDay: 2, premiumUsesPerDay: 20 },
+  // "ai-ppt-maker": { freeUsesPerDay: 2, premiumUsesPerDay: 20 },
 };

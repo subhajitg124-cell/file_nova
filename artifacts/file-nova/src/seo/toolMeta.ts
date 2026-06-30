@@ -382,6 +382,8 @@ export const TOOL_META: Record<string, ToolMeta> = {
 
   // ─── AI TOOLS ─────────────────────────────────────────────────────────────
 
+  // AI PPT Maker entry disabled — uncomment to re-enable
+  /*
   "/ai-ppt-maker": {
     title: "AI PPT Maker Free – Topic to Slides in Seconds | FileNova",
     description: "Generate complete PowerPoint presentations from any topic or notes using AI for free. Choose themes, writing tone, and number of slides. Perfect for school and college projects in India.",
@@ -396,6 +398,7 @@ export const TOOL_META: Record<string, ToolMeta> = {
       { question: "Can I make PPT from my notes using AI for free?", answer: "Yes. Paste your notes or syllabus points, select a theme, and the AI generates structured slides with headings, bullet points, and formatting automatically." },
     ],
   },
+  */
 
   "/ai-pdf-summary": {
     title: "AI PDF Summarizer Free – Extract Key Points | FileNova",
@@ -616,7 +619,7 @@ export const TOOL_META: Record<string, ToolMeta> = {
     ogTitle: "All Document, PDF & Image Tools Online | FileNova",
     ogDescription: "Explore 30+ secure, fast, and free PDF, image, and document tools. Local browser-based processing.",
     jsonLdFaq: [
-      { question: "What tools does FileNova offer?", answer: "FileNova provides a comprehensive suite of 30+ document automation tools including PDF tools (Merge, Compress, Split, Convert), Image Lab (Resize, Compress, Background Removal), Document Suite (Word to PDF, AI PPT), Video Studio, and pre-configured India-specific tools." },
+      { question: "What tools does FileNova offer?", answer: "FileNova provides a comprehensive suite of 30+ document automation tools including PDF tools (Merge, Compress, Split, Convert), Image Lab (Resize, Compress, Background Removal), Document Suite (Word to PDF), Video Studio, and pre-configured India-specific tools." },
       { question: "Are my files secure on FileNova?", answer: "Yes, 100%. FileNova uses local browser-based execution (via WebAssembly and Canvas APIs) to process your PDFs, images, and documents. Your confidential files never touch our servers." },
       { question: "Do I need to pay or register an account?", answer: "No. All core features and utility tools are completely free to use with no account or registration required." }
     ],
@@ -653,9 +656,9 @@ export const TOOL_META: Record<string, ToolMeta> = {
 
   "/document-tools": {
     title: "Document Tools Suite – Word, Excel, PPT Converter | FileNova",
-    description: "Convert, merge, and clean office documents online free. Convert Word to PDF, Excel to CSV, and create AI PPT slides. 100% secure, browser-based.",
+    description: "Convert, merge, and clean office documents online free. Convert Word to PDF, Excel to CSV. 100% secure, browser-based.",
     canonical: "https://filenova.in/document-tools",
-    keywords: "document tools online, word to pdf free, convert docx, clean docx online, excel to csv converter, ai ppt maker",
+    keywords: "document tools online, word to pdf free, convert docx, clean docx online, excel to csv converter",
     ogImage: OG_DEFAULT,
     ogTitle: "Document Tools Suite – Word, Excel, PPT Converter | FileNova",
     ogDescription: "Convert and clean Word, Excel, and PowerPoint documents online free. Local browser-based conversion.",

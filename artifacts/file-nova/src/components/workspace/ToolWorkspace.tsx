@@ -183,7 +183,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
   const [activeWorkspaceTab, setActiveWorkspaceTab] = useState<"preview" | "settings">("preview");
 
   const theme = TOOL_THEMES[accentColor] || TOOL_THEMES.violet;
-  const hasFiles = files.length > 0 || slug === "scholarship-zip" || slug === "ai-ppt-maker";
+  const hasFiles = files.length > 0 || slug === "scholarship-zip"; // || slug === "ai-ppt-maker"
 
   // Logs panel state — collapsed by default to save vertical space
   const [logsOpen, setLogsOpen] = useState(false);

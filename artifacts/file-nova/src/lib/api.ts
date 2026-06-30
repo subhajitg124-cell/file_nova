@@ -235,6 +235,8 @@ export const apiClient = {
     });
   },
 
+  // AI PPT Maker API methods disabled — uncomment to re-enable
+  /*
   async getAIPPTOutline(topic: string, slideCount: number): Promise<any> {
     return this.request<any>('/api/ai-ppt/outline', {
       method: 'POST',
@@ -250,6 +252,7 @@ export const apiClient = {
       body: JSON.stringify({ slideId, instructions }),
     });
   },
+  */
 
   async getPremiumSecurityStatus(): Promise<any> {
     return this.request<any>('/api/v1/premium/security/status');
