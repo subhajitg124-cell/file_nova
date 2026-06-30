@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Check, ChevronDown, Globe } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
 import type { AppLanguage } from "@/lib/document-automation";
+import { useDismissablePanel } from "@/hooks/useDismissablePanel";
 
 export const LANGUAGES: { code: AppLanguage; label: string; native: string; flag: string }[] = [
   { code: "en", label: "English", native: "English", flag: "🇬🇧" },
@@ -13,7 +14,7 @@ export const LANGUAGES: { code: AppLanguage; label: string; native: string; flag
   { code: "mr", label: "Marathi", native: "मराठी", flag: "🇮🇳" },
   { code: "gu", label: "Gujarati", native: "ગુજરાતી", flag: "🇮🇳" },
   { code: "kn", label: "Kannada", native: "ಕನ್ನಡ", flag: "🇮🇳" },
-  { code: "ml", label: "Malayalam", native: "മലയാളം", flag: "🇮🇳" },
+  { code: "ml", label: "Malayalam", native: "മലയാളம்", flag: "🇮🇳" },
   { code: "pa", label: "Punjabi", native: "ਪੰਜਾਬੀ", flag: "🇮🇳" },
   { code: "or", label: "Odia", native: "ଓଡ଼ିଆ", flag: "🇮🇳" },
   { code: "as", label: "Assamese", native: "অসমীয়া", flag: "🇮🇳" },
@@ -34,35 +35,32 @@ export function LanguageSelector({
   const { language: globalLang, setLanguage: globalSetLang } = useLanguage();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const activeLang = currentLang ?? globalLang ?? "en";
   const activeChange = onLanguageChange ?? globalSetLang;
 
   const current = LANGUAGES.find((l) => l.code === activeLang) ?? LANGUAGES[0];
 
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
+  useDismissablePanel({
+    isOpen: open,
+    onClose: () => setOpen(false),
+    panelRef: ref,
+    triggerRef: buttonRef,
+  });
 
   return (
     <div ref={ref} className="relative">
       {/* Trigger button */}
       <motion.button
+        ref={buttonRef}
         whileHover={{ scale: 1.04 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setOpen((o) => !o)}
-        className="group flex items-center gap-2 bg-indigo-50/50 dark:bg-white/[0.06] backdrop-blur-md border border-indigo-200/50 dark:border-white/10 rounded-2xl px-3.5 py-2.5 text-xs font-black text-foreground transition-all cursor-pointer shadow-[0_0_0_rgba(99,102,241,0)] hover:border-indigo-500/50 hover:shadow-[0_0_24px_rgba(99,102,241,0.35)] active:shadow-[0_0_10px_rgba(99,102,241,0.2)]"
+        className="group flex items-center gap-2 bg-indigo-50/50 dark:bg-white/[0.06] backdrop-blur-md border border-indigo-200/50 dark:border-white/10 rounded-2xl px-3.5 py-2.5 text-xs font-black text-foreground transition-all cursor-pointer shadow-[0_0_0_rgba(99,102,241,0)] hover:border-indigo-500/50 hover:shadow-[0_0_24px_rgba(99,102,241,0.35)] active:shadow-[0_0_10px_rgba(99,102,241,0.2)] focus-visible:ring-2 focus-visible:ring-[var(--fn-accent-primary)] focus-visible:outline-none"
         title="Select language"
-        {...{
-          "aria-haspopup": "listbox",
-          "aria-expanded": open,
-        }}
+        aria-haspopup="listbox"
+        aria-expanded={open}
       >
         <Globe className="h-4 w-4 text-indigo-500 dark:text-indigo-400 shrink-0 transition-transform group-hover:rotate-12 duration-300" />
         <span className="hidden sm:inline max-w-[90px] truncate tracking-wide font-extrabold text-[11px] text-foreground">

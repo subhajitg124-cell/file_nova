@@ -172,7 +172,7 @@ export function FloatingShortcuts() {
         onClick={() => setIsOpen(!isOpen)}
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.92 }}
-        className={`relative z-50 flex items-center justify-center w-14 h-14 rounded-full text-foreground cursor-pointer shadow-premium transition-all duration-300 ${
+        className={`relative z-50 flex items-center justify-center w-14 h-14 rounded-full text-foreground cursor-pointer shadow-premium transition-all duration-300 focus-visible:ring-2 focus-visible:ring-[var(--fn-accent-primary)] focus-visible:outline-none ${
           isOpen
             ? "bg-card border border-white/20 rotate-90"
             : "bg-gradient-to-tr from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 animate-pulse-glow"
@@ -259,7 +259,7 @@ export function FloatingShortcuts() {
               
               <button 
                 onClick={() => setIsOpen(false)}
-                className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center bg-card/[0.02] hover:bg-card/5 active:scale-95 transition cursor-pointer sm:hidden"
+                className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center bg-card/[0.02] hover:bg-card/5 active:scale-95 transition cursor-pointer sm:hidden focus-visible:ring-2 focus-visible:ring-[var(--fn-accent-primary)] focus-visible:outline-none"
                 title="Close shortcuts"
                 aria-label="Close shortcuts"
               >
@@ -273,7 +273,7 @@ export function FloatingShortcuts() {
                 <button
                   key={act.id}
                   onClick={() => handleAction(act.route || "", act.isInternal, act.onClick)}
-                  className={`flex flex-col items-start gap-2.5 p-3 rounded-2xl border bg-gradient-to-br text-left hover:scale-[1.02] active:scale-[0.98] transition duration-200 cursor-pointer overflow-hidden relative group ${act.gradient}`}
+                  className={`flex flex-col items-start gap-2.5 p-3 rounded-2xl border bg-gradient-to-br text-left hover:scale-[1.02] active:scale-[0.98] transition duration-200 cursor-pointer overflow-hidden relative group focus-visible:ring-2 focus-visible:ring-[var(--fn-accent-primary)] focus-visible:outline-none ${act.gradient}`}
                 >
                   <div className="flex items-center justify-between w-full">
                     <div className="w-9 h-9 rounded-xl bg-card/[0.03] border border-white/5 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">

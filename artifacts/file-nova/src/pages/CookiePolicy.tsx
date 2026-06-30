@@ -35,17 +35,17 @@ export default function CookiePolicy() {
               {tText("Cookie Policy")}
             </h1>
             <p className="text-xs text-muted-foreground font-semibold">
-              {tText("Last Updated: June 10, 2026")}
+              {tText("Last Updated: June 30, 2026")}
             </p>
           </div>
 
           <div className="border-t border-border/40 pt-8 space-y-8 text-sm sm:text-base leading-relaxed text-muted-foreground">
             <section className="space-y-3">
               <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-                <span className="text-indigo-400">1.</span> {tText("What are Cookies?")}
+                <span className="text-indigo-400">1.</span> {tText("What are Cookies & Local Storage?")}
               </h2>
               <p>
-                {tText("Cookies and local web storage are small text files placed on your device to store temporary session variables, credentials, preferences, and custom application configurations. They help websites function efficiently and remember your selections on subsequent visits.")}
+                {tText("Cookies and local web storage are small files placed on your device to store temporary variables, credentials, preferences, and custom application configurations. They help the website function efficiently and remember your selections on subsequent visits.")}
               </p>
             </section>
 
@@ -54,28 +54,28 @@ export default function CookiePolicy() {
                 <span className="text-indigo-400">2.</span> {tText("How FileNova Uses Local Storage & Cookies")}
               </h2>
               <p>
-                {tText("We utilize LocalStorage (and session cookies where appropriate) to provide a seamless document processing workspace. We do NOT run tracking cookies, third-party analytics pixels, or advertising beacons. Here is a breakdown of our storage:")}
+                {tText("We utilize LocalStorage (and session cookies where appropriate) to provide a seamless document processing workspace. We do NOT run tracking cookies from advertising networks, third-party pixel beacons, or data brokers. Here is a breakdown of our storage:")}
               </p>
               
               <div className="space-y-4 mt-4">
                 <div className="p-5 rounded-2xl border border-border bg-background/50 space-y-2">
                   <h3 className="font-bold text-foreground text-sm uppercase tracking-wider">{tText("1. Essential Session Variables")}</h3>
                   <p className="text-xs">
-                    {tText("Includes variables for checking user login sessions, Google OAuth state tokens, and routing settings. These are mandatory for the Premium Suite dashboard.")}
+                    {tText("Includes variables for checking user login sessions, Google OAuth state tokens, and routing settings. These are mandatory for the premium suite, dashboard, and billing features.")}
                   </p>
                 </div>
                 
                 <div className="p-5 rounded-2xl border border-border bg-background/50 space-y-2">
                   <h3 className="font-bold text-foreground text-sm uppercase tracking-wider">{tText("2. Application Settings (LocalStorage)")}</h3>
                   <p className="text-xs">
-                    {tText("Variables such as your selected language (English, Bengali, Hindi, Telugu, Tamil), active theme selections, and cached coupon codes (e.g. coupon apply states).")}
+                    {tText("Variables such as your selected language (English, Hindi, Bengali, Tamil, Telugu, etc.), active theme selections, and cached coupon codes to optimize layout rendering.")}
                   </p>
                 </div>
 
                 <div className="p-5 rounded-2xl border border-border bg-background/50 space-y-2">
-                  <h3 className="font-bold text-foreground text-sm uppercase tracking-wider">{tText("3. Client-Side File Cache")}</h3>
+                  <h3 className="font-bold text-foreground text-sm uppercase tracking-wider">{tText("3. Performance & Analytics Cookies")}</h3>
                   <p className="text-xs">
-                    {tText("For offline capabilities, we store local configuration schemas. Files are temporarily cached inside browser memory (and deleted automatically within 1 hour). We do not track document contents.")}
+                    {tText("If you grant consent, we load Google Analytics (gtag) using anonymous IDs to compile statistical data about site usage and tool speed. No data is shared with advertisers or third parties.")}
                   </p>
                 </div>
               </div>
@@ -83,10 +83,10 @@ export default function CookiePolicy() {
 
             <section className="space-y-3">
               <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-                <span className="text-indigo-400">3.</span> {tText("Managing Storage")}
+                <span className="text-indigo-400">3.</span> {tText("Managing Storage & Consent")}
               </h2>
               <p>
-                {tText("You can control or clear cookies and LocalStorage through your web browser's configuration settings. Note that clearing LocalStorage completely will sign you out and reset your document tool history, preferred language selections, and offline workspace configs.")}
+                {tText("You can control or clear cookies and LocalStorage through your web browser's configuration settings. Alternatively, you can click 'Cookie Settings' in the footer at any time to reopen the consent banner and adjust your choices. Note that clearing LocalStorage completely will sign you out and reset your document tool history, preferred language selections, and offline workspace configs.")}
               </p>
             </section>
           </div>

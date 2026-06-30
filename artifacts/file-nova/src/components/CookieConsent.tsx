@@ -1,16 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
-import { ShieldCheck, X } from "lucide-react";
+import { ShieldCheck, X, Settings, Check } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
+import { loadGoogleAnalytics, clearGoogleAnalyticsCookies } from "@/lib/analytics";
+import { useDismissablePanel } from "@/hooks/useDismissablePanel";
 
 export function CookieConsent() {
   const { tText } = useTranslation();
   const [visible, setVisible] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const [analyticsEnabled, setAnalyticsEnabled] = useState(false);
+  const bannerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const consent = localStorage.getItem("cookie_consent_accepted");
+    const consent = localStorage.getItem("fn-cookie-consent");
     if (!consent) {
-      // Small delay on load for a premium fade-in feel
+      // 1.5s delay on load for a premium fade-in feel
       const timer = setTimeout(() => {
         setVisible(true);
       }, 1500);
@@ -18,165 +23,178 @@ export function CookieConsent() {
     }
   }, []);
 
-  const handleAccept = () => {
-    localStorage.setItem("cookie_consent_accepted", "true");
+  // Listen for custom window event to reopen/customize preferences
+  useEffect(() => {
+    const handleOpenConsent = () => {
+      const consent = localStorage.getItem("fn-cookie-consent");
+      setAnalyticsEnabled(consent === "all");
+      setExpanded(true);
+      setVisible(true);
+    };
+
+    window.addEventListener("openCookieConsentBanner", handleOpenConsent);
+    return () => {
+      window.removeEventListener("openCookieConsentBanner", handleOpenConsent);
+    };
+  }, []);
+
+  // Shared dismiss hook to allow Escape key to close the banner when it was manually opened
+  useDismissablePanel({
+    isOpen: visible && expanded,
+    onClose: () => setVisible(false),
+    panelRef: bannerRef
+  });
+
+  const saveConsent = (choice: "all" | "essential") => {
+    localStorage.setItem("fn-cookie-consent", choice);
+    if (choice === "all") {
+      loadGoogleAnalytics();
+    } else {
+      clearGoogleAnalyticsCookies();
+    }
     setVisible(false);
   };
 
-  const handleDecline = () => {
-    localStorage.setItem("cookie_consent_accepted", "false");
-    setVisible(false);
+  const handleAcceptAll = () => {
+    saveConsent("all");
+  };
+
+  const handleEssentialOnly = () => {
+    saveConsent("essential");
+  };
+
+  const handleSaveCustom = () => {
+    saveConsent(analyticsEnabled ? "all" : "essential");
   };
 
   if (!visible) return null;
 
   return (
-    <>
-      <style>{`
-        .cookie-banner-container {
-          position: fixed;
-          bottom: 24px;
-          left: 24px;
-          max-width: 380px;
-          width: calc(100vw - 48px);
-          background: rgba(15, 23, 42, 0.95);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 20px;
-          padding: 20px;
-          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
-          z-index: 99999;
-          font-family: inherit;
-          backdrop-filter: blur(12px);
-          animation: slide-up-cookie 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-          color: #FFFFFF;
-          box-sizing: border-box;
-        }
+    <div
+      ref={bannerRef}
+      role="region"
+      aria-label={tText("Cookie Consent Banner")}
+      className="fixed bottom-0 left-0 right-0 w-full z-[9999] fn-glass border-t border-[var(--fn-border)] shadow-premium bg-[var(--fn-surface-glass)] backdrop-blur-xl p-5 md:p-6 transition-all duration-300 transform translate-y-0"
+    >
+      <div className="max-w-6xl mx-auto flex flex-col gap-4 text-[var(--fn-text-primary)]">
+        
+        {/* Main Banner Message */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-start gap-3.5">
+            <div className="h-10 w-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500 shrink-0">
+              <ShieldCheck className="h-5 w-5" />
+            </div>
+            <div className="space-y-1">
+              <h4 className="text-sm font-black uppercase tracking-wider text-indigo-500 leading-none">
+                {tText("Cookie Consent")}
+              </h4>
+              <p className="text-xs text-[var(--fn-text-secondary)] leading-relaxed mt-1 max-w-3xl">
+                {tText("We use cookies for analytics to improve FileNova. No data is sold or shared with advertisers. Read our ")}
+                <Link href="/privacy" className="text-indigo-400 hover:underline">{tText("Privacy Policy")}</Link>
+                {tText(" and ")}
+                <Link href="/cookie-policy" className="text-indigo-400 hover:underline">{tText("Cookie Policy")}</Link>
+                {tText(" for details.")}
+              </p>
+            </div>
+          </div>
 
-        @keyframes slide-up-cookie {
-          from {
-            opacity: 0;
-            transform: translateY(30px) scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-
-        .cookie-title {
-          font-weight: 700;
-          font-size: 14px;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          margin-bottom: 8px;
-          color: #6366F1;
-        }
-
-        .cookie-desc {
-          font-size: 12px;
-          line-height: 1.5;
-          color: #E2E8F0;
-          margin-bottom: 16px;
-        }
-
-        .cookie-links {
-          color: #6366F1;
-          text-decoration: underline;
-          transition: color 0.15s ease;
-        }
-
-        .cookie-links:hover {
-          color: #818cf8;
-        }
-
-        .cookie-btn-group {
-          display: flex;
-          gap: 10px;
-        }
-
-        .cookie-btn {
-          flex: 1;
-          font-size: 12px;
-          font-weight: 600;
-          padding: 8px 12px;
-          border-radius: 10px;
-          border: none;
-          cursor: pointer;
-          transition: background-color 0.15s ease, opacity 0.15s ease;
-        }
-
-        .cookie-btn-accept {
-          background: #6366F1;
-          color: #FFFFFF;
-        }
-
-        .cookie-btn-accept:hover {
-          background: #4F46E5;
-        }
-
-        .cookie-btn-decline {
-          background: rgba(255, 255, 255, 0.08);
-          color: #cbd5e1;
-          border: 1px solid rgba(255, 255, 255, 0.15);
-        }
-
-        .cookie-btn-decline:hover {
-          background: rgba(255, 255, 255, 0.12);
-        }
-
-        .cookie-close-btn {
-          position: absolute;
-          top: 14px;
-          right: 14px;
-          background: transparent;
-          border: none;
-          color: #94a3b8;
-          cursor: pointer;
-          transition: color 0.15s ease;
-          padding: 2px;
-        }
-
-        .cookie-close-btn:hover {
-          color: #cbd5e1;
-        }
-
-        @media (max-width: 640px) {
-          .cookie-banner-container {
-            bottom: 16px;
-            left: 16px;
-            right: 16px;
-            max-width: none;
-            width: calc(100vw - 32px);
-          }
-        }
-      `}</style>
-
-      <div className="cookie-banner-container">
-        <button className="cookie-close-btn" onClick={handleDecline} aria-label={tText("Close cookie banner")}>
-          <X className="h-4 w-4" />
-        </button>
-        <div className="cookie-title">
-          <ShieldCheck className="h-5 w-5 text-indigo-400" />
-          <span>{tText("Cookie Consent")}</span>
+          {/* Action Buttons */}
+          <div className="flex items-center gap-2.5 self-end md:self-center flex-wrap">
+            <button
+              onClick={handleEssentialOnly}
+              className="py-2 px-4 rounded-xl border border-[var(--fn-border)] hover:bg-[var(--fn-surface-elevated)] text-xs font-bold text-[var(--fn-text-secondary)] transition-colors cursor-pointer select-none"
+            >
+              {tText("Essential Only")}
+            </button>
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="py-2 px-4 rounded-xl border border-[var(--fn-border)] hover:bg-[var(--fn-surface-elevated)] text-xs font-bold text-[var(--fn-text-secondary)] transition-colors cursor-pointer select-none flex items-center gap-1.5"
+            >
+              <Settings className="h-3.5 w-3.5" />
+              {tText("Customize")}
+            </button>
+            <button
+              onClick={handleAcceptAll}
+              className="py-2 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-colors cursor-pointer select-none"
+            >
+              {tText("Accept All")}
+            </button>
+          </div>
         </div>
-        <p className="cookie-desc">
-          {tText("FileNova uses cookies and similar technologies to measure site performance, personalize content, and serve relevant Google Ads. Read our ")}
-          <Link href="/privacy" className="cookie-links">{tText("Privacy Policy")}</Link>
-          {tText(" and ")}
-          <Link href="/cookie-policy" className="cookie-links">{tText("Cookie Policy")}</Link>
-          {tText(" for details.")}
-        </p>
-        <div className="cookie-btn-group">
-          <button className="cookie-btn cookie-btn-accept" onClick={handleAccept}>
-            {tText("Accept All")}
-          </button>
-          <button className="cookie-btn cookie-btn-decline" onClick={handleDecline}>
-            {tText("Decline")}
-          </button>
-        </div>
+
+        {/* Customized Settings Expansion Panel */}
+        {expanded && (
+          <div className="border-t border-[var(--fn-border)] pt-4 mt-2 space-y-4 animate-fadeIn">
+            <h5 className="text-[11px] font-black uppercase tracking-wider text-indigo-500 mb-2">
+              {tText("Manage Cookie Preferences")}
+            </h5>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              
+              {/* Essential Option Card */}
+              <div className="p-4 rounded-2xl border border-[var(--fn-border)] bg-[var(--fn-surface)]/40 flex items-center justify-between gap-4">
+                <div className="space-y-0.5 text-left">
+                  <span className="block text-xs font-bold text-[var(--fn-text-primary)]">
+                    {tText("Essential Cookies")}
+                  </span>
+                  <span className="block text-[10px] text-[var(--fn-text-tertiary)] leading-normal">
+                    {tText("Required for user sessions, system settings, and basic features. Cannot be disabled.")}
+                  </span>
+                </div>
+                
+                {/* Always-on switch */}
+                <div className="relative inline-flex items-center cursor-not-allowed">
+                  <div className="w-9 h-5 bg-indigo-600/30 dark:bg-indigo-500/20 rounded-full border border-indigo-500/30 flex items-center justify-end px-0.5">
+                    <div className="w-4 h-4 bg-indigo-500 rounded-full flex items-center justify-center text-white">
+                      <Check className="h-2.5 w-2.5 stroke-[3]" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Analytics Option Card */}
+              <div className="p-4 rounded-2xl border border-[var(--fn-border)] bg-[var(--fn-surface)]/40 flex items-center justify-between gap-4">
+                <div className="space-y-0.5 text-left">
+                  <span className="block text-xs font-bold text-[var(--fn-text-primary)]">
+                    {tText("Analytics Cookies (Google Analytics)")}
+                  </span>
+                  <span className="block text-[10px] text-[var(--fn-text-tertiary)] leading-normal">
+                    {tText("Helps us gather anonymous traffic stats to improve our application and document automation tools.")}
+                  </span>
+                </div>
+
+                {/* Toggle switch */}
+                <button
+                  onClick={() => setAnalyticsEnabled(!analyticsEnabled)}
+                  className="relative inline-flex items-center h-5 w-9 rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors duration-200"
+                  style={{
+                    backgroundColor: analyticsEnabled ? "var(--fn-accent-primary)" : "rgba(148, 163, 184, 0.2)"
+                  }}
+                  aria-label={tText("Toggle Analytics Cookies")}
+                >
+                  <span
+                    className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform duration-200 ${
+                      analyticsEnabled ? "translate-x-4.5" : "translate-x-0.5"
+                    }`}
+                  />
+                </button>
+              </div>
+
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                onClick={handleSaveCustom}
+                className="py-2 px-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer select-none"
+              >
+                {tText("Save Preferences")}
+              </button>
+            </div>
+          </div>
+        )}
+
       </div>
-    </>
+    </div>
   );
 }
 export default CookieConsent;

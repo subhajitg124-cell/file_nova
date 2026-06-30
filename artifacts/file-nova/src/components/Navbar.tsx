@@ -16,6 +16,7 @@ import { SmartSearchBar } from "@/components/SmartSearchBar";
 import { PopularToolsDropdown } from "@/components/PopularToolsDropdown";
 import { BACKEND_URL, HAS_BACKEND } from "@/lib/api";
 import { useFileStore } from "@/store/useFileStore";
+import { useDismissablePanel } from "@/hooks/useDismissablePanel";
 
 interface NavbarProps {
   showSearch?: boolean;
@@ -32,6 +33,24 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const notificationsRef = useRef<HTMLDivElement>(null);
+  
+  const settingsRef = useRef<HTMLDivElement>(null);
+  const settingsTriggerRef = useRef<HTMLButtonElement>(null);
+  const notificationsTriggerRef = useRef<HTMLButtonElement>(null);
+
+  useDismissablePanel({
+    isOpen: settingsOpen,
+    onClose: () => setSettingsOpen(false),
+    panelRef: settingsRef,
+    triggerRef: settingsTriggerRef,
+  });
+
+  useDismissablePanel({
+    isOpen: notificationsOpen,
+    onClose: () => setNotificationsOpen(false),
+    panelRef: notificationsRef,
+    triggerRef: notificationsTriggerRef,
+  });
 
   const fetchNotifications = useCallback(async () => {
     if (!user) return;
@@ -213,8 +232,9 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
             {user && (
               <div className="relative flex items-center justify-center" ref={notificationsRef}>
                 <button
+                  ref={notificationsTriggerRef}
                   onClick={() => setNotificationsOpen(!notificationsOpen)}
-                  className="relative hidden md:flex items-center justify-center p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all cursor-pointer"
+                  className="relative hidden md:flex items-center justify-center p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--fn-accent-primary)] focus-visible:outline-none"
                   aria-label="Notifications"
                   title="Notifications"
                 >
@@ -281,10 +301,11 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
             )}
 
             {/* Settings */}
-            <div className="relative hidden md:block">
+            <div ref={settingsRef} className="relative hidden md:block">
               <button
+                ref={settingsTriggerRef}
                 onClick={() => setSettingsOpen(!settingsOpen)}
-                className="flex items-center justify-center p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all cursor-pointer"
+                className="flex items-center justify-center p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--fn-accent-primary)] focus-visible:outline-none"
                 aria-label="Settings"
                 {...(settingsOpen ? { "aria-expanded": "true" } : { "aria-expanded": "false" })}
                 title="Settings"

@@ -6,6 +6,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { useTheme } from "@/hooks/useTheme";
 import { AuthModal } from "./AuthModal";
 import { toast } from "sonner";
+import { useDismissablePanel } from "@/hooks/useDismissablePanel";
 
 export const UserProfileDropdown = memo(function UserProfileDropdown() {
   const { user, subscription, fetchMe, logout, isLoginModalOpen, openLoginModal, closeLoginModal } = useAuthStore();
@@ -16,29 +17,18 @@ export const UserProfileDropdown = memo(function UserProfileDropdown() {
   const isDev = user?.role === 'developer' || user?.role === 'admin' || user?.role === 'super_admin';
   const [, setLocation] = useLocation();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     fetchMe();
   }, [fetchMe]);
 
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setDropdownOpen(false);
-      }
-    }
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") setDropdownOpen(false);
-    }
-    if (dropdownOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-      document.addEventListener("keydown", handleKeyDown);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [dropdownOpen]);
+  useDismissablePanel({
+    isOpen: dropdownOpen,
+    onClose: () => setDropdownOpen(false),
+    panelRef: dropdownRef,
+    triggerRef,
+  });
 
   const handleLogout = async () => {
     await logout();
@@ -84,8 +74,9 @@ export const UserProfileDropdown = memo(function UserProfileDropdown() {
     <div className="relative flex items-center gap-2 shrink-0" ref={dropdownRef}>
       {user ? (
         <button
+          ref={triggerRef}
           onClick={() => setDropdownOpen(!dropdownOpen)}
-          className="inline-flex items-center gap-2 fn-neu !rounded-full border border-[var(--fn-border)] px-2 py-1.5 sm:px-3 sm:py-2 text-xs font-bold text-[var(--fn-text-primary)] hover:bg-[var(--fn-surface-elevated)] transition duration-300 cursor-pointer select-none whitespace-nowrap"
+          className="inline-flex items-center gap-2 fn-neu !rounded-full border border-[var(--fn-border)] px-2 py-1.5 sm:px-3 sm:py-2 text-xs font-bold text-[var(--fn-text-primary)] hover:bg-[var(--fn-surface-elevated)] transition duration-300 cursor-pointer select-none whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[var(--fn-accent-primary)] focus-visible:outline-none"
           aria-haspopup="menu"
           {...(dropdownOpen ? { "aria-expanded": "true" } : { "aria-expanded": "false" })}
           aria-label="User menu"

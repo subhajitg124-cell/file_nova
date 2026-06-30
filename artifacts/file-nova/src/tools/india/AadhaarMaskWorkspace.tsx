@@ -50,6 +50,18 @@ export const AadhaarMaskWorkspace: React.FC = () => {
 
   const configPanel = (
     <div className="space-y-6">
+      {/* Privacy Warning Bento Card */}
+      <div className="p-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 space-y-2 text-left">
+        <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-xs">
+          <Shield className="h-4 w-4" />
+          <span>Local Document Processing</span>
+        </div>
+        <p className="text-[10px] text-muted-foreground leading-normal">
+          This Aadhaar card is processed entirely inside your web browser. Your sensitive identity records are processed 100% locally and are never sent to any servers. Read our{" "}
+          <a href="/security" className="text-indigo-400 hover:underline" target="_blank" rel="noopener noreferrer">Security Statement</a>.
+        </p>
+      </div>
+
       {/* Auto Detect Toggle */}
       <div className="flex items-center justify-between p-3.5 rounded-2xl border border-border/50 bg-card">
         <div className="space-y-0.5">

@@ -85,7 +85,7 @@ export default function AdminAnalytics() {
             </h3>
             
             <div className="space-y-3.5">
-              {stats.tools.map((tool, idx) => (
+              {(stats.tools as any[]).map((tool: any, idx: number) => (
                 <div key={idx} className="space-y-1.5">
                   <div className="flex justify-between text-xs font-bold text-slate-300">
                     <span>{tool.name}</span>
@@ -110,7 +110,7 @@ export default function AdminAnalytics() {
             </h3>
 
             <div className="divide-y divide-white/[0.05] max-h-64 overflow-y-auto pr-1">
-              {stats.queries.map((log, idx) => (
+              {(stats.queries as any[]).map((log: any, idx: number) => (
                 <div key={idx} className="py-3.5 flex justify-between items-center text-xs">
                   <div>
                     <span className="font-bold text-slate-200 font-mono">&quot;{log.query}&quot;</span>

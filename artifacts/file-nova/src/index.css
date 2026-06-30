@@ -127,7 +127,8 @@
   /* Text */
   --fn-text-primary:    #0F172A;        /* headings, primary labels */
   --fn-text-secondary:  #475569;        /* body, descriptions */
-  --fn-text-tertiary:   #94A3B8;        /* hints, placeholders */
+  /* WCAG AA: 4.86:1 against --fn-bg (#F0F4FF) — do not lighten --fn-bg without re-checking this contrast pair */
+  --fn-text-tertiary:   #5C6980;        /* hints, placeholders */
   --fn-text-on-accent:  #FFFFFF;        /* text on colored buttons */
 
   /* Borders */
@@ -287,7 +288,7 @@
 
   --fn-text-primary:    #F1F5F9;
   --fn-text-secondary:  #94A3B8;
-  --fn-text-tertiary:   #475569;
+  --fn-text-tertiary:   #7A899E;
   --fn-text-on-accent:  #FFFFFF;
 
   --fn-border:          rgba(255,255,255,0.08);

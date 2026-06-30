@@ -102,6 +102,8 @@ const ProfilePage = React.lazy(() => import("@/pages/ProfilePage"));
 const PrivacyPolicy = React.lazy(() => import("@/pages/PrivacyPolicy"));
 const TermsOfService = React.lazy(() => import("@/pages/TermsOfService"));
 const CookiePolicy = React.lazy(() => import("@/pages/CookiePolicy"));
+const Accessibility = React.lazy(() => import("@/pages/Accessibility"));
+const Security = React.lazy(() => import("@/pages/Security"));
 // const PartnersPage = React.lazy(() => import("@/pages/PartnersPage"));
 const TemplateMarketplace = React.lazy(() => import("@/pages/TemplateMarketplace"));
 
@@ -349,6 +351,12 @@ export function Router() {
           </Route>
           <Route path="/cookie-policy">
             <CookiePolicy />
+          </Route>
+          <Route path="/accessibility">
+            <Accessibility />
+          </Route>
+          <Route path="/security">
+            <Security />
           </Route>
           {/* Partners route disabled — uncomment to re-enable */}
           {/*

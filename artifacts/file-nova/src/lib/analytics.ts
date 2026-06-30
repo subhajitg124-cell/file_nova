@@ -146,3 +146,47 @@ class AnalyticsManager {
 
 export const analytics = new AnalyticsManager();
 export default analytics;
+
+export function loadGoogleAnalytics() {
+  const gaId = import.meta.env.VITE_GA_MEASUREMENT_ID || "G-YEPN5EFQ8N";
+  if (!gaId || gaId === "G-XXXXXXXXXX") return;
+
+  // Prevent duplicate script injection
+  if (document.getElementById("google-tag-manager-script")) return;
+
+  const scriptEl = document.createElement("script");
+  scriptEl.id = "google-tag-manager-script";
+  scriptEl.async = true;
+  scriptEl.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
+  document.head.appendChild(scriptEl);
+
+  (window as any).dataLayer = (window as any).dataLayer || [];
+  
+  const gtag = function (..._args: any[]) {
+    (window as any).dataLayer.push(arguments);
+  };
+  (window as any).gtag = gtag;
+
+  gtag("js", new Date());
+  gtag("config", gaId);
+}
+
+export function clearGoogleAnalyticsCookies() {
+  const cookies = document.cookie.split(";");
+  for (let i = 0; i < cookies.length; i++) {
+    const cookie = cookies[i].trim();
+    const eqIdx = cookie.indexOf("=");
+    const name = eqIdx > -1 ? cookie.substring(0, eqIdx) : cookie;
+    
+    if (name === "_ga" || name === "_gid" || name.startsWith("_gat")) {
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname};`;
+      
+      const hostParts = window.location.hostname.split(".");
+      if (hostParts.length >= 2) {
+        const domain = "." + hostParts.slice(-2).join(".");
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${domain};`;
+      }
+    }
+  }
+}

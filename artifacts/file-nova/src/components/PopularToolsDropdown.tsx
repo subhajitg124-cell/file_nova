@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "wouter";
 import { Zap, ChevronDown } from "lucide-react";
 import { TOOLS, type Tool } from "./PopularToolsGrid";
+import { useDismissablePanel } from "@/hooks/useDismissablePanel";
 
 const CATEGORIES = [
   {
@@ -31,25 +32,24 @@ export function PopularToolsDropdown() {
   const [, setLocation] = useLocation();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
+  useDismissablePanel({
+    isOpen: open,
+    onClose: () => setOpen(false),
+    panelRef: ref,
+    triggerRef: buttonRef,
+  });
 
   return (
     <div ref={ref} className="relative">
       {/* Trigger button */}
       <motion.button
+        ref={buttonRef}
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         onClick={() => setOpen((o) => !o)}
-        className="group flex items-center gap-2 border border-[var(--fn-border)] rounded-full px-3 py-1.5 text-sm text-[var(--fn-text-primary)] hover:bg-[var(--fn-surface-elevated)] transition-colors duration-150 cursor-pointer shadow-sm select-none whitespace-nowrap"
+        className="group flex items-center gap-2 border border-[var(--fn-border)] rounded-full px-3 py-1.5 text-sm text-[var(--fn-text-primary)] hover:bg-[var(--fn-surface-elevated)] transition-colors duration-150 cursor-pointer shadow-sm select-none whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[var(--fn-accent-primary)] focus-visible:outline-none"
         title="Popular Tools Shortcuts"
         aria-haspopup="true"
         aria-expanded={open}

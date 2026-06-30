@@ -27,6 +27,7 @@ import { apiClient, apiMock } from "@/lib/api";
 import { setupFetchInterceptor } from "@/lib/fetchInterceptor";
 import { CheckoutModal } from "@/components/CheckoutModal";
 import { GlobalCommandPalette, MobileSearchFab } from "@/components/GlobalCommandPalette";
+import { loadGoogleAnalytics, clearGoogleAnalyticsCookies } from "@/lib/analytics";
 
 const queryClient = new QueryClient();
 
@@ -164,6 +165,15 @@ function App({ ssrPath }: { ssrPath?: string } = {}) {
   useEffect(() => {
     fetchMe();
   }, [fetchMe]);
+
+  useEffect(() => {
+    const consent = localStorage.getItem("fn-cookie-consent");
+    if (consent === "all") {
+      loadGoogleAnalytics();
+    } else if (!consent) {
+      clearGoogleAnalyticsCookies();
+    }
+  }, []);
 
   useEffect(() => {
     const handleOpenAI = () => setAssistantOpen(true);

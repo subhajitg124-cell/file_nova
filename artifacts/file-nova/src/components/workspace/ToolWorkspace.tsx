@@ -439,10 +439,10 @@ useEffect(() => {
     }
 
     const events = analytics.getEvents();
-    const transitions = events.filter(e => e.action === "workflow_continue");
+    const transitions = events.filter((e: any) => e.action === "workflow_continue");
     const counts: Record<string, number> = {};
 
-    transitions.forEach(e => {
+    transitions.forEach((e: any) => {
       const target = e.metadata?.nextToolId;
       if (target) {
         counts[target] = (counts[target] || 0) + 1;

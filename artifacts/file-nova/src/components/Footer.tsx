@@ -316,6 +316,21 @@ const Footer: React.FC = memo(() => {
             <Link href="/cookie-policy" className="hover:text-foreground transition-colors">
               {tText("Cookie Policy")}
             </Link>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                window.dispatchEvent(new Event("openCookieConsentBanner"));
+              }}
+              className="hover:text-foreground transition-colors cursor-pointer text-xs bg-transparent border-none p-0 font-normal text-muted-foreground"
+            >
+              {tText("Cookie Settings")}
+            </button>
+            <Link href="/security" className="hover:text-foreground transition-colors">
+              {tText("Security & Privacy")}
+            </Link>
+            <Link href="/accessibility" className="hover:text-foreground transition-colors">
+              {tText("Accessibility")}
+            </Link>
             <Link href="/contact" className="hover:text-foreground transition-colors">
               {tText("Contact Us")}
             </Link>

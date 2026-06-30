@@ -478,10 +478,34 @@ export default function SimpleHome() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-muted-foreground text-sm md:text-lg mb-12 max-w-xl mx-auto"
+            className="text-muted-foreground text-sm md:text-lg mb-8 max-w-xl mx-auto"
           >
             {tText("Process certificates, passport photos, and PDFs safely in your local browser. Ideal for CSC kiosks, cyber cafes, and students.")}
           </motion.p>
+
+          {/* Freemium Limit Warning Bento Badge */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.25 }}
+            className="mb-12 max-w-xl mx-auto p-4 rounded-2xl border border-indigo-500/20 bg-indigo-950/30 backdrop-blur-md text-left flex items-start gap-3 shadow-md"
+          >
+            <div className="h-9 w-9 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 shrink-0 border border-indigo-500/20">
+              <Star className="h-4.5 w-4.5 fill-indigo-400/20" />
+            </div>
+            <div className="space-y-0.5">
+              <span className="block text-[11px] font-black text-foreground uppercase tracking-wider">
+                {tText("Free vs Premium limits")}
+              </span>
+              <p className="text-[10px] text-muted-foreground leading-relaxed">
+                {tText("FileNova is free for up to 3 document actions per day. ")}
+                <Link href="/pricing" className="text-indigo-400 hover:text-indigo-300 hover:underline font-extrabold">
+                  {tText("Premium tiers starting at ₹49/month")}
+                </Link>
+                {tText(" unlock unlimited workspace actions and up to 100MB file uploads.")}
+              </p>
+            </div>
+          </motion.div>
 
           {/* Most Needed Right Now */}
           <div className="text-left max-w-4xl mx-auto mt-12 mb-4">

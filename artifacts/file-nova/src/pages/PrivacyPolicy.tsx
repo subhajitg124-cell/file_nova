@@ -35,7 +35,7 @@ export default function PrivacyPolicy() {
               {tText("Privacy Policy")}
             </h1>
             <p className="text-xs text-muted-foreground font-semibold">
-              {tText("Last Updated: June 10, 2026")}
+              {tText("Last Updated: June 30, 2026")}
             </p>
           </div>
 
@@ -47,7 +47,7 @@ export default function PrivacyPolicy() {
                 <h3>{tText("Our Core Security Promise")}</h3>
               </div>
               <p className="text-sm font-medium">
-                {tText("FileNova is engineered with a strict client-side-first architecture. This means 95%+ of our document editing, cropping, compression, and formatting tools process your files directly inside your browser cache. Your documents never touch our servers unless explicitly requested (such as for specialized AI translation or OCR services).")}
+                {tText("FileNova is engineered with a strict client-side-first architecture. This means the vast majority of our document editing, cropping, compression, and formatting tools process your files directly inside your browser cache. Sensitive personal document files are handled 100% locally in your browser and are NEVER uploaded to our servers.")}
               </p>
             </div>
 
@@ -56,17 +56,17 @@ export default function PrivacyPolicy() {
                 <span className="text-indigo-400">1.</span> {tText("Information We Collect")}
               </h2>
               <p>
-                {tText("We believe in minimal data collection. The only information we collect is what is necessary to provide you with secure access to our premium tier and maintain system security:")}
+                {tText("We believe in minimal data collection. We only collect the minimal personal information necessary to manage billing transactions, referrals, and user login accounts:")}
               </p>
               <ul className="list-disc pl-6 space-y-2 font-medium">
                 <li>
-                  <strong className="text-foreground">{tText("Account Information:")}</strong> {tText(" If you register for an account (via Google OAuth or email), we collect your email address, name, and profile photo.")}
+                  <strong className="text-foreground">{tText("Account Information:")}</strong> {tText(" If you choose to register (via email or Google OAuth), we store your name and email address to maintain your profile and premium subscription.")}
                 </li>
                 <li>
-                  <strong className="text-foreground">{tText("Payment Details:")}</strong> {tText(" For UPI or card subscription purchases, transaction IDs and billing reference IDs are stored securely by our billing partners (e.g. Razorpay/UPI gateway providers) and referenced in our database to activate your subscription tier.")}
+                  <strong className="text-foreground">{tText("Payment & Billing references:")}</strong> {tText(" When purchasing premium subscription tiers (via Razorpay or UPI payment forms), transaction reference IDs, UTRs, and payment state are linked to your profile to verify activation.")}
                 </li>
                 <li>
-                  <strong className="text-foreground">{tText("Usage Logs:")}</strong> {tText(" Anonymous usage stats (e.g., button clicks, language selections) to help improve user experience.")}
+                  <strong className="text-foreground">{tText("System Usage Metadata:")}</strong> {tText(" Anonymous performance stats (such as language selection and button clicks) are recorded to optimize UI rendering.")}
                 </li>
               </ul>
             </section>
@@ -76,25 +76,25 @@ export default function PrivacyPolicy() {
                 <span className="text-indigo-400">2.</span> {tText("How Your Files are Handled")}
               </h2>
               <p>
-                {tText("Unlike traditional document tools that upload files to remote servers, FileNova processes your sensitive documents (like Aadhaar cards, PAN cards, passport photos, and school marksheets) locally:")}
+                {tText("We separate document handling into two specific pipelines to respect your privacy:")}
               </p>
               <div className="grid gap-4 sm:grid-cols-2 mt-4">
                 <div className="p-4 rounded-xl border border-border bg-background/50">
                   <div className="flex items-center gap-2 text-indigo-400 font-bold mb-2">
                     <CheckCircle className="h-4.5 w-4.5" />
-                    <h4>{tText("Local Browser Processing")}</h4>
+                    <h4>{tText("100% Browser-Local Processing")}</h4>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {tText("Image resizing, PDF merging, splits, rotations, and scholarship packing run locally inside your browser using WebAssembly. Files never leave your computer.")}
+                    {tText("Sensitive workflows (including Aadhaar masking, PAN Card resizing, image compression, PDF splits/merges, and Fast OCR) run locally inside browser memory using WebAssembly. Files never leave your device.")}
                   </p>
                 </div>
                 <div className="p-4 rounded-xl border border-border bg-background/50">
                   <div className="flex items-center gap-2 text-indigo-400 font-bold mb-2">
                     <CheckCircle className="h-4.5 w-4.5" />
-                    <h4>{tText("Immediate Deletion")}</h4>
+                    <h4>{tText("Secure Server-Assisted Conversion")}</h4>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {tText("If any cloud tool requires temp upload, processed files are automatically purged from browser storage and server temp cache within 1 hour.")}
+                    {tText("For formats requiring external software layers (such as Word to PDF conversion, video operations, or Accurate AI OCR), files are sent via secure TLS transit, processed, and immediately purged within 1 hour.")}
                   </p>
                 </div>
               </div>
@@ -102,39 +102,58 @@ export default function PrivacyPolicy() {
 
             <section className="space-y-3">
               <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-                <span className="text-indigo-400">3.</span> {tText("Cookies, Google Ads & Third-Party Analytics")}
+                <span className="text-indigo-400">3.</span> {tText("Cookies & Analytics")}
               </h2>
               <p>
-                {tText("FileNova uses cookies and LocalStorage to optimize user experience. These include essential cookies (to keep you logged in and track session state), analytics cookies, and Google Adsense advertising cookies:")}
+                {tText("FileNova uses cookies and LocalStorage to improve performance. We do not use third-party tracking pixels or run advertising networks on this site. Essential settings (language, active theme, and session tokens) are stored in your browser. With your explicit consent, anonymous Google Analytics cookies are loaded to monitor application performance.")}
               </p>
-              <ul className="list-disc pl-6 space-y-2 font-medium">
-                <li>
-                  <strong className="text-foreground">{tText("Google AdSense & DoubleClick Cookie:")}</strong> {tText(" As a third-party vendor, Google uses cookies to serve ads on FileNova. Google's use of the DoubleClick cookie enables it and its partners to serve ads to our users based on their visits to our site and other sites on the Internet.")}
-                </li>
-                <li>
-                  <strong className="text-foreground">{tText("Opt-Out Options:")}</strong> {tText(" Users may opt out of personalized advertising by visiting Google Ads Settings (https://www.google.com/settings/ads) or through consent options on our cookie banner.")}
-                </li>
-                <li>
-                  <strong className="text-foreground">{tText("Google OAuth & Cloud Sync (Drive/Dropbox):")}</strong> {tText(" If you log in via Google or link your cloud storage, we only use necessary permissions to read/write files as requested. We never access, store, or share unauthorized private files or data.")}
-                </li>
+            </section>
+
+            <section className="space-y-3">
+              <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                <span className="text-indigo-400">4.</span> {tText("GDPR Compliance (EU & International)")}
+              </h2>
+              <p>
+                {tText("For users in the European Union, FileNova processes personal data under the following legal bases:")}
+              </p>
+              <ul className="list-disc pl-6 space-y-1 text-xs">
+                <li>{tText("Consent: For optional performance tracking cookies (Google Analytics).")}</li>
+                <li>{tText("Contract Performance: For profile creation, login sessions, and premium subscription billing.")}</li>
+              </ul>
+              <p className="text-xs mt-2">
+                {tText("Under the GDPR, you have the right to request erasure of your account details, access your recorded transaction history, or object to data processing. These requests can be filed by contacting our support team.")}
+              </p>
+            </section>
+
+            <section className="space-y-3">
+              <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                <span className="text-indigo-400">5.</span> {tText("DPDPA Compliance (India)")}
+              </h2>
+              <p>
+                {tText("In compliance with India's Digital Personal Data Protection Act (DPDPA), FileNova acts as the Data Fiduciary for your account profile data:")}
+              </p>
+              <ul className="list-disc pl-6 space-y-1 text-xs">
+                <li>{tText("Purpose Limitation: Account details are exclusively used to authorize dashboard access.")}</li>
+                <li>{tText("Browser Processing: Personal documents (Aadhaar cards, PAN cards, etc.) are processed locally in your browser memory and are not compiled or stored by FileNova.")}</li>
+                <li>{tText("Correction & Erasure: Indian users have the right to review, update, or completely delete their account profile at any time.")}</li>
               </ul>
             </section>
 
             <section className="space-y-3">
               <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-                <span className="text-indigo-400">4.</span> {tText("Data Security")}
+                <span className="text-indigo-400">6.</span> {tText("Data Security")}
               </h2>
               <p>
-                {tText("We utilize standard industry practices, including SSL/TLS encryption for all api-server communication, secure OAuth login integrations, and database hashing to safeguard your credentials. No method of transmission over the Internet is 100% secure, but we apply extreme security protocols to protect your billing accounts.")}
+                {tText("We utilize secure SSL/TLS encryption protocols for all API communications, enforce session token hashing, and perform regular purging of backend temp files. While no transmission is completely immune to risks, we implement maximum architectural isolation to defend your document privacy.")}
               </p>
             </section>
 
             <section className="space-y-3">
               <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-                <span className="text-indigo-400">5.</span> {tText("Contact Information")}
+                <span className="text-indigo-400">7.</span> {tText("Contact Information")}
               </h2>
               <p>
-                {tText("If you have any questions about this Privacy Policy or file security, please email us directly at ")}
+                {tText("If you wish to execute your rights under GDPR/DPDPA, report an issue, or clear your profile data, please contact our support email directly at ")}
                 <a href="mailto:subhajiteditz90@gmail.com" className="text-indigo-400 hover:underline">subhajiteditz90@gmail.com</a>.
               </p>
             </section>
