@@ -2,6 +2,7 @@ import { db, usersTable, subscriptionsTable, upiPaymentsTable, couponsTable, ref
 import { eq, desc, count, and } from "drizzle-orm";
 import { logger } from "../lib/logger";
 import { handleUserReferrerUpgradeReward } from "./referralService";
+import { NotificationService } from "./NotificationService";
 
 export class AdminPaymentService {
   public static async getPendingUpiPayments() {
@@ -75,6 +76,11 @@ export class AdminPaymentService {
       } catch (err) {
         logger.error({ err }, "Referrer reward check failed on UPI approval");
       }
+
+      // Send subscription upgrade notification (non-blocking)
+      NotificationService.sendSubscriptionUpgrade(user.id, payment.plan).catch((err) =>
+        logger.warn({ err }, "Failed to send subscription upgrade notification on UPI approval")
+      );
 
       logger.info({ paymentId, email: payment.email }, "UPI payment verified and approved successfully");
       return true;

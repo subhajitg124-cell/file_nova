@@ -6,12 +6,12 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useTheme } from "@/hooks/useTheme";
 import {
   Search, Hash, FileText, Image, BrainCircuit, ScanLine, Shield, Settings,
-  Palette, Globe, LogOut, Sun, Moon, LayoutDashboard, Workflow, BarChart3,
+  Palette, Globe, LogOut, Sun, Moon, Contrast, LayoutDashboard, Workflow, BarChart3,
   Bug, Puzzle, ToggleLeft, Package, Zap, Cpu, Database, Route, FlaskConical,
   Activity, Terminal, Home, CreditCard, BookOpen, Mail, Gift, Users, Star,
   Clock, Command as CommandIcon, Sparkles, ChevronRight, PanelLeft, Bot, Code,
   Scissors, FileArchive, RotateCw, Lock, Unlock, IdCard, Fingerprint,
-  GraduationCap, FileCheck2, FileUp, type LucideIcon, X,
+  GraduationCap, FileCheck2, FileUp, type LucideIcon, X, Bell,
 } from "lucide-react";
 type CmdCategory = 'tool' | 'page' | 'command' | 'developer' | 'setting' | 'blog' | 'workflow';
 
@@ -49,7 +49,7 @@ const TABS: TabDef[] = [
 
 function buildEntries(
   setLocation: (path: string) => void,
-  toggleTheme: () => void,
+  setTheme: (theme: "dark" | "light" | "contrast") => void,
   theme: string,
   userRole: string | undefined,
   isDev: boolean,
@@ -125,13 +125,31 @@ function buildEntries(
   // ---- Commands ----
   const commandEntries: CmdEntry[] = [
     {
-      id: 'cmd-theme',
-      label: theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode',
-      description: 'Toggle between dark and light theme',
-      icon: theme === 'dark' ? Sun : Moon,
+      id: 'cmd-theme-dark',
+      label: 'Theme: Dark',
+      description: 'Switch to dark theme',
+      icon: Moon,
       category: 'command',
-      action: toggleTheme,
-      keywords: ['theme', 'dark', 'light', 'mode', 'toggle theme'],
+      action: () => setTheme('dark'),
+      keywords: ['theme', 'dark', 'mode', 'night'],
+    },
+    {
+      id: 'cmd-theme-light',
+      label: 'Theme: Light',
+      description: 'Switch to light theme',
+      icon: Sun,
+      category: 'command',
+      action: () => setTheme('light'),
+      keywords: ['theme', 'light', 'mode', 'day'],
+    },
+    {
+      id: 'cmd-theme-contrast',
+      label: 'Theme: High Contrast',
+      description: 'Switch to high contrast theme',
+      icon: Contrast,
+      category: 'command',
+      action: () => setTheme('contrast'),
+      keywords: ['theme', 'contrast', 'accessibility', 'black'],
     },
     {
       id: 'cmd-lang',
@@ -204,9 +222,11 @@ function buildEntries(
   // ---- Settings ----
   const settingsEntries: CmdEntry[] = [
     { id: 'set-profile', label: 'Profile Settings', description: 'Manage your profile', route: '/profile', icon: Users, category: 'setting', keywords: ['profile', 'name', 'email', 'phone'] },
-    { id: 'set-notifications', label: 'Notifications', description: 'Manage notification preferences', icon: Activity, category: 'setting', action: () => {}, keywords: ['notifications', 'alerts', 'preferences'] },
     { id: 'set-language', label: 'Language', description: 'Change interface language', icon: Globe, category: 'setting', action: () => {}, keywords: ['language', 'lang', 'hindi'] },
-    { id: 'set-theme', label: 'Theme', description: 'Toggle dark/light mode', icon: Palette, category: 'setting', action: toggleTheme, keywords: ['theme', 'dark', 'light', 'mode'] },
+    { id: 'set-theme-dark', label: 'Theme: Dark', description: 'Switch to dark theme', icon: Moon, category: 'setting', action: () => setTheme('dark'), keywords: ['theme', 'dark', 'mode', 'night'] },
+    { id: 'set-theme-light', label: 'Theme: Light', description: 'Switch to light theme', icon: Sun, category: 'setting', action: () => setTheme('light'), keywords: ['theme', 'light', 'mode', 'day'] },
+    { id: 'set-theme-contrast', label: 'Theme: High Contrast', description: 'Switch to high contrast theme', icon: Contrast, category: 'setting', action: () => setTheme('contrast'), keywords: ['theme', 'contrast', 'accessibility', 'black'] },
+    { id: 'set-notifications', label: 'Notifications', description: 'View your notifications', route: '/profile', icon: Bell, category: 'setting', keywords: ['notifications', 'alerts', 'bell', 'messages'] },
   ];
 
   for (const s of settingsEntries) {
@@ -428,7 +448,7 @@ function getCategoryIcon(cat: CmdCategory): LucideIcon {
 export function GlobalCommandPalette() {
   const { open, setOpen, recent, favorites, addRecent, toggleFavorite, isFavorite } = useCommandPalette();
   const { user } = useAuthStore();
-  const { toggleTheme, theme } = useTheme();
+  const { setTheme, theme } = useTheme();
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState<TabId>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -458,8 +478,8 @@ export function GlobalCommandPalette() {
   }, [setOpen, setLocation]);
 
   const entries = useMemo(
-    () => buildEntries(setLocation, toggleTheme, theme, user?.role, isDev, handleLogout, handleOpenAIAssistant),
-    [setLocation, toggleTheme, theme, user?.role, isDev, handleLogout, handleOpenAIAssistant]
+    () => buildEntries(setLocation, setTheme, theme, user?.role, isDev, handleLogout, handleOpenAIAssistant),
+    [setLocation, setTheme, theme, user?.role, isDev, handleLogout, handleOpenAIAssistant]
   );
 
   const recentEntries = useMemo(

@@ -1,18 +1,19 @@
 import { useState, useEffect } from "react";
 
-type Theme = "dark" | "light" | "high-contrast";
+type Theme = "dark" | "light" | "contrast";
 
 const THEME_KEY = "filenova-theme";
 
 let currentGlobalTheme: Theme = (() => {
   try {
-    const saved = localStorage.getItem(THEME_KEY) as Theme | null;
-    if (saved === "dark" || saved === "light" || saved === "high-contrast") return saved;
-    const legacy = localStorage.getItem("theme") as Theme | null;
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved === "dark" || saved === "light" || saved === "contrast") return saved as Theme;
+    if (saved === "high-contrast") return "contrast"; // Migrate legacy name
+    const legacy = localStorage.getItem("theme");
     if (legacy === "dark" || legacy === "light") {
       localStorage.setItem(THEME_KEY, legacy);
       localStorage.removeItem("theme");
-      return legacy;
+      return legacy as Theme;
     }
   } catch {}
   return "dark";
@@ -20,14 +21,12 @@ let currentGlobalTheme: Theme = (() => {
 
 const subscribers = new Set<(theme: Theme) => void>();
 
-const THEME_ORDER: Theme[] = ["dark", "light", "high-contrast"];
-
 export function useTheme() {
-  const [theme, setTheme] = useState<Theme>(currentGlobalTheme);
+  const [theme, setThemeVal] = useState<Theme>(currentGlobalTheme);
 
   useEffect(() => {
     const handleChange = (newTheme: Theme) => {
-      setTheme(newTheme);
+      setThemeVal(newTheme);
     };
     subscribers.add(handleChange);
     return () => {
@@ -38,18 +37,20 @@ export function useTheme() {
   useEffect(() => {
     const root = document.documentElement;
     root.classList.remove("light", "dark", "high-contrast");
-    root.classList.add(theme);
+    // Map internal "contrast" state to external "high-contrast" stylesheet class
+    const domClass = theme === "contrast" ? "high-contrast" : theme;
+    root.classList.add(domClass);
     localStorage.setItem(THEME_KEY, theme);
   }, [theme]);
 
-  const toggleTheme = () => {
-    const idx = THEME_ORDER.indexOf(theme);
-    const next = THEME_ORDER[(idx + 1) % THEME_ORDER.length];
-    currentGlobalTheme = next;
-    subscribers.forEach((cb) => cb(next));
+  const setTheme = (newTheme: Theme) => {
+    if (newTheme !== currentGlobalTheme) {
+      currentGlobalTheme = newTheme;
+      subscribers.forEach((cb) => cb(newTheme));
+    }
   };
 
-  return { theme, toggleTheme };
+  return { theme, setTheme };
 }
 
 export default useTheme;

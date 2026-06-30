@@ -3,6 +3,7 @@ import { eq, desc, and, count } from "drizzle-orm";
 import { logger } from "../lib/logger";
 import { handleUserReferrerUpgradeReward } from "./referralService";
 import { CouponService } from "./CouponService";
+import { NotificationService } from "./NotificationService";
 
 export interface SubscriptionStatus {
   userId: string | null;
@@ -112,6 +113,11 @@ export class SubscriptionService {
       } catch (refErr) {
         logger.error({ refErr }, "Failed to trigger referral rewards on activation");
       }
+
+      // 5. Send subscription upgrade notification (non-blocking)
+      NotificationService.sendSubscriptionUpgrade(updatedSub.userId, plan).catch((err) =>
+        logger.warn({ err }, "Failed to send subscription upgrade notification")
+      );
 
       logger.info({ userId: updatedSub.userId, plan }, "Successfully activated subscription");
       return true;

@@ -22,6 +22,10 @@
   --color-destructive:        var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   
+  --shadow-card:              var(--card-shadow);
+  --shadow-elevated:          var(--card-shadow-elevated);
+  --shadow-premium:           var(--shadow-premium-val);
+  
   /* Brand Tokens */
   --color-brand-primary:      var(--brand-primary);
   --color-brand-primary-dark: var(--brand-primary-dark);
@@ -75,7 +79,7 @@
   --brand-primary-dark: #3730a3;
   --brand-accent:       #f59e0b;
   --brand-ink:          #0f172a;
-  --brand-paper:        #fafafa;
+  --brand-paper:        #f1f5f9;
 
   --background:        var(--brand-paper);
   --foreground:        var(--brand-ink);
@@ -83,14 +87,15 @@
   --card-foreground:   var(--brand-ink);
   --primary:           var(--brand-primary);
   --primary-foreground:#ffffff;
-  --secondary:         #f1f5f9;
+  --secondary:         #e2e8f0;
   --secondary-foreground: var(--brand-ink);
   --muted:             #f8fafc;
-  --muted-foreground:  #64748b;
+  --muted-foreground:  #576574;
   --accent:            #e2e8f0;
   --accent-foreground: var(--brand-ink);
-  --border:            #e2e8f0;
-  --input:             #e2e8f0;
+  --border:            rgba(15, 23, 42, 0.08);
+  --border-hover:      rgba(15, 23, 42, 0.12);
+  --input:             rgba(15, 23, 42, 0.08);
   --ring:              var(--brand-primary);
   --destructive:       #ea4335;
   --destructive-foreground: #ffffff;
@@ -100,6 +105,9 @@
   --card-radius: 24px;
   --card-border: rgba(15, 23, 42, 0.08);
   --card-active-shadow: 0 8px 30px rgba(99, 102, 241, 0.15);
+  --card-shadow:       0 1px 2px rgba(0, 0, 0, 0.05), 0 8px 24px rgba(15, 23, 42, 0.06);
+  --card-shadow-elevated: 0 1px 3px rgba(0, 0, 0, 0.05), 0 12px 30px rgba(15, 23, 42, 0.08);
+  --shadow-premium-val:  0 1px 3px rgba(0, 0, 0, 0.05), 0 12px 30px rgba(15, 23, 42, 0.08);
 
   /* Legacy palette shims theme variables */
   --shim-slate-250: #1e293b;
@@ -164,21 +172,21 @@
 :root {
   /* Force inputs, selects, textareas and options to be dark text on white background in light mode */
   input, select, textarea {
-    background-color: #ffffff !important;
-    color: var(--brand-ink) !important;
-    border-color: rgba(15, 23, 42, 0.12) !important;
+    background-color: var(--card) !important;
+    color: var(--foreground) !important;
+    border-color: var(--border) !important;
   }
   
   select option {
-    background-color: #ffffff !important;
-    color: var(--brand-ink) !important;
+    background-color: var(--card) !important;
+    color: var(--foreground) !important;
   }
 
   /* Override low-contrast text shims in light mode */
-  .text-slate-400 { color: #576574 !important; }
-  .text-slate-300 { color: #354252 !important; }
-  .text-slate-200 { color: #1e293b !important; }
-  .text-slate-100 { color: #0f172a !important; }
+  .text-slate-400 { color: var(--fn-text-tertiary) !important; }
+  .text-slate-300 { color: var(--fn-text-secondary) !important; }
+  .text-slate-200 { color: var(--fn-text-primary) !important; }
+  .text-slate-100 { color: var(--foreground) !important; }
 
   /* Override dark backgrounds/overlays to light backgrounds in light mode */
   .bg-slate-955,
@@ -193,46 +201,47 @@
   .bg-slate-900\/10,
   .bg-slate-900,
   .bg-slate-950 {
-    background-color: #ffffff !important;
-    color: var(--brand-ink) !important;
+    background-color: var(--card) !important;
+    color: var(--foreground) !important;
   }
   
   /* Ensure all child text inside overridden dark overlays is dark slate */
   .bg-slate-900 *,
   .bg-slate-955 *,
   .bg-slate-950 *,
+  .bg-slate-955\/60 *,
   .bg-slate-950\/60 *,
   .bg-slate-950\/80 *,
   .bg-slate-950\/45 * {
-    color: var(--brand-ink);
+    color: var(--foreground);
   }
 
   /* Specific override for home page bento cards bg/text to look elegant */
   .bg-slate-900\/40,
   .bg-slate-900\/40 * {
-    background-color: #f1f5f9 !important;
-    color: var(--brand-ink) !important;
+    background-color: var(--secondary) !important;
+    color: var(--foreground) !important;
   }
 
   /* Override white transparent borders to subtle dark transparent borders in light mode */
-  .border-white\/10 { border-color: rgba(15, 23, 42, 0.08) !important; }
-  .border-white\/20 { border-color: rgba(15, 23, 42, 0.15) !important; }
-  .border-white\/5  { border-color: rgba(15, 23, 42, 0.05) !important; }
-  .border-white\/8  { border-color: rgba(15, 23, 42, 0.07) !important; }
-  .border-white\/15 { border-color: rgba(15, 23, 42, 0.12) !important; }
-  .border-white\/30 { border-color: rgba(15, 23, 42, 0.22) !important; }
-  .border-white\/40 { border-color: rgba(15, 23, 42, 0.32) !important; }
+  .border-white\/10 { border-color: color-mix(in srgb, var(--foreground) 10%, transparent) !important; }
+  .border-white\/20 { border-color: color-mix(in srgb, var(--foreground) 20%, transparent) !important; }
+  .border-white\/5  { border-color: color-mix(in srgb, var(--foreground) 5%, transparent) !important; }
+  .border-white\/8  { border-color: color-mix(in srgb, var(--foreground) 8%, transparent) !important; }
+  .border-white\/15 { border-color: color-mix(in srgb, var(--foreground) 15%, transparent) !important; }
+  .border-white\/30 { border-color: color-mix(in srgb, var(--foreground) 30%, transparent) !important; }
+  .border-white\/40 { border-color: color-mix(in srgb, var(--foreground) 40%, transparent) !important; }
 
   /* Override white transparent backgrounds to subtle dark transparent backgrounds in light mode */
-  .bg-white\/5  { background-color: rgba(15, 23, 42, 0.02) !important; }
-  .bg-white\/10 { background-color: rgba(15, 23, 42, 0.04) !important; }
-  .bg-white\/20 { background-color: rgba(15, 23, 42, 0.08) !important; }
-  .bg-white\/3  { background-color: rgba(15, 23, 42, 0.01) !important; }
+  .bg-white\/5  { background-color: color-mix(in srgb, var(--foreground) 2%, transparent) !important; }
+  .bg-white\/10 { background-color: color-mix(in srgb, var(--foreground) 4%, transparent) !important; }
+  .bg-white\/20 { background-color: color-mix(in srgb, var(--foreground) 8%, transparent) !important; }
+  .bg-white\/3  { background-color: color-mix(in srgb, var(--foreground) 1%, transparent) !important; }
   
   /* Placeholders */
   input::placeholder,
   textarea::placeholder {
-    color: #94a3b8 !important;
+    color: var(--muted-foreground) !important;
   }
 }
 
@@ -257,12 +266,16 @@
   --accent:            #334155;
   --accent-foreground: #ffffff;
   --border:            #334155;
+  --border-hover:      rgba(255, 255, 255, 0.15);
   --input:             #334155;
   --ring:              var(--brand-primary);
   --destructive:       #ea4335;
   --destructive-foreground: #ffffff;
   --card-border: rgba(255, 255, 255, 0.1);
   --card-active-shadow: 0 8px 30px rgba(99, 102, 241, 0.15);
+  --card-shadow:       0 1px 2px rgba(0, 0, 0, 0.15), 0 8px 24px rgba(0, 0, 0, 0.3);
+  --card-shadow-elevated: 0 1px 3px rgba(0, 0, 0, 0.2), 0 12px 30px rgba(0, 0, 0, 0.45);
+  --shadow-premium-val:  0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 12px 30px rgba(0, 0, 0, 0.45);
 
   /* Legacy palette shims theme variables */
   --shim-slate-250: #e2e8f0;
@@ -591,9 +604,9 @@
   }
 
   /* ── Shadows & glows ────────────────────────────────────────────────────── */
-  .shadow-soft        { box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08); }
-  .shadow-panel       { box-shadow: 0 1px 3px rgba(15, 23, 42, 0.07), 0 8px 24px rgba(15, 23, 42, 0.08); }
-  .shadow-panel-dark  { box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 8px 24px rgba(0,0,0,0.18); }
+  .shadow-soft        { box-shadow: var(--card-shadow-elevated); }
+  .shadow-panel       { box-shadow: var(--card-shadow); }
+  .shadow-panel-dark  { box-shadow: var(--card-shadow); }
   .shadow-glow-sm          { box-shadow: 0 0 10px 2px rgba(99,102,241,0.12); }
   .shadow-glow             { box-shadow: 0 0 20px 4px rgba(99,102,241,0.20),  0 0 0 1px rgba(99,102,241,0.10); }
   .shadow-glow-indigo      { box-shadow: 0 0 20px 4px rgba(99,102,241,0.22),  0 0 0 1px rgba(99,102,241,0.12); }
@@ -605,14 +618,7 @@
   .shadow-glow-amber       { box-shadow: 0 0 20px 3px rgba(245,158,11,0.15),  0 0 0 1px rgba(245,158,11,0.08); }
   .shadow-glow-emerald     { box-shadow: 0 0 20px 3px rgba(16,185,129,0.15),  0 0 0 1px rgba(16,185,129,0.08); }
   .shadow-premium {
-    box-shadow:
-      0 1px 2px rgba(15, 23, 42, 0.05),
-      0 8px 24px rgba(15, 23, 42, 0.08);
-  }
-  .dark .shadow-premium {
-    box-shadow:
-      0 1px 0 rgba(255,255,255,0.03) inset,
-      0 8px 24px rgba(0,0,0,0.18);
+    box-shadow: var(--shadow-premium-val) !important;
   }
   .border-soft {
     border-color: rgba(79,111,161,0.16);
@@ -1678,6 +1684,10 @@ header[class*="sticky"] {
   --fn-aurora:          none;
   --card-border: #ffffff;
   --card-active-shadow: 0 0 0 2px #ffff00;
+  --border-hover: var(--border);
+  --card-shadow: none;
+  --card-shadow-elevated: none;
+  --shadow-premium-val: none;
   color-scheme: dark;
 }
 
@@ -1711,16 +1721,18 @@ header[class*="sticky"] {
 }
 
 .high-contrast .text-muted-foreground {
-  color: #cccccc !important;
+  color: var(--muted-foreground) !important;
 }
 
 .high-contrast .text-slate-400,
 .high-contrast .text-slate-300,
 .high-contrast .text-slate-200,
 .high-contrast .text-slate-100 {
-  color: #ffffff !important;
+  color: var(--foreground) !important;
 }
 
+.high-contrast .bg-slate-955,
+.high-contrast .bg-slate-955\/60,
 .high-contrast .bg-slate-950,
 .high-contrast .bg-slate-900,
 .high-contrast .bg-slate-900\/40,
@@ -1728,16 +1740,16 @@ header[class*="sticky"] {
 .high-contrast .bg-slate-950\/60,
 .high-contrast .bg-slate-950\/80,
 .high-contrast .bg-slate-950\/40 {
-  background-color: #000000 !important;
+  background-color: var(--background) !important;
 }
 
 .high-contrast .bg-card {
-  background-color: #111111 !important;
-  border: 1px solid #ffffff !important;
+  background-color: var(--card) !important;
+  border: 1px solid var(--border) !important;
 }
 
 .high-contrast .border-border {
-  border-color: #ffffff !important;
+  border-color: var(--border) !important;
 }
 
 .high-contrast ::-webkit-scrollbar {

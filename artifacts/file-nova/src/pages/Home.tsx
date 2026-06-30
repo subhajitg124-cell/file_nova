@@ -17,6 +17,8 @@ import {
   Video, FileSpreadsheet, ArrowLeft, FolderOpen, Cpu, Lock
 } from 'lucide-react';
 import { BackHomeBar } from '@/components/BackHomeBar';
+import { useTheme } from '@/hooks/useTheme';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 const SUITES = [
   {
@@ -174,7 +176,7 @@ export default function Home() {
     backendHealthy, backendCapabilities, setBackendStatus, selectedSection, setSelectedSection, clearStore,
     rawFiles
   } = useFileStore();
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     const fetchHealth = async () => {
@@ -198,12 +200,6 @@ export default function Home() {
       if (last && ['pdf', 'image', 'video', 'office'].includes(last)) setSelectedSection(last as any);
     }
   }, [setSelectedSection]);
-
-  const toggleTheme = () => {
-    const next = theme === 'dark' ? 'light' : 'dark';
-    setTheme(next);
-    document.documentElement.classList.toggle('dark', next === 'dark');
-  };
 
   const step = downloadUrl ? 3 : (files.length > 0 && selectedOperation) ? 2 : 1;
 
@@ -259,13 +255,9 @@ export default function Home() {
                 <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ${isMockMode ? 'translate-x-4' : 'translate-x-0'}`} />
               </button>
             </div>
-            <button
-              onClick={toggleTheme}
-              className="h-8 w-8 flex items-center justify-center rounded-xl bg-card/60 hover:bg-card border border-border text-muted-foreground hover:text-foreground transition-all duration-200 cursor-pointer"
-              aria-label="Toggle theme"
-            >
-              {theme === 'dark' ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
-            </button>
+            <div className="w-[240px] flex items-center justify-end">
+              <ThemeToggle />
+            </div>
           </nav>
         </div>
       </header>

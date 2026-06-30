@@ -4,6 +4,7 @@ import { User, LogOut, Zap, Sparkles, Clock, CreditCard, ChevronDown, Key, Gift,
 import { useAuthStore } from "@/store/useAuthStore";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useTheme } from "@/hooks/useTheme";
+import { ThemeToggle } from "./ThemeToggle";
 import { AuthModal } from "./AuthModal";
 import { toast } from "sonner";
 import { useDismissablePanel } from "@/hooks/useDismissablePanel";
@@ -11,7 +12,7 @@ import { useDismissablePanel } from "@/hooks/useDismissablePanel";
 export const UserProfileDropdown = memo(function UserProfileDropdown() {
   const { user, subscription, fetchMe, logout, isLoginModalOpen, openLoginModal, closeLoginModal } = useAuthStore();
   const { cancelSubscription, loading: subLoading, premiumTier } = useSubscription();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const isDev = user?.role === 'developer' || user?.role === 'admin' || user?.role === 'super_admin';
@@ -225,11 +226,10 @@ export const UserProfileDropdown = memo(function UserProfileDropdown() {
           {/* Appearance section */}
           <div className="mb-3.5">
             {sectionHeader("Appearance")}
+            <div className="px-1 py-1">
+              <ThemeToggle />
+            </div>
             <div className="space-y-1">
-              <button onClick={() => { toggleTheme(); setDropdownOpen(false); }} className="w-full text-left py-2 px-3 rounded-lg text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/80 transition flex items-center gap-2 cursor-pointer">
-                {theme === "dark" ? <Sun className="h-3.5 w-3.5 text-amber-500" /> : <Moon className="h-3.5 w-3.5 text-blue-500" />}
-                <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
-              </button>
               <button onClick={() => { setLocation("/profile"); setDropdownOpen(false); }} className="w-full text-left py-2 px-3 rounded-lg text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/80 transition flex items-center gap-2 cursor-pointer">
                 <Settings className="h-3.5 w-3.5 text-muted-foreground" />
                 <span>Settings</span>

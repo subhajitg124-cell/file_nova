@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Search, Sparkles, Monitor, Sun, Moon, ArrowRight, Laptop } from "lucide-react";
+import { Search, Sparkles, Monitor, Sun, Moon, Contrast, ArrowRight, Laptop } from "lucide-react";
 import { motion } from "framer-motion";
 import { useLocation } from "wouter";
 import { TOOL_REGISTRY, ToolRegistryItem } from "@/lib/toolPlugin";
@@ -13,7 +13,7 @@ interface CommandPaletteProps {
 
 export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose }) => {
   const [, setLocation] = useLocation();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -63,7 +63,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
         type: "system" as const,
         sub: "Adjust interface to light colors",
         action: () => {
-          if (theme !== "light") toggleTheme();
+          if (theme !== "light") setTheme("light");
           toast.success("Theme changed to light mode.");
           onClose();
         }
@@ -72,10 +72,21 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
         id: "theme-dark",
         name: "Switch to Dark Mode",
         type: "system" as const,
-        sub: "Switch to high contrast dark styling",
+        sub: "Switch to dark styling",
         action: () => {
-          if (theme !== "dark") toggleTheme();
+          if (theme !== "dark") setTheme("dark");
           toast.success("Theme changed to dark mode.");
+          onClose();
+        }
+      },
+      {
+        id: "theme-contrast",
+        name: "Switch to High Contrast Mode",
+        type: "system" as const,
+        sub: "Switch to high contrast styling",
+        action: () => {
+          if (theme !== "contrast") setTheme("contrast");
+          toast.success("Theme changed to high contrast mode.");
           onClose();
         }
       },
@@ -92,7 +103,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
     ].filter(item => item.name.toLowerCase().includes(query.toLowerCase()));
 
     return [...toolItems, ...systemItems];
-  }, [query, setLocation, theme, toggleTheme, onClose]);
+  }, [query, setLocation, theme, setTheme, onClose]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "ArrowDown") {

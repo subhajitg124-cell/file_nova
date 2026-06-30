@@ -26,7 +26,7 @@ export function FloatingShortcuts() {
   const { user } = useAuthStore();
   const { tText } = useTranslation();
   const [, setLocation] = useLocation();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -78,7 +78,7 @@ export function FloatingShortcuts() {
       description: tText("Switch visual theme"),
       gradient: "from-amber-500/10 to-orange-500/10 border-amber-500/25",
       isInternal: true,
-      onClick: toggleTheme
+      onClick: () => setTheme(theme === "dark" ? "light" : "dark")
     },
     {
       id: "blog",

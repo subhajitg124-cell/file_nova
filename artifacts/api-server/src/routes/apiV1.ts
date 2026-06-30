@@ -683,6 +683,6 @@ router.use("/premium", premiumRouter);
 router.use("/premium/subscription", subscriptionRouter);
 router.use("/auth", authRouter);
 router.use("/referral", referralRouter);
-router.use(notificationsRouter);
+router.use("/", notificationsRouter);
 
 export default router;

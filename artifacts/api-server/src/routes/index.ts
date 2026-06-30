@@ -4,7 +4,6 @@ import upiPaymentsRouter from "./upiPayments";
 import paymentsRouter from "./payments";
 import shareRouter from "./share";
 // import aiPptRoutes from "./ai-ppt";
-import notificationsRouter from "./notifications";
 
 const router: IRouter = Router();
 
@@ -13,7 +12,6 @@ router.use(upiPaymentsRouter);
 router.use("/payments", paymentsRouter);
 router.use(shareRouter);
 // router.use(aiPptRoutes);
-router.use(notificationsRouter);
 
 export default router;
 

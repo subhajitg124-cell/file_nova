@@ -2,7 +2,7 @@ import React, { memo, useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "wouter";
 import {
-  Settings2, Crown, Menu, X, Check, Bell, CreditCard, FileText, Code
+  Settings2, Crown, Menu, X, Check, CreditCard, FileText, Code, Bell
 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
@@ -14,9 +14,17 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
 import { SmartSearchBar } from "@/components/SmartSearchBar";
 import { PopularToolsDropdown } from "@/components/PopularToolsDropdown";
-import { BACKEND_URL, HAS_BACKEND } from "@/lib/api";
-import { useFileStore } from "@/store/useFileStore";
 import { useDismissablePanel } from "@/hooks/useDismissablePanel";
+import { BACKEND_URL, HAS_BACKEND } from "@/lib/api";
+
+interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  isRead: boolean;
+  link?: string;
+  createdAt: string;
+}
 
 interface NavbarProps {
   showSearch?: boolean;
@@ -30,12 +38,12 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const notificationsRef = useRef<HTMLDivElement>(null);
-  
+
   const settingsRef = useRef<HTMLDivElement>(null);
   const settingsTriggerRef = useRef<HTMLButtonElement>(null);
+  const notificationsRef = useRef<HTMLDivElement>(null);
   const notificationsTriggerRef = useRef<HTMLButtonElement>(null);
 
   useDismissablePanel({
@@ -53,118 +61,79 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
   });
 
   const fetchNotifications = useCallback(async () => {
-    if (!user) return;
+    if (!user || !HAS_BACKEND) return;
     try {
-      const token = localStorage.getItem("filenova_token");
-      const isMock = !HAS_BACKEND || useFileStore.getState().isMockMode || (token && token.startsWith("local_"));
-      
-      let data;
-      if (isMock) {
-        const raw = localStorage.getItem("filenova_mock_notifications");
-        let list = raw ? JSON.parse(raw) : [];
-        if (list.length === 0) {
-          list = [{
-            id: "welcome-mock-id",
-            userId: user.id,
-            type: "welcome",
-            title: "Welcome to FileNova AI! 🚀",
-            message: "Experience fast, secure, and offline-first document productivity. Your files never leave your device for standalone tools.",
-            isRead: false,
-            link: "/workspace",
-            createdAt: new Date().toISOString()
-          }];
-          localStorage.setItem("filenova_mock_notifications", JSON.stringify(list));
-        }
-        data = { success: true, notifications: list };
-      } else {
-        const headers: Record<string, string> = {
-          'Content-Type': 'application/json'
-        };
-        if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
-        }
-        const res = await fetch(`${BACKEND_URL}/api/v1/notifications`, {
-          credentials: 'include',
-          headers
-        });
-        console.log("%c[NAV] notifications fetch response", "color:purple", {
-          status: res.status,
-          timestamp: new Date().toISOString(),
-        });
-        if (res.ok) {
-          data = await res.json();
-        }
-      }
-
-      if (data && data.success) {
+      const res = await fetch(`${BACKEND_URL}/api/v1/notifications`, {
+        credentials: "include",
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.success && Array.isArray(data.notifications)) {
         setNotifications(data.notifications);
-        setUnreadCount(data.notifications.filter((n: any) => !n.isRead).length);
+        setUnreadCount(data.notifications.filter((n: Notification) => !n.isRead).length);
       }
-    } catch (e) {
-      console.warn("Failed to fetch notifications:", e);
+    } catch {
+      // Silently fail — notifications are non-critical
     }
   }, [user]);
 
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 60_000);
+    return () => clearInterval(interval);
+  }, [fetchNotifications]);
+
   const markAsRead = async (id: string, link?: string) => {
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
-    setUnreadCount(prev => Math.max(0, prev - 1));
-
     try {
-      const token = localStorage.getItem("filenova_token");
-      const isMock = !HAS_BACKEND || useFileStore.getState().isMockMode || (token && token.startsWith("local_"));
-      
-      if (isMock) {
-        const raw = localStorage.getItem("filenova_mock_notifications");
-        if (raw) {
-          const list = JSON.parse(raw);
-          const updated = list.map((n: any) => n.id === id ? { ...n, isRead: true } : n);
-          localStorage.setItem("filenova_mock_notifications", JSON.stringify(updated));
-        }
-      } else {
-        const headers: Record<string, string> = {};
-        if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
-        }
-        await fetch(`${BACKEND_URL}/api/v1/notifications/${id}/read`, {
-          method: "PATCH",
-          credentials: "include",
-          headers
-        });
-      }
-    } catch (e) {
-      console.warn("Failed to mark notification as read:", e);
+      await fetch(`${BACKEND_URL}/api/v1/notifications/${id}/read`, {
+        method: "PATCH",
+        credentials: "include",
+      });
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+      );
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+    } catch {
+      // Silently fail
     }
-
     if (link) {
       setNotificationsOpen(false);
       setLocation(link);
     }
   };
 
-  useEffect(() => {
-    if (user) {
-      fetchNotifications();
-      const interval = setInterval(fetchNotifications, 60000);
-      return () => clearInterval(interval);
-    } else {
-      setNotifications([]);
-      setUnreadCount(0);
+  const clearNotification = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    try {
+      await fetch(`${BACKEND_URL}/api/v1/notifications/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+    } catch {
+      // Silently fail
     }
-  }, [user, fetchNotifications]);
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    setUnreadCount((prev) => {
+      const wasUnread = notifications.find((n) => n.id === id && !n.isRead);
+      return wasUnread ? Math.max(0, prev - 1) : prev;
+    });
+  };
+
+  const clearAllNotifications = async () => {
+    try {
+      await fetch(`${BACKEND_URL}/api/v1/notifications`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+    } catch {
+      // Silently fail
+    }
+    setNotifications([]);
+    setUnreadCount(0);
+  };
 
   useEffect(() => {
-    if (!notificationsOpen) return;
-    const handleOutsideClick = (e: MouseEvent) => {
-      if (notificationsRef.current && !notificationsRef.current.contains(e.target as Node)) {
-        setNotificationsOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleOutsideClick);
-    return () => document.removeEventListener("mousedown", handleOutsideClick);
-  }, [notificationsOpen]);
-
-  useEffect(() => {
-    if (!mobileMenuOpen && !settingsOpen) return;
+    if (!mobileMenuOpen && !settingsOpen && !notificationsOpen) return;
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
       const header = document.querySelector("header");
@@ -175,11 +144,13 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
       ) return;
       if (mobileMenuOpen) setMobileMenuOpen(false);
       if (settingsOpen) setSettingsOpen(false);
+      if (notificationsOpen) setNotificationsOpen(false);
     };
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setMobileMenuOpen(false);
         setSettingsOpen(false);
+        setNotificationsOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -188,7 +159,7 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscape);
     };
-  }, [mobileMenuOpen, settingsOpen]);
+  }, [mobileMenuOpen, settingsOpen, notificationsOpen]);
 
   return (
     <>
@@ -198,8 +169,8 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
         transition={{ type: "spring", stiffness: 260, damping: 20 }}
         className="sticky top-0 z-40 w-full bg-transparent py-3 px-3 sm:px-4 transition-all duration-300"
       >
-        <div className="max-w-6xl mx-auto h-14 px-4 sm:px-6 flex items-center justify-between gap-2 rounded-full border border-[var(--fn-border)] relative group/nav">
-          <div className="absolute inset-0 bg-[var(--fn-surface-glass)] backdrop-blur-xl shadow-premium rounded-full -z-20 pointer-events-none" />
+        <div className="max-w-6xl mx-auto h-14 px-4 sm:px-6 flex items-center justify-between gap-2 rounded-full border border-border relative group/nav">
+          <div className="absolute inset-0 bg-card/45 backdrop-blur-xl shadow-premium rounded-full -z-20 pointer-events-none" />
           <div className="absolute inset-0 bg-gradient-to-r from-brand-primary/0 via-brand-primary/10 to-brand-primary/0 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-500 pointer-events-none rounded-full -z-10" />
 
           <Link href="/" className="flex items-center gap-2.5 shrink-0 relative z-10">
@@ -234,8 +205,9 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
                 <button
                   ref={notificationsTriggerRef}
                   onClick={() => setNotificationsOpen(!notificationsOpen)}
-                  className="relative hidden md:flex items-center justify-center p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--fn-accent-primary)] focus-visible:outline-none"
+                  className="relative hidden md:flex items-center justify-center p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 outline-none"
                   aria-label="Notifications"
+                  {...(notificationsOpen ? { "aria-expanded": "true" } : { "aria-expanded": "false" })}
                   title="Notifications"
                 >
                   <Bell className="h-4 w-4" />
@@ -250,15 +222,25 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
                       transition={{ duration: 0.15, ease: "easeOut" }}
-                      className="absolute right-0 top-full mt-3 fn-glass rounded-2xl shadow-[var(--fn-shadow-elevated)] p-4 z-[9999] w-80 text-[var(--fn-text-primary)] border border-border"
+                      className="absolute right-0 top-full mt-3 bg-card/95 border border-border shadow-soft rounded-2xl p-4 z-[9999] w-80 text-foreground backdrop-blur-xl"
                     >
                       <div className="flex items-center justify-between border-b border-border pb-2.5 mb-2.5">
                         <p className="text-xs font-black text-foreground">Notifications</p>
-                        {unreadCount > 0 && (
-                          <span className="text-[10px] font-black text-rose-500 bg-rose-500/10 px-2 py-0.5 rounded-full">
-                            {unreadCount} unread
-                          </span>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {unreadCount > 0 && (
+                            <span className="text-[10px] font-black text-rose-500 bg-rose-500/10 px-2 py-0.5 rounded-full">
+                              {unreadCount} unread
+                            </span>
+                          )}
+                          {notifications.length > 0 && (
+                            <button
+                              onClick={clearAllNotifications}
+                              className="text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors px-2 py-0.5 rounded-md hover:bg-secondary"
+                            >
+                              Clear all
+                            </button>
+                          )}
+                        </div>
                       </div>
                       <div className="space-y-2 max-h-64 overflow-y-auto scrollbar-none">
                         {notifications.length === 0 ? (
@@ -270,19 +252,29 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
                             <div
                               key={n.id}
                               onClick={() => markAsRead(n.id, n.link)}
-                              className={`p-2.5 rounded-xl border transition-all cursor-pointer text-left ${
+                              className={`group/notif relative p-2.5 rounded-xl border transition-all cursor-pointer text-left ${
                                 n.isRead
-                                  ? "bg-transparent border-transparent hover:bg-muted/40"
-                                  : "bg-indigo-500/5 border-indigo-500/10 hover:bg-indigo-500/8 hover:border-indigo-500/20"
+                                  ? "bg-transparent border-transparent hover:bg-secondary"
+                                  : "bg-primary/5 border-primary/10 hover:bg-primary/10 hover:border-primary/20"
                               }`}
                             >
                               <div className="flex items-start justify-between gap-1.5">
-                                <p className={`text-xs font-bold ${n.isRead ? "text-foreground/80" : "text-foreground"}`}>
+                                <p className={`text-xs font-bold pr-5 ${n.isRead ? "text-foreground/80" : "text-foreground"}`}>
                                   {n.title}
                                 </p>
-                                {!n.isRead && (
-                                  <span className="h-1.5 w-1.5 rounded-full bg-rose-500 shrink-0 mt-1" />
-                                )}
+                                <div className="flex items-center gap-1 shrink-0">
+                                  {!n.isRead && (
+                                    <span className="h-1.5 w-1.5 rounded-full bg-rose-500 mt-1" />
+                                  )}
+                                  <button
+                                    onClick={(e) => clearNotification(e, n.id)}
+                                    className="opacity-0 group-hover/notif:opacity-100 transition-opacity p-0.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
+                                    aria-label="Clear notification"
+                                    title="Clear"
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </button>
+                                </div>
                               </div>
                               <p className="text-[10px] text-muted-foreground mt-1 leading-normal">
                                 {n.message}
@@ -305,7 +297,7 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
               <button
                 ref={settingsTriggerRef}
                 onClick={() => setSettingsOpen(!settingsOpen)}
-                className="flex items-center justify-center p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--fn-accent-primary)] focus-visible:outline-none"
+                className="flex items-center justify-center p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 outline-none"
                 aria-label="Settings"
                 {...(settingsOpen ? { "aria-expanded": "true" } : { "aria-expanded": "false" })}
                 title="Settings"
@@ -319,7 +311,7 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
                     transition={{ duration: 0.15, ease: "easeOut" }}
-                    className="absolute right-0 top-full mt-3 fn-glass rounded-xl shadow-[var(--fn-shadow-elevated)] p-4 space-y-4 z-[9999] min-w-[200px] text-[var(--fn-text-primary)]"
+                    className="absolute right-0 top-full mt-3 bg-card/95 border border-border shadow-soft rounded-2xl p-4 space-y-4 z-[9999] min-w-[280px] backdrop-blur-xl text-foreground"
                   >
                     <div>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">{tText("Theme")}</p>
@@ -379,7 +371,7 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 hover:bg-accent/50 rounded-lg text-muted-foreground hover:text-foreground lg:hidden cursor-pointer"
+              className="p-2 hover:bg-secondary rounded-lg text-muted-foreground hover:text-foreground lg:hidden cursor-pointer focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 outline-none"
               aria-label="Toggle mobile menu"
               {...(mobileMenuOpen ? { "aria-expanded": "true" } : { "aria-expanded": "false" })}
               title="Toggle mobile menu"
@@ -398,7 +390,7 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.25, ease: "easeInOut" }}
             role="dialog" aria-modal="true" aria-label="Mobile navigation menu"
-            className="mobile-menu-panel lg:hidden border border-[var(--fn-border)] bg-background/95 dark:bg-card/95 backdrop-blur-xl p-4 space-y-3 rounded-2xl shadow-premium mt-2 mx-4 overflow-hidden relative z-30"
+            className="mobile-menu-panel lg:hidden border border-border bg-card/95 backdrop-blur-xl p-4 space-y-3 rounded-2xl shadow-soft mt-2 mx-4 overflow-hidden relative z-30"
           >
             {showSearch && (
               <div className="relative">
@@ -451,7 +443,7 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
                   {tText("Contact")}
                 </Link>
               </div>
-              <div className="flex items-center justify-between px-4 py-2 border border-border bg-card rounded-lg">
+              <div className="flex flex-col gap-2 px-4 py-3 border border-border bg-card rounded-lg">
                 <span className="text-xs font-bold text-muted-foreground">{tText("Theme")}</span>
                 <ThemeToggle />
               </div>

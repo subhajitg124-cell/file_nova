@@ -488,10 +488,10 @@ export default function SimpleHome() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.25 }}
-            className="mb-12 max-w-xl mx-auto p-4 rounded-2xl border border-indigo-500/20 bg-indigo-950/30 backdrop-blur-md text-left flex items-start gap-3 shadow-md"
+            className="mb-12 max-w-xl mx-auto p-4 rounded-2xl border border-indigo-100 dark:border-indigo-500/20 bg-indigo-50/50 dark:bg-indigo-950/30 backdrop-blur-md text-left flex items-start gap-3 shadow-card"
           >
-            <div className="h-9 w-9 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 shrink-0 border border-indigo-500/20">
-              <Star className="h-4.5 w-4.5 fill-indigo-400/20" />
+            <div className="h-9 w-9 rounded-xl bg-indigo-100/50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0 border border-indigo-200 dark:border-indigo-500/20">
+              <Star className="h-4.5 w-4.5 fill-indigo-500/20 dark:fill-indigo-400/20" />
             </div>
             <div className="space-y-0.5">
               <span className="block text-[11px] font-black text-foreground uppercase tracking-wider">
@@ -499,7 +499,7 @@ export default function SimpleHome() {
               </span>
               <p className="text-[10px] text-muted-foreground leading-relaxed">
                 {tText("FileNova is free for up to 3 document actions per day. ")}
-                <Link href="/pricing" className="text-indigo-400 hover:text-indigo-300 hover:underline font-extrabold">
+                <Link href="/pricing" className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 hover:underline font-extrabold">
                   {tText("Premium tiers starting at ₹49/month")}
                 </Link>
                 {tText(" unlock unlimited workspace actions and up to 100MB file uploads.")}

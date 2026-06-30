@@ -9,6 +9,7 @@ import { db, usersTable } from "@workspace/db";
 import { eq, and, lt } from "drizzle-orm";
 import { checkAndSendRenewalNotifications } from "./services/subscriptionNotificationService";
 import { backfillMissingReferralCodes } from "./services/referralService";
+import { NotificationService } from "./services/NotificationService";
 
 // ── Startup environment checks ────────────────────────────────────────────────
 if (!process.env["DATABASE_URL"]) {
@@ -68,6 +69,35 @@ const renewalNotificationTimer = setInterval(() => {
   checkAndSendRenewalNotifications().catch(() => {});
 }, 24 * 60 * 60 * 1000); // 24 hours
 renewalNotificationTimer.unref();
+
+// ── Holiday greeting scheduler (fires daily at 6:00 AM IST) ──────────────────
+// Calculate milliseconds until 6:00 AM IST (UTC+5:30 = UTC+330 minutes)
+function msUntilNextIST6AM(): number {
+  const now = new Date();
+  // Current time in IST
+  const istNow = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+  const istTarget = new Date(istNow);
+  istTarget.setHours(6, 0, 0, 0); // 6:00:00.000 AM IST
+  if (istTarget <= istNow) {
+    istTarget.setDate(istTarget.getDate() + 1); // Already past 6AM today → aim for tomorrow
+  }
+  return istTarget.getTime() - istNow.getTime();
+}
+
+function scheduleHolidayGreetings() {
+  const delay = msUntilNextIST6AM();
+  logger.info({ nextFireInMinutes: Math.round(delay / 60000) }, "Holiday greeting scheduler armed");
+  const timer = setTimeout(() => {
+    NotificationService.sendDailyHolidayGreetings().catch((err) =>
+      logger.error({ err }, "Holiday greeting dispatch failed")
+    );
+    // Re-schedule for next day
+    scheduleHolidayGreetings();
+  }, delay);
+  timer.unref();
+}
+
+scheduleHolidayGreetings();
 
 const rawPort = process.env["PORT"];
 

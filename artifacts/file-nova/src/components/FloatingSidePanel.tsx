@@ -60,6 +60,20 @@ export function FloatingSidePanel() {
     };
   }, []);
 
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+        setHoveredItem(null);
+        setMobileExpandedIcon(null);
+      }
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
+
   if (!shouldShowFAB) return null;
 
   const isWorkspacePage = location === '/workspace';
@@ -141,28 +155,22 @@ export function FloatingSidePanel() {
           align-items: center;
           gap: 10px;
           z-index: 9999;
-          background: #FFFFFF;
-          border: 1px solid rgba(0, 0, 0, 0.08);
+          background: var(--card);
+          border: 1px solid var(--border);
           border-radius: 20px;
           padding: 8px;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+          box-shadow: var(--card-shadow);
           width: 56px;
-          transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.15s ease, border-color 0.15s ease;
+          transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
           overflow: hidden;
           box-sizing: border-box;
+          backdrop-filter: blur(12px);
         }
 
         .fab-container.expanded {
           width: 172px;
           align-items: flex-start;
           padding: 8px 10px;
-        }
-
-        /* Dark Mode overrides for container */
-        .dark .fab-container {
-          background: rgba(30, 38, 60, 0.9);
-          border-color: rgba(255, 255, 255, 0.08);
-          box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
         }
 
         .fab-btn-list {
@@ -187,9 +195,9 @@ export function FloatingSidePanel() {
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          transition: background-color 0.15s ease, transform 0.15s ease, width 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease, width 0.25s cubic-bezier(0.16, 1, 0.3, 1);
           position: relative;
-          color: inherit;
+          color: var(--muted-foreground);
           text-decoration: none;
           outline: none;
           gap: 0px;
@@ -204,11 +212,7 @@ export function FloatingSidePanel() {
         }
         
         .fab-container.expanded .fab-btn[data-hovered="true"] {
-          background: rgba(99, 102, 241, 0.02);
-        }
-
-        .dark .fab-container.expanded .fab-btn[data-hovered="true"] {
-          background: rgba(255, 255, 255, 0.02);
+          background: var(--secondary);
         }
 
         .fab-container.expanded .fab-btn:not([data-hovered="true"]) {
@@ -216,19 +220,28 @@ export function FloatingSidePanel() {
         }
 
         .fab-btn:hover {
-          background: rgba(99, 102, 241, 0.08);
+          background: var(--secondary);
+          color: var(--foreground);
           transform: scale(1.04);
         }
 
         .fab-btn.active {
-          background: rgba(99, 102, 241, 0.12);
-          border: 1px solid rgba(99, 102, 241, 0.25);
+          background: linear-gradient(135deg, var(--primary) 0%, #6366F1 100%) !important;
+          color: #FFFFFF !important;
+          box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+        }
+
+        .high-contrast .fab-btn.active {
+          background: var(--primary) !important;
+          color: var(--primary-foreground) !important;
+          box-shadow: none !important;
+          outline: 2px solid #ffffff !important;
         }
 
         .fab-btn-text {
-          font-size: 13px;
-          font-weight: 600;
-          color: #334155;
+          font-size: 12px;
+          font-weight: 700;
+          color: var(--foreground);
           opacity: 0;
           max-width: 0;
           transform: translateX(-10px);
@@ -237,8 +250,12 @@ export function FloatingSidePanel() {
           transition: opacity 0.2s ease, max-width 0.2s ease, transform 0.2s ease;
         }
 
-        .dark .fab-btn-text {
-          color: #cbd5e1;
+        .fab-btn.active .fab-btn-text {
+          color: #FFFFFF !important;
+        }
+
+        .high-contrast .fab-btn.active .fab-btn-text {
+          color: var(--primary-foreground) !important;
         }
 
         .fab-container.expanded .fab-btn[data-hovered="true"] .fab-btn-text {
@@ -251,13 +268,9 @@ export function FloatingSidePanel() {
         .fab-divider {
           width: 24px;
           height: 1px;
-          background: rgba(0, 0, 0, 0.08);
+          background: var(--border);
           margin: 4px 0;
           transition: width 0.2s ease;
-        }
-
-        .dark .fab-divider {
-          background: rgba(255, 255, 255, 0.08);
         }
 
         .fab-container.expanded .fab-divider {
@@ -269,19 +282,19 @@ export function FloatingSidePanel() {
           width: 40px;
           height: 28px;
           border-radius: 8px;
-          background: rgba(99, 102, 241, 0.06);
+          background: var(--secondary);
           border: none;
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #6366F1;
+          color: var(--primary);
           transition: background-color 0.15s ease, width 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.15s ease;
           position: relative;
         }
 
         .fab-toggle-pill:hover {
-          background: rgba(99, 102, 241, 0.12);
+          background: var(--border);
         }
 
         .fab-container.expanded .fab-toggle-pill {
@@ -290,7 +303,7 @@ export function FloatingSidePanel() {
           gap: 12px;
           padding-left: 8px;
           background: transparent;
-          color: #6366F1;
+          color: var(--primary);
         }
 
         .fab-container.expanded .fab-toggle-pill .fab-btn-text {
@@ -300,7 +313,7 @@ export function FloatingSidePanel() {
         }
 
         .fab-container.expanded .fab-toggle-pill:hover {
-          background: rgba(99, 102, 241, 0.05);
+          background: var(--secondary);
         }
 
         /* Bouncing animation for collapsed handle */
@@ -329,19 +342,19 @@ export function FloatingSidePanel() {
           right: 52px;
           top: 50%;
           transform: translateY(-50%) translateX(10px);
-          background: rgba(15, 23, 42, 0.95);
-          color: #FFFFFF;
-          font-size: 12px;
-          font-weight: 500;
+          background: var(--card);
+          color: var(--foreground);
+          font-size: 11px;
+          font-weight: 700;
           padding: 6px 12px;
           border-radius: 8px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          box-shadow: var(--card-shadow);
           white-space: nowrap;
           pointer-events: none;
           opacity: 0;
           z-index: 10000;
           backdrop-filter: blur(8px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          border: 1px solid var(--border);
           transition: opacity 0.15s ease, transform 0.15s ease;
         }
 
@@ -359,7 +372,7 @@ export function FloatingSidePanel() {
           top: 50%;
           transform: translateY(-50%);
           border: 5px solid transparent;
-          border-left-color: rgba(15, 23, 42, 0.95);
+          border-left-color: var(--card);
         }
 
         .fab-container.expanded .fab-tooltip {
@@ -373,7 +386,7 @@ export function FloatingSidePanel() {
         /* Keyboard Focus Visible */
         .fab-btn:focus-visible,
         .fab-toggle-pill:focus-visible {
-          outline: 2px solid #6366F1;
+          outline: 2px solid var(--primary);
           outline-offset: 2px;
         }
 
@@ -383,12 +396,12 @@ export function FloatingSidePanel() {
           bottom: 24px;
           right: 88px;
           width: 220px;
-          background: rgba(15, 23, 42, 0.95);
-          color: #FFFFFF;
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          background: var(--card);
+          color: var(--foreground);
+          border: 1px solid var(--border);
           border-radius: 16px;
           padding: 14px;
-          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+          box-shadow: var(--card-shadow-elevated);
           z-index: 9999;
           font-family: inherit;
           backdrop-filter: blur(12px);
@@ -412,14 +425,14 @@ export function FloatingSidePanel() {
           left: 100%;
           bottom: 18px;
           border: 8px solid transparent;
-          border-left-color: rgba(15, 23, 42, 0.95);
+          border-left-color: var(--card);
         }
 
         .fab-coachmark-title {
           font-weight: 700;
           font-size: 13px;
           margin-bottom: 6px;
-          color: #F59E0B;
+          color: var(--primary);
           display: flex;
           align-items: center;
           gap: 6px;
@@ -428,14 +441,14 @@ export function FloatingSidePanel() {
         .fab-coachmark-text {
           font-size: 11px;
           line-height: 1.4;
-          color: #E2E8F0;
+          color: var(--muted-foreground);
           margin-bottom: 10px;
         }
 
         .fab-coachmark-btn {
           width: 100%;
-          background: #6366F1;
-          color: #FFFFFF;
+          background: var(--primary);
+          color: var(--primary-foreground);
           font-size: 11px;
           font-weight: 600;
           padding: 6px;
@@ -446,7 +459,7 @@ export function FloatingSidePanel() {
         }
 
         .fab-coachmark-btn:hover {
-          background: #4F46E5;
+          opacity: 0.9;
         }
 
         /* Reduced motion support */
@@ -496,7 +509,7 @@ export function FloatingSidePanel() {
             >
               <Languages
                 className="h-[22px] w-[22px] shrink-0"
-                style={{ color: location === "/india-tools" ? "#FFFFFF" : "#6366F1" }}
+                style={{ color: location === "/india-tools" ? "currentColor" : "#10B981" }}
               />
               <span className="fab-btn-text">{tText("India Tools")}</span>
               <div className={`fab-tooltip ${longPressedIcon === "india-tools" ? "visible-tooltip" : ""}`} role="tooltip">
@@ -518,7 +531,7 @@ export function FloatingSidePanel() {
             >
               <Zap
                 className="h-[22px] w-[22px] shrink-0"
-                style={{ color: location === "/workflows" ? "#FFFFFF" : "#F59E0B" }}
+                style={{ color: location === "/workflows" ? "currentColor" : "#F59E0B" }}
               />
               <span className="fab-btn-text">{tText("Workflows")}</span>
               <div className={`fab-tooltip ${longPressedIcon === "workflows" ? "visible-tooltip" : ""}`} role="tooltip">
@@ -540,7 +553,7 @@ export function FloatingSidePanel() {
             >
               <FileText
                 className="h-[22px] w-[22px] shrink-0"
-                style={{ color: location === "/workspace" ? "#FFFFFF" : "#6366F1" }}
+                style={{ color: location === "/workspace" ? "currentColor" : "#6366F1" }}
               />
               <span className="fab-btn-text">{tText("Workspace")}</span>
               <div className={`fab-tooltip ${longPressedIcon === "workspace" ? "visible-tooltip" : ""}`} role="tooltip">

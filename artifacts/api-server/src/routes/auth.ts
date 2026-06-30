@@ -8,6 +8,7 @@ import { hashPassword, verifyPassword } from "../utils/hash";
 import { authMiddleware, AuthRequest } from "../middlewares/auth";
 import { completeReferral, generateUniqueReferralCode, ensureUserReferralCode } from "../services/referralService";
 import { logger } from "../lib/logger";
+import { NotificationService } from "../services/NotificationService";
 import { sendOtpEmail } from "../services/emailService";
 
 const router = Router();
@@ -141,6 +142,12 @@ router.post("/signup", async (req, res): Promise<void> => {
       req.ip || undefined,
       req.headers["user-agent"] || undefined
     );
+
+    // Seed welcome notification (non-blocking)
+    NotificationService.sendWelcome(newUser.id, newUser.name).catch((err) =>
+      logger.warn({ err }, "Failed to send welcome notification")
+    );
+
     const token = await createSession(newUser.id, res);
 
     sendJson(res, {
