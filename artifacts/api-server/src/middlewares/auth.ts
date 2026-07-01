@@ -57,6 +57,10 @@ export async function authMiddleware(req: AuthRequest, res: Response, next: Next
     return next();
   }
 
+  // ── Store token on request immediately so requireAuth can see it even if
+  // the DB lookup below throws (e.g. when the DB is unreachable in dev).
+  req.sessionToken = token;
+
   try {
     const [session] = await db
       .select()
@@ -76,8 +80,7 @@ export async function authMiddleware(req: AuthRequest, res: Response, next: Next
 
     if (user) {
       req.user = user;
-      req.sessionToken = token;
-      
+
       // Update user activity timestamp asynchronously
       db.update(usersTable)
         .set({ lastActiveAt: new Date() })
