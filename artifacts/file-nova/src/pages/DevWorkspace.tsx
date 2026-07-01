@@ -1198,6 +1198,47 @@ function TestingView() {
       addLog(`Order created successfully! order_id: ${orderResponse.order_id}`, "success");
       addLog(`Response payload: ${JSON.stringify(orderResponse)}`, "info");
 
+      // ── Mock payment flow (backend returned isMock: true) ─────────────────
+      // When PAYMENT_PROVIDER=mock is set the backend issues a fake order_id.
+      // Razorpay checkout.js cannot validate that against their servers, so we
+      // skip the modal and directly hit /api/verify-payment with synthetic IDs.
+      if (orderResponse.isMock) {
+        addLog("ℹ️  Mock payment mode detected — skipping real Razorpay modal.", "info");
+        addLog("Simulating successful payment and calling /api/verify-payment...", "info");
+
+        const fakePaymentId = `pay_mock_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`;
+        const fakeSignature = `mock_sig_${crypto.randomUUID().replace(/-/g, "")}`;
+
+        try {
+          const verifyResponse = await apiClient.request<{ success: boolean; message: string }>(
+            "/api/verify-payment",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpay_order_id: orderResponse.order_id,
+                razorpay_payment_id: fakePaymentId,
+                razorpay_signature: fakeSignature,
+              }),
+            }
+          );
+
+          if (verifyResponse.success) {
+            addLog(`✅ Mock payment verified! payment_id: ${fakePaymentId}`, "success");
+            addLog(`Server message: ${verifyResponse.message}`, "info");
+            toast.success("✅ Mock payment flow complete — end-to-end verified!");
+          } else {
+            addLog(`Mock payment verification failed: ${JSON.stringify(verifyResponse)}`, "error");
+            toast.error("Mock signature verification failed.");
+          }
+        } catch (verifyErr: any) {
+          addLog(`Error verifying mock payment: ${verifyErr.message}`, "error");
+          toast.error(`Verification error: ${verifyErr.message}`);
+        }
+        return; // Done with mock flow
+      }
+
+      // ── Real Razorpay checkout (production / live mode) ───────────────────
       if (!scriptLoaded) {
         addLog("Error: Razorpay checkout.js script not loaded on page.", "warn");
       }

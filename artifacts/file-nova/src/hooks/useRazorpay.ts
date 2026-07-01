@@ -88,7 +88,12 @@ export function useRazorpay() {
             }>('/api/payment/verify', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(response),
+              body: JSON.stringify({
+                ...response,
+                // Pass plan context as fallback if DB is unavailable server-side
+                planId,
+                billingCycle,
+              }),
             });
 
             if (result.success) {
