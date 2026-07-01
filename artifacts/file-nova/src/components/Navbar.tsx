@@ -12,6 +12,8 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { PlanBadge } from "@/components/PlanBadge";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
+import { useSupportDevStore } from "@/store/useSupportDevStore";
+import { FEATURE_PAYMENT_GATEWAY } from "@/config/featureFlags";
 import { SmartSearchBar } from "@/components/SmartSearchBar";
 import { PopularToolsDropdown } from "@/components/PopularToolsDropdown";
 import { useDismissablePanel } from "@/hooks/useDismissablePanel";
@@ -343,8 +345,15 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
               }
               const targetPlan = tier === 'free' ? 'pro' : 'elite';
               const label = tier === 'free' ? 'Upgrade' : 'Go Elite';
+              const handleUpgradeClick = () => {
+                if (!FEATURE_PAYMENT_GATEWAY) {
+                  useSupportDevStore.getState().open();
+                } else {
+                  useCheckoutStore.getState().openCheckout(targetPlan);
+                }
+              };
               return (
-                <button onClick={() => useCheckoutStore.getState().openCheckout(targetPlan)} className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-black text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 px-3.5 py-2 rounded-full transition-all shadow-md hover:shadow-lg hover:scale-[1.02] whitespace-nowrap shrink-0 active:scale-95">
+                <button onClick={handleUpgradeClick} className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-black text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 px-3.5 py-2 rounded-full transition-all shadow-md hover:shadow-lg hover:scale-[1.02] whitespace-nowrap shrink-0 active:scale-95">
                   <Crown className="h-3.5 w-3.5 fill-current" />
                   {tText(label)}
                 </button>
@@ -422,8 +431,16 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
                 }
                 const targetPlan = tier === 'free' ? 'pro' : 'elite';
                 const label = tier === 'free' ? 'Premium Suite' : 'Go Elite';
+                const handleMobileUpgrade = () => {
+                  setMobileMenuOpen(false);
+                  if (!FEATURE_PAYMENT_GATEWAY) {
+                    useSupportDevStore.getState().open();
+                  } else {
+                    useCheckoutStore.getState().openCheckout(targetPlan);
+                  }
+                };
                 return (
-                  <button onClick={() => { setMobileMenuOpen(false); useCheckoutStore.getState().openCheckout(targetPlan); }} className="flex items-center justify-center gap-2 text-sm font-black text-white bg-gradient-to-r from-amber-500 to-orange-600 py-2.5 rounded-lg">
+                  <button onClick={handleMobileUpgrade} className="flex items-center justify-center gap-2 text-sm font-black text-white bg-gradient-to-r from-amber-500 to-orange-600 py-2.5 rounded-lg">
                     <Crown className="h-4 w-4 fill-current" />
                     {tText(label)}
                   </button>

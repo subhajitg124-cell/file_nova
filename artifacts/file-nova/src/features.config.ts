@@ -90,4 +90,6 @@ export const enabledFeatureKeys = Object.keys(featureFlags).filter(
   (key) => isFeatureEnabled(key as FeatureKey)
 ) as FeatureKey[];
 
+const paymentsEnv = String(import.meta.env.VITE_PAYMENTS_ENABLED ?? import.meta.env.VITE_FEATURE_PAYMENT_GATEWAY ?? "true").toLowerCase();
+export const paymentsEnabled = paymentsEnv !== "false" && paymentsEnv !== "0";
 export const isLowBandwidthMode = import.meta.env.VITE_LOW_BANDWIDTH === "true";

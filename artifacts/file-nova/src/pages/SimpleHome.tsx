@@ -25,6 +25,8 @@ import { PopularToolsGrid } from "@/components/PopularToolsGrid";
 import { PopularToolsDropdown } from "@/components/PopularToolsDropdown";
 import { ReactableGreeting } from "@/components/events/ReactableGreeting";
 import { Navbar } from "@/components/Navbar";
+import { DevSupportBanner } from "@/components/DevSupportBanner";
+import { FEATURE_PAYMENT_GATEWAY } from "@/config/featureFlags";
 // import { getFeaturedAffiliateLinks, sanitizeAffiliateUrl } from "@/data/affiliateLinks";
 
 
@@ -439,6 +441,8 @@ export default function SimpleHome() {
 
       {/* Navigation */}
       <Navbar />
+
+      {!FEATURE_PAYMENT_GATEWAY && <DevSupportBanner />}
 
       {premiumTier === "free" && showUpgradeBanner && (
         <div className="bg-gradient-to-r from-indigo-900 via-indigo-950 to-indigo-900 border-b border-indigo-500/20 py-2 px-4 text-center text-xs font-bold text-indigo-100 flex items-center justify-center gap-2 relative z-20">

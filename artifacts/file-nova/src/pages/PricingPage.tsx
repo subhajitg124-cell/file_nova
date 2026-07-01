@@ -6,7 +6,7 @@
 import React, { useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { Sparkles, CheckCircle2, ShieldCheck, Zap, Loader, Copy, QrCode, Check, X, Building2, ServerCog, MessageCircle } from "lucide-react";
+import { Sparkles, CheckCircle2, ShieldCheck, Zap, Loader, Copy, QrCode, Check, X, Building2, ServerCog, MessageCircle, Heart } from "lucide-react";
 import { useSubscription, type PremiumTier } from "@/hooks/useSubscription";
 import { useRazorpay } from "@/hooks/useRazorpay";
 import type { PlanType } from "@/store/useCheckoutStore";
@@ -14,6 +14,8 @@ import { TestingNotice } from "@/components/TestingNotice";
 import { useAdmin } from "@/lib/admin";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
+import { useSupportDevStore } from "@/store/useSupportDevStore";
+import { FEATURE_PAYMENT_GATEWAY } from "@/config/featureFlags";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
 import { Navbar } from "@/components/Navbar";
 import { BackHomeBar } from "@/components/BackHomeBar";
@@ -259,7 +261,7 @@ function PlanCard({
             <div className="w-full">
               {getCtaButton()}
             </div>
-            {isPaidPlan && !isCurrent && (
+            {isPaidPlan && !isCurrent && FEATURE_PAYMENT_GATEWAY && (
               <button
                 type="button"
                 onClick={onSelect}
@@ -542,6 +544,10 @@ export default function PricingPage() {
   };
 
   const handleSelectPlan = (plan: PremiumTier) => {
+    if (!FEATURE_PAYMENT_GATEWAY && plan !== "free") {
+      useSupportDevStore.getState().open();
+      return;
+    }
     if (isTesting) { toast.info("Testing mode: All features unlocked for free."); return; }
     if (!user && plan !== "free") { setAuthModalOpen(true); return; }
     if (plan === "free") { if (premiumTier !== "free" && confirm("Confirm cancellation?")) cancelSubscription(); return; }
@@ -628,7 +634,11 @@ export default function PricingPage() {
     return <span className={`text-3xl font-black ${textClass}`}>₹{discounted}</span>;
   };
 
-  const getPlanCta = (id: PremiumTier, cta: string) => (isTesting ? "Unlocked" : cta);
+  const getPlanCta = (id: PremiumTier, cta: string) => {
+    if (isTesting) return "Unlocked";
+    if (!FEATURE_PAYMENT_GATEWAY && id !== "free") return "Coming Soon";
+    return cta;
+  };
   const getPayableAmount = (planId: PremiumTier, original: number) => (planId === "free" ? 0 : Math.round(original * (1 - appliedDiscount / 100)));
 
   return (
@@ -711,8 +721,14 @@ export default function PricingPage() {
                     <span className="text-2xl font-bold text-[var(--fn-text-primary)]">₹9</span>
                   </div>
                   <div className="w-full flex flex-col gap-2">
-                    <button onClick={() => handleSelectPlan("pass_24h")} className="w-full py-2 bg-[var(--fn-accent-primary)] text-white rounded-full text-xs font-black cursor-pointer hover:opacity-90 transition-opacity">Buy Pass</button>
-                    <button onClick={() => handleSelectPlan("pass_24h")} className="w-full py-1.5 border border-[var(--fn-border)] bg-[var(--fn-surface-elevated)] text-[var(--fn-text-secondary)] rounded-full text-[10px] font-black cursor-pointer hover:bg-[var(--fn-surface)] transition flex items-center justify-center gap-1.5"><QrCode className="h-3 w-3" /> PhonePe / UPI Pay</button>
+                    {FEATURE_PAYMENT_GATEWAY ? (
+                      <>
+                        <button onClick={() => handleSelectPlan("pass_24h")} className="w-full py-2 bg-[var(--fn-accent-primary)] text-white rounded-full text-xs font-black cursor-pointer hover:opacity-90 transition-opacity">Buy Pass</button>
+                        <button onClick={() => handleSelectPlan("pass_24h")} className="w-full py-1.5 border border-[var(--fn-border)] bg-[var(--fn-surface-elevated)] text-[var(--fn-text-secondary)] rounded-full text-[10px] font-black cursor-pointer hover:bg-[var(--fn-surface)] transition flex items-center justify-center gap-1.5"><QrCode className="h-3 w-3" /> PhonePe / UPI Pay</button>
+                      </>
+                    ) : (
+                      <button onClick={() => useSupportDevStore.getState().open()} className="w-full py-2 border border-dashed border-[var(--fn-border)] text-muted-foreground rounded-full text-xs font-semibold cursor-pointer hover:bg-muted transition">Coming Soon</button>
+                    )}
                   </div>
                 </div>
               </SpotlightCard>
@@ -729,8 +745,14 @@ export default function PricingPage() {
                     <span className="text-2xl font-bold text-[var(--fn-text-primary)]">₹29</span>
                   </div>
                   <div className="w-full flex flex-col gap-2">
-                    <button onClick={() => handleSelectPlan("pass_7d")} className="w-full py-2 bg-[var(--fn-accent-primary)] text-white rounded-full text-xs font-black cursor-pointer hover:opacity-90 transition-opacity">Buy Pass</button>
-                    <button onClick={() => handleSelectPlan("pass_7d")} className="w-full py-1.5 border border-[var(--fn-border)] bg-[var(--fn-surface-elevated)] text-[var(--fn-text-secondary)] rounded-full text-[10px] font-black cursor-pointer hover:bg-[var(--fn-surface)] transition flex items-center justify-center gap-1.5"><QrCode className="h-3 w-3" /> PhonePe / UPI Pay</button>
+                    {FEATURE_PAYMENT_GATEWAY ? (
+                      <>
+                        <button onClick={() => handleSelectPlan("pass_7d")} className="w-full py-2 bg-[var(--fn-accent-primary)] text-white rounded-full text-xs font-black cursor-pointer hover:opacity-90 transition-opacity">Buy Pass</button>
+                        <button onClick={() => handleSelectPlan("pass_7d")} className="w-full py-1.5 border border-[var(--fn-border)] bg-[var(--fn-surface-elevated)] text-[var(--fn-text-secondary)] rounded-full text-[10px] font-black cursor-pointer hover:bg-[var(--fn-surface)] transition flex items-center justify-center gap-1.5"><QrCode className="h-3 w-3" /> PhonePe / UPI Pay</button>
+                      </>
+                    ) : (
+                      <button onClick={() => useSupportDevStore.getState().open()} className="w-full py-2 border border-dashed border-[var(--fn-border)] text-muted-foreground rounded-full text-xs font-semibold cursor-pointer hover:bg-muted transition">Coming Soon</button>
+                    )}
                   </div>
                 </div>
               </SpotlightCard>
@@ -745,6 +767,7 @@ export default function PricingPage() {
           transition={{ delay: 0.3 }}
           className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto mt-6"
         >
+          {FEATURE_PAYMENT_GATEWAY && (
           <div>
             <SpotlightCard className="fn-glass rounded-2xl p-4 flex flex-col gap-3 h-full text-[var(--fn-text-primary)] justify-center">
               <p className="text-sm font-bold text-[var(--fn-text-primary)]">Have a coupon?</p>
@@ -770,19 +793,76 @@ export default function PricingPage() {
               {couponSuccess && <p className="text-[10px] text-emerald-500 font-bold px-1">{couponSuccess}</p>}
             </SpotlightCard>
           </div>
+          )}
 
           <div>
-            <SpotlightCard className="fn-glass rounded-2xl p-4 flex items-center gap-3 h-full text-[var(--fn-text-primary)] justify-center">
-              <div className="h-10 w-10 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
-                <ShieldCheck className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-[var(--fn-text-primary)]">Secure Checkout</p>
-                <p className="text-[11px] text-[var(--fn-text-secondary)] mt-0.5">100% encrypted & protected payments.</p>
-              </div>
-            </SpotlightCard>
+            {FEATURE_PAYMENT_GATEWAY ? (
+              <SpotlightCard className="fn-glass rounded-2xl p-4 flex items-center gap-3 h-full text-[var(--fn-text-primary)] justify-center">
+                <div className="h-10 w-10 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+                  <ShieldCheck className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-[var(--fn-text-primary)]">Secure Checkout</p>
+                  <p className="text-[11px] text-[var(--fn-text-secondary)] mt-0.5">100% encrypted & protected payments.</p>
+                </div>
+              </SpotlightCard>
+            ) : (
+              <SpotlightCard className="fn-glass rounded-2xl p-4 flex items-center gap-3 h-full text-[var(--fn-text-primary)] justify-center">
+                <div className="h-10 w-10 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+                  <Heart className="h-5 w-5 fill-amber-500/20" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-[var(--fn-text-primary)]">Development Mode</p>
+                  <p className="text-[11px] text-[var(--fn-text-secondary)] mt-0.5">Payment gateway is undergoing final testing.</p>
+                </div>
+              </SpotlightCard>
+            )}
           </div>
         </motion.div>
+
+        {/* Development Support Mode Notice */}
+        {!FEATURE_PAYMENT_GATEWAY && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="max-w-2xl mx-auto"
+          >
+            <SpotlightCard className="fn-glass rounded-2xl p-6 text-[var(--fn-text-primary)]">
+              <div className="flex flex-col items-center text-center gap-4">
+                <span className="p-3 rounded-full bg-indigo-500/10 text-indigo-500">
+                  <Heart className="h-6 w-6 fill-indigo-500/20" />
+                </span>
+                <div>
+                  <h3 className="text-lg font-black text-[var(--fn-text-primary)] font-display mb-2">Development Support Coming Soon</h3>
+                  <p className="text-sm text-[var(--fn-text-secondary)] leading-relaxed max-w-lg mx-auto">
+                    We're building something special. Our payment system is undergoing final testing, and we can't wait to share it with you.
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full max-w-lg">
+                  {[
+                    "Payment system under final testing",
+                    "Razorpay integration in progress",
+                    "Secure checkout coming soon",
+                  ].map((item) => (
+                    <div key={item} className="flex items-center gap-2 text-xs font-semibold text-[var(--fn-text-secondary)] bg-[var(--fn-surface-elevated)] border border-[var(--fn-border)] rounded-xl px-4 py-3">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                      {item}
+                    </div>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => useSupportDevStore.getState().open()}
+                  className="mt-2 inline-flex items-center gap-2 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 text-sm font-bold transition-all cursor-pointer active:scale-[0.98]"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  Learn More About Supporting FileNova
+                </button>
+              </div>
+            </SpotlightCard>
+          </motion.div>
+        )}
 
         {/* Enterprise and API Pricing */}
         <motion.section

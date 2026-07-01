@@ -26,6 +26,11 @@ import { EditingWindow } from "@/components/EditingWindow";
 import { apiClient, apiMock } from "@/lib/api";
 import { setupFetchInterceptor } from "@/lib/fetchInterceptor";
 import { CheckoutModal } from "@/components/CheckoutModal";
+import { SupportDevModal } from "@/components/SupportDevModal";
+import { DevSupportBanner } from "@/components/DevSupportBanner";
+import { DevSupportNotification } from "@/components/DevSupportNotification";
+import { FEATURE_PAYMENT_GATEWAY } from "@/config/featureFlags";
+import { useSupportDevStore } from "@/store/useSupportDevStore";
 import { GlobalCommandPalette, MobileSearchFab } from "@/components/GlobalCommandPalette";
 import { loadGoogleAnalytics, clearGoogleAnalyticsCookies } from "@/lib/analytics";
 
@@ -132,6 +137,7 @@ function App({ ssrPath }: { ssrPath?: string } = {}) {
   const [isOnline, setIsOnline] = useState(() => typeof navigator !== "undefined" ? navigator.onLine : true);
   const [retryTrigger, setRetryTrigger] = useState(0);
   const [splashDone, setSplashDone] = useState(false);
+  const { isOpen: supportModalOpen, close: closeSupportModal } = useSupportDevStore();
 
   useEffect(() => {
     const timer = setTimeout(() => setSplashDone(true), 800);
@@ -310,6 +316,10 @@ function App({ ssrPath }: { ssrPath?: string } = {}) {
                       onClose={() => setLimitModalOpen(false)}
                       limit={modalLimit}
                       usage={modalUsage}
+                    />
+                    <SupportDevModal
+                      isOpen={supportModalOpen}
+                      onClose={closeSupportModal}
                     />
                     <CheckoutModal />
                     <MobileSearchFab />

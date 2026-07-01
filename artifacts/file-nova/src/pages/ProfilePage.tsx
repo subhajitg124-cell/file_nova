@@ -4,10 +4,12 @@ import { motion } from "framer-motion";
 import { 
   ChevronLeft, User, Phone, Mail, Lock, ShieldAlert, 
   Trash2, Save, X, Edit3, KeyRound, Award, History,
-  CreditCard, Download, Loader2
+  CreditCard, Download, Loader2, Heart, Sparkles, CheckCircle2
 } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { apiClient, apiMock, HAS_BACKEND } from "@/lib/api";
+import { FEATURE_PAYMENT_GATEWAY } from "@/config/featureFlags";
+import { useSupportDevStore } from "@/store/useSupportDevStore";
 import { toast } from "sonner";
 
 export default function ProfilePage() {
@@ -549,6 +551,40 @@ export default function ProfilePage() {
                 </p>
               )}
             </div>
+
+            {/* Support Development */}
+            {!FEATURE_PAYMENT_GATEWAY && (
+              <div className="bg-card/30 border border-border rounded-3xl p-6 backdrop-blur-xl shadow-xl">
+                <h3 className="font-extrabold text-sm text-foreground uppercase tracking-wider flex items-center gap-2 mb-4">
+                  <Heart className="h-4 w-4 text-rose-400" />
+                  Support Development
+                </h3>
+                <div className="flex flex-wrap gap-3 mb-4">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-amber-500/10 text-amber-500 border border-amber-500/25">
+                    <Sparkles className="h-3 w-3" />
+                    Development Mode
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-indigo-500/10 text-indigo-400 border border-indigo-500/25">
+                    Payment Gateway: Coming Soon
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/25">
+                    <CheckCircle2 className="h-3 w-3" />
+                    In Progress
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed mb-4">
+                  Payment integration is currently undergoing final testing. All tools remain free during this time.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => useSupportDevStore.getState().open()}
+                  className="inline-flex items-center gap-1.5 py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition-all cursor-pointer"
+                >
+                  <Heart className="h-3.5 w-3.5" />
+                  Learn About Supporting FileNova
+                </button>
+              </div>
+            )}
 
             {/* Billing & Payment History */}
             <div className="bg-card/30 border border-border rounded-3xl p-6 backdrop-blur-xl shadow-xl">

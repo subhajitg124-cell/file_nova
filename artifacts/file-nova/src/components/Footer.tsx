@@ -281,23 +281,35 @@ const Footer: React.FC = memo(() => {
           
           <div className="mt-6 flex flex-col items-center justify-center gap-3">
             <p className="text-[10px] text-muted-foreground/60 font-bold uppercase tracking-widest">{tText("Support FileNova Development")}</p>
-            <div className="flex gap-4">
-              <a
-                href={createUpiLink(10, "Chai for FileNova")}
-                onClick={(e) => triggerUpi(e, 10, "Chai for FileNova")}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white rounded-xl text-xs font-black shadow-lg transition duration-200 transform hover:scale-105 active:scale-95"
-              >
-                <Coffee className="h-3.5 w-3.5" /> {tText("Chai (₹10)")}
-              </a>
-              <a
-                href={createUpiLink(50, "Support FileNova")}
-                onClick={(e) => triggerUpi(e, 50, "Support FileNova")}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white rounded-xl text-xs font-black shadow-lg transition duration-200 transform hover:scale-105 active:scale-95 border border-indigo-500/20"
-              >
-                <Heart className="h-3.5 w-3.5" /> {tText("Support (₹50)")}
-              </a>
+              <div className="flex flex-wrap justify-center gap-3">
+                <a
+                  href={createUpiLink(10, "Chai for FileNova")}
+                  onClick={(e) => triggerUpi(e, 10, "Chai for FileNova")}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white rounded-xl text-xs font-black shadow-lg transition duration-200 transform hover:scale-105 active:scale-95"
+                >
+                  <Coffee className="h-3.5 w-3.5" /> {tText("Chai (₹10)")}
+                </a>
+                <a
+                  href={createUpiLink(50, "Support FileNova")}
+                  onClick={(e) => triggerUpi(e, 50, "Support FileNova")}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white rounded-xl text-xs font-black shadow-lg transition duration-200 transform hover:scale-105 active:scale-95 border border-indigo-500/20"
+                >
+                  <Heart className="h-3.5 w-3.5" /> {tText("Support (₹50)")}
+                </a>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setUpiAmount(10);
+                    setUpiNote("Support FileNova");
+                    setUpiOpen(true);
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-background text-xs font-black text-foreground hover:bg-muted transition duration-200"
+                >
+                  <span>{tText("Custom amount")}</span>
+                </button>
+              </div>
             </div>
-          </div>
 
           <UpiSupportModal
             isOpen={upiOpen}

@@ -21,10 +21,8 @@ const verifyPaymentSchema = z.object({
   razorpay_signature: z.string({ required_error: "razorpay_signature is required" }),
 });
 
-const supportAmountSchema = z.union([z.literal(10), z.literal(50)]);
-
 const createSupportOrderSchema = z.object({
-  amount: supportAmountSchema,
+  amount: z.number().int().min(10, "Amount must be at least ₹10"),
   note: z.string().max(80).default("Support FileNova"),
 });
 

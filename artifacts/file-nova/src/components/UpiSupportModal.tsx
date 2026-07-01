@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { X, Copy, Check, ExternalLink, CreditCard, Loader } from "lucide-react";
 import { toast } from "sonner";
 import { apiClient, apiMock, HAS_BACKEND } from "@/lib/api";
-import { FILENOVA_UPI_ID, FILENOVA_PAYEE_NAME, createUpiLink, createUpiQrUrl } from "@/lib/upi";
+import { FILENOVA_UPI_ID, FILENOVA_PAYEE_NAME, createUpiLink } from "@/lib/upi";
 
 interface UpiSupportModalProps {
   isOpen: boolean;
@@ -31,6 +31,9 @@ export function UpiSupportModal({ isOpen, onClose, amount, note }: UpiSupportMod
   const [copied, setCopied] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [processingOnline, setProcessingOnline] = useState(false);
+  const [localAmount, setLocalAmount] = useState(amount);
+  const [localNote, setLocalNote] = useState(note);
+  const [amountError, setAmountError] = useState("");
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -38,6 +41,12 @@ export function UpiSupportModal({ isOpen, onClose, amount, note }: UpiSupportMod
       setIsMobile(mobileRegex.test(navigator.userAgent));
     }
   }, []);
+
+  useEffect(() => {
+    setLocalAmount(amount);
+    setLocalNote(note);
+    setAmountError("");
+  }, [amount, note]);
 
   if (!isOpen) return null;
 
@@ -47,16 +56,26 @@ export function UpiSupportModal({ isOpen, onClose, amount, note }: UpiSupportMod
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const qrUrl = createUpiQrUrl(amount);
-  const payLink = createUpiLink(amount, note);
+  const handleAmountChange = (value: string) => {
+    const nextAmount = Number(value);
+    setLocalAmount(Number.isNaN(nextAmount) ? 0 : Math.max(0, Math.floor(nextAmount)));
+    setAmountError(nextAmount < 10 ? "Enter ₹10 or more." : "");
+  };
 
-  const supportAmount = amount === 50 ? 50 : 10;
+  const effectiveAmount = Math.max(10, localAmount);
+  const payLink = createUpiLink(effectiveAmount, localNote);
+  const staticQrUrl = "/upi-qr.png";
+  const isAmountValid = localAmount >= 10;
 
   const handleOnlinePayment = async () => {
+    if (!isAmountValid) {
+      setAmountError("Enter ₹10 or more.");
+      return;
+    }
     setProcessingOnline(true);
     try {
       const client = HAS_BACKEND ? apiClient : apiMock;
-      const order = await client.createSupportOrder(supportAmount, note);
+      const order = await client.createSupportOrder(localAmount, localNote);
 
       if (order.isMock || !HAS_BACKEND) {
         await client.verifySupportPayment({
@@ -78,7 +97,7 @@ export function UpiSupportModal({ isOpen, onClose, amount, note }: UpiSupportMod
         amount: order.amount,
         currency: order.currency,
         name: "FileNova",
-        description: note,
+        description: localNote,
         order_id: order.orderId,
         image: window.location.origin + "/logo.png",
         theme: { color: "#4f46e5" },
@@ -151,42 +170,70 @@ export function UpiSupportModal({ isOpen, onClose, amount, note }: UpiSupportMod
           className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed text-white py-3 text-sm font-black shadow-glow-indigo transition cursor-pointer"
         >
           {processingOnline ? <Loader className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />}
-          Pay Rs {amount} Online
+          Pay Rs {localAmount} Online
         </button>
 
-        {/* QR Code Container for Desktop */}
-        {!isMobile ? (
-          <div className="space-y-4">
+        <div className="space-y-4">
+          <div className="grid gap-3 sm:grid-cols-[1fr_auto] items-end">
+            <div className="space-y-2 text-left">
+              <label htmlFor="upi-amount" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Enter amount</label>
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center justify-center rounded-xl border border-border bg-slate-950/70 px-3 py-2 text-slate-400 text-sm">₹</span>
+                <input
+                  id="upi-amount"
+                  type="number"
+                  min={10}
+                  step={1}
+                  value={localAmount}
+                  onChange={(e) => handleAmountChange(e.target.value)}
+                  className="w-full rounded-2xl border border-border bg-background px-3 py-2 text-sm font-bold text-foreground outline-none focus:border-indigo-500"
+                  placeholder="Enter amount"
+                />
+              </div>
+              {amountError ? <p className="text-[11px] text-destructive">{amountError}</p> : <p className="text-[11px] text-slate-400">Minimum ₹10. Enter any higher amount to support FileNova.</p>}
+              <label htmlFor="upi-note" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Payment note</label>
+              <input
+                id="upi-note"
+                type="text"
+                value={localNote}
+                onChange={(e) => setLocalNote(e.target.value)}
+                className="w-full rounded-2xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-indigo-500"
+                placeholder="Support FileNova"
+              />
+            </div>
             <div className="mx-auto w-48 h-48 bg-white p-3 rounded-2xl flex items-center justify-center shadow-inner border border-slate-800">
               <img 
-                src={qrUrl} 
+                src={staticQrUrl} 
                 alt="UPI QR Code" 
                 className="w-full h-full object-contain"
                 width="200" height="200" loading="lazy"
                 onError={(e) => {
-                  // Fallback if the upiqr api is down
                   (e.target as HTMLImageElement).src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(payLink)}`;
                 }}
               />
             </div>
-            <div className="space-y-1">
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-indigo-400">Scan to Pay ₹{amount}</span>
-              <p className="text-[11px] text-slate-400">Scan with GPay, PhonePe, Paytm, or BHIM</p>
-            </div>
           </div>
-        ) : (
-          /* Mobile Button Link */
-          <div className="py-4 space-y-4">
-            <a
-              href={payLink}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-95 text-white py-3.5 text-sm font-black shadow-glow-indigo transition cursor-pointer"
-            >
-              Pay ₹{amount} via UPI App
-              <ExternalLink className="h-4 w-4" />
-            </a>
-            <p className="text-[11px] text-slate-400 leading-relaxed px-4">
-              Tap the button to open any installed UPI application (GPay, PhonePe, Paytm) directly.
-            </p>
+          <div className="space-y-1">
+            <span className="text-[10px] font-extrabold uppercase tracking-widest text-indigo-400">Scan to Pay ₹{localAmount}</span>
+            <p className="text-[11px] text-slate-400">Scan with GPay, PhonePe, Paytm, or BHIM</p>
+          </div>
+        </div>
+
+        {isMobile && (
+          <div className="space-y-4 pt-2">
+            <div className="rounded-3xl border border-border bg-slate-950/70 p-4 text-left space-y-3">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Pay with UPI app</p>
+              <a
+                href={payLink}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-95 text-white py-3 text-sm font-black shadow-glow-indigo transition"
+              >
+                Pay ₹{localAmount} via UPI App
+                <ExternalLink className="h-4 w-4" />
+              </a>
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                Tap to open any installed UPI app and complete payment instantly.
+              </p>
+            </div>
           </div>
         )}
 

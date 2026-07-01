@@ -476,6 +476,18 @@ export default function PremiumSuite() {
           >
             <span>❤️ Support Project (₹50)</span>
           </a>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              setUpiAmount(10);
+              setUpiNote("Support FileNova");
+              setUpiOpen(true);
+            }}
+            className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-5 py-2.5 text-xs font-black text-foreground hover:bg-muted transition"
+          >
+            <span>Custom amount</span>
+          </button>
         </div>
       </div>
 

@@ -156,7 +156,7 @@ export const apiClient = {
     return `${BACKEND_URL}/api/v1/download/${jobId}`;
   },
 
-  async createSupportOrder(amount: 10 | 50, note: string): Promise<any> {
+  async createSupportOrder(amount: number, note: string): Promise<any> {
     return this.request<any>('/api/support-order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -471,7 +471,7 @@ export const apiMock = {
     return () => clearInterval(interval);
   },
 
-  async createSupportOrder(amount: 10 | 50, note: string) {
+  async createSupportOrder(amount: number, note: string) {
     await new Promise((resolve) => setTimeout(resolve, 300));
     return {
       success: true,

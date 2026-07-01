@@ -10,6 +10,8 @@ import { useCheckoutStore, PlanType } from "@/store/useCheckoutStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { apiClient, apiMock, HAS_BACKEND } from "@/lib/api";
 import { FILENOVA_UPI_ID, FILENOVA_PAYEE_NAME, createUpiQrUrl } from "@/lib/upi";
+import { FEATURE_PAYMENT_GATEWAY } from "@/config/featureFlags";
+import { useSupportDevStore } from "@/store/useSupportDevStore";
 import { toast } from "sonner";
 import {
   Sparkles,
@@ -132,6 +134,11 @@ export function CheckoutModal() {
   const [paymentFailed, setPaymentFailed] = useState(false);
 
   useEffect(() => {
+    if (!FEATURE_PAYMENT_GATEWAY && selectedPlan) {
+      useCheckoutStore.getState().closeCheckout();
+      useSupportDevStore.getState().open();
+      return;
+    }
     if (selectedPlan) {
       setCouponCode(coupon);
       setDiscountPercent(0);
