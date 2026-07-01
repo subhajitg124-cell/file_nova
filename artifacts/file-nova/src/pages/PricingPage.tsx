@@ -524,6 +524,11 @@ export default function PricingPage() {
       },
       onFailure: (error) => {
         toast.error(`Payment failed: ${error}`);
+        if (typeof error === 'string' && (error.includes('Authentication required') || error.includes('log in first'))) {
+          useAuthStore.getState().logout().then(() => {
+            setAuthModalOpen(true);
+          });
+        }
       },
     });
   };
