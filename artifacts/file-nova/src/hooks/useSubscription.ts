@@ -63,10 +63,6 @@ export function useSubscription() {
       }
 
       const res = await fetch(`${BACKEND_URL}/api/v1/premium/subscription/status`, { headers });
-      console.log("%c[SUB] fetchStatus response", "color:blue", {
-        status: res.status,
-        timestamp: new Date().toISOString(),
-      });
       if (res.ok) {
         if (localStorage.getItem("filenova_mock_mode_manual") !== "true") {
           useFileStore.setState({ isMockMode: false });

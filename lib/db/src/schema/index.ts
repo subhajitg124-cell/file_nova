@@ -30,7 +30,7 @@ export const usersTable = pgTable("users", {
   phoneVerified: boolean("phone_verified").notNull().default(false),
   // Premium features
   premiumEnabled: boolean("premium_enabled").notNull().default(false),
-  premiumTier: varchar("premium_tier", { length: 50 }).default("free"), // free, basic, pro, enterprise
+  premiumTier: varchar("premium_tier", { length: 50 }).default("free"), // free, basic, pro, elite
   voiceLanguage: varchar("voice_language", { length: 10 }).default("en"), // en, hi, bn
   privacyMode: boolean("privacy_mode").notNull().default(false), // No logging mode
   cafeOperatorId: uuid("cafe_operator_id"), // Link to cafe if operator

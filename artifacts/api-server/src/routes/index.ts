@@ -12,6 +12,7 @@ router.use(healthRouter);
 router.use(upiPaymentsRouter);
 router.use("/payments", paymentsRouter);
 router.use(shareRouter);
+// Dev-only test routes (no subscription record created)
 router.use(razorpayRouter);
 // router.use(aiPptRoutes);
 
