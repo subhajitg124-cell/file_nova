@@ -151,47 +151,15 @@ router.post("/order", authMiddleware, requireAuth, async (req: AuthRequest, res:
     }).parse(req.body);
 
     const user = req.user!;
-
-    // Check if there is already a pending subscription for the same user and plan (Idempotency - Issue 3.3)
-    const [existingPendingSub] = await db
-      .select()
-      .from(subscriptionsTable)
-      .where(
-        and(
-          eq(subscriptionsTable.userId, user.id),
-          eq(subscriptionsTable.plan, plan),
-          eq(subscriptionsTable.status, "pending")
-        )
-      )
-      .orderBy(desc(subscriptionsTable.createdAt))
-      .limit(1);
-
-    if (existingPendingSub && existingPendingSub.razorpayOrderId) {
-      logger.info({ userId: user.id, plan, orderId: existingPendingSub.razorpayOrderId }, "Reusing existing pending subscription order");
-      return res.json({
-        success: true,
-        orderId: existingPendingSub.razorpayOrderId,
-        amount: existingPendingSub.amount,
-        currency: existingPendingSub.currency,
-        plan,
-        keyId: PaymentProvider.getRazorpayKeyId(),
-        couponApplied: !!existingPendingSub.couponCode,
-        couponDetails: existingPendingSub.couponCode ? {
-          code: existingPendingSub.couponCode,
-          discountPercentage: 0,
-          fixedDiscountAmount: 0,
-          message: "Existing order reused",
-        } : undefined,
-      });
-    }
+    const normalizedCoupon = coupon?.trim().toUpperCase();
 
     let discountPercentage = 0;
     let fixedDiscountAmount = 0;
     let couponValidationResult = null;
 
     // Validate coupon using central CouponService
-    if (coupon) {
-      const validation = await CouponService.validateCoupon(coupon, plan, user.id);
+    if (normalizedCoupon) {
+      const validation = await CouponService.validateCoupon(normalizedCoupon, plan, user.id);
       if (validation.valid) {
         couponValidationResult = validation;
         if (validation.type === "percentage") {
@@ -222,12 +190,48 @@ router.post("/order", authMiddleware, requireAuth, async (req: AuthRequest, res:
       amount = Math.max(0, amount - fixedDiscountAmount);
     }
 
+    // Reuse a still-pending order only when the plan and coupon context match.
+    const pendingSubs = await db
+      .select()
+      .from(subscriptionsTable)
+      .where(
+        and(
+          eq(subscriptionsTable.userId, user.id),
+          eq(subscriptionsTable.plan, plan),
+          eq(subscriptionsTable.status, "pending")
+        )
+      )
+      .orderBy(desc(subscriptionsTable.createdAt))
+      .limit(5);
+
+    const existingPendingSub = pendingSubs.find((sub) => (sub.couponCode || null) === (couponValidationResult?.valid ? normalizedCoupon || null : null));
+
+    if (existingPendingSub?.razorpayOrderId && existingPendingSub.amount === amount) {
+      logger.info({ userId: user.id, plan, orderId: existingPendingSub.razorpayOrderId }, "Reusing existing pending subscription order");
+      return res.json({
+        success: true,
+        orderId: existingPendingSub.razorpayOrderId,
+        amount: existingPendingSub.amount,
+        currency: existingPendingSub.currency,
+        plan,
+        keyId: PaymentProvider.getRazorpayKeyId(),
+        isMock: existingPendingSub.razorpayOrderId.startsWith("order_mock_") || PaymentProvider.isMockEnabled(),
+        couponApplied: !!existingPendingSub.couponCode,
+        couponDetails: existingPendingSub.couponCode ? {
+          code: existingPendingSub.couponCode,
+          discountPercentage,
+          fixedDiscountAmount,
+          message: "Existing order reused",
+        } : undefined,
+      });
+    }
+
     // Check minimum purchase restriction
-    if (coupon && couponValidationResult?.valid) {
+    if (normalizedCoupon && couponValidationResult?.valid) {
       const [couponDetails] = await db
         .select()
         .from(couponsTable)
-        .where(eq(couponsTable.code, coupon.toUpperCase().trim()))
+        .where(eq(couponsTable.code, normalizedCoupon))
         .limit(1);
 
       if (couponDetails && couponDetails.minPurchase && amount < couponDetails.minPurchase) {
@@ -243,7 +247,7 @@ router.post("/order", authMiddleware, requireAuth, async (req: AuthRequest, res:
       user.id,
       plan,
       amount,
-      couponValidationResult?.valid ? coupon : undefined
+      couponValidationResult?.valid ? normalizedCoupon : undefined
     );
 
     // Record pending subscription
@@ -252,7 +256,7 @@ router.post("/order", authMiddleware, requireAuth, async (req: AuthRequest, res:
       plan,
       amount,
       orderDetails.id,
-      couponValidationResult?.valid ? coupon?.toUpperCase().trim() : undefined
+      couponValidationResult?.valid ? normalizedCoupon : undefined
     );
 
     res.json({
@@ -262,9 +266,10 @@ router.post("/order", authMiddleware, requireAuth, async (req: AuthRequest, res:
       currency: orderDetails.currency,
       plan,
       keyId: orderDetails.keyId,
+      isMock: orderDetails.isMock,
       couponApplied: couponValidationResult?.valid || false,
       couponDetails: couponValidationResult ? {
-        code: coupon?.toUpperCase().trim() || "",
+        code: normalizedCoupon || "",
         discountPercentage,
         fixedDiscountAmount,
         message: couponValidationResult.message || "",
@@ -318,10 +323,30 @@ router.post("/verify", authMiddleware, requireAuth, async (req: AuthRequest, res
       return res.status(400).json({ success: false, error: "Payment signature mismatch" });
     }
 
+    const [pendingSub] = await db
+      .select()
+      .from(subscriptionsTable)
+      .where(eq(subscriptionsTable.razorpayOrderId, body.razorpay_order_id))
+      .limit(1);
+
+    if (!pendingSub) {
+      logger.warn({ orderId: body.razorpay_order_id, userId: req.user!.id }, "Verified payment order has no pending subscription record");
+      return res.status(404).json({ success: false, error: "Subscription order not found. Please contact support with your payment ID." });
+    }
+
+    if (pendingSub.userId !== req.user!.id) {
+      logger.warn({ orderId: body.razorpay_order_id, userId: req.user!.id }, "Payment verification attempted by a different user");
+      return res.status(403).json({ success: false, error: "Payment order ownership mismatch" });
+    }
+
+    if (pendingSub.plan !== body.plan) {
+      logger.warn({ orderId: body.razorpay_order_id, requestedPlan: body.plan, actualPlan: pendingSub.plan }, "Ignoring mismatched plan supplied during verification");
+    }
+
     const activated = await SubscriptionService.activateSubscription(
       body.razorpay_order_id,
       body.razorpay_payment_id,
-      body.plan
+      pendingSub.plan
     );
 
     if (!activated) {
@@ -330,8 +355,8 @@ router.post("/verify", authMiddleware, requireAuth, async (req: AuthRequest, res
 
     res.json({
       success: true,
-      plan: body.plan,
-      message: `Subscription activated for plan: ${body.plan}`,
+      plan: pendingSub.plan,
+      message: `Subscription activated for plan: ${pendingSub.plan}`,
     });
   } catch (err: any) {
     logger.error({ err }, "Signature verification route failed");

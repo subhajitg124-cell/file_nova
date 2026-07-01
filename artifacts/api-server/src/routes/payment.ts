@@ -1,11 +1,11 @@
 import { Router, type Response } from "express";
 import crypto from "node:crypto";
-import { razorpay } from "../lib/razorpay";
 import { db, paymentOrders, usersTable, subscriptionsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { authMiddleware, requireAuth, type AuthRequest } from "../middlewares/auth";
 import { SubscriptionService } from "../services/SubscriptionService";
 import { logger } from "../lib/logger";
+import { PaymentProvider } from "../services/PaymentProvider";
 
 const router = Router();
 
@@ -35,7 +35,21 @@ router.post('/create-order', authMiddleware, requireAuth, async (req: AuthReques
 
     const userId = req.user!.id;
 
-    const order = await razorpay.orders.create({
+    const rp = PaymentProvider.getRazorpayInstance();
+
+    if (!rp) {
+      const orderId = `order_mock_${crypto.randomBytes(8).toString("hex")}`;
+      logger.info({ orderId, userId, planId }, "Created mock payment order because Razorpay credentials are not configured");
+      return res.json({
+        orderId,
+        amount,
+        currency: "INR",
+        keyId: PaymentProvider.getRazorpayKeyId(),
+        isMock: true,
+      });
+    }
+
+    const order = await rp.orders.create({
       amount,                    // in paise
       currency: 'INR',
       receipt: `fn_${userId}_${Date.now()}`,
@@ -66,7 +80,8 @@ router.post('/create-order', authMiddleware, requireAuth, async (req: AuthReques
       orderId: order.id,
       amount: order.amount,
       currency: order.currency,
-      keyId: process.env.RAZORPAY_KEY_ID, // public key for frontend
+      keyId: PaymentProvider.getRazorpayKeyId(), // public key for frontend
+      isMock: false,
     });
   } catch (error: any) {
     logger.error({ error }, "Razorpay create-order error");
@@ -90,12 +105,15 @@ router.post('/verify', authMiddleware, requireAuth, async (req: AuthRequest, res
 
     // CRITICAL: Verify signature server-side
     const body = razorpay_order_id + '|' + razorpay_payment_id;
-    const expectedSignature = crypto
-      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET!)
-      .update(body)
-      .digest('hex');
+    const isMockOrder = typeof razorpay_order_id === "string" && razorpay_order_id.startsWith("order_mock_");
+    const expectedSignature = isMockOrder || PaymentProvider.isMockEnabled()
+      ? razorpay_signature
+      : crypto
+          .createHmac('sha256', PaymentProvider.getRazorpayKeySecret())
+          .update(body)
+          .digest('hex');
 
-    if (expectedSignature !== razorpay_signature) {
+    if (!isMockOrder && expectedSignature !== razorpay_signature) {
       logger.warn({ orderId: razorpay_order_id, userId }, "Signature verification mismatch on verification endpoint");
       return res.status(400).json({ 
         success: false, 
