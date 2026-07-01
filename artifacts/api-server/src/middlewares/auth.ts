@@ -12,6 +12,7 @@ export interface AuthRequest extends Request {
  * Middleware to authenticate requests via session token in headers, cookies, or query params.
  */
 export async function authMiddleware(req: AuthRequest, res: Response, next: NextFunction) {
+  console.log(`[authMiddleware] URL: ${req.originalUrl}, auth header: ${req.headers["authorization"]}, cookie: ${req.headers.cookie}`);
   let token = req.headers["authorization"]?.replace("Bearer ", "");
 
   // Fallback to cookie
