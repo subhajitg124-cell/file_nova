@@ -69,7 +69,7 @@ export class PaymentService {
     paymentId: string,
     signature: string
   ): boolean {
-    if (PaymentProvider.isMockEnabled()) {
+    if (PaymentProvider.isMockEnabled() && orderId.startsWith("order_mock_")) {
       return true; // Auto-pass mock orders
     }
 

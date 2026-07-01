@@ -1,6 +1,6 @@
 import { Router, type Request, type Response } from "express";
 import { z } from "zod";
-import { db, usersTable, couponsTable, couponUsagesTable, discountCodesTable, discountCodeUsagesTable } from "@workspace/db";
+import { db, usersTable, couponsTable, couponUsagesTable, discountCodesTable, discountCodeUsagesTable, subscriptionsTable } from "@workspace/db";
 import { eq, desc, lte, gte, and } from "drizzle-orm";
 import { logger } from "../lib/logger";
 import { adminAuth } from "../middlewares/adminAuth";
@@ -13,15 +13,18 @@ import { CouponService } from "../services/CouponService";
 import { PaymentService } from "../services/PaymentService";
 import { WebhookService } from "../services/WebhookService";
 import { AdminPaymentService } from "../services/AdminPaymentService";
+import { PaymentProvider } from "../services/PaymentProvider";
 
 const router = Router();
 
 // Plan pricing mapping
 const PLAN_PRICES: Record<string, number> = {
   free: 0,
-  basic: 4900,  // ₹49.00 in paise
-  pro: 9900,    // ₹99.00 in paise
-  elite: 19900,  // ₹199.00 in paise
+  basic: 4900,    // ₹49.00 in paise
+  pro: 9900,      // ₹99.00 in paise
+  elite: 19900,   // ₹199.00 in paise
+  pass_24h: 900,  // ₹9.00 in paise
+  pass_7d: 2900,  // ₹29.00 in paise
 };
 
 import { fileURLToPath } from "node:url";
@@ -95,6 +98,8 @@ router.get("/status", authMiddleware, async (req: AuthRequest, res: Response) =>
       discountPercentage: settings.discountPercentage,
     } : null;
 
+    const usersServed = await SubscriptionService.getUsersServedCount();
+
     if (!user) {
       res.json({
         success: true,
@@ -105,7 +110,7 @@ router.get("/status", authMiddleware, async (req: AuthRequest, res: Response) =>
         usageToday: 0,
         limit: 3,
         subscription: null,
-        usersServedToday: 3847,
+        usersServedToday: usersServed,
       });
       return;
     }
@@ -130,10 +135,10 @@ router.get("/status", authMiddleware, async (req: AuthRequest, res: Response) =>
       success: true,
       ...statusDetails,
       activeOffer,
-      usersServedToday: 3847, // Default simulated/historical count
+      usersServedToday: usersServed,
     });
   } catch (err: any) {
-    res.status(500).json({ error: err.message || "Failed to fetch subscription status" });
+    res.status(500).json({ success: false, error: err.message || "Failed to fetch subscription status" });
   }
 });
 
@@ -141,11 +146,45 @@ router.get("/status", authMiddleware, async (req: AuthRequest, res: Response) =>
 router.post("/order", authMiddleware, requireAuth, async (req: AuthRequest, res: Response) => {
   try {
     const { plan, coupon } = z.object({
-      plan: z.enum(["basic", "pro", "elite"]),
+      plan: z.enum(["basic", "pro", "elite", "pass_24h", "pass_7d"]),
       coupon: z.string().optional(),
     }).parse(req.body);
 
     const user = req.user!;
+
+    // Check if there is already a pending subscription for the same user and plan (Idempotency - Issue 3.3)
+    const [existingPendingSub] = await db
+      .select()
+      .from(subscriptionsTable)
+      .where(
+        and(
+          eq(subscriptionsTable.userId, user.id),
+          eq(subscriptionsTable.plan, plan),
+          eq(subscriptionsTable.status, "pending")
+        )
+      )
+      .orderBy(desc(subscriptionsTable.createdAt))
+      .limit(1);
+
+    if (existingPendingSub && existingPendingSub.razorpayOrderId) {
+      logger.info({ userId: user.id, plan, orderId: existingPendingSub.razorpayOrderId }, "Reusing existing pending subscription order");
+      return res.json({
+        success: true,
+        orderId: existingPendingSub.razorpayOrderId,
+        amount: existingPendingSub.amount,
+        currency: existingPendingSub.currency,
+        plan,
+        keyId: PaymentProvider.getRazorpayKeyId(),
+        couponApplied: !!existingPendingSub.couponCode,
+        couponDetails: existingPendingSub.couponCode ? {
+          code: existingPendingSub.couponCode,
+          discountPercentage: 0,
+          fixedDiscountAmount: 0,
+          message: "Existing order reused",
+        } : undefined,
+      });
+    }
+
     let discountPercentage = 0;
     let fixedDiscountAmount = 0;
     let couponValidationResult = null;
@@ -193,6 +232,7 @@ router.post("/order", authMiddleware, requireAuth, async (req: AuthRequest, res:
 
       if (couponDetails && couponDetails.minPurchase && amount < couponDetails.minPurchase) {
         return res.status(400).json({
+          success: false,
           error: `Minimum purchase of ₹${(couponDetails.minPurchase / 100).toFixed(2)} required for this coupon`,
         });
       }
@@ -232,7 +272,7 @@ router.post("/order", authMiddleware, requireAuth, async (req: AuthRequest, res:
     });
   } catch (err: any) {
     logger.error({ err }, "Order creation endpoint failed");
-    res.status(500).json({ error: err.message || "Failed to create order" });
+    res.status(500).json({ success: false, error: err.message || "Failed to create order" });
   }
 });
 
@@ -265,7 +305,7 @@ router.post("/verify", authMiddleware, requireAuth, async (req: AuthRequest, res
       razorpay_order_id: z.string(),
       razorpay_payment_id: z.string(),
       razorpay_signature: z.string().optional(),
-      plan: z.enum(["basic", "pro", "elite"]),
+      plan: z.enum(["basic", "pro", "elite", "pass_24h", "pass_7d"]),
     }).parse(req.body);
 
     const verified = PaymentService.verifySignature(
@@ -295,7 +335,7 @@ router.post("/verify", authMiddleware, requireAuth, async (req: AuthRequest, res
     });
   } catch (err: any) {
     logger.error({ err }, "Signature verification route failed");
-    res.status(500).json({ error: err.message || "Failed to verify payment" });
+    res.status(500).json({ success: false, error: err.message || "Failed to verify payment" });
   }
 });
 
@@ -307,10 +347,10 @@ router.post("/cancel", authMiddleware, requireAuth, async (req: AuthRequest, res
     if (cancelled) {
       res.json({ success: true, message: "Subscription cancelled successfully." });
     } else {
-      res.status(500).json({ error: "Failed to cancel subscription." });
+      res.status(500).json({ success: false, error: "Failed to cancel subscription." });
     }
   } catch (err: any) {
-    res.status(500).json({ error: err.message || "Failed to cancel subscription" });
+    res.status(500).json({ success: false, error: err.message || "Failed to cancel subscription" });
   }
 });
 
@@ -320,7 +360,7 @@ router.get("/admin/stats", adminAuth, async (req: Request, res: Response) => {
     const stats = await AdminPaymentService.getSystemAnalytics();
     res.json({ success: true, stats });
   } catch (err: any) {
-    res.status(500).json({ error: err.message || "Failed to fetch admin stats" });
+    res.status(500).json({ success: false, error: err.message || "Failed to fetch admin stats" });
   }
 });
 
@@ -533,35 +573,7 @@ router.post("/admin/coupons/:id/toggle", adminAuth, async (req: Request, res: Re
 });
 
 // ── 7. POST /webhook — Razorpay Webhook Verification ───────────────────────────
-router.post("/webhook", async (req: any, res: Response) => {
-  const signature = req.headers["x-razorpay-signature"] as string;
-  const secret = process.env.RAZORPAY_WEBHOOK_SECRET || "";
-
-  logger.info({ body: req.body }, "Received Razorpay webhook request in subscriptions router");
-
-  if (secret && signature) {
-    const rawBody = req.rawBody || JSON.stringify(req.body);
-    const verified = WebhookService.verifySignature(rawBody, signature, secret);
-
-    if (!verified) {
-      logger.error("Invalid Razorpay webhook signature verified in WebhookService");
-      return res.status(400).json({ success: false, error: "Invalid signature" });
-    }
-  }
-
-  try {
-    const event = req.body?.event;
-    const payload = req.body?.payload;
-
-    if (event) {
-      await WebhookService.processEvent(event, payload);
-    }
-  } catch (err: any) {
-    logger.error({ err }, "Error processing webhook in subscriptions router");
-  }
-
-  res.json({ status: "ok" });
-});
+router.post("/webhook", WebhookService.handleWebhookRequest);
 
 // ── Discount Code Endpoints ────────────────────────────────────────────────────
 router.get("/admin/discount-codes", adminAuth, async (_req: Request, res: Response) => {

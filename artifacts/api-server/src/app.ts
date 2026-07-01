@@ -15,6 +15,10 @@ import { sitemapRouter } from "./routes/sitemap";
 
 const app: Express = express();
 
+if (process.env.NODE_ENV === "production" && !process.env.CSRF_SECRET) {
+  logger.warn("⚠️ CSRF_SECRET environment variable is missing in production mode. CSRF protection is running degraded.");
+}
+
 app.use(helmet());
 
 const allowedOrigins = [
@@ -106,6 +110,45 @@ app.use(sitemapRouter);
 
 // ── Auth middleware ───────────────────────────────────────────────────────────
 app.use(authMiddleware);
+
+// ── CSRF/Origin Validation middleware (Issue 3.4) ─────────────────────────────
+app.use((req: Request, res: Response, next: NextFunction) => {
+  // Only check mutating requests
+  if (["POST", "PUT", "DELETE", "PATCH"].includes(req.method)) {
+    const origin = req.headers.origin;
+    const referer = req.headers.referer;
+
+    // Validate Origin header if present
+    if (origin) {
+      const isLocalhost = origin.startsWith("http://localhost:") || 
+                          origin.startsWith("http://127.0.0.1:") || 
+                          origin.startsWith("http://192.168.");
+      if (!allowedOrigins.includes(origin) && !isLocalhost) {
+        logger.warn({ origin, path: req.path }, "CSRF Blocked: Invalid request origin");
+        return res.status(403).json({ success: false, error: "CORS/CSRF verification failed: Invalid request origin" });
+      }
+    } else if (referer) {
+      // Fallback to Referer validation
+      try {
+        const refererUrl = new URL(referer);
+        const refererOrigin = refererUrl.origin;
+        const isLocalhost = refererOrigin.startsWith("http://localhost:") || 
+                            refererOrigin.startsWith("http://127.0.0.1:") || 
+                            refererOrigin.startsWith("http://192.168.");
+        if (!allowedOrigins.includes(refererOrigin) && !isLocalhost) {
+          logger.warn({ refererOrigin, path: req.path }, "CSRF Blocked: Invalid request referer origin");
+          return res.status(403).json({ success: false, error: "CORS/CSRF verification failed: Invalid request referer" });
+        }
+      } catch (_) {
+        return res.status(400).json({ success: false, error: "Invalid Referer header format" });
+      }
+    } else if (process.env.NODE_ENV === "production") {
+      // In production, require at least Origin or Referer for state mutations
+      logger.warn({ path: req.path }, "CSRF Warning: Missing Origin and Referer header for mutation");
+    }
+  }
+  next();
+});
 
 // ── Global rate limiting ──────────────────────────────────────────────────────
 app.use(apiLimiter);

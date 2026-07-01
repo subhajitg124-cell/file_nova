@@ -2,8 +2,10 @@ import { Router, type Request, type Response } from "express";
 import { z } from "zod";
 import { db, upiPaymentsTable } from "@workspace/db";
 import { adminAuth } from "../middlewares/adminAuth";
+import { authMiddleware, requireAuth, type AuthRequest } from "../middlewares/auth";
 import { logger } from "../lib/logger";
 import { AdminPaymentService } from "../services/AdminPaymentService";
+import rateLimit from "express-rate-limit";
 
 const router = Router();
 
@@ -16,10 +18,25 @@ const upiVerifySchema = z.object({
   amount: z.number().int().positive(),
 });
 
-// POST /upi-payment-verify (Public endpoint for submitting UTR)
-router.post("/upi-payment-verify", async (req: Request, res: Response) => {
+// Rate limiting for UPI verification (Production Readiness)
+const upiRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // max 5 submissions per 15 minutes to prevent spamming random UTRs
+  message: { success: false, error: "Too many payment verification submissions. Please try again after 15 minutes." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// POST /upi-payment-verify (Public endpoint for submitting UTR - Authenticated)
+router.post("/upi-payment-verify", upiRateLimiter, authMiddleware, requireAuth, async (req: AuthRequest, res: Response) => {
   try {
     const payload = upiVerifySchema.parse(req.body);
+    const user = req.user!;
+
+    // Enforce email matching for security (Issue 3.6)
+    if (payload.email.toLowerCase() !== user.email.toLowerCase()) {
+      return res.status(400).json({ success: false, error: "The billing email does not match your logged-in account email." });
+    }
 
     await db.insert(upiPaymentsTable).values({
       email: payload.email.toLowerCase(),

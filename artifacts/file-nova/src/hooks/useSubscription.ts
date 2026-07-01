@@ -16,8 +16,7 @@ const getTodayKey = () => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 };
 
-export const TESTING_END_TIME = new Date("2026-05-31T20:58:19+05:30").getTime();
-export const isTestingPeriodActive = () => Date.now() < TESTING_END_TIME;
+// Testing period auto-grant removed (expired May 2026)
 
 export function useSubscription() {
   const [loading, setLoading] = useState(false);
@@ -32,7 +31,7 @@ export function useSubscription() {
   const user = useAuthStore((state) => state.user);
   const isDev = user?.email?.toLowerCase() === 'subhajitgho123@gmail.com';
 
-  const testingActive = isTestingPeriodActive() || isDev;
+  const testingActive = isDev;
   const premiumTier = testingActive ? "elite" : premiumTierState;
   const premiumEnabled = testingActive ? true : premiumEnabledState;
 
@@ -201,7 +200,7 @@ export function useSubscription() {
 
   // Max daily limit rules
   const getDailyLimit = useCallback((): number => {
-    if (isTestingPeriodActive() || isDev) return Infinity;
+    if (isDev) return Infinity;
     // AI PPT Maker override disabled
     /*
     if (typeof window !== "undefined" && window.location.pathname.includes("/ai-ppt-maker")) {
@@ -230,13 +229,13 @@ export function useSubscription() {
   }, [dbLimit, premiumTier, isDev]);
 
   const isLimitReached = useCallback((): boolean => {
-    if (isTestingPeriodActive() || isDev) return false;
+    if (isDev) return false;
     const max = getDailyLimit();
     return dbUsageToday >= max;
   }, [getDailyLimit, dbUsageToday, isDev]);
 
   const shouldShowAdGate = useCallback((): boolean => {
-    if (isTestingPeriodActive() || isDev) return false;
+    if (isDev) return false;
     if (premiumTier !== "free") return false;
     
     // Check if ad type is disabled in admin settings

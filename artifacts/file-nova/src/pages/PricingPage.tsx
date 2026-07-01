@@ -7,7 +7,7 @@ import React, { useRef, useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { Sparkles, CheckCircle2, ShieldCheck, Zap, Loader, Copy, QrCode, Check, X, Building2, ServerCog, MessageCircle } from "lucide-react";
-import { useSubscription, type PremiumTier, isTestingPeriodActive } from "@/hooks/useSubscription";
+import { useSubscription, type PremiumTier } from "@/hooks/useSubscription";
 import type { PlanType } from "@/store/useCheckoutStore";
 import { TestingNotice } from "@/components/TestingNotice";
 import { useAdmin } from "@/lib/admin";
@@ -464,7 +464,7 @@ export default function PricingPage() {
   const [otpOpen, setOtpOpen] = React.useState(false);
   const [pendingPlan, setPendingPlan] = React.useState<PremiumTier | null>(null);
   const admin = useAdmin();
-  const isTesting = isTestingPeriodActive();
+  const isTesting = false;
   const [couponCode, setCouponCode] = React.useState("");
   const [appliedDiscount, setAppliedDiscount] = React.useState(0);
   const [couponError, setCouponError] = React.useState("");

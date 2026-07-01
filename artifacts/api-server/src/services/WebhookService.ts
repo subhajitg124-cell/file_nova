@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import { db, subscriptionsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
+import type { Response } from "express";
 import { logger } from "../lib/logger";
 import { PaymentProvider } from "./PaymentProvider";
 import { SubscriptionService } from "./SubscriptionService";
@@ -27,6 +28,49 @@ export class WebhookService {
     } catch (err) {
       logger.error({ err }, "Error verifying webhook signature");
       return false;
+    }
+  }
+
+  /**
+   * Central Express Request Handler for Razorpay Webhooks.
+   * Validates signature securely and delegates event processing.
+   */
+  public static async handleWebhookRequest(req: any, res: Response) {
+    const signature = req.headers["x-razorpay-signature"] as string;
+    const secret = process.env.RAZORPAY_WEBHOOK_SECRET || "";
+
+    logger.info({ body: req.body }, "Received Razorpay webhook request");
+
+    // Secure webhook signature validation (Issue 3.7):
+    // Do not bypass validation. Require secret and signature.
+    if (!secret) {
+      logger.error("RAZORPAY_WEBHOOK_SECRET is not configured");
+      return res.status(500).json({ success: false, error: "Webhook secret configuration missing" });
+    }
+    if (!signature) {
+      logger.error("Missing X-Razorpay-Signature header");
+      return res.status(400).json({ success: false, error: "Missing signature header" });
+    }
+
+    const rawBody = req.rawBody || JSON.stringify(req.body);
+    const verified = WebhookService.verifySignature(rawBody, signature, secret);
+
+    if (!verified) {
+      logger.error("Invalid Razorpay webhook signature");
+      return res.status(400).json({ success: false, error: "Invalid signature" });
+    }
+
+    try {
+      const event = req.body?.event;
+      const payload = req.body?.payload;
+
+      if (event) {
+        await WebhookService.processEvent(event, payload);
+      }
+      res.json({ success: true, status: "ok" });
+    } catch (err: any) {
+      logger.error({ err }, "Error processing webhook request");
+      res.status(500).json({ success: false, error: "Internal webhook error" });
     }
   }
 
@@ -81,6 +125,58 @@ export class WebhookService {
         }
       } catch (err) {
         logger.error({ err, orderId, paymentId }, "Error processing payment/order webhook event");
+        return false;
+      }
+    }
+
+    if (event === "payment.failed") {
+      const payment = payload?.payment?.entity;
+      const orderId = payment?.order_id;
+      const paymentId = payment?.id;
+
+      if (!orderId) {
+        logger.warn("Missing orderId in payment.failed webhook payload");
+        return false;
+      }
+
+      try {
+        await db
+          .update(subscriptionsTable)
+          .set({ status: "failed", razorpayPaymentId: paymentId, updatedAt: new Date() })
+          .where(eq(subscriptionsTable.razorpayOrderId, orderId));
+        
+        logger.info({ orderId, paymentId }, "Marked subscription as failed via webhook event");
+        return true;
+      } catch (err) {
+        logger.error({ err, orderId }, "Error processing payment.failed event");
+        return false;
+      }
+    }
+
+    if (event === "payment.authorized") {
+      logger.info({ payload }, "Payment authorized webhook received (no action taken, waiting for capture)");
+      return true;
+    }
+
+    if (event.startsWith("refund.")) {
+      const refund = payload?.refund?.entity;
+      const paymentId = refund?.payment_id;
+
+      if (!paymentId) {
+        logger.warn("Missing paymentId in refund webhook payload");
+        return false;
+      }
+
+      try {
+        await db
+          .update(subscriptionsTable)
+          .set({ status: "refunded", updatedAt: new Date() })
+          .where(eq(subscriptionsTable.razorpayPaymentId, paymentId));
+        
+        logger.info({ paymentId }, "Marked subscription as refunded/cancelled via webhook event");
+        return true;
+      } catch (err) {
+        logger.error({ err, paymentId }, "Error processing refund event");
         return false;
       }
     }

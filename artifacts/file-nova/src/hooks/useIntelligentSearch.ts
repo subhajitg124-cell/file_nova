@@ -89,14 +89,7 @@ export function useIntelligentSearch(rawToolsList: any[], debounceDelay = 150) {
       setResults([]);
       return;
     }
-    const startTime = performance.now();
     const searchResults = engine.search(debouncedQuery);
-    const duration = performance.now() - startTime;
-    
-    if (import.meta.env.DEV) {
-      console.log(`[Search Analytics] Query: "${debouncedQuery}", Results: ${searchResults.length}, Duration: ${duration.toFixed(2)}ms`);
-    }
-    
     setResults(searchResults);
   }, [debouncedQuery, engine]);
 

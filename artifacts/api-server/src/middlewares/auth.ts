@@ -39,7 +39,7 @@ export async function authMiddleware(req: AuthRequest, res: Response, next: Next
     return next();
   }
 
-  if (token.startsWith("local_")) {
+  if (token.startsWith("local_") && process.env.NODE_ENV !== "production") {
     req.user = {
       id: "local_dev",
       email: "subhajitgho123@gmail.com",

@@ -11,7 +11,7 @@ export const subscriptionsTable = pgTable("subscriptions", {
   status: varchar("status", { length: 50 }).notNull().default("pending"), // active, cancelled, expired, pending
   amount: integer("amount").notNull().default(0), // In paise
   currency: varchar("currency", { length: 10 }).notNull().default("INR"),
-  razorpayOrderId: varchar("razorpay_order_id", { length: 255 }),
+  razorpayOrderId: varchar("razorpay_order_id", { length: 255 }).unique(),
   razorpayPaymentId: varchar("razorpay_payment_id", { length: 255 }),
   razorpaySubscriptionId: varchar("razorpay_subscription_id", { length: 255 }),
   couponCode: varchar("coupon_code", { length: 20 }), // Coupon code used for this subscription

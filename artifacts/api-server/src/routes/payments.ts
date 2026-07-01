@@ -1,13 +1,14 @@
 import { Router, type Response } from "express";
 import { z } from "zod";
 import { db, subscriptionsTable, upiPaymentsTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import { logger } from "../lib/logger";
 import { authMiddleware, requireAuth, type AuthRequest } from "../middlewares/auth";
 import { PaymentService } from "../services/PaymentService";
 import { SubscriptionService } from "../services/SubscriptionService";
 import { WebhookService } from "../services/WebhookService";
 import { InvoiceService } from "../services/InvoiceService";
+import { PaymentProvider } from "../services/PaymentProvider";
 
 const router = Router();
 
@@ -23,6 +24,32 @@ router.post("/create-order", authMiddleware, requireAuth, async (req: AuthReques
     }).parse(req.body);
 
     const user = req.user!;
+
+    // Check if there is already a pending subscription for the same user and plan (Idempotency - Issue 3.3)
+    const [existingPendingSub] = await db
+      .select()
+      .from(subscriptionsTable)
+      .where(
+        and(
+          eq(subscriptionsTable.userId, user.id),
+          eq(subscriptionsTable.plan, plan),
+          eq(subscriptionsTable.status, "pending")
+        )
+      )
+      .orderBy(desc(subscriptionsTable.createdAt))
+      .limit(1);
+
+    if (existingPendingSub && existingPendingSub.razorpayOrderId) {
+      logger.info({ userId: user.id, plan, orderId: existingPendingSub.razorpayOrderId }, "Reusing existing pending subscription order in payments router");
+      return res.json({
+        success: true,
+        orderId: existingPendingSub.razorpayOrderId,
+        amount: existingPendingSub.amount,
+        currency: existingPendingSub.currency,
+        plan,
+        keyId: PaymentProvider.getRazorpayKeyId(),
+      });
+    }
     
     // Create order using central PaymentService
     const orderDetails = await PaymentService.createOrder(user.id, plan, amount, coupon);
@@ -46,7 +73,7 @@ router.post("/create-order", authMiddleware, requireAuth, async (req: AuthReques
     });
   } catch (err: any) {
     logger.error({ err }, "Failed to create order in payments router");
-    res.status(500).json({ error: err.message || "Failed to create order" });
+    res.status(500).json({ success: false, error: err.message || "Failed to create order" });
   }
 });
 
@@ -91,7 +118,7 @@ router.post("/verify", authMiddleware, requireAuth, async (req: AuthRequest, res
     });
   } catch (err: any) {
     logger.error({ err }, "Failed to verify payment in payments router");
-    res.status(500).json({ error: err.message || "Failed to verify payment" });
+    res.status(500).json({ success: false, error: err.message || "Failed to verify payment" });
   }
 });
 
@@ -155,36 +182,7 @@ router.get("/history", authMiddleware, requireAuth, async (req: AuthRequest, res
 });
 
 // POST /webhook (Razorpay Webhook verification endpoint)
-router.post("/webhook", async (req: any, res: Response) => {
-  const signature = req.headers["x-razorpay-signature"] as string;
-  const secret = process.env.RAZORPAY_WEBHOOK_SECRET || "";
-
-  logger.info({ body: req.body }, "Received Razorpay webhook request in payments router");
-
-  // Validate webhook signature if secret and signature are provided
-  if (secret && signature) {
-    const rawBody = req.rawBody || JSON.stringify(req.body);
-    const verified = WebhookService.verifySignature(rawBody, signature, secret);
-    
-    if (!verified) {
-      logger.error("Invalid Razorpay webhook signature verified in WebhookService");
-      return res.status(400).json({ success: false, error: "Invalid signature" });
-    }
-  }
-
-  try {
-    const event = req.body?.event;
-    const payload = req.body?.payload;
-
-    if (event) {
-      await WebhookService.processEvent(event, payload);
-    }
-    res.json({ received: true });
-  } catch (err: any) {
-    logger.error({ err }, "Error processing webhook in payments router");
-    res.status(500).json({ error: "Internal webhook error" });
-  }
-});
+router.post("/webhook", WebhookService.handleWebhookRequest);
 
 // GET /invoice/:id (Fetch detailed invoice for a subscription)
 router.get("/invoice/:id", authMiddleware, requireAuth, async (req: AuthRequest, res: Response) => {

@@ -1202,7 +1202,7 @@ function TestingView() {
         addLog("Error: Razorpay checkout.js script not loaded on page.", "warn");
       }
 
-      const keyId = import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_T85GDT2zbaoAAb";
+      const keyId = import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_mockkey";
       addLog(`Initializing checkout modal with Key ID: ${keyId}`, "info");
 
       const options = {
@@ -1307,7 +1307,7 @@ function TestingView() {
             {import.meta.env.VITE_RAZORPAY_KEY_ID ? (
               <span className="text-indigo-400">{import.meta.env.VITE_RAZORPAY_KEY_ID}</span>
             ) : (
-              <span className="text-amber-500">rzp_test_T85GDT2zbaoAAb (Fallback)</span>
+              <span className="text-amber-500">rzp_test_mockkey (Fallback)</span>
             )}
           </div>
         </div>

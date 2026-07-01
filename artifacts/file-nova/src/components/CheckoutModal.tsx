@@ -129,6 +129,7 @@ export function CheckoutModal() {
 
   // General state
   const [processing, setProcessing] = useState(false);
+  const [paymentFailed, setPaymentFailed] = useState(false);
 
   useEffect(() => {
     if (selectedPlan) {
@@ -139,6 +140,7 @@ export function CheckoutModal() {
       setUtrId("");
       setUpiSubmitted(false);
       setPaymentMethod("card");
+      setPaymentFailed(false);
     }
   }, [selectedPlan, coupon]);
 
@@ -194,6 +196,7 @@ export function CheckoutModal() {
     }
 
     setProcessing(true);
+    setPaymentFailed(false);
     try {
       const client = HAS_BACKEND ? apiClient : apiMock;
       const amountInPaise = discountedPrice * 100;
@@ -220,6 +223,7 @@ export function CheckoutModal() {
           await fetchMe();
           closeCheckout();
         } else {
+          setPaymentFailed(true);
           toast.error("Mock verification failed.");
         }
         return;
@@ -238,6 +242,7 @@ export function CheckoutModal() {
         name: "FileNova Premium",
         description: `Upgrade to ${planInfo.name}`,
         order_id: order.orderId,
+        image: window.location.origin + "/logo.png",
         handler: async (response: any) => {
           setProcessing(true);
           try {
@@ -253,9 +258,11 @@ export function CheckoutModal() {
               await fetchMe();
               closeCheckout();
             } else {
+              setPaymentFailed(true);
               toast.error("Payment verification failed.");
             }
           } catch (err: any) {
+            setPaymentFailed(true);
             toast.error(err.message || "Failed to verify signature.");
           } finally {
             setProcessing(false);
@@ -264,18 +271,28 @@ export function CheckoutModal() {
         prefill: {
           name: user.name || "",
           email: user.email || "",
+          contact: user.phoneNumber || "",
         },
         theme: {
           color: "#4f46e5",
         },
+        modal: {
+          ondismiss: () => {
+            setProcessing(false);
+            setPaymentFailed(true);
+            toast.info("Payment cancelled.");
+          }
+        }
       };
 
       const rzp = new (window as any).Razorpay(options);
       rzp.on("payment.failed", (response: any) => {
+        setPaymentFailed(true);
         toast.error(`Payment failed: ${response.error.description}`);
       });
       rzp.open();
     } catch (err: any) {
+      setPaymentFailed(true);
       toast.error(err.message || "Failed to start checkout. Please try UPI instead.");
     } finally {
       setProcessing(false);
@@ -448,6 +465,20 @@ export function CheckoutModal() {
                     Pay securely using Google Pay, PhonePe, Cards, Netbanking, or UPI. Upgrades are instant.
                   </p>
                 </div>
+
+                {paymentFailed && (
+                  <div className="bg-destructive/10 text-destructive text-xs font-semibold p-3.5 rounded-lg border border-destructive/20 flex flex-col gap-2 shadow-sm">
+                    <p className="leading-relaxed">Payment failed or was cancelled. If money was debited, it will be refunded. You can try again.</p>
+                    <button
+                      type="button"
+                      onClick={handleRazorpayCheckout}
+                      disabled={processing}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90 text-xs px-3.5 py-1.5 rounded-md font-bold transition-all self-start flex items-center gap-1 shadow"
+                    >
+                      Retry Payment
+                    </button>
+                  </div>
+                )}
 
                 <button
                   type="button"
