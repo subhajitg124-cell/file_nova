@@ -33,7 +33,7 @@ export function setupFetchInterceptor(
     if (url && (url.includes("/api/") || url.startsWith("/api/"))) {
       const authState = getAuthState();
       const token = authState.token || localStorage.getItem("filenova_token");
-      if (token && !token.startsWith("local_")) {
+      if (token && (!token.startsWith("local_") || !import.meta.env.PROD)) {
         if (!newInit.headers) {
           newInit.headers = { "Authorization": `Bearer ${token}` };
         } else if (newInit.headers instanceof Headers) {
@@ -56,8 +56,11 @@ export function setupFetchInterceptor(
       }
     }
 
-    // Sanitize headers: remove local_ mock tokens to ensure backend cookie authentication works
-    if (newInit.headers) {
+    // Sanitize headers: in production, remove local_ mock tokens so the backend
+    // uses cookie authentication. In development, keep local_ tokens — the auth
+    // middleware has an explicit bypass for them (token.startsWith("local_")).
+    const isProduction = import.meta.env.PROD;
+    if (isProduction && newInit.headers) {
       if (newInit.headers instanceof Headers) {
         const auth = newInit.headers.get("Authorization");
         if (auth && auth.includes("local_")) {
@@ -139,6 +142,16 @@ export function setupFetchInterceptor(
       if (!isAuthMe && !isRefresh && !isHealth) {
         const authState = getAuthState();
         const token = authState.token || localStorage.getItem("filenova_token");
+
+        // local_ tokens are dev-only bypass tokens — they cannot be refreshed
+        // (refresh requires DB which may be offline). Skip refresh to avoid a
+        // 30-second timeout → 504 → logout loop.
+        const isLocalToken = token?.startsWith("local_");
+        if (isLocalToken) {
+          // Just return the 401 — the backend auth middleware will be fixed
+          // to accept local_ tokens without DB. No refresh, no logout.
+          return response;
+        }
 
         if (token && !token.startsWith("local_")) {
           if (isRefreshing) {
