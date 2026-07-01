@@ -1,3 +1,4 @@
+
 import { pgTable, uuid, varchar, integer, timestamp, text } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { usersTable } from "./index";
@@ -68,9 +69,22 @@ export const referralRewardsRelations = relations(referralRewardsTable, ({ one }
   }),
 }));
 
+export const paymentOrders = pgTable('payment_orders', {
+  id: varchar('id', { length: 64 }).primaryKey(), // Razorpay order ID
+  userId: uuid('user_id').notNull().references(() => usersTable.id, { onDelete: 'cascade' }),
+  planId: varchar('plan_id', { length: 32 }).notNull(),
+  amount: integer('amount').notNull(),             // in paise
+  currency: varchar('currency', { length: 3 }).default('INR'),
+  status: varchar('status', { length: 16 }).default('created'),
+  paymentId: varchar('payment_id', { length: 64 }), // Razorpay payment ID
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  paidAt: timestamp('paid_at', { withTimezone: true }),
+});
+
 export const insertSubscriptionSchema = createInsertSchema(subscriptionsTable).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertUPIPaymentSchema = createInsertSchema(upiPaymentsTable).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertReferralRewardSchema = createInsertSchema(referralRewardsTable).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertPaymentOrderSchema = createInsertSchema(paymentOrders);
 
 export type Subscription = typeof subscriptionsTable.$inferSelect;
 export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
@@ -78,3 +92,6 @@ export type UPIPayment = typeof upiPaymentsTable.$inferSelect;
 export type InsertUPIPayment = z.infer<typeof insertUPIPaymentSchema>;
 export type ReferralReward = typeof referralRewardsTable.$inferSelect;
 export type InsertReferralReward = z.infer<typeof insertReferralRewardSchema>;
+export type PaymentOrder = typeof paymentOrders.$inferSelect;
+export type InsertPaymentOrder = z.infer<typeof insertPaymentOrderSchema>;
+

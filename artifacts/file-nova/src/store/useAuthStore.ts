@@ -48,6 +48,7 @@ interface AuthState {
   deleteAccount: () => Promise<boolean>;
   sendOtpCode: (type: "mobile" | "email", target: string) => Promise<boolean>;
   verifyUserAccount: (type: "mobile" | "email", target: string, otp: string) => Promise<boolean>;
+  refreshUser: () => Promise<void>;
 }
 
 
@@ -439,6 +440,29 @@ export const useAuthStore = create<AuthState>()(
       });
     } finally {
       set({ loading: false });
+    }
+  },
+
+  refreshUser: async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/v1/auth/me`, {
+        headers: getAuthHeaders(),
+        credentials: 'include',
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.user) {
+          const processedUser = processUser(data.user);
+          set({
+            user: processedUser,
+            subscription: processSubscription(data.subscription, processedUser)
+          });
+          localStorage.setItem('fn_user', JSON.stringify(processedUser));
+          localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(processedUser));
+        }
+      }
+    } catch (err) {
+      console.error("Failed to refresh user:", err);
     }
   },
 

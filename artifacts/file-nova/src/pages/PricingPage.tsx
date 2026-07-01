@@ -4,10 +4,11 @@
  */
 
 import React, { useRef, useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { Sparkles, CheckCircle2, ShieldCheck, Zap, Loader, Copy, QrCode, Check, X, Building2, ServerCog, MessageCircle } from "lucide-react";
 import { useSubscription, type PremiumTier } from "@/hooks/useSubscription";
+import { useRazorpay } from "@/hooks/useRazorpay";
 import type { PlanType } from "@/store/useCheckoutStore";
 import { TestingNotice } from "@/components/TestingNotice";
 import { useAdmin } from "@/lib/admin";
@@ -254,10 +255,24 @@ function PlanCard({
             <div className={`text-xs font-bold ${id === "pro" ? "text-indigo-200" : "text-[var(--fn-accent-primary)] dark:text-white"}`}>{limit}</div>
           </div>
 
-          <div className="mt-auto pt-6 w-full">
+          <div className="mt-auto pt-6 w-full flex flex-col gap-2">
             <div className="w-full">
               {getCtaButton()}
             </div>
+            {isPaidPlan && !isCurrent && (
+              <button
+                type="button"
+                onClick={onSelect}
+                className={`w-full py-2 px-3 rounded-full text-xs font-black transition flex items-center justify-center gap-2 cursor-pointer border ${
+                  id === 'pro'
+                    ? 'border-indigo-300/35 bg-indigo-500/10 text-indigo-100 hover:bg-indigo-500/20'
+                    : 'border-[var(--fn-border)] bg-[var(--fn-surface-elevated)] text-[var(--fn-text-secondary)] hover:bg-[var(--fn-surface)]'
+                }`}
+              >
+                <QrCode className="h-3.5 w-3.5" />
+                PhonePe / UPI Pay
+              </button>
+            )}
           </div>
         </div>
 
@@ -474,6 +489,61 @@ export default function PricingPage() {
 
   const [hudActiveIndex, setHudActiveIndex] = React.useState<number | null>(null);
 
+  const [, setLocation] = useLocation();
+  const { openPayment } = useRazorpay();
+
+  const handleUpgrade = (planId: string, billingCycle = 'monthly') => {
+    if (planId === "free") { 
+      if (premiumTier !== "free" && confirm("Confirm cancellation?")) {
+        cancelSubscription();
+      }
+      return; 
+    }
+    if (!user) {
+      setAuthModalOpen(true);
+      return;
+    }
+    if (!user.phoneVerified) {
+      const mappedPlan = planId === 'pass' 
+        ? (billingCycle === '24hr' ? 'pass_24h' : 'pass_7d') 
+        : planId as PremiumTier;
+      setPendingPlan(mappedPlan);
+      setOtpOpen(true);
+      return;
+    }
+
+    openPayment({
+      planId,
+      billingCycle: billingCycle as 'monthly' | 'yearly',
+      userName: user.name ?? '',
+      userEmail: user.email ?? '',
+      onSuccess: (data) => {
+        toast.success(`🎉 Upgraded to ${planId}! Enjoy FileNova Premium.`);
+        useAuthStore.getState().refreshUser();
+        setLocation('/dashboard');
+      },
+      onFailure: (error) => {
+        toast.error(`Payment failed: ${error}`);
+      },
+    });
+  };
+
+  const handleSelectPlan = (plan: PremiumTier) => {
+    if (isTesting) { toast.info("Testing mode: All features unlocked for free."); return; }
+    if (!user && plan !== "free") { setAuthModalOpen(true); return; }
+    if (plan === "free") { if (premiumTier !== "free" && confirm("Confirm cancellation?")) cancelSubscription(); return; }
+    if (!user) return;
+    if (!user.phoneVerified) { setPendingPlan(plan); setOtpOpen(true); return; }
+    
+    if (plan === "pass_24h") {
+      handleUpgrade("pass", "24hr");
+    } else if (plan === "pass_7d") {
+      handleUpgrade("pass", "weekly");
+    } else {
+      handleUpgrade(plan, "monthly");
+    }
+  };
+
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (document.activeElement?.tagName === "INPUT") {
@@ -535,15 +605,6 @@ export default function PricingPage() {
       if (d > 0) { setAppliedDiscount(d); setCouponSuccess(`Coupon '${cleanCode}' applied!`); }
       else { setAppliedDiscount(0); setCouponError("Invalid code."); }
     }
-  };
-
-  const handleSelectPlan = (plan: PremiumTier) => {
-    if (isTesting) { toast.info("Testing mode: All features unlocked for free."); return; }
-    if (!user && plan !== "free") { setAuthModalOpen(true); return; }
-    if (plan === "free") { if (premiumTier !== "free" && confirm("Confirm cancellation?")) cancelSubscription(); return; }
-    if (!user) return;
-    if (!user.phoneVerified) { setPendingPlan(plan); setOtpOpen(true); return; }
-    openCheckout(plan as PlanType, appliedDiscount > 0 ? couponCode.trim().toUpperCase() : undefined);
   };
 
   const getPlanPrice = (planId: PremiumTier, original: number) => {
@@ -636,8 +697,9 @@ export default function PricingPage() {
                   <div className="flex items-baseline gap-1 mb-3">
                     <span className="text-2xl font-bold text-[var(--fn-text-primary)]">₹9</span>
                   </div>
-                  <div className="w-full">
+                  <div className="w-full flex flex-col gap-2">
                     <button onClick={() => handleSelectPlan("pass_24h")} className="w-full py-2 bg-[var(--fn-accent-primary)] text-white rounded-full text-xs font-black cursor-pointer hover:opacity-90 transition-opacity">Buy Pass</button>
+                    <button onClick={() => handleSelectPlan("pass_24h")} className="w-full py-1.5 border border-[var(--fn-border)] bg-[var(--fn-surface-elevated)] text-[var(--fn-text-secondary)] rounded-full text-[10px] font-black cursor-pointer hover:bg-[var(--fn-surface)] transition flex items-center justify-center gap-1.5"><QrCode className="h-3 w-3" /> PhonePe / UPI Pay</button>
                   </div>
                 </div>
               </SpotlightCard>
@@ -653,8 +715,9 @@ export default function PricingPage() {
                   <div className="flex items-baseline gap-1 mb-3">
                     <span className="text-2xl font-bold text-[var(--fn-text-primary)]">₹29</span>
                   </div>
-                  <div className="w-full">
+                  <div className="w-full flex flex-col gap-2">
                     <button onClick={() => handleSelectPlan("pass_7d")} className="w-full py-2 bg-[var(--fn-accent-primary)] text-white rounded-full text-xs font-black cursor-pointer hover:opacity-90 transition-opacity">Buy Pass</button>
+                    <button onClick={() => handleSelectPlan("pass_7d")} className="w-full py-1.5 border border-[var(--fn-border)] bg-[var(--fn-surface-elevated)] text-[var(--fn-text-secondary)] rounded-full text-[10px] font-black cursor-pointer hover:bg-[var(--fn-surface)] transition flex items-center justify-center gap-1.5"><QrCode className="h-3 w-3" /> PhonePe / UPI Pay</button>
                   </div>
                 </div>
               </SpotlightCard>
@@ -787,9 +850,7 @@ export default function PricingPage() {
         }}
         onSuccess={() => {
           if (pendingPlan && pendingPlan !== "free") {
-            const couponDiscount = getDynamicCouponDiscount(pendingPlan, couponCode);
-            const activeCoupon = couponDiscount > 0 ? couponCode.trim().toUpperCase() : undefined;
-            openCheckout(pendingPlan as PlanType, activeCoupon);
+            handleSelectPlan(pendingPlan);
             setPendingPlan(null);
           }
         }}

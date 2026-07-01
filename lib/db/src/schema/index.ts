@@ -233,6 +233,7 @@ export {
 } from "./premium";
 
 export * from "./subscriptions";
-export { subscriptionsTable, upiPaymentsTable, referralRewardsTable, referralRewardsRelations } from "./subscriptions";
+export { subscriptionsTable, upiPaymentsTable, referralRewardsTable, referralRewardsRelations, paymentOrders, insertPaymentOrderSchema } from "./subscriptions";
+export type { PaymentOrder, InsertPaymentOrder } from "./subscriptions";
 export * from "./coupons";
 export { discountCodesTable, discountCodeUsagesTable } from "./coupons";

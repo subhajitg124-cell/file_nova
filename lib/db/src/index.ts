@@ -75,6 +75,7 @@ const mockDb: Record<string, Map<string, any>> = {
   referrals: new Map(),
   referral_rewards: new Map(),
   notifications: new Map(),
+  payment_orders: new Map(),
 };
 
 // Pre-seed default super_admin and test user
