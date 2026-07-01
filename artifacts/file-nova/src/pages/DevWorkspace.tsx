@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useMemo, type ReactNode } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Link as WouterLink, useLocation } from "wouter";
+import { apiClient } from "@/lib/api";
+import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, Bot, BarChart3, Activity, Zap, Shield, Search, Package,
@@ -1105,5 +1107,244 @@ function SessionsView() { return PlaceholderView({ title: "Session Manager", des
 function ExportDiagView() { return PlaceholderView({ title: "Export Diagnostics", description: "Download system diagnostics bundle for debugging and support.", icon: <Download className="h-8 w-8 text-emerald-400" /> }); }
 function ImportSettingsView() { return PlaceholderView({ title: "Import Settings", description: "Import application settings and configuration from a JSON file.", icon: <Upload className="h-8 w-8 text-blue-400" /> }); }
 function MetadataView() { return PlaceholderView({ title: "Metadata Inspector", description: "Inspect page metadata, Open Graph, Twitter Cards, and SEO tags.", icon: <ScanLine className="h-8 w-8 text-emerald-400" /> }); }
-function TestingView() { return PlaceholderView({ title: "Testing Center", description: "Run automated tests, view test results, and manage test configurations.", icon: <Beaker className="h-8 w-8 text-violet-400" /> }); }
+function TestingView() {
+  const [amountRupees, setAmountRupees] = useState<number>(10);
+  const [loading, setLoading] = useState(false);
+  const [logs, setLogs] = useState<Array<{ time: string; msg: string; type: "info" | "success" | "error" | "warn" }>>([]);
+  const [scriptLoaded, setScriptLoaded] = useState(false);
+
+  const addLog = useCallback((msg: string, type: "info" | "success" | "error" | "warn" = "info") => {
+    const time = new Date().toLocaleTimeString();
+    setLogs((prev) => [...prev, { time, msg, type }]);
+  }, []);
+
+  useEffect(() => {
+    const checkScript = () => {
+      const loaded = !!(window as any).Razorpay;
+      setScriptLoaded(loaded);
+    };
+
+    checkScript();
+    const interval = setInterval(checkScript, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handlePay = async () => {
+    if (amountRupees < 1) {
+      toast.error("Minimum amount is ₹1");
+      addLog("Failed: Amount must be >= ₹1", "error");
+      return;
+    }
+
+    setLoading(true);
+    setLogs([]);
+    addLog(`Initiating checkout of ₹${amountRupees}...`, "info");
+
+    try {
+      const amountPaise = Math.round(amountRupees * 100);
+      addLog(`Calling POST /api/create-order with amount=${amountPaise} paise`, "info");
+
+      const orderResponse = await apiClient.request<{ order_id: string; amount: number; currency: string; isMock?: boolean }>(
+        "/api/create-order",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount: amountPaise, currency: "INR" }),
+        }
+      );
+
+      addLog(`Order created successfully! order_id: ${orderResponse.order_id}`, "success");
+      addLog(`Response payload: ${JSON.stringify(orderResponse)}`, "info");
+
+      if (!scriptLoaded) {
+        addLog("Error: Razorpay checkout.js script not loaded on page.", "warn");
+      }
+
+      const keyId = import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_T85GDT2zbaoAAb";
+      addLog(`Initializing checkout modal with Key ID: ${keyId}`, "info");
+
+      const options = {
+        key: keyId,
+        amount: orderResponse.amount,
+        currency: orderResponse.currency,
+        name: "FileNova Standard Checkout Test",
+        description: "Integration verification transaction",
+        order_id: orderResponse.order_id,
+        handler: async (response: any) => {
+          addLog("Payment callback received from modal!", "success");
+          addLog(`Callback parameters: ${JSON.stringify(response)}`, "info");
+          addLog("Calling POST /api/verify-payment to verify signature...", "info");
+
+          try {
+            const verifyResponse = await apiClient.request<{ success: boolean; message: string }>(
+              "/api/verify-payment",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                }),
+              }
+            );
+
+            if (verifyResponse.success) {
+              addLog("Payment verification success! Transaction is verified.", "success");
+              toast.success("Payment verified successfully!");
+            } else {
+              addLog(`Payment verification failed: ${JSON.stringify(verifyResponse)}`, "error");
+              toast.error("Signature verification failed.");
+            }
+          } catch (verifyErr: any) {
+            addLog(`Error verifying payment signature: ${verifyErr.message}`, "error");
+            toast.error(`Verification error: ${verifyErr.message}`);
+          }
+        },
+        prefill: {
+          name: "Test User",
+          email: "test@filenova.in",
+        },
+        theme: {
+          color: "#6366f1",
+        },
+        modal: {
+          ondismiss: () => {
+            addLog("Checkout modal dismissed by user.", "warn");
+            toast.info("Payment cancelled.");
+          },
+        },
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.on("payment.failed", (response: any) => {
+        addLog(`Payment failed event fired! Reason: ${response.error.description}`, "error");
+        addLog(`Payment failure details: ${JSON.stringify(response.error)}`, "info");
+        toast.error(`Payment failed: ${response.error.description}`);
+      });
+
+      rzp.open();
+    } catch (err: any) {
+      addLog(`Checkout failed: ${err.message}`, "error");
+      toast.error(`Checkout failed: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div>
+        <h1 className="text-2xl font-black text-foreground flex items-center gap-2">
+          <Beaker className="h-6 w-6 text-indigo-500" />
+          Razorpay Standard Checkout Test Center
+        </h1>
+        <p className="text-xs text-muted-foreground mt-1">
+          Perform a test checkout transaction and verify the signature using the Express API backend.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="rounded-xl border border-border bg-card p-4 flex flex-col justify-between">
+          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+            Script Status
+          </span>
+          <div className="flex items-center gap-2 mt-2">
+            <span className={`w-2.5 h-2.5 rounded-full ${scriptLoaded ? "bg-green-500 animate-pulse" : "bg-red-500"}`} />
+            <span className="text-xs font-bold text-foreground">
+              {scriptLoaded ? "checkout.js Loaded" : "checkout.js Missing"}
+            </span>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-border bg-card p-4 flex flex-col justify-between">
+          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+            Public Key configuration
+          </span>
+          <div className="text-xs font-bold text-foreground mt-2 font-mono">
+            {import.meta.env.VITE_RAZORPAY_KEY_ID ? (
+              <span className="text-indigo-400">{import.meta.env.VITE_RAZORPAY_KEY_ID}</span>
+            ) : (
+              <span className="text-amber-500">rzp_test_T85GDT2zbaoAAb (Fallback)</span>
+            )}
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-border bg-card p-4 flex flex-col justify-between">
+          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+            Backend Endpoint URL
+          </span>
+          <div className="text-xs font-bold text-slate-400 mt-2 font-mono">
+            POST /api/create-order
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+        <div className="md:col-span-2 rounded-xl border border-border bg-card p-6 space-y-4 flex flex-col justify-between">
+          <div className="space-y-3">
+            <h2 className="text-xs font-black uppercase text-foreground">Test Transaction Controls</h2>
+            <div className="space-y-1.5">
+              <label htmlFor="test-amount-input" className="text-[10px] uppercase font-bold text-muted-foreground">
+                Amount (Rupees)
+              </label>
+              <input
+                id="test-amount-input"
+                type="number"
+                min="1"
+                value={amountRupees}
+                onChange={(e) => setAmountRupees(Number(e.target.value))}
+                placeholder="Enter amount"
+                className="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm text-foreground focus:ring-2 focus:ring-indigo-500 outline-none font-bold"
+              />
+              <span className="text-[9px] text-muted-foreground block">
+                Calculated in Paise: {Math.round(amountRupees * 100)} paise (minimum 100 paise)
+              </span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handlePay}
+            disabled={loading}
+            className="w-full h-10 bg-indigo-600 hover:bg-indigo-500 text-xs font-black text-white rounded-xl shadow-md transition-colors flex items-center justify-center gap-2 cursor-pointer mt-4"
+          >
+            {loading ? "Processing..." : "Pay with Razorpay"}
+          </button>
+        </div>
+
+        <div className="md:col-span-3 rounded-xl border border-border bg-card p-5 flex flex-col h-[280px]">
+          <h2 className="text-xs font-black uppercase text-foreground mb-3 flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-indigo-500" />
+            Verification Console Logs
+          </h2>
+          <div className="flex-1 bg-black/40 border border-border rounded-lg p-3 font-mono text-[10px] overflow-y-auto space-y-2 select-text leading-relaxed">
+            {logs.length === 0 ? (
+              <span className="text-muted-foreground italic">No logs generated. Click "Pay with Razorpay" to begin testing.</span>
+            ) : (
+              logs.map((log, index) => (
+                <div key={index} className="flex gap-2 items-start">
+                  <span className="text-muted-foreground shrink-0 select-none">[{log.time}]</span>
+                  <span
+                    className={
+                      log.type === "success"
+                        ? "text-emerald-400 font-bold"
+                        : log.type === "error"
+                          ? "text-red-400 font-bold"
+                          : log.type === "warn"
+                            ? "text-amber-400 font-bold"
+                            : "text-slate-200"
+                    }
+                  >
+                    {log.msg}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 function ReleaseNotesView() { return PlaceholderView({ title: "Release Notes", description: "View changelog and release history for all FileNova versions.", icon: <BookOpen className="h-8 w-8 text-sky-400" /> }); }
