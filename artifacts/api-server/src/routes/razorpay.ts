@@ -21,6 +21,108 @@ const verifyPaymentSchema = z.object({
   razorpay_signature: z.string({ required_error: "razorpay_signature is required" }),
 });
 
+const supportAmountSchema = z.union([z.literal(10), z.literal(50)]);
+
+const createSupportOrderSchema = z.object({
+  amount: supportAmountSchema,
+  note: z.string().max(80).default("Support FileNova"),
+});
+
+const verifySupportPaymentSchema = z.object({
+  razorpay_order_id: z.string({ required_error: "razorpay_order_id is required" }),
+  razorpay_payment_id: z.string({ required_error: "razorpay_payment_id is required" }),
+  razorpay_signature: z.string().optional(),
+});
+
+// POST /support-order
+router.post("/support-order", async (req, res: Response) => {
+  try {
+    const { amount, note } = createSupportOrderSchema.parse(req.body);
+    const amountInPaise = amount * 100;
+    const currency = PaymentProvider.getCurrency();
+
+    if (PaymentProvider.isMockEnabled()) {
+      const orderId = `order_mock_support_${crypto.randomBytes(8).toString("hex")}`;
+      logger.info({ orderId, amount: amountInPaise }, "Created mock support payment order");
+      return res.json({
+        success: true,
+        orderId,
+        amount: amountInPaise,
+        currency,
+        keyId: PaymentProvider.getRazorpayKeyId(),
+        isMock: true,
+      });
+    }
+
+    const rp = PaymentProvider.getRazorpayInstance();
+    if (!rp) {
+      return res.status(500).json({ success: false, error: "Payment gateway configuration error" });
+    }
+
+    const order = await rp.orders.create({
+      amount: amountInPaise,
+      currency,
+      receipt: `support_${Date.now()}`,
+      notes: {
+        purpose: "filenova_support",
+        note,
+      },
+    });
+
+    logger.info({ orderId: order.id, amount: order.amount }, "Created Razorpay support payment order");
+    return res.json({
+      success: true,
+      orderId: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      keyId: PaymentProvider.getRazorpayKeyId(),
+      isMock: false,
+    });
+  } catch (err: any) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ success: false, error: err.errors[0]?.message || "Invalid support payment amount" });
+    }
+    logger.error({ err }, "Error creating support payment order");
+    return res.status(500).json({ success: false, error: err.message || "Failed to create support payment order" });
+  }
+});
+
+// POST /support-verify
+router.post("/support-verify", async (req, res: Response) => {
+  try {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = verifySupportPaymentSchema.parse(req.body);
+    const isMockOrder = razorpay_order_id.startsWith("order_mock_support_");
+
+    if (isMockOrder || PaymentProvider.isMockEnabled()) {
+      logger.info({ orderId: razorpay_order_id }, "Verified mock support payment successfully");
+      return res.json({ success: true, message: "Support payment verified successfully" });
+    }
+
+    if (!razorpay_signature) {
+      return res.status(400).json({ success: false, error: "Payment signature is required" });
+    }
+
+    const generatedSignature = crypto
+      .createHmac("sha256", PaymentProvider.getRazorpayKeySecret())
+      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+      .digest("hex");
+
+    if (generatedSignature !== razorpay_signature) {
+      logger.warn({ orderId: razorpay_order_id }, "Support payment signature mismatch");
+      return res.status(400).json({ success: false, error: "Payment signature mismatch. Verification failed." });
+    }
+
+    logger.info({ orderId: razorpay_order_id, paymentId: razorpay_payment_id }, "Verified support payment successfully");
+    return res.json({ success: true, message: "Support payment verified successfully" });
+  } catch (err: any) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ success: false, error: err.errors[0]?.message || "Missing required payment fields" });
+    }
+    logger.error({ err }, "Error verifying support payment");
+    return res.status(500).json({ success: false, error: err.message || "Support payment verification failed" });
+  }
+});
+
 // POST /create-order
 router.post("/create-order", authMiddleware, requireAuth, async (req: AuthRequest, res: Response) => {
   try {

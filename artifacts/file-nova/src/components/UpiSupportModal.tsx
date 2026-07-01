@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { X, Copy, Check, ExternalLink, HelpCircle } from "lucide-react";
+import { X, Copy, Check, ExternalLink, CreditCard, Loader } from "lucide-react";
+import { toast } from "sonner";
+import { apiClient, apiMock, HAS_BACKEND } from "@/lib/api";
 import { FILENOVA_UPI_ID, FILENOVA_PAYEE_NAME, createUpiLink, createUpiQrUrl } from "@/lib/upi";
 
 interface UpiSupportModalProps {
@@ -9,9 +11,26 @@ interface UpiSupportModalProps {
   note: string;
 }
 
+const loadRazorpayScript = (): Promise<boolean> => {
+  return new Promise((resolve) => {
+    if ((window as any).Razorpay) {
+      resolve(true);
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
 export function UpiSupportModal({ isOpen, onClose, amount, note }: UpiSupportModalProps) {
   const [copied, setCopied] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [processingOnline, setProcessingOnline] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -30,6 +49,71 @@ export function UpiSupportModal({ isOpen, onClose, amount, note }: UpiSupportMod
 
   const qrUrl = createUpiQrUrl(amount);
   const payLink = createUpiLink(amount, note);
+
+  const supportAmount = amount === 50 ? 50 : 10;
+
+  const handleOnlinePayment = async () => {
+    setProcessingOnline(true);
+    try {
+      const client = HAS_BACKEND ? apiClient : apiMock;
+      const order = await client.createSupportOrder(supportAmount, note);
+
+      if (order.isMock || !HAS_BACKEND) {
+        await client.verifySupportPayment({
+          razorpay_order_id: order.orderId,
+          razorpay_payment_id: `pay_mock_support_${Math.random().toString(36).slice(2)}`,
+        });
+        toast.success("Support payment completed in mock mode. Thank you!");
+        onClose();
+        return;
+      }
+
+      const loaded = await loadRazorpayScript();
+      if (!loaded) {
+        throw new Error("Payment gateway failed to load. Please use UPI QR or try again.");
+      }
+
+      const rzp = new (window as any).Razorpay({
+        key: order.keyId,
+        amount: order.amount,
+        currency: order.currency,
+        name: "FileNova",
+        description: note,
+        order_id: order.orderId,
+        image: window.location.origin + "/logo.png",
+        theme: { color: "#4f46e5" },
+        handler: async (response: any) => {
+          setProcessingOnline(true);
+          try {
+            await client.verifySupportPayment({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+            toast.success("Payment verified. Thank you for supporting FileNova!");
+            onClose();
+          } catch (err: any) {
+            toast.error(err.message || "Payment verification failed. If money was debited, contact support.");
+          } finally {
+            setProcessingOnline(false);
+          }
+        },
+        modal: {
+          ondismiss: () => setProcessingOnline(false),
+        },
+      });
+
+      rzp.on("payment.failed", (response: any) => {
+        setProcessingOnline(false);
+        toast.error(response?.error?.description || "Payment failed. Please try again or use UPI QR.");
+      });
+
+      rzp.open();
+    } catch (err: any) {
+      toast.error(err.message || "Could not start payment. Please use UPI QR instead.");
+      setProcessingOnline(false);
+    }
+  };
 
   return (
     <div 
@@ -59,6 +143,16 @@ export function UpiSupportModal({ isOpen, onClose, amount, note }: UpiSupportMod
             If FileNova saved you time or money, consider supporting development.
           </p>
         </div>
+
+        <button
+          type="button"
+          onClick={handleOnlinePayment}
+          disabled={processingOnline}
+          className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed text-white py-3 text-sm font-black shadow-glow-indigo transition cursor-pointer"
+        >
+          {processingOnline ? <Loader className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />}
+          Pay Rs {amount} Online
+        </button>
 
         {/* QR Code Container for Desktop */}
         {!isMobile ? (

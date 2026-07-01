@@ -156,6 +156,26 @@ export const apiClient = {
     return `${BACKEND_URL}/api/v1/download/${jobId}`;
   },
 
+  async createSupportOrder(amount: 10 | 50, note: string): Promise<any> {
+    return this.request<any>('/api/support-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount, note }),
+    });
+  },
+
+  async verifySupportPayment(payload: {
+    razorpay_order_id: string;
+    razorpay_payment_id: string;
+    razorpay_signature?: string;
+  }): Promise<any> {
+    return this.request<any>('/api/support-verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+  },
+
   async createSubscriptionOrder(plan: string, coupon?: string): Promise<any> {
     return this.request<any>('/api/v1/premium/subscription/order', {
       method: 'POST',
@@ -449,6 +469,28 @@ export const apiMock = {
       }
     }, 180);
     return () => clearInterval(interval);
+  },
+
+  async createSupportOrder(amount: 10 | 50, note: string) {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    return {
+      success: true,
+      orderId: `order_mock_support_${Math.random().toString(36).substring(7)}`,
+      amount: amount * 100,
+      currency: 'INR',
+      keyId: 'rzp_test_mockkey',
+      isMock: true,
+      note,
+    };
+  },
+
+  async verifySupportPayment(payload: any) {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    return {
+      success: true,
+      orderId: payload.razorpay_order_id,
+      message: 'Support payment verified (Mock Mode)',
+    };
   },
 
   async createSubscriptionOrder(plan: string, coupon?: string) {
