@@ -33,7 +33,7 @@ export const apiClient = {
     // Attach authorization header if available
     const token = localStorage.getItem('filenova_token');
     const headers = new Headers(options.headers);
-    if (token && !token.startsWith('local_') && !headers.has('Authorization')) {
+    if (token && !headers.has('Authorization')) {
       headers.set('Authorization', `Bearer ${token}`);
     }
     

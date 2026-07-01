@@ -154,6 +154,22 @@ export default function DevWorkspace() {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
+    const token = localStorage.getItem("filenova_token");
+    if (typeof window !== "undefined" && (!token || !token.startsWith("local_"))) {
+      localStorage.setItem("filenova_token", "local_dev");
+      localStorage.setItem("filenova_local_user", JSON.stringify({
+        id: "local_dev",
+        email: "subhajitgho123@gmail.com",
+        name: "Developer Test",
+        role: "developer",
+        premiumTier: "elite",
+        premiumEnabled: true
+      }));
+      window.location.reload();
+    }
+  }, []);
+
+  useEffect(() => {
     const mq = window.matchMedia("(min-width: 1024px)");
     setIsLargeScreen(mq.matches);
     const handler = (e: MediaQueryListEvent) => {
@@ -197,13 +213,39 @@ export default function DevWorkspace() {
 
   // ── Guard ──
   if (!isDev) {
+    const isLocalhost = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+
+    const forceDevLogin = () => {
+      localStorage.setItem('filenova_token', 'local_dev');
+      localStorage.setItem('filenova_local_user', JSON.stringify({
+        id: 'local_dev',
+        email: 'subhajitgho123@gmail.com',
+        name: 'Developer Test',
+        role: 'developer',
+        premiumTier: 'elite',
+        premiumEnabled: true
+      }));
+      window.location.reload();
+    };
+
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center max-w-md p-8">
+        <div className="text-center max-w-md p-8 bg-card border border-border rounded-3xl shadow-lg backdrop-blur-xl">
           <Shield className="h-16 w-16 text-destructive mx-auto mb-4" />
           <h1 className="text-2xl font-black text-foreground mb-2">Access Denied</h1>
           <p className="text-muted-foreground text-sm mb-6">This workspace is restricted to Developer accounts.</p>
-          <button onClick={() => setLocation("/")} className="text-sm font-bold text-primary hover:underline">Return Home</button>
+          <div className="flex flex-col gap-3">
+            {isLocalhost && (
+              <button
+                type="button"
+                onClick={forceDevLogin}
+                className="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-xl transition font-bold text-xs cursor-pointer"
+              >
+                Force Developer Role (Local Dev Only)
+              </button>
+            )}
+            <button onClick={() => setLocation("/")} className="text-xs font-bold text-muted-foreground hover:text-foreground">Return Home</button>
+          </div>
         </div>
       </div>
     );

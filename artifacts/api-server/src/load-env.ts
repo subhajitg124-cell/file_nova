@@ -24,7 +24,7 @@ for (const envPath of possiblePaths) {
         if (index !== -1) {
           const key = trimmed.substring(0, index).trim();
           const val = trimmed.substring(index + 1).trim();
-          if (key && !process.env[key]) {
+          if (key && (!process.env[key] || process.env[key] === "your_google_client_id" || process.env[key].trim() === "")) {
             process.env[key] = val;
           }
         }
