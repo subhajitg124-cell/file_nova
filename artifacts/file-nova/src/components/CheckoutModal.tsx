@@ -97,6 +97,8 @@ const PLAN_DETAILS: Record<PlanType, {
   },
 };
 
+let razorpayScriptEl: HTMLScriptElement | null = null;
+
 const loadRazorpayScript = (): Promise<boolean> => {
   return new Promise((resolve) => {
     if ((window as any).Razorpay) {
@@ -108,6 +110,7 @@ const loadRazorpayScript = (): Promise<boolean> => {
     script.async = true;
     script.onload = () => resolve(true);
     script.onerror = () => resolve(false);
+    razorpayScriptEl = script;
     document.body.appendChild(script);
   });
 };
@@ -128,6 +131,16 @@ export function CheckoutModal() {
   const [copiedUpi, setCopiedUpi] = useState(false);
   const [submittingUpi, setSubmittingUpi] = useState(false);
   const [upiSubmitted, setUpiSubmitted] = useState(false);
+
+  // Clean up Razorpay script on unmount
+  useEffect(() => {
+    return () => {
+      if (razorpayScriptEl && document.body.contains(razorpayScriptEl)) {
+        document.body.removeChild(razorpayScriptEl);
+        razorpayScriptEl = null;
+      }
+    };
+  }, []);
 
   // General state
   const [processing, setProcessing] = useState(false);
@@ -288,8 +301,13 @@ export function CheckoutModal() {
             setProcessing(false);
             setPaymentFailed(true);
             toast.info("Payment cancelled.");
-          }
-        }
+          },
+          escape: false,
+        },
+        retry: {
+          enabled: false,
+        },
+        timeout: 600
       };
 
       const rzp = new (window as any).Razorpay(options);

@@ -113,6 +113,10 @@ app.use(authMiddleware);
 
 // ── CSRF/Origin Validation middleware (Issue 3.4) ─────────────────────────────
 app.use((req: Request, res: Response, next: NextFunction) => {
+  // Skip CSRF checks for Razorpay webhook endpoints (server-to-server calls)
+  if (req.path === '/api/payment/webhook' || req.path === '/api/payments/webhook') {
+    return next();
+  }
   // Only check mutating requests
   if (["POST", "PUT", "DELETE", "PATCH"].includes(req.method)) {
     const origin = req.headers.origin;

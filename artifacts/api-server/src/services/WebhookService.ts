@@ -7,9 +7,8 @@ import { PaymentProvider } from "./PaymentProvider";
 import { SubscriptionService } from "./SubscriptionService";
 
 export class WebhookService {
-  /**
-   * Verifies the webhook signature sent by Razorpay.
-   */
+  private static processedEvents: Set<string> = new Set();
+
   public static verifySignature(
     rawBody: string | Buffer,
     signature: string,
@@ -23,7 +22,6 @@ export class WebhookService {
         .createHmac("sha256", secret)
         .update(rawBody)
         .digest("hex");
-
       return expectedSignature === signature;
     } catch (err) {
       logger.error({ err }, "Error verifying webhook signature");
@@ -31,35 +29,42 @@ export class WebhookService {
     }
   }
 
-  /**
-   * Central Express Request Handler for Razorpay Webhooks.
-   * Validates signature securely and delegates event processing.
-   */
   public static async handleWebhookRequest(req: any, res: Response) {
+    const eventId = req.headers["x-razorpay-event-id"] as string;
     const signature = req.headers["x-razorpay-signature"] as string;
     const secret = process.env.RAZORPAY_WEBHOOK_SECRET || "";
 
-    logger.info({ body: req.body }, "Received Razorpay webhook request");
+    logger.info({ eventId, event: req.body?.event }, "Received Razorpay webhook");
 
-    // Secure webhook signature validation (Issue 3.7):
-    // Do not bypass validation. Require secret and signature.
+    // Always acknowledge receipt immediately with 200 OK
+    res.status(200).json({ received: true });
+
+    // Validate configuration (log-only, response already sent)
     if (!secret) {
-      logger.error("RAZORPAY_WEBHOOK_SECRET is not configured");
-      return res.status(500).json({ success: false, error: "Webhook secret configuration missing" });
+      logger.error("RAZORPAY_WEBHOOK_SECRET is not configured — webhook cannot be verified");
+      return;
     }
     if (!signature) {
-      logger.error("Missing X-Razorpay-Signature header");
-      return res.status(400).json({ success: false, error: "Missing signature header" });
+      logger.error({ eventId }, "Missing x-razorpay-signature header");
+      return;
     }
 
-    const rawBody = req.rawBody || JSON.stringify(req.body);
+    // Reconstruct raw body for signature verification
+    const rawBody = req.rawBody || Buffer.from(JSON.stringify(req.body), "utf8");
     const verified = WebhookService.verifySignature(rawBody, signature, secret);
 
     if (!verified) {
-      logger.error("Invalid Razorpay webhook signature");
-      return res.status(400).json({ success: false, error: "Invalid signature" });
+      logger.error({ eventId, event: req.body?.event }, "Invalid webhook signature");
+      return;
     }
 
+    // Idempotency check
+    if (eventId && WebhookService.processedEvents.has(eventId)) {
+      logger.info({ eventId }, "Duplicate webhook event, skipping");
+      return;
+    }
+
+    // Process event asynchronously
     try {
       const event = req.body?.event;
       const payload = req.body?.payload;
@@ -67,19 +72,18 @@ export class WebhookService {
       if (event) {
         await WebhookService.processEvent(event, payload);
       }
-      res.json({ success: true, status: "ok" });
+
+      if (eventId) {
+        WebhookService.processedEvents.add(eventId);
+        logger.info({ eventId, event }, "Webhook processed successfully");
+      }
     } catch (err: any) {
-      logger.error({ err }, "Error processing webhook request");
-      res.status(500).json({ success: false, error: "Internal webhook error" });
+      logger.error({ err, eventId, event: req.body?.event }, "Webhook processing failed");
     }
   }
 
-  /**
-   * Handles incoming Razorpay webhook event.
-   * Processes order.paid and payment.captured to reconcile payments automatically.
-   */
   public static async processEvent(event: string, payload: any): Promise<boolean> {
-    logger.info({ event }, "Processing Razorpay webhook event");
+    logger.info({ event }, "Processing webhook event");
 
     if (event === "order.paid" || event === "payment.captured") {
       const payment = payload?.payment?.entity;
@@ -92,7 +96,6 @@ export class WebhookService {
       }
 
       try {
-        // Find subscription details to resolve the target plan
         const [sub] = await db
           .select()
           .from(subscriptionsTable)
@@ -105,11 +108,10 @@ export class WebhookService {
         }
 
         if (sub.status === "active") {
-          logger.info({ orderId }, "Subscription is already active, skipping webhook reconciliation");
+          logger.info({ orderId }, "Subscription already active, skipping");
           return true;
         }
 
-        // Activate the subscription using central subscription service
         const activated = await SubscriptionService.activateSubscription(
           orderId,
           paymentId,
@@ -117,14 +119,14 @@ export class WebhookService {
         );
 
         if (activated) {
-          logger.info({ orderId, paymentId }, "Reconciled subscription successfully via WebhookService");
+          logger.info({ orderId, paymentId }, "Subscription activated via webhook");
           return true;
         } else {
-          logger.error({ orderId, paymentId }, "Failed to activate subscription during webhook reconciliation");
+          logger.error({ orderId, paymentId }, "Failed to activate subscription via webhook");
           return false;
         }
       } catch (err) {
-        logger.error({ err, orderId, paymentId }, "Error processing payment/order webhook event");
+        logger.error({ err, orderId, paymentId }, "Error processing payment webhook event");
         return false;
       }
     }
@@ -135,7 +137,7 @@ export class WebhookService {
       const paymentId = payment?.id;
 
       if (!orderId) {
-        logger.warn("Missing orderId in payment.failed webhook payload");
+        logger.warn("Missing orderId in payment.failed webhook");
         return false;
       }
 
@@ -144,8 +146,8 @@ export class WebhookService {
           .update(subscriptionsTable)
           .set({ status: "failed", razorpayPaymentId: paymentId, updatedAt: new Date() })
           .where(eq(subscriptionsTable.razorpayOrderId, orderId));
-        
-        logger.info({ orderId, paymentId }, "Marked subscription as failed via webhook event");
+
+        logger.info({ orderId, paymentId }, "Marked subscription as failed via webhook");
         return true;
       } catch (err) {
         logger.error({ err, orderId }, "Error processing payment.failed event");
@@ -154,7 +156,7 @@ export class WebhookService {
     }
 
     if (event === "payment.authorized") {
-      logger.info({ payload }, "Payment authorized webhook received (no action taken, waiting for capture)");
+      logger.info("Payment authorized webhook received (waiting for capture)");
       return true;
     }
 
@@ -163,7 +165,7 @@ export class WebhookService {
       const paymentId = refund?.payment_id;
 
       if (!paymentId) {
-        logger.warn("Missing paymentId in refund webhook payload");
+        logger.warn("Missing paymentId in refund webhook");
         return false;
       }
 
@@ -172,8 +174,8 @@ export class WebhookService {
           .update(subscriptionsTable)
           .set({ status: "refunded", updatedAt: new Date() })
           .where(eq(subscriptionsTable.razorpayPaymentId, paymentId));
-        
-        logger.info({ paymentId }, "Marked subscription as refunded/cancelled via webhook event");
+
+        logger.info({ paymentId }, "Marked subscription as refunded via webhook");
         return true;
       } catch (err) {
         logger.error({ err, paymentId }, "Error processing refund event");
@@ -182,7 +184,6 @@ export class WebhookService {
     }
 
     if (event === "subscription.cancelled") {
-      // Handle automatic cancel events if subscriptions are recurring
       const rzpSub = payload?.subscription?.entity;
       const notes = rzpSub?.notes || {};
       const userId = notes.userId;
@@ -191,11 +192,11 @@ export class WebhookService {
         try {
           const cancelled = await SubscriptionService.cancelSubscription(userId);
           if (cancelled) {
-            logger.info({ userId }, "Cancelled recurring subscription via webhook event");
+            logger.info({ userId }, "Cancelled subscription via webhook");
             return true;
           }
         } catch (err) {
-          logger.error({ err, userId }, "Error cancelling subscription from webhook event");
+          logger.error({ err, userId }, "Error cancelling subscription from webhook");
         }
       }
     }

@@ -1,9 +1,10 @@
 import { Router, type Response } from "express";
 import crypto from "node:crypto";
-import { db, paymentOrders, usersTable, subscriptionsTable } from "@workspace/db";
+import { db, paymentOrders, subscriptionsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { authMiddleware, requireAuth, type AuthRequest } from "../middlewares/auth";
 import { SubscriptionService } from "../services/SubscriptionService";
+import { WebhookService } from "../services/WebhookService";
 import { logger } from "../lib/logger";
 import { PaymentProvider } from "../services/PaymentProvider";
 
@@ -196,94 +197,6 @@ router.post('/verify', authMiddleware, requireAuth, async (req: AuthRequest, res
 });
 
 // ── 2C. RAZORPAY WEBHOOK ─────────────────────────────────────────────────────
-router.post('/webhook', async (req: any, res: Response) => {
-  try {
-    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
-    
-    if (webhookSecret) {
-      const signature = req.headers['x-razorpay-signature'] as string;
-      const rawBody = req.rawBody || JSON.stringify(req.body);
-      const expectedSig = crypto
-        .createHmac('sha256', webhookSecret)
-        .update(rawBody)
-        .digest('hex');
-      
-      if (signature !== expectedSig) {
-        logger.warn("Invalid webhook signature received");
-        return res.status(400).json({ error: 'Invalid webhook signature' });
-      }
-    }
-
-    const event = req.body;
-
-    if (event.event === 'payment.captured' || event.event === 'order.paid') {
-      const payment = event.payload.payment.entity;
-      const orderId = payment.order_id;
-      const paymentId = payment.id;
-      
-      if (orderId) {
-        // Update payment_orders DB if not already updated via verify endpoint
-        const order = await db.query.paymentOrders.findFirst({
-          where: eq(paymentOrders.id, orderId)
-        });
-        
-        if (order && order.status !== 'paid') {
-          await db.update(paymentOrders)
-            .set({ status: 'paid', paymentId, paidAt: new Date() })
-            .where(eq(paymentOrders.id, orderId));
-          
-          const planTier = order.planId.includes('pass_24hr') ? 'pass_24h' : 
-                           order.planId.includes('pass_weekly') ? 'pass_7d' : 
-                           order.planId.split('_')[0];
-
-          // Ensure subscriptionsTable record exists
-          const [existingSub] = await db
-            .select()
-            .from(subscriptionsTable)
-            .where(eq(subscriptionsTable.razorpayOrderId, orderId))
-            .limit(1);
-
-          if (!existingSub) {
-            await db.insert(subscriptionsTable).values({
-              userId: order.userId,
-              plan: planTier,
-              status: 'pending',
-              amount: order.amount,
-              currency: order.currency || 'INR',
-              razorpayOrderId: orderId,
-            });
-          }
-
-          // Activate using SubscriptionService
-          await SubscriptionService.activateSubscription(orderId, paymentId, planTier);
-          logger.info({ orderId, paymentId }, "Processed payment webhook captured successfully");
-        }
-      }
-    }
-
-    if (event.event === 'payment.failed') {
-      const payment = event.payload.payment.entity;
-      const orderId = payment.order_id;
-      const paymentId = payment.id;
-      
-      if (orderId) {
-        await db.update(paymentOrders)
-          .set({ status: 'failed', paymentId })
-          .where(eq(paymentOrders.id, orderId));
-
-        await db.update(subscriptionsTable)
-          .set({ status: 'failed', razorpayPaymentId: paymentId, updatedAt: new Date() })
-          .where(eq(subscriptionsTable.razorpayOrderId, orderId));
-          
-        logger.info({ orderId, paymentId }, "Processed payment webhook failed");
-      }
-    }
-
-    return res.json({ received: true });
-  } catch (error: any) {
-    logger.error({ error }, "Webhook processing failed");
-    return res.status(500).json({ error: 'Webhook processing failed' });
-  }
-});
+router.post('/webhook', WebhookService.handleWebhookRequest);
 
 export default router;
