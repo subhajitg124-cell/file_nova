@@ -21,6 +21,7 @@ import { Navbar } from "@/components/Navbar";
 import { BackHomeBar } from "@/components/BackHomeBar";
 import { AuthModal } from "@/components/AuthModal";
 import { OTPVerificationModal } from "@/components/OTPVerificationModal";
+import { SecurityVerificationModal } from "@/components/SecurityVerificationModal";
 import { toast } from "sonner";
 import { BACKEND_URL, HAS_BACKEND } from "@/lib/api";
 import { FILENOVA_UPI_ID, createUpiQrUrl } from "@/lib/upi";
@@ -478,8 +479,8 @@ export default function PricingPage() {
   const { openCheckout } = useCheckoutStore();
   const { user } = useAuthStore();
   const [authModalOpen, setAuthModalOpen] = React.useState(false);
-  const [otpOpen, setOtpOpen] = React.useState(false);
-  const [pendingPlan, setPendingPlan] = React.useState<PremiumTier | null>(null);
+  const [showVerification, setShowVerification] = React.useState(false);
+  const [pendingPlan, setPendingPlan] = React.useState<{ planId: string; billingCycle: string } | null>(null);
   const admin = useAdmin();
   const isTesting = false;
   const [couponCode, setCouponCode] = React.useState("");
@@ -494,41 +495,18 @@ export default function PricingPage() {
   const [, setLocation] = useLocation();
   const { openPayment } = useRazorpay();
 
-  const handleUpgrade = (planId: string, billingCycle = 'monthly') => {
-    if (planId === "free") { 
-      if (premiumTier !== "free" && confirm("Confirm cancellation?")) {
-        cancelSubscription();
-      }
-      return; 
-    }
-    if (!user) {
-      setAuthModalOpen(true);
-      return;
-    }
-    if (!user.phoneVerified) {
-      // In dev mode, skip phone verification gate if there's a valid session token
-      // (user authenticated but cached profile may be stale when DB is offline)
-      const hasRealToken = localStorage.getItem('filenova_token');
-      const isDevBypass = import.meta.env.DEV && hasRealToken && !hasRealToken.startsWith('local_');
-      const isDeveloperAccount = user.email === 'subhajitgho123@gmail.com';
-
-      if (!isDevBypass && !isDeveloperAccount) {
-        const mappedPlan = planId === 'pass' 
-          ? (billingCycle === '24hr' ? 'pass_24h' : 'pass_7d') 
-          : planId as PremiumTier;
-        setPendingPlan(mappedPlan);
-        setOtpOpen(true);
-        return;
-      }
-    }
+  const handleVerified = async (paymentToken: string) => {
+    setShowVerification(false);
+    if (!pendingPlan) return;
 
     openPayment({
-      planId,
-      billingCycle: billingCycle as 'monthly' | 'yearly',
-      userName: user.name ?? '',
-      userEmail: user.email ?? '',
+      planId: pendingPlan.planId,
+      billingCycle: pendingPlan.billingCycle as 'monthly' | 'yearly',
+      userName: user?.name ?? '',
+      userEmail: user?.email ?? '',
+      paymentToken,
       onSuccess: (data) => {
-        toast.success(`🎉 Upgraded to ${planId}! Enjoy FileNova Premium.`);
+        toast.success(`🎉 Upgraded to ${pendingPlan!.planId}! Enjoy FileNova Premium.`);
         useAuthStore.getState().refreshUser();
         setLocation('/dashboard');
       },
@@ -543,6 +521,22 @@ export default function PricingPage() {
     });
   };
 
+  const handleUpgrade = (planId: string, billingCycle = 'monthly') => {
+    if (planId === "free") { 
+      if (premiumTier !== "free" && confirm("Confirm cancellation?")) {
+        cancelSubscription();
+      }
+      return; 
+    }
+    if (!user) {
+      setAuthModalOpen(true);
+      return;
+    }
+
+    setPendingPlan({ planId, billingCycle });
+    setShowVerification(true);
+  };
+
   const handleSelectPlan = (plan: PremiumTier) => {
     if (!FEATURE_PAYMENT_GATEWAY && plan !== "free") {
       useSupportDevStore.getState().open();
@@ -552,7 +546,6 @@ export default function PricingPage() {
     if (!user && plan !== "free") { setAuthModalOpen(true); return; }
     if (plan === "free") { if (premiumTier !== "free" && confirm("Confirm cancellation?")) cancelSubscription(); return; }
     if (!user) return;
-    if (!user.phoneVerified) { setPendingPlan(plan); setOtpOpen(true); return; }
     
     if (plan === "pass_24h") {
       handleUpgrade("pass", "24hr");
@@ -935,19 +928,17 @@ export default function PricingPage() {
         </motion.section>
       </main>
 
-      <OTPVerificationModal
-        isOpen={otpOpen}
-        onClose={() => {
-          setOtpOpen(false);
-          setPendingPlan(null);
-        }}
-        onSuccess={() => {
-          if (pendingPlan && pendingPlan !== "free") {
-            handleSelectPlan(pendingPlan);
+      {showVerification && pendingPlan && (
+        <SecurityVerificationModal
+          onVerified={handleVerified}
+          onClose={() => {
+            setShowVerification(false);
             setPendingPlan(null);
-          }
-        }}
-      />
+          }}
+          planId={pendingPlan.planId}
+          billingCycle={pendingPlan.billingCycle}
+        />
+      )}
       <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
     </div>
   );

@@ -52,6 +52,7 @@ export function useRazorpay() {
     billingCycle,
     userName,
     userEmail,
+    paymentToken,
     onSuccess,
     onFailure,
   }: {
@@ -59,6 +60,7 @@ export function useRazorpay() {
     billingCycle: 'monthly' | 'yearly';
     userName: string;
     userEmail: string;
+    paymentToken?: string;
     onSuccess: (data: any) => void;
     onFailure: (error: any) => void;
   }) => {
@@ -85,6 +87,10 @@ export function useRazorpay() {
 
     try {
       // Create Razorpay order on backend
+      const headers: Record<string, string> = { 'Content-Type': 'application/json', ...authHeaders };
+      if (paymentToken) {
+        headers['x-payment-token'] = paymentToken;
+      }
       const order = await apiClient.request<{
         orderId: string;
         amount: number;
@@ -92,8 +98,7 @@ export function useRazorpay() {
         keyId: string;
       }>('/api/payment/create-order', {
         method: 'POST',
-        // Explicitly inject Authorization header so token always reaches backend
-        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        headers,
         body: JSON.stringify({ planId, billingCycle }),
       });
 

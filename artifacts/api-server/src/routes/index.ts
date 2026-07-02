@@ -5,6 +5,7 @@ import paymentsRouter from "./payments";
 import paymentRouter from "./payment";
 import shareRouter from "./share";
 import razorpayRouter from "./razorpay";
+import otpRouter from "./otp";
 // import aiPptRoutes from "./ai-ppt";
 
 const router: IRouter = Router();
@@ -14,6 +15,7 @@ router.use(upiPaymentsRouter);
 router.use("/payments", paymentsRouter);
 router.use("/payment", paymentRouter);
 router.use(shareRouter);
+router.use(otpRouter);
 // Dev-only test routes (no subscription record created)
 router.use(razorpayRouter);
 // router.use(aiPptRoutes);

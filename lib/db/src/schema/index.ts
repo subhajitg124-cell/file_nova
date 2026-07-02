@@ -10,6 +10,7 @@ import {
   uuid,
   varchar,
   index,
+  serial,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
@@ -29,6 +30,7 @@ export const usersTable = pgTable("users", {
   googleSubject: varchar("google_subject", { length: 255 }),
   referralCode: varchar("referral_code", { length: 8 }).unique(),
   phoneVerified: boolean("phone_verified").notNull().default(false),
+  paymentVerifiedAt: timestamp("payment_verified_at", { withTimezone: true }),
   // Premium features
   premiumEnabled: boolean("premium_enabled").notNull().default(false),
   premiumTier: varchar("premium_tier", { length: 50 }).default("free"), // free, basic, pro, elite
@@ -40,6 +42,23 @@ export const usersTable = pgTable("users", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   lastActiveAt: timestamp("last_active_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const otpVerificationsTable = pgTable("otp_verifications", {
+  id: serial("id").primaryKey(),
+  userId: uuid("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
+  code: varchar("code", { length: 255 }).notNull(),
+  type: varchar("type", { length: 10 }).notNull(),
+  target: varchar("target", { length: 100 }).notNull(),
+  purpose: varchar("purpose", { length: 20 }).notNull().default("payment"),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  verifiedAt: timestamp("verified_at", { withTimezone: true }),
+  attempts: integer("attempts").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (table) => {
+  return {
+    userIdIdx: index("otp_verifications_user_id_idx").on(table.userId),
+  };
 });
 
 export const ipUsageTable = pgTable("ip_usage", {

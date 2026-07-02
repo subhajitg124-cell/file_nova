@@ -223,20 +223,25 @@ export async function sendSubscriptionRenewalNotice(
   }
 }
 
-export async function sendOtpEmail(email: string, otp: string): Promise<boolean> {
+export async function sendOtpEmail(email: string, otp: string, userName?: string): Promise<boolean> {
   const html = `
     <!DOCTYPE html>
     <html>
-    <head><meta charset="UTF-8"><title>FileNova OTP Verification</title></head>
-    <body style="font-family: 'Inter', sans-serif; background: #0f0f1a; color: #f8fafc; padding: 32px;">
-      <div style="max-width: 600px; margin: 0 auto; background: #111827; padding: 32px; border-radius: 16px; border: 1px solid #1e293b;">
-        <h1 style="color: #6366f1; font-size: 28px; margin-bottom: 16px;">Verify Your Account 🔐</h1>
-        <p style="font-size: 16px; margin-bottom: 16px;">Here is your 4-digit verification code:</p>
-        <div style="background: #1e1b4b; padding: 24px; border-radius: 12px; text-align: center; margin-bottom: 16px;">
-          <span style="font-size: 36px; font-weight: 900; letter-spacing: 8px; color: #f97316;">${otp}</span>
-        </div>
-        <p style="margin-bottom: 16px; font-size: 14px; color: #94a3b8;">This code will expire in 10 minutes. If you did not request this verification, please ignore this email.</p>
+    <head><meta charset="UTF-8"><title>FileNova Payment Verification</title></head>
+    <body style="font-family: sans-serif; max-width: 480px; margin: 0 auto; background: #0f0f1a; color: #f8fafc; padding: 32px; border-radius: 16px;">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <span style="font-size: 24px; font-weight: 700; color: #818CF8;">FileNova</span>
       </div>
+      <h2 style="margin: 0 0 8px; font-size: 20px;">Payment Verification</h2>
+      <p style="color: #94A3B8; margin: 0 0 24px; font-size: 14px;">
+        Hi ${userName || "there"}, use this OTP to verify your payment:
+      </p>
+      <div style="background: #1e1b4b; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 24px;">
+        <span style="font-size: 36px; font-weight: 700; letter-spacing: 8px; color: #818CF8;">${otp}</span>
+        <p style="color: #94A3B8; font-size: 13px; margin: 8px 0 0;">Valid for 10 minutes only</p>
+      </div>
+      <p style="color: #94A3B8; font-size: 13px;">If you didn't request this, ignore this email. Your account is safe.</p>
+      <p style="color: #475569; font-size: 12px; margin-top: 24px;">FileNova — Secure Document Processing for India</p>
     </body>
     </html>
   `;
@@ -245,7 +250,7 @@ export async function sendOtpEmail(email: string, otp: string): Promise<boolean>
     await transporter.sendMail({
       from: FROM_EMAIL,
       to: email,
-      subject: `FileNova Verification Code: ${otp}`,
+      subject: "FileNova Payment Verification — Your OTP",
       html,
     });
     return true;

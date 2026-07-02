@@ -8,6 +8,7 @@ import { SubscriptionService } from "../services/SubscriptionService";
 import { WebhookService } from "../services/WebhookService";
 import { logger } from "../lib/logger";
 import { PaymentProvider } from "../services/PaymentProvider";
+import { verifyPaymentToken } from "./otp";
 
 const router = Router();
 
@@ -39,6 +40,21 @@ const PLAN_AMOUNTS: Record<string, number> = {
 // ── 2A. CREATE ORDER ───────────────────────────────────────────────────────────
 router.post('/create-order', authMiddleware, requireAuth, async (req: AuthRequest, res: Response) => {
   try {
+    // Verify payment token before creating order
+    const paymentToken = req.headers['x-payment-token'] as string;
+    if (!paymentToken) {
+      return res.status(403).json({
+        error: 'Payment verification required',
+        requireVerification: true,
+      });
+    }
+    if (!verifyPaymentToken(req.user!.id, paymentToken)) {
+      return res.status(403).json({
+        error: 'Payment verification expired. Please verify again.',
+        requireVerification: true,
+      });
+    }
+
     const { planId, billingCycle } = createOrderSchema.parse(req.body);
     const key = `${planId}_${billingCycle}`;
     const amount = PLAN_AMOUNTS[key];
