@@ -223,13 +223,21 @@ export function UpiSupportModal({ isOpen, onClose, amount, note }: UpiSupportMod
           <div className="space-y-4 pt-2">
             <div className="rounded-3xl border border-border bg-slate-950/70 p-4 text-left space-y-3">
               <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Pay with UPI app</p>
-              <a
-                href={payLink}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-95 text-white py-3 text-sm font-black shadow-glow-indigo transition"
+              <button
+                type="button"
+                disabled={!isAmountValid}
+                onClick={() => {
+                  if (!isAmountValid) {
+                    setAmountError("Enter ₹10 or more.");
+                    return;
+                  }
+                  window.location.href = payLink;
+                }}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed text-white py-3 text-sm font-black shadow-glow-indigo transition cursor-pointer"
               >
                 Pay ₹{localAmount} via UPI App
                 <ExternalLink className="h-4 w-4" />
-              </a>
+              </button>
               <p className="text-[11px] text-slate-400 leading-relaxed">
                 Tap to open any installed UPI app and complete payment instantly.
               </p>
