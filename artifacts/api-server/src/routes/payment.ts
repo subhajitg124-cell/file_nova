@@ -228,7 +228,9 @@ router.get('/test', authMiddleware, requireAuth, async (req: AuthRequest, res: R
     
     let dbHealthy = false;
     try {
-      await db.execute(sql`SELECT 1`);
+      const dbPromise = db.execute(sql`SELECT 1`);
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 2000));
+      await Promise.race([dbPromise, timeoutPromise]);
       dbHealthy = true;
     } catch (_) {}
 
