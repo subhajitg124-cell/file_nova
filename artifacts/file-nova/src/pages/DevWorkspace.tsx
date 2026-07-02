@@ -164,7 +164,15 @@ export default function DevWorkspace() {
 
   useEffect(() => {
     const isLocalhost = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
-    if (!isLocalhost) return;
+    if (!isLocalhost) {
+      const token = localStorage.getItem("filenova_token");
+      if (token === "local_dev") {
+        localStorage.removeItem("filenova_token");
+        localStorage.removeItem("filenova_local_user");
+        window.location.reload();
+      }
+      return;
+    }
 
     const token = localStorage.getItem("filenova_token");
     if (typeof window !== "undefined" && (!token || !token.startsWith("local_"))) {
