@@ -9,6 +9,7 @@ import {
   timestamp,
   uuid,
   varchar,
+  index,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
@@ -174,6 +175,13 @@ export const fileHistoryTable = pgTable("file_history", {
   fileSize: integer("file_size").notNull(),
   processedAt: timestamp("processed_at", { withTimezone: true }).notNull().defaultNow(),
   status: varchar("status", { length: 20 }).notNull().default("completed"),
+  isDeleted: boolean("is_deleted").notNull().default(false),
+  deletedAt: timestamp("deleted_at", { withTimezone: true }),
+}, (table) => {
+  return {
+    userIdIdx: index("file_history_user_id_idx").on(table.userId),
+    processedAtIdx: index("file_history_processed_at_idx").on(table.processedAt),
+  };
 });
 
 export const fileHistoryRelations = relations(fileHistoryTable, ({ one }) => ({

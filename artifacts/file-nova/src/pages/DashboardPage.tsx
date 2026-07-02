@@ -495,8 +495,29 @@ export default function DashboardPage() {
           </h2>
 
           {loadingHistory ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-8 w-8 text-primary animate-spin" />
+            <div className="overflow-x-auto rounded-2xl border border-border/80">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="bg-background/80 border-b border-border text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                    <th className="p-4">Transaction ID</th>
+                    <th className="p-4">Plan Description</th>
+                    <th className="p-4">Billing Amount</th>
+                    <th className="p-4">Date</th>
+                    <th className="p-4">Verification Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/60">
+                  {[1, 2, 3].map((i) => (
+                    <tr key={i} className="animate-pulse">
+                      <td className="p-4"><div className="h-3.5 bg-muted rounded-md w-24"></div></td>
+                      <td className="p-4"><div className="h-3.5 bg-muted rounded-md w-32"></div></td>
+                      <td className="p-4"><div className="h-3.5 bg-muted rounded-md w-16"></div></td>
+                      <td className="p-4"><div className="h-3.5 bg-muted rounded-md w-20"></div></td>
+                      <td className="p-4"><div className="h-3.5 bg-muted rounded-md w-12"></div></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           ) : billingHistory.length > 0 ? (
             <div className="overflow-x-auto rounded-2xl border border-border/80">
