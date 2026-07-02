@@ -158,6 +158,10 @@ export const sessionsTable = pgTable("sessions", {
   token: varchar("token", { length: 255 }).notNull().unique(),
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (table) => {
+  return {
+    userIdIdx: index("sessions_user_id_idx").on(table.userId),
+  };
 });
 
 export const sessionsRelations = relations(sessionsTable, ({ one }) => ({
@@ -199,7 +203,14 @@ export const notificationsTable = pgTable("notifications", {
   message: text("message").notNull(),
   isRead: boolean("is_read").notNull().default(false),
   link: text("link"),
+  isDeleted: boolean("is_deleted").notNull().default(false),
+  deletedAt: timestamp("deleted_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (table) => {
+  return {
+    userIdIdx: index("notifications_user_id_idx").on(table.userId),
+    createdAtIdx: index("notifications_created_at_idx").on(table.createdAt),
+  };
 });
 
 export const notificationsRelations = relations(notificationsTable, ({ one }) => ({

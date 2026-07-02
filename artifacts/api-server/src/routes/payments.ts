@@ -1,7 +1,7 @@
 import { Router, type Response } from "express";
 import { z } from "zod";
 import { db, subscriptionsTable, upiPaymentsTable } from "@workspace/db";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, count } from "drizzle-orm";
 import { logger } from "../lib/logger";
 import { authMiddleware, requireAuth, type AuthRequest } from "../middlewares/auth";
 import { PaymentService } from "../services/PaymentService";
@@ -126,12 +126,24 @@ router.post("/verify", authMiddleware, requireAuth, async (req: AuthRequest, res
 router.get("/history", authMiddleware, requireAuth, async (req: AuthRequest, res: Response) => {
   try {
     const user = req.user!;
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 10));
+    const offset = (page - 1) * limit;
 
-    // Fetch subscriptions
+    // Fetch subscriptions (paginated)
     const subs = await db
       .select()
       .from(subscriptionsTable)
+      .where(eq(subscriptionsTable.userId, user.id))
+      .orderBy(desc(subscriptionsTable.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    const [subCount] = await db
+      .select({ value: count() })
+      .from(subscriptionsTable)
       .where(eq(subscriptionsTable.userId, user.id));
+    const totalSubs = subCount?.value || 0;
 
     // Fetch UPI payments
     let upiPayments: any[] = [];
@@ -142,38 +154,41 @@ router.get("/history", authMiddleware, requireAuth, async (req: AuthRequest, res
         .where(eq(upiPaymentsTable.email, user.email.toLowerCase()));
     }
 
-    const history = [];
+    const history: any[] = [];
 
-    // Add subscription payments
     for (const sub of subs) {
       history.push({
         id: sub.razorpayPaymentId || sub.razorpayOrderId || sub.id,
         plan: sub.plan,
-        amount: sub.amount, // in paise
+        amount: sub.amount,
         status: sub.status,
         createdAt: sub.createdAt || new Date(),
       });
     }
 
-    // Add pending UPI payments (approved ones are already converted to active subscriptions)
     for (const upi of upiPayments) {
       if (upi.status === "pending") {
         history.push({
           id: `upi_${upi.utrId}`,
           plan: upi.plan,
-          amount: upi.amount * 100, // convert rupees to paise
+          amount: upi.amount * 100,
           status: "pending verification",
           createdAt: upi.createdAt || new Date(),
         });
       }
     }
 
-    // Sort descending by date
     history.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
     res.json({
       success: true,
       history,
+      pagination: {
+        page,
+        limit,
+        total: totalSubs,
+        pages: Math.ceil(totalSubs / limit),
+      },
     });
   } catch (err: any) {
     logger.error({ err }, "Failed to fetch payment history");

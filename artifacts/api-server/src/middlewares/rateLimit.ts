@@ -17,3 +17,12 @@ export const uploadLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: "Too many uploads. Please wait a minute before trying again." },
 });
+
+/** Auth rate limit — 5 attempts per 15 minutes per IP to prevent brute force. */
+export const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many authentication attempts. Please try again after 15 minutes." },
+});

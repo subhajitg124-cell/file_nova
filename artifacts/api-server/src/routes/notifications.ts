@@ -1,22 +1,43 @@
 import { Router, type Response } from "express";
 import { db, notificationsTable } from "@workspace/db";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, count } from "drizzle-orm";
 import { requireAuth, type AuthRequest } from "../middlewares/auth";
 import { logger } from "../lib/logger";
 
 const router = Router();
 
-// GET /notifications
+// GET /notifications (paginated)
 router.get("/notifications", requireAuth, async (req: AuthRequest, res: Response): Promise<void> => {
   const userId = req.user!.id;
   try {
-    let notifications = await db
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const offset = (page - 1) * limit;
+
+    const notifications = await db
       .select()
       .from(notificationsTable)
       .where(eq(notificationsTable.userId, userId))
-      .orderBy(desc(notificationsTable.createdAt));
+      .orderBy(desc(notificationsTable.createdAt))
+      .limit(limit)
+      .offset(offset);
 
-    res.json({ success: true, notifications });
+    const [countRes] = await db
+      .select({ value: count() })
+      .from(notificationsTable)
+      .where(eq(notificationsTable.userId, userId));
+    const totalCount = countRes?.value || 0;
+
+    res.json({
+      success: true,
+      notifications,
+      pagination: {
+        page,
+        limit,
+        total: totalCount,
+        pages: Math.ceil(totalCount / limit),
+      },
+    });
   } catch (err: any) {
     logger.error({ err, userId }, "Failed to fetch notifications");
     res.status(500).json({ success: false, error: err.message || "Failed to fetch notifications." });

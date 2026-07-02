@@ -14,6 +14,7 @@ import authRouter from "./auth";
 import referralRouter from "./referral";
 import notificationsRouter from "./notifications";
 import { checkUsageLimit } from "../middlewares/limits";
+import { authLimiter } from "../middlewares/rateLimit";
 import { authMiddleware, type AuthRequest } from "../middlewares/auth";
 import { db, fileHistoryTable } from "@workspace/db";
 import { desc, eq, count } from "drizzle-orm";
@@ -405,7 +406,7 @@ router.post("/process", checkUsageLimit, (req, res): void => {
   res.json({ status: "processing" });
 });
 
-// GET /history API to fetch past processed files
+// GET /history API to fetch past processed files (paginated)
 router.get("/history", authMiddleware, async (req: AuthRequest, res): Promise<void> => {
   if (!req.user) {
     res.status(401).json({ detail: "Authentication required." });
@@ -413,12 +414,17 @@ router.get("/history", authMiddleware, async (req: AuthRequest, res): Promise<vo
   }
 
   try {
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const offset = (page - 1) * limit;
+
     const history = await db
       .select()
       .from(fileHistoryTable)
       .where(eq(fileHistoryTable.userId, req.user.id))
       .orderBy(desc(fileHistoryTable.processedAt))
-      .limit(50);
+      .limit(limit)
+      .offset(offset);
 
     const [countRes] = await db
       .select({ value: count() })
@@ -426,7 +432,16 @@ router.get("/history", authMiddleware, async (req: AuthRequest, res): Promise<vo
       .where(eq(fileHistoryTable.userId, req.user.id));
     const totalCount = countRes?.value || 0;
 
-    res.json({ success: true, history, totalCount });
+    res.json({
+      success: true,
+      history,
+      pagination: {
+        page,
+        limit,
+        total: totalCount,
+        pages: Math.ceil(totalCount / limit),
+      },
+    });
   } catch (err: any) {
     logger.error({ err, userId: req.user.id }, "Failed to fetch file history");
     res.status(500).json({ error: "Failed to fetch file history" });
@@ -681,7 +696,7 @@ router.post("/ai/chat", async (req, res): Promise<void> => {
 // Mount premium features routes
 router.use("/premium", premiumRouter);
 router.use("/premium/subscription", subscriptionRouter);
-router.use("/auth", authRouter);
+router.use("/auth", authLimiter, authRouter);
 router.use("/referral", referralRouter);
 router.use("/", notificationsRouter);
 

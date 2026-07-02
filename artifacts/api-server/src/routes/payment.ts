@@ -1,5 +1,6 @@
 import { Router, type Response } from "express";
 import crypto from "node:crypto";
+import { z } from "zod";
 import { db, paymentOrders, subscriptionsTable } from "@workspace/db";
 import { eq, sql } from "drizzle-orm";
 import { authMiddleware, requireAuth, type AuthRequest } from "../middlewares/auth";
@@ -9,6 +10,19 @@ import { logger } from "../lib/logger";
 import { PaymentProvider } from "../services/PaymentProvider";
 
 const router = Router();
+
+const createOrderSchema = z.object({
+  planId: z.enum(["basic", "pro", "elite", "pass_24hr", "pass_weekly"]),
+  billingCycle: z.enum(["monthly", "yearly", "24hr", "weekly"]),
+});
+
+const verifyPaymentSchema = z.object({
+  razorpay_order_id: z.string().min(1),
+  razorpay_payment_id: z.string().min(1),
+  razorpay_signature: z.string().min(1),
+  planId: z.enum(["basic", "pro", "elite", "pass_24hr", "pass_weekly"]).optional(),
+  billingCycle: z.enum(["monthly", "yearly", "24hr", "weekly"]).optional(),
+});
 
 // Plan amount mapping — matches existing pricing exactly (in paise)
 const PLAN_AMOUNTS: Record<string, number> = {
@@ -25,7 +39,7 @@ const PLAN_AMOUNTS: Record<string, number> = {
 // ── 2A. CREATE ORDER ───────────────────────────────────────────────────────────
 router.post('/create-order', authMiddleware, requireAuth, async (req: AuthRequest, res: Response) => {
   try {
-    const { planId, billingCycle } = req.body;
+    const { planId, billingCycle } = createOrderSchema.parse(req.body);
     const key = `${planId}_${billingCycle}`;
     const amount = PLAN_AMOUNTS[key];
     
@@ -85,6 +99,9 @@ router.post('/create-order', authMiddleware, requireAuth, async (req: AuthReques
       isMock: false,
     });
   } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: error.errors[0]?.message || "Invalid request parameters" });
+    }
     logger.error({ error }, "Razorpay create-order error");
     return res.status(500).json({ error: 'Failed to create payment order' });
   }
@@ -97,10 +114,9 @@ router.post('/verify', authMiddleware, requireAuth, async (req: AuthRequest, res
       razorpay_order_id, 
       razorpay_payment_id, 
       razorpay_signature,
-      // Optional: frontend can pass planId + billingCycle as fallback when DB is down
       planId: bodyPlanId,
       billingCycle: bodyBillingCycle,
-    } = req.body;
+    } = verifyPaymentSchema.parse(req.body);
 
     const userId = req.user!.id;
 
@@ -191,6 +207,9 @@ router.post('/verify', authMiddleware, requireAuth, async (req: AuthRequest, res
       expiresAt: planExpiry
     });
   } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: error.errors[0]?.message || "Missing required payment fields" });
+    }
     logger.error({ error }, "Razorpay verify error");
     return res.status(500).json({ error: 'Payment verification failed' });
   }
