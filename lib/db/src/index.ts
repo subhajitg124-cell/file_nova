@@ -47,6 +47,10 @@ if (!dbUrl) {
 export const pool = new Pool({
   connectionString: dbUrl || "postgresql://postgres:postgres@localhost:5432/postgres",
   allowExitOnIdle: true,
+  ssl: {
+    rejectUnauthorized: false,
+  },
+  connectionTimeoutMillis: 10000,
 });
 
 pool.on("error", (err) => {
