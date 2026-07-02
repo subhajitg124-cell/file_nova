@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, type ReactNode } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
-import { Link as WouterLink, useLocation } from "wouter";
+import { Link as WouterLink, useLocation, useRoute } from "wouter";
 import { apiClient } from "@/lib/api";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -146,7 +146,16 @@ export default function DevWorkspace() {
   const { user } = useAuthStore();
   const [, setLocation] = useLocation();
   const rm = useReducedMotion();
-  const [section, setSection] = useState<Section>("dashboard");
+  
+  const [match, params] = useRoute("/dev/:section?/:sub?");
+  const section = (match && params?.section && SIDEBAR_SECTIONS.some(s => s.id === params.section))
+    ? (params.section as Section)
+    : "dashboard";
+    
+  const setSection = useCallback((newSection: Section) => {
+    setLocation(`/dev/${newSection}`);
+  }, [setLocation]);
+
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [paletteQuery, setPaletteQuery] = useState("");
@@ -199,11 +208,11 @@ export default function DevWorkspace() {
   }, []);
 
   const navigate = useCallback((s: Section | string) => {
-    setSection(s as Section);
+    setLocation(`/dev/${s}`);
     setPaletteOpen(false);
     setPaletteQuery("");
     setDrawerOpen(false);
-  }, []);
+  }, [setLocation]);
 
   const paletteResults = useMemo(() => {
     if (!paletteQuery.trim()) return SIDEBAR_SECTIONS;
@@ -1150,15 +1159,52 @@ function ExportDiagView() { return PlaceholderView({ title: "Export Diagnostics"
 function ImportSettingsView() { return PlaceholderView({ title: "Import Settings", description: "Import application settings and configuration from a JSON file.", icon: <Upload className="h-8 w-8 text-blue-400" /> }); }
 function MetadataView() { return PlaceholderView({ title: "Metadata Inspector", description: "Inspect page metadata, Open Graph, Twitter Cards, and SEO tags.", icon: <ScanLine className="h-8 w-8 text-emerald-400" /> }); }
 function TestingView() {
+  const [match, params] = useRoute("/dev/:section?/:sub?");
+  const activeSub = params?.sub || "payment"; // default to payment testing
+  const [, setLocation] = useLocation();
+
   const [amountRupees, setAmountRupees] = useState<number>(10);
   const [loading, setLoading] = useState(false);
   const [logs, setLogs] = useState<Array<{ time: string; msg: string; type: "info" | "success" | "error" | "warn" }>>([]);
   const [scriptLoaded, setScriptLoaded] = useState(false);
+  
+  // Diagnostic state
+  const [diag, setDiag] = useState<{
+    success: boolean;
+    mode: string;
+    keyId: string;
+    hasSecret: boolean;
+    hasWebhookSecret: boolean;
+    databaseConnected: boolean;
+    envMode: string;
+    timestamp: string;
+  } | null>(null);
+  
+  const [checkingHealth, setCheckingHealth] = useState(false);
+  
+  // Last created order ID for simulation
+  const [lastOrderId, setLastOrderId] = useState<string>("");
+  const [lastPaymentId, setLastPaymentId] = useState<string>("");
 
   const addLog = useCallback((msg: string, type: "info" | "success" | "error" | "warn" = "info") => {
     const time = new Date().toLocaleTimeString();
     setLogs((prev) => [...prev, { time, msg, type }]);
   }, []);
+
+  const checkDiagnostics = useCallback(async () => {
+    setCheckingHealth(true);
+    addLog("Checking backend diagnostics (GET /api/payment/test)...", "info");
+    try {
+      const res = await apiClient.request<any>("/api/payment/test");
+      setDiag(res);
+      addLog(`Backend diagnostics: mode=${res.mode}, DB=${res.databaseConnected ? "Connected" : "Disconnected"}, keysLoaded=${res.hasSecret}`, "success");
+    } catch (err: any) {
+      setDiag(null);
+      addLog(`Backend diagnostics failed: ${err.message}`, "error");
+    } finally {
+      setCheckingHealth(false);
+    }
+  }, [addLog]);
 
   useEffect(() => {
     const checkScript = () => {
@@ -1168,22 +1214,25 @@ function TestingView() {
 
     checkScript();
     const interval = setInterval(checkScript, 1000);
-    return () => clearInterval(interval);
-  }, []);
+    checkDiagnostics();
+    return () => {
+      clearInterval(interval);
+    };
+  }, [checkDiagnostics]);
 
-  const handlePay = async () => {
-    if (amountRupees < 1) {
+  const handlePay = async (forcedAmount?: number) => {
+    const targetAmount = forcedAmount || amountRupees;
+    if (targetAmount < 1) {
       toast.error("Minimum amount is ₹1");
       addLog("Failed: Amount must be >= ₹1", "error");
       return;
     }
 
     setLoading(true);
-    setLogs([]);
-    addLog(`Initiating checkout of ₹${amountRupees}...`, "info");
+    addLog(`Initiating checkout of ₹${targetAmount}...`, "info");
 
     try {
-      const amountPaise = Math.round(amountRupees * 100);
+      const amountPaise = Math.round(targetAmount * 100);
       addLog(`Calling POST /api/create-order with amount=${amountPaise} paise`, "info");
 
       const orderResponse = await apiClient.request<{ order_id: string; amount: number; currency: string; isMock?: boolean }>(
@@ -1195,19 +1244,18 @@ function TestingView() {
         }
       );
 
+      setLastOrderId(orderResponse.order_id);
       addLog(`Order created successfully! order_id: ${orderResponse.order_id}`, "success");
       addLog(`Response payload: ${JSON.stringify(orderResponse)}`, "info");
 
       // ── Mock payment flow (backend returned isMock: true) ─────────────────
-      // When PAYMENT_PROVIDER=mock is set the backend issues a fake order_id.
-      // Razorpay checkout.js cannot validate that against their servers, so we
-      // skip the modal and directly hit /api/verify-payment with synthetic IDs.
       if (orderResponse.isMock) {
         addLog("ℹ️  Mock payment mode detected — skipping real Razorpay modal.", "info");
         addLog("Simulating successful payment and calling /api/verify-payment...", "info");
 
         const fakePaymentId = `pay_mock_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`;
         const fakeSignature = `mock_sig_${crypto.randomUUID().replace(/-/g, "")}`;
+        setLastPaymentId(fakePaymentId);
 
         try {
           const verifyResponse = await apiClient.request<{ success: boolean; message: string }>(
@@ -1235,7 +1283,7 @@ function TestingView() {
           addLog(`Error verifying mock payment: ${verifyErr.message}`, "error");
           toast.error(`Verification error: ${verifyErr.message}`);
         }
-        return; // Done with mock flow
+        return;
       }
 
       // ── Real Razorpay checkout (production / live mode) ───────────────────
@@ -1243,8 +1291,8 @@ function TestingView() {
         addLog("Error: Razorpay checkout.js script not loaded on page.", "warn");
       }
 
-      const keyId = import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_mockkey";
-      addLog(`Initializing checkout modal with Key ID: ${keyId}`, "info");
+      const keyId = orderResponse.isMock ? "rzp_test_mockkey" : (diag?.keyId || import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_mockkey");
+      addLog("Initializing checkout modal...", "info");
 
       const options = {
         key: keyId,
@@ -1254,6 +1302,7 @@ function TestingView() {
         description: "Integration verification transaction",
         order_id: orderResponse.order_id,
         handler: async (response: any) => {
+          setLastPaymentId(response.razorpay_payment_id);
           addLog("Payment callback received from modal!", "success");
           addLog(`Callback parameters: ${JSON.stringify(response)}`, "info");
           addLog("Calling POST /api/verify-payment to verify signature...", "info");
@@ -1315,95 +1364,342 @@ function TestingView() {
     }
   };
 
+  const simulateWebhook = async (eventType: string) => {
+    if (!lastOrderId) {
+      toast.error("Create an order first to test webhooks.");
+      addLog("Webhook simulation failed: No active order ID in memory", "warn");
+      return;
+    }
+    
+    addLog(`Initiating Webhook simulation for event: ${eventType}...`, "info");
+    
+    const fakePayId = lastPaymentId || `pay_sim_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`;
+    const payload = {
+      payment: {
+        entity: {
+          id: fakePayId,
+          order_id: lastOrderId,
+          amount: Math.round(amountRupees * 100),
+          currency: "INR",
+          status: eventType === "payment.failed" ? "failed" : "captured",
+          method: "upi",
+          notes: { userId: "local_dev" },
+          error_description: eventType === "payment.failed" ? "Simulated processing failure" : null
+        }
+      }
+    };
+
+    try {
+      addLog(`POST /api/payment/simulate-webhook event=${eventType}`, "info");
+      const res = await apiClient.request<any>("/api/payment/simulate-webhook", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ event: eventType, payload })
+      });
+      
+      if (res.success) {
+        addLog(`✅ Webhook simulation complete: ${res.message}`, "success");
+        toast.success(`Webhook ${eventType} processed!`);
+      } else {
+        addLog(`Webhook simulator returned failure: ${JSON.stringify(res)}`, "error");
+        toast.error("Webhook processing failed.");
+      }
+    } catch (err: any) {
+      addLog(`Webhook simulator request failed: ${err.message}`, "error");
+      toast.error(`Webhook simulator error: ${err.message}`);
+    }
+  };
+
+  const verifySignatureManual = async () => {
+    if (!lastOrderId || !lastPaymentId) {
+      toast.error("Need order_id and payment_id in memory to run signature verification.");
+      return;
+    }
+    addLog("Manually verifying signature with fake/mock signature parameters...", "info");
+    const fakeSig = `mock_sig_${crypto.randomUUID().replace(/-/g, "")}`;
+    try {
+      const res = await apiClient.request<any>("/api/verify-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          razorpay_order_id: lastOrderId,
+          razorpay_payment_id: lastPaymentId,
+          razorpay_signature: fakeSig
+        })
+      });
+      addLog(`Signature verify response: ${JSON.stringify(res)}`, res.success ? "success" : "warn");
+    } catch (err: any) {
+      addLog(`Signature verification call failed: ${err.message}`, "error");
+    }
+  };
+
+  const overallHealth = scriptLoaded && diag?.success && diag?.databaseConnected;
+  
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-black text-foreground flex items-center gap-2">
-          <Beaker className="h-6 w-6 text-indigo-500" />
-          Razorpay Standard Checkout Test Center
-        </h1>
-        <p className="text-xs text-muted-foreground mt-1">
-          Perform a test checkout transaction and verify the signature using the Express API backend.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="rounded-xl border border-border bg-card p-4 flex flex-col justify-between">
-          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-            Script Status
-          </span>
-          <div className="flex items-center gap-2 mt-2">
-            <span className={`w-2.5 h-2.5 rounded-full ${scriptLoaded ? "bg-green-500 animate-pulse" : "bg-red-500"}`} />
-            <span className="text-xs font-bold text-foreground">
-              {scriptLoaded ? "checkout.js Loaded" : "checkout.js Missing"}
-            </span>
-          </div>
+    <div className="max-w-6xl mx-auto space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-black text-foreground flex items-center gap-2">
+            <FlaskConical className="h-5 w-5 text-indigo-500" />
+            Developer Payment Testing Center
+          </h1>
+          <p className="text-xs text-muted-foreground mt-1">
+            Complete environment diagnostics, transaction testing controls, and webhook simulator.
+          </p>
         </div>
-
-        <div className="rounded-xl border border-border bg-card p-4 flex flex-col justify-between">
-          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-            Public Key configuration
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-bold text-muted-foreground uppercase">Overall Health:</span>
+          <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[9px] font-black border ${overallHealth ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-amber-500/10 text-amber-500 border-amber-500/20"}`}>
+            {overallHealth ? "HEALTHY" : "DEGRADED"}
           </span>
-          <div className="text-xs font-bold text-foreground mt-2 font-mono">
-            {import.meta.env.VITE_RAZORPAY_KEY_ID ? (
-              <span className="text-indigo-400">{import.meta.env.VITE_RAZORPAY_KEY_ID}</span>
-            ) : (
-              <span className="text-amber-500">rzp_test_mockkey (Fallback)</span>
-            )}
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-border bg-card p-4 flex flex-col justify-between">
-          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-            Backend Endpoint URL
-          </span>
-          <div className="text-xs font-bold text-slate-400 mt-2 font-mono">
-            POST /api/create-order
-          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-        <div className="md:col-span-2 rounded-xl border border-border bg-card p-6 space-y-4 flex flex-col justify-between">
-          <div className="space-y-3">
-            <h2 className="text-xs font-black uppercase text-foreground">Test Transaction Controls</h2>
-            <div className="space-y-1.5">
-              <label htmlFor="test-amount-input" className="text-[10px] uppercase font-bold text-muted-foreground">
-                Amount (Rupees)
-              </label>
-              <input
-                id="test-amount-input"
-                type="number"
-                min="1"
-                value={amountRupees}
-                onChange={(e) => setAmountRupees(Number(e.target.value))}
-                placeholder="Enter amount"
-                className="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm text-foreground focus:ring-2 focus:ring-indigo-500 outline-none font-bold"
-              />
-              <span className="text-[9px] text-muted-foreground block">
-                Calculated in Paise: {Math.round(amountRupees * 100)} paise (minimum 100 paise)
-              </span>
+      {/* Tabs */}
+      <div className="flex border-b border-border text-xs font-bold gap-2">
+        <button onClick={() => setLocation("/dev/testing/payment")} className={`pb-2 px-3 border-b-2 transition-all cursor-pointer ${activeSub === "payment" ? "border-indigo-500 text-indigo-400" : "border-transparent text-muted-foreground hover:text-foreground"}`}>Payment Checkout</button>
+        <button onClick={() => setLocation("/dev/testing/webhook")} className={`pb-2 px-3 border-b-2 transition-all cursor-pointer ${activeSub === "webhook" ? "border-indigo-500 text-indigo-400" : "border-transparent text-muted-foreground hover:text-foreground"}`}>Webhook Simulator</button>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left column: Diagnostics & Controls */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Diagnostics Panel */}
+          <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xs font-black uppercase tracking-wider text-foreground">Environment & Keys Status</h2>
+              <button 
+                type="button"
+                disabled={checkingHealth}
+                onClick={checkDiagnostics} 
+                className="text-[10px] font-bold text-indigo-500 hover:text-indigo-400 disabled:opacity-50 flex items-center gap-1 cursor-pointer"
+              >
+                <RefreshCw className={`h-3 w-3 ${checkingHealth ? "animate-spin" : ""}`} />
+                Refresh
+              </button>
+            </div>
+            
+            <div className="grid grid-cols-1 min-[450px]:grid-cols-2 gap-3 text-xs">
+              <div className="p-3 rounded-lg bg-muted/20 border border-border flex flex-col justify-between">
+                <span className="text-[10px] text-muted-foreground font-black uppercase tracking-wider">Frontend Keys</span>
+                <div className="flex items-center justify-between mt-2 font-mono text-[9px]">
+                  <span>VITE_RAZORPAY_KEY_ID:</span>
+                  <span className={import.meta.env.VITE_RAZORPAY_KEY_ID ? "text-emerald-400 font-bold" : "text-amber-500"}>
+                    {import.meta.env.VITE_RAZORPAY_KEY_ID ? "✅ Loaded" : "❌ Missing (rzp_test_mockkey)"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between mt-1.5 font-mono text-[9px]">
+                  <span>VITE_API_URL:</span>
+                  <span className={import.meta.env.VITE_API_URL ? "text-emerald-400 font-bold" : "text-slate-400"}>
+                    {import.meta.env.VITE_API_URL ? `✅ ${import.meta.env.VITE_API_URL}` : "❌ Missing (Relative)"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-lg bg-muted/20 border border-border flex flex-col justify-between">
+                <span className="text-[10px] text-muted-foreground font-black uppercase tracking-wider">Backend Keys</span>
+                <div className="flex items-center justify-between mt-2 font-mono text-[9px]">
+                  <span>RAZORPAY_KEY_ID:</span>
+                  <span className={diag?.keyId ? "text-emerald-400 font-bold" : "text-amber-500"}>
+                    {diag?.keyId ? `✅ ${diag.keyId.slice(0, 15)}...` : "❌ Missing"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between mt-1.5 font-mono text-[9px]">
+                  <span>RAZORPAY_KEY_SECRET:</span>
+                  <span className={diag?.hasSecret ? "text-emerald-400 font-bold" : "text-red-500 font-bold"}>
+                    {diag?.hasSecret ? "✅ Loaded" : "❌ Missing"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-lg bg-muted/20 border border-border flex flex-col justify-between">
+                <span className="text-[10px] text-muted-foreground font-black uppercase tracking-wider">Integrations & Webhook</span>
+                <div className="flex items-center justify-between mt-2 font-mono text-[9px]">
+                  <span>Razorpay SDK:</span>
+                  <span className={scriptLoaded ? "text-emerald-400 font-bold" : "text-red-500 font-bold"}>
+                    {scriptLoaded ? "✅ Loaded" : "❌ Missing"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between mt-1.5 font-mono text-[9px]">
+                  <span>RAZORPAY_WEBHOOK_SECRET:</span>
+                  <span className={diag?.hasWebhookSecret ? "text-emerald-400 font-bold" : "text-amber-500 font-bold"}>
+                    {diag?.hasWebhookSecret ? "✅ Loaded" : "❌ Missing"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-lg bg-muted/20 border border-border flex flex-col justify-between">
+                <span className="text-[10px] text-muted-foreground font-black uppercase tracking-wider">Database & System</span>
+                <div className="flex items-center justify-between mt-2 font-mono text-[9px]">
+                  <span>PostgreSQL (Drizzle):</span>
+                  <span className={diag?.databaseConnected ? "text-emerald-400 font-bold" : "text-red-500 font-bold"}>
+                    {diag?.databaseConnected ? "✅ Connected" : "❌ Disconnected"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between mt-1.5 font-mono text-[9px]">
+                  <span>NODE_ENV:</span>
+                  <span className="text-indigo-400 font-bold uppercase">{diag?.envMode || "development"}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2 pt-2 border-t border-border">
+              <button type="button" onClick={checkDiagnostics} className="px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-muted/40 text-[10px] font-bold text-foreground cursor-pointer transition">Test Backend Connection</button>
+              <button 
+                type="button"
+                onClick={() => {
+                  addLog(`SDK details: window.Razorpay = ${!!(window as any).Razorpay}`, "info");
+                  toast.info("Razorpay SDK loaded: " + !!(window as any).Razorpay);
+                }} 
+                className="px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-muted/40 text-[10px] font-bold text-foreground cursor-pointer transition"
+              >
+                Test Razorpay SDK
+              </button>
+              <button 
+                type="button"
+                onClick={() => {
+                  setLastOrderId("");
+                  setLastPaymentId("");
+                  setLogs([]);
+                  addLog("Reset all payment test data and cleared terminal console logs.", "info");
+                  toast.success("Test variables cleared.");
+                }} 
+                className="px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-muted/40 text-[10px] font-bold text-foreground cursor-pointer transition"
+              >
+                Reset Test Data
+              </button>
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={handlePay}
-            disabled={loading}
-            className="w-full h-10 bg-indigo-600 hover:bg-indigo-500 text-xs font-black text-white rounded-xl shadow-md transition-colors flex items-center justify-center gap-2 cursor-pointer mt-4"
-          >
-            {loading ? "Processing..." : "Pay with Razorpay"}
-          </button>
+          {activeSub === "payment" ? (
+            /* Checkout View */
+            <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+              <h2 className="text-xs font-black uppercase tracking-wider text-foreground">Create Test Transaction</h2>
+              
+              <div className="space-y-4">
+                {/* Preset Options */}
+                <div className="space-y-1.5">
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase">Select Plan Amount Preset</span>
+                  <div className="grid grid-cols-2 min-[400px]:grid-cols-4 gap-2">
+                    {[1, 10, 99, 199].map((amt) => (
+                      <button 
+                        type="button"
+                        key={amt} 
+                        onClick={() => setAmountRupees(amt)}
+                        className={`py-2 px-3 rounded-lg border text-xs font-bold transition cursor-pointer ${amountRupees === amt ? "border-indigo-500 bg-indigo-500/10 text-indigo-400" : "border-border bg-muted/20 text-muted-foreground hover:text-foreground"}`}
+                      >
+                        ₹{amt}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label htmlFor="test-amount-input-custom" className="text-[10px] uppercase font-bold text-muted-foreground">Custom Amount (Rupees)</label>
+                    <input 
+                      id="test-amount-input-custom"
+                      type="number" 
+                      min="1" 
+                      value={amountRupees} 
+                      onChange={(e) => setAmountRupees(Number(e.target.value))}
+                      className="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm text-foreground focus:ring-2 focus:ring-indigo-500 outline-none font-bold" 
+                    />
+                  </div>
+                  <div className="space-y-1.5 flex flex-col justify-end text-[10px] text-muted-foreground">
+                    <div className="flex justify-between"><span>Calculated paise:</span><span className="font-mono font-bold text-foreground">{Math.round(amountRupees * 100)} paise</span></div>
+                    <div className="flex justify-between mt-1"><span>Mode:</span><span className="font-bold text-indigo-400 uppercase">{diag?.mode || "detecting..."}</span></div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col min-[450px]:flex-row gap-2 pt-2">
+                  <button 
+                    type="button"
+                    onClick={() => handlePay()} 
+                    disabled={loading}
+                    className="flex-1 h-10 bg-indigo-600 hover:bg-indigo-500 text-xs font-black text-white rounded-xl shadow-md cursor-pointer transition flex items-center justify-center gap-1.5 disabled:opacity-50"
+                  >
+                    {loading ? "Processing..." : "Open Razorpay Checkout"}
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={verifySignatureManual}
+                    disabled={!lastOrderId || !lastPaymentId}
+                    className="px-4 h-10 bg-card hover:bg-muted/30 border border-border text-xs font-bold text-foreground rounded-xl cursor-pointer transition disabled:opacity-50"
+                  >
+                    Verify Payment Signature
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* Webhook Simulator View */
+            <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+              <h2 className="text-xs font-black uppercase tracking-wider text-foreground">Webhook Simulator</h2>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                This simulator makes a POST request to `/api/payment/simulate-webhook` to execute webhook handlers directly. Ensure you have created an order above.
+              </p>
+
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono">
+                  <div className="p-2 bg-muted/20 border border-border rounded-lg">
+                    <span className="text-[9px] text-muted-foreground font-black uppercase">Active Order ID</span>
+                    <p className="text-foreground font-bold mt-1 text-[10px] truncate">{lastOrderId || "(None - Create an order first)"}</p>
+                  </div>
+                  <div className="p-2 bg-muted/20 border border-border rounded-lg">
+                    <span className="text-[9px] text-muted-foreground font-black uppercase">Active Payment ID</span>
+                    <p className="text-foreground font-bold mt-1 text-[10px] truncate">{lastPaymentId || "(Generated dynamically on trigger)"}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <button 
+                    type="button"
+                    disabled={!lastOrderId} 
+                    onClick={() => simulateWebhook("payment.captured")} 
+                    className="h-10 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/20 text-emerald-500 text-xs font-bold rounded-xl cursor-pointer transition flex items-center justify-center gap-1.5 disabled:opacity-40"
+                  >
+                    Simulate Success Webhook
+                  </button>
+                  <button 
+                    type="button"
+                    disabled={!lastOrderId} 
+                    onClick={() => simulateWebhook("payment.failed")} 
+                    className="h-10 bg-red-600/10 hover:bg-red-600/20 border border-red-500/20 text-red-500 text-xs font-bold rounded-xl cursor-pointer transition flex items-center justify-center gap-1.5 disabled:opacity-40"
+                  >
+                    Simulate Failure Webhook
+                  </button>
+                  <button 
+                    type="button"
+                    disabled={!lastOrderId} 
+                    onClick={() => simulateWebhook("refund.processed")} 
+                    className="h-10 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/20 text-blue-500 text-xs font-bold rounded-xl cursor-pointer transition flex items-center justify-center gap-1.5 disabled:opacity-40"
+                  >
+                    Simulate Refund Webhook
+                  </button>
+                  <button 
+                    type="button"
+                    disabled={!lastOrderId} 
+                    onClick={() => simulateWebhook("subscription.cancelled")} 
+                    className="h-10 bg-amber-600/10 hover:bg-amber-600/20 border border-amber-500/20 text-amber-500 text-xs font-bold rounded-xl cursor-pointer transition flex items-center justify-center gap-1.5 disabled:opacity-40"
+                  >
+                    Simulate Cancel Webhook
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
-        <div className="md:col-span-3 rounded-xl border border-border bg-card p-5 flex flex-col h-[280px]">
-          <h2 className="text-xs font-black uppercase text-foreground mb-3 flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-indigo-500" />
+        {/* Right column: Verification Logs Console */}
+        <div className="rounded-xl border border-border bg-card p-5 flex flex-col h-[400px] lg:h-[500px]">
+          <h2 className="text-xs font-black uppercase text-foreground mb-3 flex items-center gap-1.5 shrink-0">
+            <span className="w-2.5 h-2.5 rounded-full bg-indigo-500" />
             Verification Console Logs
           </h2>
-          <div className="flex-1 bg-black/40 border border-border rounded-lg p-3 font-mono text-[10px] overflow-y-auto space-y-2 select-text leading-relaxed">
+          <div className="flex-1 bg-black/40 border border-border rounded-lg p-3 font-mono text-[9px] overflow-y-auto space-y-2 select-text leading-relaxed">
             {logs.length === 0 ? (
-              <span className="text-muted-foreground italic">No logs generated. Click "Pay with Razorpay" to begin testing.</span>
+              <span className="text-muted-foreground italic">No logs generated. Initiate connections or checkout orders to start logging.</span>
             ) : (
               logs.map((log, index) => (
                 <div key={index} className="flex gap-2 items-start">

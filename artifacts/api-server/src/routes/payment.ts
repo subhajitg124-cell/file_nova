@@ -1,7 +1,7 @@
 import { Router, type Response } from "express";
 import crypto from "node:crypto";
 import { db, paymentOrders, subscriptionsTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { authMiddleware, requireAuth, type AuthRequest } from "../middlewares/auth";
 import { SubscriptionService } from "../services/SubscriptionService";
 import { WebhookService } from "../services/WebhookService";
@@ -198,5 +198,71 @@ router.post('/verify', authMiddleware, requireAuth, async (req: AuthRequest, res
 
 // ── 2C. RAZORPAY WEBHOOK ─────────────────────────────────────────────────────
 router.post('/webhook', WebhookService.handleWebhookRequest);
+
+// ── 2D. PAYMENT DIAGNOSTICS & SIMULATOR ──────────────────────────────────────
+router.get('/test', authMiddleware, requireAuth, async (req: AuthRequest, res: Response) => {
+  try {
+    const keyId = PaymentProvider.getRazorpayKeyId();
+    const isMock = PaymentProvider.isMockEnabled();
+    const hasSecret = !!PaymentProvider.getRazorpayKeySecret();
+    const hasWebhookSecret = !!process.env.RAZORPAY_WEBHOOK_SECRET;
+    
+    let dbHealthy = false;
+    try {
+      await db.execute(sql`SELECT 1`);
+      dbHealthy = true;
+    } catch (_) {}
+
+    return res.json({
+      success: true,
+      mode: isMock ? "mock" : "razorpay",
+      keyId,
+      hasSecret,
+      hasWebhookSecret,
+      databaseConnected: dbHealthy,
+      envMode: process.env.NODE_ENV || "development",
+      timestamp: new Date().toISOString()
+    });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.get('/status/:orderId', authMiddleware, requireAuth, async (req: AuthRequest, res: Response) => {
+  try {
+    const order = await db.query.paymentOrders.findFirst({
+      where: eq(paymentOrders.id, req.params.orderId as string)
+    });
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+    return res.json({ success: true, order });
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/simulate-webhook', authMiddleware, requireAuth, async (req: AuthRequest, res: Response) => {
+  try {
+    if (process.env.NODE_ENV === "production" && (req.user?.role as any) !== "developer" && req.user?.role !== "admin" && req.user?.role !== "super_admin") {
+      return res.status(403).json({ error: "Access denied: Developer mode only" });
+    }
+
+    const { event, payload } = req.body;
+    if (!event || !payload) {
+      return res.status(400).json({ error: "Missing event or payload" });
+    }
+
+    const result = await WebhookService.processEvent(event, payload);
+    return res.json({
+      success: result,
+      message: `Webhook simulator executed event: ${event}`,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error: any) {
+    logger.error({ error }, "Error running webhook simulator");
+    return res.status(500).json({ error: error.message });
+  }
+});
 
 export default router;

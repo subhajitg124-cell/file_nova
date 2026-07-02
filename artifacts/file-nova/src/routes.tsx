@@ -267,7 +267,7 @@ export function Router() {
           <Route path="/beta-test">
             <BetaTestingZone />
           </Route>
-          <Route path="/dev">
+          <Route path="/dev/:section?/:sub?">
             <DevWorkspace />
           </Route>
           <Route path="/premium">
