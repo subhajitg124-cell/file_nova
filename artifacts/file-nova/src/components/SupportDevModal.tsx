@@ -50,6 +50,21 @@ export function SupportDevModal({ isOpen, onClose }: SupportDevModalProps) {
               Every tool on FileNova is currently available free while we're completing the final payment gateway integration.
             </DialogDescription>
 
+            <div className="my-5">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-indigo-500 dark:text-indigo-400 block mb-2">
+                Watch Support Video
+              </span>
+              <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-border bg-slate-950 shadow-md group transition-all duration-300 hover:border-indigo-500/30">
+                <video
+                  src="/Promo-Support/Support.mp4"
+                  controls
+                  className="w-full h-full object-cover"
+                  playsInline
+                  preload="metadata"
+                />
+              </div>
+            </div>
+
             <div className="border-t border-border my-5" />
 
             <div className="space-y-4 text-sm text-foreground/90 leading-relaxed">
