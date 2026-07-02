@@ -163,6 +163,9 @@ export default function DevWorkspace() {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
+    const isLocalhost = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+    if (!isLocalhost) return;
+
     const token = localStorage.getItem("filenova_token");
     if (typeof window !== "undefined" && (!token || !token.startsWith("local_"))) {
       localStorage.setItem("filenova_token", "local_dev");
@@ -191,7 +194,7 @@ export default function DevWorkspace() {
     return () => mq.removeEventListener("change", handler);
   }, []);
 
-  const isDev = user?.role === "developer" || user?.role === "admin" || user?.role === "super_admin";
+  const isDev = user?.role === "developer" || user?.role === "admin" || user?.role === "super_admin" || user?.email === "subhajitgho123@gmail.com" || user?.email === "subhajitg124@gmail.com";
 
   // ── Command palette shortcut ──
   useEffect(() => {

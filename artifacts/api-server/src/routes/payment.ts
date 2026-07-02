@@ -244,7 +244,12 @@ router.get('/status/:orderId', authMiddleware, requireAuth, async (req: AuthRequ
 
 router.post('/simulate-webhook', authMiddleware, requireAuth, async (req: AuthRequest, res: Response) => {
   try {
-    if (process.env.NODE_ENV === "production" && (req.user?.role as any) !== "developer" && req.user?.role !== "admin" && req.user?.role !== "super_admin") {
+    if (process.env.NODE_ENV === "production" && 
+        (req.user?.role as any) !== "developer" && 
+        req.user?.role !== "admin" && 
+        req.user?.role !== "super_admin" &&
+        req.user?.email !== "subhajitgho123@gmail.com" &&
+        req.user?.email !== "subhajitg124@gmail.com") {
       return res.status(403).json({ error: "Access denied: Developer mode only" });
     }
 
