@@ -27,13 +27,19 @@ export function SupportDevModal({ isOpen, onClose }: SupportDevModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-lg bg-background border border-border rounded-2xl overflow-hidden p-0 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-xl bg-background border border-border rounded-2xl overflow-hidden p-0 shadow-2xl max-h-[90vh] overflow-y-auto">
         <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 via-transparent to-transparent pointer-events-none" />
-          <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
+          {/* Custom Support Banner Flyer */}
+          <div className="relative w-full overflow-hidden border-b border-border bg-slate-950">
+            <img
+              src="/Promo-Support/support_promo.jpg"
+              alt="FileNova Development Support Flyer"
+              className="w-full h-auto object-cover select-none pointer-events-none"
+            />
+          </div>
 
-          <div className="relative p-7 md:p-9">
-            <div className="flex items-center gap-3 mb-5">
+          <div className="relative p-6 md:p-8">
+            <div className="flex items-center gap-3 mb-4">
               <span className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-500">
                 <Heart className="h-5 w-5 fill-indigo-500/20" />
               </span>
@@ -42,19 +48,20 @@ export function SupportDevModal({ isOpen, onClose }: SupportDevModalProps) {
               </span>
             </div>
 
-            <DialogTitle className="text-2xl md:text-3xl font-black tracking-tight text-foreground mb-2 leading-tight">
+            <DialogTitle className="text-xl md:text-2xl font-black tracking-tight text-foreground mb-2 leading-tight">
               FileNova is Free During Development
             </DialogTitle>
 
-            <DialogDescription className="text-sm text-muted-foreground leading-relaxed mb-3">
-              Every tool on FileNova is currently available free while we're completing the final payment gateway integration.
+            <DialogDescription className="text-xs text-muted-foreground leading-relaxed mb-4">
+              All tools are currently 100% free while we complete our secure UPI and card payment gateway. Watch our support video to learn about our mission and future roadmap.
             </DialogDescription>
 
-            <div className="my-5">
+            {/* Video Showcase Section */}
+            <div className="my-4">
               <span className="text-[10px] uppercase font-bold tracking-wider text-indigo-500 dark:text-indigo-400 block mb-2">
                 Watch Support Video
               </span>
-              <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-border bg-slate-950 shadow-md group transition-all duration-300 hover:border-indigo-500/30">
+              <div className="relative aspect-video w-full rounded-xl overflow-hidden border border-border bg-slate-950 shadow-md group transition-all duration-300 hover:border-indigo-500/30">
                 <video
                   src="/Promo-Support/Support.mp4"
                   controls
@@ -67,15 +74,9 @@ export function SupportDevModal({ isOpen, onClose }: SupportDevModalProps) {
 
             <div className="border-t border-border my-5" />
 
-            <div className="space-y-4 text-sm text-foreground/90 leading-relaxed">
+            <div className="space-y-4 text-xs text-foreground/90 leading-relaxed">
               <p>
-                Thank you for trying FileNova. I'm building this platform to become one of India's most useful document tools for students, professionals, CSC operators, and everyday users.
-              </p>
-              <p>
-                To avoid interruptions while I finish and thoroughly test the payment system, all tools are temporarily free.
-              </p>
-              <p>
-                Soon, you'll be able to support the project through secure online payments. Your support will help fund:
+                Soon, you'll be able to support the project through secure online payments. Your support helps fund faster document processing, advanced OCR accuracy, and new AI-powered features.
               </p>
 
               <div className="grid grid-cols-2 gap-x-4 gap-y-2 pt-1">
@@ -97,15 +98,11 @@ export function SupportDevModal({ isOpen, onClose }: SupportDevModalProps) {
                   </div>
                 ))}
               </div>
-
-              <p className="text-foreground font-semibold pt-2">
-                Thank you for helping FileNova grow. Every bit of support means the world to me.
-              </p>
             </div>
 
-            <div className="mt-7 space-y-3">
+            <div className="mt-6 space-y-3">
               {notified ? (
-                <div className="w-full py-3 px-5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-sm rounded-xl border border-emerald-500/20 text-center flex items-center justify-center gap-2">
+                <div className="w-full py-3 px-5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-xs rounded-xl border border-emerald-500/20 text-center flex items-center justify-center gap-2">
                   <CheckCircle2 className="h-4 w-4" />
                   You're on the list. We'll notify you!
                 </div>
@@ -131,8 +128,8 @@ export function SupportDevModal({ isOpen, onClose }: SupportDevModalProps) {
               )}
             </div>
 
-            <p className="text-[11px] text-muted-foreground/60 text-center mt-4 leading-relaxed">
-              The payment system is being finalized and will return soon.
+            <p className="text-[10px] text-muted-foreground/60 text-center mt-4">
+              Thank you for helping us grow. Every bit of support means the world!
             </p>
           </div>
         </div>

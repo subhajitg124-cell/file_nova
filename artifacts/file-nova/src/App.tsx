@@ -199,6 +199,19 @@ function App({ ssrPath }: { ssrPath?: string } = {}) {
   }, []);
 
   useEffect(() => {
+    if (!FEATURE_PAYMENT_GATEWAY) {
+      const hasBeenShown = localStorage.getItem("fn_support_modal_shown");
+      if (!hasBeenShown) {
+        const timer = setTimeout(() => {
+          useSupportDevStore.getState().open();
+          localStorage.setItem("fn_support_modal_shown", "true");
+        }, 3000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     if (!HAS_BACKEND) {
       setApiStatus("online");
       return;
@@ -307,6 +320,7 @@ function App({ ssrPath }: { ssrPath?: string } = {}) {
                   <AdminProvider>
                     <EventProvider>
                       <GlobalNotice />
+                      <DevSupportNotification />
                       <div id="main-content"><Router /></div>
                     </EventProvider>
                     <FileExpiryBar />

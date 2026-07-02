@@ -27,7 +27,6 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
 import { toast } from "sonner";
 import { apiClient } from "@/lib/api";
-import { DevSupportNotification } from "@/components/DevSupportNotification";
 
 interface BillingItem {
   id: string;
@@ -151,8 +150,6 @@ export default function DashboardPage() {
           </div>
         </div>
       </header>
-
-      <DevSupportNotification />
 
       {/* Main Container */}
       <main className="mx-auto max-w-7xl px-4 py-8 space-y-8 animate-fade-in">

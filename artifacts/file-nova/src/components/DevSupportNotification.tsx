@@ -1,28 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Sparkles, X } from "lucide-react";
-import { useAuthStore } from "@/store/useAuthStore";
 import { useSupportDevStore } from "@/store/useSupportDevStore";
 
 const DISMISS_KEY = "fn_dev_notification_dismissed";
 
 export function DevSupportNotification() {
-  const { user } = useAuthStore();
   const { open } = useSupportDevStore();
   const [dismissed, setDismissed] = useState(true);
 
   useEffect(() => {
-    if (!user) {
-      setDismissed(true);
-      return;
-    }
     try {
       const val = localStorage.getItem(DISMISS_KEY);
       setDismissed(val === "true");
     } catch {
-      setDismissed(true);
+      setDismissed(false);
     }
-  }, [user]);
+  }, []);
 
   const handleDismiss = () => {
     setDismissed(true);
@@ -31,7 +25,7 @@ export function DevSupportNotification() {
     } catch {}
   };
 
-  if (!user || dismissed) return null;
+  if (dismissed) return null;
 
   return (
     <AnimatePresence>
@@ -43,19 +37,28 @@ export function DevSupportNotification() {
       >
         <div className="relative rounded-2xl border border-emerald-500/20 bg-gradient-to-r from-emerald-500/5 via-emerald-500/10 to-emerald-500/5 overflow-hidden mb-4">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,rgba(16,185,129,0.08),transparent_60%)] pointer-events-none" />
-          <div className="relative px-5 py-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
-            <span className="p-2 rounded-xl bg-emerald-500/10 text-emerald-500 shrink-0">
-              <Heart className="h-5 w-5 fill-emerald-500/20" />
-            </span>
+          <div className="relative px-5 py-4 flex flex-col md:flex-row items-start md:items-center gap-4">
+            <div className="w-full md:w-56 aspect-video rounded-xl overflow-hidden border border-emerald-500/20 bg-slate-950 shrink-0 relative group">
+              <video
+                src="/Promo-Support/Support.mp4"
+                controls
+                className="w-full h-full object-cover"
+                playsInline
+                preload="metadata"
+              />
+            </div>
             <div className="flex-1 min-w-0">
-              <h4 className="text-sm font-bold text-foreground mb-0.5">
-                FileNova is Completely Free for Now
+              <h4 className="text-sm font-bold text-foreground mb-1 flex items-center gap-1.5">
+                FileNova is Free During Development
+                <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-500 border border-emerald-500/20">
+                  Support Video
+                </span>
               </h4>
-              <p className="text-xs text-muted-foreground leading-relaxed max-w-xl">
-                While we complete our secure payment integration, every user can enjoy FileNova completely free. If you enjoy using FileNova, you'll soon be able to support future development and help us build one of India's best document platforms.
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                We are currently building India's most loved document platform, and all tools are completely free while we finalize our secure payment integration. Watch our development video to learn more!
               </p>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-2 shrink-0 self-end md:self-center mt-2 md:mt-0">
               <button
                 type="button"
                 onClick={handleDismiss}
