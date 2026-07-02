@@ -501,7 +501,7 @@ export default function PricingPage() {
 
     openPayment({
       planId: pendingPlan.planId,
-      billingCycle: pendingPlan.billingCycle as 'monthly' | 'yearly',
+      billingCycle: pendingPlan.billingCycle,
       userName: user?.name ?? '',
       userEmail: user?.email ?? '',
       paymentToken,
@@ -511,11 +511,11 @@ export default function PricingPage() {
         setLocation('/dashboard');
       },
       onFailure: (error) => {
+        console.error('[PricingPage] Payment failed', { error });
         toast.error(`Payment failed: ${error}`);
         if (typeof error === 'string' && (error.includes('Authentication required') || error.includes('log in first'))) {
-          useAuthStore.getState().logout().then(() => {
-            setAuthModalOpen(true);
-          });
+          console.log('[PricingPage] Auth error during payment — showing login prompt');
+          setAuthModalOpen(true);
         }
       },
     });

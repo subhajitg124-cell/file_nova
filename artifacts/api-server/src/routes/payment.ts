@@ -13,7 +13,7 @@ import { verifyPaymentToken } from "./otp";
 const router = Router();
 
 const createOrderSchema = z.object({
-  planId: z.enum(["basic", "pro", "elite", "pass_24hr", "pass_weekly"]),
+  planId: z.enum(["basic", "pro", "elite", "pass", "pass_24hr", "pass_weekly"]),
   billingCycle: z.enum(["monthly", "yearly", "24hr", "weekly"]),
 });
 
@@ -21,7 +21,7 @@ const verifyPaymentSchema = z.object({
   razorpay_order_id: z.string().min(1),
   razorpay_payment_id: z.string().min(1),
   razorpay_signature: z.string().min(1),
-  planId: z.enum(["basic", "pro", "elite", "pass_24hr", "pass_weekly"]).optional(),
+  planId: z.enum(["basic", "pro", "elite", "pass", "pass_24hr", "pass_weekly"]).optional(),
   billingCycle: z.enum(["monthly", "yearly", "24hr", "weekly"]).optional(),
 });
 

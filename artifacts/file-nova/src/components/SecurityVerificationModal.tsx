@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { X, Mail, Shield, ShieldCheck, CheckCircle, ChevronRight } from "lucide-react";
+import { X, Mail, Shield, ShieldCheck, CheckCircle, ChevronRight, AlertTriangle, LogIn } from "lucide-react";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { useAuthStore } from "@/store/useAuthStore";
-import { apiClient } from "@/lib/api";
+import { apiClient, BACKEND_URL } from "@/lib/api";
 
-type VerificationStep = "choose" | "enter-otp" | "verified" | "error";
+type VerificationStep = "auth-check" | "choose" | "enter-otp" | "verifying" | "verified" | "error" | "session-expired";
 
 interface Props {
   onVerified: (paymentToken: string) => void;
@@ -19,11 +19,12 @@ function maskEmail(email: string): string {
 }
 
 export function SecurityVerificationModal({ onVerified, onClose, planId, billingCycle }: Props) {
-  const [step, setStep] = useState<VerificationStep>("choose");
+  const [step, setStep] = useState<VerificationStep>("auth-check");
   const [otp, setOtp] = useState("");
   const [maskedTarget, setMaskedTarget] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [authMessage, setAuthMessage] = useState("Verifying account...");
   const [resendCooldown, setResendCooldown] = useState(0);
   const { user } = useAuthStore();
 
@@ -33,6 +34,70 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
       return () => clearTimeout(timer);
     }
   }, [resendCooldown]);
+
+  // Step 0: Verify the user's session is actually valid on the backend
+  useEffect(() => {
+    let cancelled = false;
+    const verifyAuth = async () => {
+      setAuthMessage("Verifying account...");
+      const token = localStorage.getItem("filenova_token");
+      console.log("[SecurityVerification] Auth check starting", {
+        hasUser: !!user,
+        hasToken: !!token,
+        tokenPrefix: token ? token.substring(0, 12) + "..." : null,
+        planId,
+        billingCycle,
+      });
+
+      if (!token && !user) {
+        console.log("[SecurityVerification] No token and no user — showing session expired");
+        if (!cancelled) setStep("session-expired");
+        return;
+      }
+
+      if (!token) {
+        console.log("[SecurityVerification] User object exists but no token — showing session expired");
+        if (!cancelled) setStep("session-expired");
+        return;
+      }
+
+      // For local/mock tokens, skip backend check
+      if (token.startsWith("local_")) {
+        console.log("[SecurityVerification] Local/mock token detected — skipping backend auth check");
+        if (!cancelled) setStep("choose");
+        return;
+      }
+
+      // Verify token is valid by calling /me
+      try {
+        const me = await apiClient.request<{ success: boolean; user?: any }>("/api/v1/auth/me", {
+          method: "GET",
+        }, 10000);
+        const isAuthed = me.success && me.user != null;
+        console.log("[SecurityVerification] Backend auth check", { success: me.success, hasUser: !!me.user, isAuthed });
+        if (!cancelled) {
+          if (isAuthed) {
+            setStep("choose");
+          } else {
+            setStep("session-expired");
+          }
+        }
+      } catch (err: any) {
+        console.log("[SecurityVerification] Backend auth check FAILED", { message: err.message });
+        if (!cancelled) {
+          if (err.message.includes("Authentication required") || err.message.includes("log in first") || err.message.includes("401")) {
+            setStep("session-expired");
+          } else {
+            // Non-auth error (network, server down, etc.) — let user try verification anyway
+            console.warn("[SecurityVerification] Non-auth error during auth check, proceeding anyway", err.message);
+            if (!cancelled) setStep("choose");
+          }
+        }
+      }
+    };
+    verifyAuth();
+    return () => { cancelled = true; };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSendOTP = async () => {
     setLoading(true);
@@ -52,7 +117,7 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
       setStep("enter-otp");
       setResendCooldown(60);
     } catch (err: any) {
-      setError(err.message || "Failed to send OTP. Check your connection.");
+      handleApiError(err, "Failed to send OTP. Check your connection.");
     } finally {
       setLoading(false);
     }
@@ -65,6 +130,8 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
     }
     setLoading(true);
     setError("");
+    setStep("verifying");
+    setAuthMessage("Verifying code...");
     try {
       const res = await apiClient.request<any>("/api/otp/verify", {
         method: "POST",
@@ -74,15 +141,20 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
       if (!res.success) {
         setError(res.error || "Verification failed");
         setOtp("");
+        setStep("enter-otp");
         return;
       }
 
       setStep("verified");
+      setAuthMessage("Preparing secure checkout...");
+      console.log("[SecurityVerification] OTP verification succeeded, payment token received", {
+        tokenPrefix: res.paymentToken?.substring(0, 8),
+      });
       setTimeout(() => {
         onVerified(res.paymentToken);
       }, 1500);
     } catch (err: any) {
-      setError(err.message || "Verification failed. Please try again.");
+      handleApiError(err, "Verification failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -91,7 +163,10 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
   const handleTurnstileSuccess = async (token: string) => {
     setLoading(true);
     setError("");
+    setStep("verifying");
+    setAuthMessage("Verifying account...");
     try {
+      console.log("[SecurityVerification] Turnstile succeeded, calling /api/otp/verify-captcha");
       const res = await apiClient.request<any>("/api/otp/verify-captcha", {
         method: "POST",
         body: JSON.stringify({ turnstileToken: token }),
@@ -99,36 +174,88 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
 
       if (!res.success) {
         setError(res.error || "CAPTCHA verification failed");
+        setStep("choose");
         return;
       }
 
       setStep("verified");
+      setAuthMessage("Preparing secure checkout...");
+      console.log("[SecurityVerification] CAPTCHA verification succeeded, payment token received", {
+        tokenPrefix: res.paymentToken?.substring(0, 8),
+      });
       setTimeout(() => {
+        setAuthMessage("Opening Razorpay...");
         onVerified(res.paymentToken);
       }, 1500);
     } catch (err: any) {
-      setError(err.message || "Verification failed. Please try again.");
+      handleApiError(err, "Verification failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
+  const handleApiError = (err: any, fallbackMessage: string) => {
+    const msg = err.message || fallbackMessage;
+    console.log("[SecurityVerification] API error", { message: msg });
+    if (msg.includes("Authentication required") || msg.includes("log in first") || msg.includes("401")) {
+      setStep("session-expired");
+      setError("");
+    } else {
+      setError(msg);
+      if (step === "verifying") setStep("choose");
+    }
+  };
+
   useEffect(() => {
     if (otp.length === 6) handleVerifyOTP();
-  }, [otp]);
+  }, [otp]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const isDark = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
+
+  const handleLoginClick = () => {
+    onClose();
+    useAuthStore.getState().openLoginModal("Please log in to continue with payment.");
+  };
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
       <div className="fn-glass rounded-3xl p-8 max-w-sm w-full relative">
-        {step !== "verified" && (
+        {step !== "verified" && step !== "auth-check" && step !== "session-expired" && (
           <button
             onClick={onClose}
             className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[var(--fn-surface-elevated)] flex items-center justify-center text-[var(--fn-text-secondary)] hover:text-[var(--fn-text-primary)] transition"
           >
             <X size={16} />
           </button>
+        )}
+
+        {step === "auth-check" && (
+          <div className="text-center py-8">
+            <div className="w-14 h-14 rounded-2xl bg-indigo-500/20 flex items-center justify-center mx-auto mb-4">
+              <ShieldCheck className="text-indigo-400 animate-pulse" size={28} />
+            </div>
+            <h2 className="text-xl font-bold text-center text-[var(--fn-text-primary)] mb-2">Security Verification</h2>
+            <p className="text-[var(--fn-text-secondary)] text-sm">{authMessage}</p>
+          </div>
+        )}
+
+        {step === "session-expired" && (
+          <>
+            <div className="w-14 h-14 rounded-2xl bg-amber-500/20 flex items-center justify-center mx-auto mb-4">
+              <AlertTriangle className="text-amber-400" size={28} />
+            </div>
+            <h2 className="text-xl font-bold text-center text-[var(--fn-text-primary)] mb-2">Session Expired</h2>
+            <p className="text-[var(--fn-text-secondary)] text-sm text-center mb-6">
+              Your session has expired. Please log in again to continue with your purchase.
+            </p>
+            <button
+              onClick={handleLoginClick}
+              className="w-full bg-indigo-600 text-white rounded-2xl py-3 font-semibold flex items-center justify-center gap-2 transition hover:bg-indigo-500"
+            >
+              <LogIn size={18} />
+              Log In
+            </button>
+          </>
         )}
 
         {step === "choose" && (
@@ -261,14 +388,40 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
           </>
         )}
 
+        {step === "verifying" && (
+          <div className="text-center py-8">
+            <div className="w-16 h-16 rounded-full bg-indigo-500/20 flex items-center justify-center mx-auto mb-4 animate-pulse">
+              <ShieldCheck className="text-indigo-400" size={36} />
+            </div>
+            <h2 className="text-xl font-bold text-[var(--fn-text-primary)] mb-2">Verifying</h2>
+            <p className="text-[var(--fn-text-secondary)] text-sm">{authMessage}</p>
+          </div>
+        )}
+
         {step === "verified" && (
           <div className="text-center py-4">
             <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-4 animate-pulse">
               <CheckCircle className="text-emerald-400" size={36} />
             </div>
             <h2 className="text-xl font-bold text-[var(--fn-text-primary)] mb-2">Verification Complete</h2>
-            <p className="text-[var(--fn-text-secondary)] text-sm">Account verified! Proceeding to checkout...</p>
+            <p className="text-[var(--fn-text-secondary)] text-sm">{authMessage}</p>
           </div>
+        )}
+
+        {step === "error" && (
+          <>
+            <div className="w-14 h-14 rounded-2xl bg-red-500/20 flex items-center justify-center mx-auto mb-4">
+              <AlertTriangle className="text-red-400" size={28} />
+            </div>
+            <h2 className="text-xl font-bold text-center text-[var(--fn-text-primary)] mb-2">Verification Failed</h2>
+            <p className="text-[var(--fn-text-secondary)] text-sm text-center mb-6">{error}</p>
+            <button
+              onClick={() => { setStep("choose"); setError(""); }}
+              className="w-full bg-indigo-600 text-white rounded-2xl py-3 font-semibold transition hover:bg-indigo-500"
+            >
+              Try Again
+            </button>
+          </>
         )}
       </div>
     </div>
