@@ -12,6 +12,10 @@ export class PaymentProvider {
     return process.env.RAZORPAY_KEY_SECRET || "rzp_test_mocksecret";
   }
 
+  public static getRazorpayWebhookSecret(): string {
+    return process.env.RAZORPAY_WEBHOOK_SECRET || "";
+  }
+
   public static getMerchantName(): string {
     return process.env.PAYMENT_MERCHANT_NAME || "FileNova";
   }

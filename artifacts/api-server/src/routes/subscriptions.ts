@@ -11,9 +11,7 @@ import { getISTDate } from "../middlewares/limits";
 import { SubscriptionService } from "../services/SubscriptionService";
 import { CouponService } from "../services/CouponService";
 import { PaymentService } from "../services/PaymentService";
-import { WebhookService } from "../services/WebhookService";
 import { AdminPaymentService } from "../services/AdminPaymentService";
-import { PaymentProvider } from "../services/PaymentProvider";
 
 const router = Router();
 
@@ -214,8 +212,8 @@ router.post("/order", authMiddleware, requireAuth, async (req: AuthRequest, res:
         amount: existingPendingSub.amount,
         currency: existingPendingSub.currency,
         plan,
-        keyId: PaymentProvider.getRazorpayKeyId(),
-        isMock: existingPendingSub.razorpayOrderId.startsWith("order_mock_") || PaymentProvider.isMockEnabled(),
+        keyId: PaymentService.getKeyId(),
+        isMock: existingPendingSub.razorpayOrderId.startsWith("order_mock_") || PaymentService.isMockEnabled(),
         couponApplied: !!existingPendingSub.couponCode,
         couponDetails: existingPendingSub.couponCode ? {
           code: existingPendingSub.couponCode,
@@ -313,11 +311,12 @@ router.post("/verify", authMiddleware, requireAuth, async (req: AuthRequest, res
       plan: z.enum(["basic", "pro", "elite", "pass_24h", "pass_7d"]),
     }).parse(req.body);
 
-    const verified = PaymentService.verifySignature(
-      body.razorpay_order_id,
-      body.razorpay_payment_id,
-      body.razorpay_signature || ""
-    );
+    const verified = await PaymentService.verifyPayment({
+      razorpay_order_id: body.razorpay_order_id,
+      razorpay_payment_id: body.razorpay_payment_id,
+      razorpay_signature: body.razorpay_signature || "",
+      planId: body.plan,
+    });
 
     if (!verified) {
       return res.status(400).json({ success: false, error: "Payment signature mismatch" });
@@ -596,9 +595,6 @@ router.post("/admin/coupons/:id/toggle", adminAuth, async (req: Request, res: Re
     res.status(500).json({ error: err.message || "Failed to toggle coupon" });
   }
 });
-
-// ── 7. POST /webhook — Razorpay Webhook Verification ───────────────────────────
-router.post("/webhook", WebhookService.handleWebhookRequest);
 
 // ── Discount Code Endpoints ────────────────────────────────────────────────────
 router.get("/admin/discount-codes", adminAuth, async (_req: Request, res: Response) => {

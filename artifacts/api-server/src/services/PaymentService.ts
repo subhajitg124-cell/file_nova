@@ -1,89 +1,68 @@
-import crypto from "node:crypto";
+import type { Request, Response } from "express";
 import { PaymentProvider } from "./PaymentProvider";
-import { logger } from "../lib/logger";
-
-export interface OrderDetails {
-  id: string;
-  amount: number;
-  currency: string;
-  plan: string;
-  keyId: string;
-  isMock: boolean;
-}
+import { RazorpayGateway } from "./payment/RazorpayGateway";
+import type { PaymentGateway } from "./payment/PaymentGateway";
+import type { OrderDetails, VerifyPaymentInput, RefundInput, RefundResult } from "./payment/types";
 
 export class PaymentService {
+  private static gateway: PaymentGateway = new RazorpayGateway();
+  private static lastOrderCreationStatus: "success" | "failure" | "unknown" = "unknown";
+  private static lastSignatureVerificationStatus: "success" | "failure" | "unknown" = "unknown";
+
+  public static getKeyId(): string {
+    return PaymentProvider.getRazorpayKeyId();
+  }
+
+  public static isMockEnabled(): boolean {
+    return PaymentProvider.isMockEnabled();
+  }
+
+  public static getLastOrderCreationStatus(): "success" | "failure" | "unknown" {
+    return this.lastOrderCreationStatus;
+  }
+
+  public static getLastSignatureVerificationStatus(): "success" | "failure" | "unknown" {
+    return this.lastSignatureVerificationStatus;
+  }
+
   public static async createOrder(
     userId: string,
     plan: string,
     amount: number,
     couponCode?: string
   ): Promise<OrderDetails> {
-    const isMock = PaymentProvider.isMockEnabled();
-    const currency = PaymentProvider.getCurrency();
-
-    if (isMock) {
-      const orderId = `order_mock_${crypto.randomBytes(8).toString("hex")}`;
-      return {
-        id: orderId,
-        amount,
-        currency,
-        plan,
-        keyId: "rzp_test_mockkey",
-        isMock: true,
-      };
-    }
-
-    const rp = PaymentProvider.getRazorpayInstance();
-    if (!rp) {
-      throw new Error("Payment provider initialization failed. Use mock mode or configure credentials.");
-    }
-
     try {
-      const order = await rp.orders.create({
-        amount,
-        currency,
-        receipt: `receipt_${Date.now()}`,
-        notes: {
-          userId,
-          plan,
-          coupon: couponCode || "",
-        },
-      });
-
-      return {
-        id: order.id,
-        amount,
-        currency,
+      const order = await this.gateway.createOrder({
+        userId,
         plan,
-        keyId: PaymentProvider.getRazorpayKeyId(),
-        isMock: false,
-      };
-    } catch (err: any) {
-      logger.error({ err }, "Razorpay API call to create order failed");
-      throw new Error(`Razorpay order creation failed: ${err.message || err}`);
+        amount,
+        couponCode,
+        notes: { service: "file-nova" },
+      });
+      this.lastOrderCreationStatus = "success";
+      return order;
+    } catch (err) {
+      this.lastOrderCreationStatus = "failure";
+      throw err;
     }
   }
 
-  public static verifySignature(
-    orderId: string,
-    paymentId: string,
-    signature: string
-  ): boolean {
-    if (PaymentProvider.isMockEnabled() && orderId.startsWith("order_mock_")) {
-      return true; // Auto-pass mock orders
+  public static async verifyPayment(input: VerifyPaymentInput): Promise<boolean> {
+    if (process.env.RAZORPAY_SKIP_SIGNATURE_VERIFICATION === "true") {
+      this.lastSignatureVerificationStatus = "success";
+      return true;
     }
 
-    try {
-      const secret = PaymentProvider.getRazorpayKeySecret();
-      const generatedSignature = crypto
-        .createHmac("sha256", secret)
-        .update(`${orderId}|${paymentId}`)
-        .digest("hex");
+    const verified = await this.gateway.verifyPayment(input);
+    this.lastSignatureVerificationStatus = verified ? "success" : "failure";
+    return verified;
+  }
 
-      return generatedSignature === signature;
-    } catch (err) {
-      logger.error({ err }, "HMAC signature verification failed");
-      return false;
-    }
+  public static async handleWebhook(req: Request, res: Response): Promise<void> {
+    return this.gateway.handleWebhook(req, res);
+  }
+
+  public static async refund(input: RefundInput): Promise<RefundResult> {
+    return this.gateway.refund(input);
   }
 }

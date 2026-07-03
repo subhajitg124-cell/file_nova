@@ -4,6 +4,7 @@ export interface CreateOrderInput {
 }
 
 export interface CreateOrderResult {
+  id: string;
   orderId: string;
   amount: number;
   currency: string;
@@ -19,10 +20,31 @@ export interface VerifyPaymentInput {
   billingCycle?: string;
 }
 
+export interface OrderDetails {
+  id: string;
+  orderId: string;
+  amount: number;
+  currency: string;
+  keyId: string;
+  isMock?: boolean;
+}
+
 export interface VerifyPaymentResult {
   success: boolean;
   plan: string;
   expiresAt: string;
+  error?: string;
+}
+
+export interface RefundInput {
+  paymentId: string;
+  amount?: number;
+  reason?: string;
+}
+
+export interface RefundResult {
+  success: boolean;
+  refundId?: string;
   error?: string;
 }
 

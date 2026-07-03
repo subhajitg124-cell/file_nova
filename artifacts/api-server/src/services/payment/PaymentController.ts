@@ -1,12 +1,10 @@
-import type { Response } from "express";
+import type { Request, Response } from "express";
 import type { AuthRequest } from "../../middlewares/auth";
-import { db, subscriptionsTable, paymentOrders } from "@workspace/db";
+import { db, usersTable, subscriptionsTable, paymentOrders } from "@workspace/db";
 import { eq, and, desc } from "drizzle-orm";
 import { logger } from "../../lib/logger";
-import { PaymentTokenService } from "./PaymentTokenService";
-import { OrderService } from "./OrderService";
+import { PaymentService } from "../PaymentService";
 import { SubscriptionService } from "../SubscriptionService";
-import { WebhookService } from "./WebhookService";
 import { InvoiceService } from "../InvoiceService";
 import { getPlanAmount, resolveTier } from "./types";
 
@@ -23,7 +21,7 @@ export class PaymentController {
 
       const amount = getPlanAmount(planId, billingCycle);
       const plan = resolveTier(planId);
-      const order = await OrderService.createRazorpayOrder(userId, planId, billingCycle);
+      const order = await PaymentService.createOrder(userId, planId, amount);
 
       await db.insert(paymentOrders).values({
         id: order.orderId,
@@ -58,7 +56,13 @@ export class PaymentController {
         return;
       }
 
-      const valid = OrderService.verifySignature(razorpay_order_id, razorpay_payment_id, razorpay_signature);
+      const valid = await PaymentService.verifyPayment({
+        razorpay_order_id,
+        razorpay_payment_id,
+        razorpay_signature,
+        planId,
+        billingCycle,
+      });
       if (!valid) {
         res.status(400).json({ success: false, error: "Payment signature verification failed" });
         return;
@@ -177,20 +181,33 @@ export class PaymentController {
   }
 
   static async handleWebhook(req: any, res: Response) {
-    await WebhookService.handleWebhook(req, res);
+    await PaymentService.handleWebhook(req, res);
   }
 
   static async getDiagnostics(req: AuthRequest, res: Response) {
-    const isMock = !process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET;
+    const razorpayConfigured = !!(process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET);
+    const mockMode = PaymentService.isMockEnabled();
+    const keyLoaded = !!process.env.RAZORPAY_KEY_ID;
+    const secretLoaded = !!process.env.RAZORPAY_KEY_SECRET;
+    const webhookConfigured = !!process.env.RAZORPAY_WEBHOOK_SECRET;
+
+    let databaseConnected = false;
+    try {
+      await db.select().from(usersTable).limit(1);
+      databaseConnected = true;
+    } catch (err) {
+      databaseConnected = false;
+    }
+
     res.json({
-      isMock,
-      hasRazorpayKey: !!process.env.RAZORPAY_KEY_ID,
-      hasRazorpaySecret: !!process.env.RAZORPAY_KEY_SECRET,
-      hasWebhookSecret: !!process.env.RAZORPAY_WEBHOOK_SECRET,
-      hasTurnstileKey: !!process.env.TURNSTILE_SECRET_KEY,
-      razorpayKeyPrefix: process.env.RAZORPAY_KEY_ID?.substring(0, 12) || "none",
-      isProduction: process.env.NODE_ENV === "production",
-      timestamp: new Date().toISOString(),
+      razorpayConfigured,
+      mockMode,
+      keyLoaded,
+      secretLoaded,
+      webhookConfigured,
+      databaseConnected,
+      lastOrderCreation: PaymentService.getLastOrderCreationStatus(),
+      lastSignatureVerification: PaymentService.getLastSignatureVerificationStatus(),
     });
   }
 }

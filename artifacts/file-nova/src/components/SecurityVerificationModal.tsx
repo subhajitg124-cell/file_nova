@@ -127,7 +127,7 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
       <div className="fn-glass rounded-3xl p-8 max-w-sm w-full relative">
         {step !== "verified" && (
-          <button onClick={onClose} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[var(--fn-surface-elevated)] flex items-center justify-center text-[var(--fn-text-secondary)] hover:text-[var(--fn-text-primary)] transition">
+          <button type="button" onClick={onClose} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[var(--fn-surface-elevated)] flex items-center justify-center text-[var(--fn-text-secondary)] hover:text-[var(--fn-text-primary)] transition" aria-label="Close security verification dialog">
             <X size={16} />
           </button>
         )}
@@ -142,7 +142,7 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
               Verify your account to protect your billing profile and enable checkout.
             </p>
 
-            <button onClick={handleSendOTP} disabled={loading} className="w-full fn-card p-4 flex items-center gap-4 mb-3 hover:border-indigo-500/40 transition-all">
+            <button type="button" onClick={handleSendOTP} disabled={loading} className="w-full fn-card p-4 flex items-center gap-4 mb-3 hover:border-indigo-500/40 transition-all">
               <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
                 <Mail className="text-indigo-400" size={20} />
               </div>
@@ -188,11 +188,18 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
               <span className="text-[var(--fn-text-primary)] font-medium">{maskedTarget}</span>
             </p>
 
-            <div className="flex gap-2 justify-center mb-4">
+            <div className="flex gap-2 justify-center mb-4" role="group" aria-label="Enter 6-digit OTP">
+              {[0, 1, 2, 3, 4, 5].map((i) => (
+                <label key={i} htmlFor={`sv-otp-${i}`} className="sr-only">
+                  Digit {i + 1}
+                </label>
+              ))}
               {[0, 1, 2, 3, 4, 5].map((i) => (
                 <input
                   key={i}
                   type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   maxLength={1}
                   value={otp[i] || ""}
                   onChange={(e) => {
@@ -207,6 +214,7 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
                   }}
                   id={`sv-otp-${i}`}
                   autoFocus={i === 0}
+                  aria-label={`OTP digit ${i + 1}`}
                   className="w-11 h-13 text-center text-xl font-bold bg-[var(--fn-surface-elevated)] rounded-xl border-2 border-[var(--fn-border)] outline-none text-[var(--fn-text-primary)] focus:border-indigo-500 transition-colors"
                 />
               ))}
@@ -215,6 +223,7 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
             {error && <p className="text-red-400 text-sm text-center mb-3">{error}</p>}
 
             <button
+              type="button"
               onClick={handleVerifyOTP}
               disabled={otp.length !== 6 || loading}
               className="w-full bg-indigo-600 text-white rounded-2xl py-3 font-semibold mb-4 disabled:opacity-40 transition"
@@ -226,11 +235,11 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
               {resendCooldown > 0 ? (
                 <p className="text-[var(--fn-text-tertiary)] text-sm">Resend in {resendCooldown}s</p>
               ) : (
-                <button onClick={() => { setOtp(""); handleSendOTP(); }} className="text-indigo-500 text-sm hover:underline">
+                <button type="button" onClick={() => { setOtp(""); handleSendOTP(); }} className="text-indigo-500 text-sm hover:underline">
                   Resend OTP
                 </button>
               )}
-              <button onClick={() => { setStep("choose"); setOtp(""); setError(""); }} className="block mx-auto mt-2 text-[var(--fn-text-tertiary)] text-xs hover:text-[var(--fn-text-secondary)]">
+              <button type="button" onClick={() => { setStep("choose"); setOtp(""); setError(""); }} className="block mx-auto mt-2 text-[var(--fn-text-tertiary)] text-xs hover:text-[var(--fn-text-secondary)]">
                 Use different method
               </button>
             </div>
@@ -264,7 +273,7 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
             </div>
             <h2 className="text-xl font-bold text-center text-[var(--fn-text-primary)] mb-2">Verification Failed</h2>
             <p className="text-[var(--fn-text-secondary)] text-sm text-center mb-6">{error}</p>
-            <button onClick={() => { setStep("choose"); setError(""); }} className="w-full bg-indigo-600 text-white rounded-2xl py-3 font-semibold transition hover:bg-indigo-500">
+            <button type="button" onClick={() => { setStep("choose"); setError(""); }} className="w-full bg-indigo-600 text-white rounded-2xl py-3 font-semibold transition hover:bg-indigo-500">
               Try Again
             </button>
           </>

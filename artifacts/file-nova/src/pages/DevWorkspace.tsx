@@ -25,7 +25,7 @@ type Section =
   | "workers" | "feature-flags" | "experiments" | "theme-lab" | "animation-lab"
   | "component-lib" | "responsive" | "accessibility" | "broken-links"
   | "cache" | "local-storage" | "env-vars" | "sessions" | "export-diag"
-  | "import-settings" | "metadata" | "testing" | "release-notes";
+  | "import-settings" | "metadata" | "testing" | "diagnostics" | "release-notes";
 
 interface SidebarItem {
   id: Section;
@@ -68,6 +68,7 @@ const SIDEBAR_SECTIONS: SidebarItem[] = [
   { id: "import-settings", icon: <Upload className="h-4 w-4" />, label: "Import" },
   { id: "metadata", icon: <ScanLine className="h-4 w-4" />, label: "Metadata" },
   { id: "testing", icon: <Beaker className="h-4 w-4" />, label: "Testing" },
+  { id: "diagnostics", icon: <Thermometer className="h-4 w-4" />, label: "Diagnostics" },
   { id: "release-notes", icon: <BookOpen className="h-4 w-4" />, label: "Release Notes" },
 ];
 
@@ -78,7 +79,7 @@ const SIDEBAR_GROUPS = [
   { label: "Monitoring", items: ["ai-assistant", "error-logs", "workers"] as Section[] },
   { label: "Configuration", items: ["feature-flags", "experiments", "theme-lab", "animation-lab", "component-lib"] as Section[] },
   { label: "Tools", items: ["responsive", "accessibility", "broken-links", "cache", "local-storage"] as Section[] },
-  { label: "System", items: ["env-vars", "sessions", "export-diag", "import-settings", "metadata", "testing", "release-notes"] as Section[] },
+  { label: "System", items: ["env-vars", "sessions", "export-diag", "diagnostics", "import-settings", "metadata", "testing", "release-notes"] as Section[] },
 ];
 
 function useReducedMotion() {
@@ -124,11 +125,26 @@ function Toggle({ on, onChange, label }: { on: boolean; onChange: (v: boolean) =
 
 function ProgressBar({ value, max = 100, color = "bg-primary", label }: { value: number; max?: number; color?: string; label?: string }) {
   const pct = Math.min(100, Math.round((value / max) * 100));
+  const step = Math.min(10, Math.max(0, Math.round((value / max) * 10)));
+  const widthClasses = [
+    "w-[0%]",
+    "w-[10%]",
+    "w-[20%]",
+    "w-[30%]",
+    "w-[40%]",
+    "w-[50%]",
+    "w-[60%]",
+    "w-[70%]",
+    "w-[80%]",
+    "w-[90%]",
+    "w-[100%]",
+  ];
+
   return (
     <div className="space-y-1">
       {label && <div className="flex justify-between text-[10px] font-bold text-muted-foreground"><span>{label}</span><span>{pct}%</span></div>}
       <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-        <div className={`h-full rounded-full transition-all duration-700 ${color}`} style={{ width: `${pct}%` }} />
+        <div className={`h-full rounded-full transition-all duration-700 ${color} ${widthClasses[step]}`} />
       </div>
     </div>
   );
@@ -307,6 +323,7 @@ export default function DevWorkspace() {
       case "import-settings": return <ImportSettingsView />;
       case "metadata": return <MetadataView />;
       case "testing": return <TestingView />;
+      case "diagnostics": return <DiagnosticsView />;
       case "release-notes": return <ReleaseNotesView />;
       default: return <DashboardView />;
     }
@@ -675,7 +692,7 @@ function DashboardView() {
                   <span className="text-foreground font-bold">{j.progress}%</span>
                 </div>
                 <div className="h-1 w-full bg-muted rounded-full overflow-hidden">
-                  <div className={`h-full rounded-full ${j.progress === 100 ? "bg-emerald-500" : "bg-blue-500"}`} style={{ width: `${j.progress}%` }} />
+                  <div className={`h-full rounded-full ${j.progress === 100 ? "bg-emerald-500" : "bg-blue-500"} ${j.progress === 100 ? "w-[100%]" : j.progress >= 90 ? "w-[90%]" : j.progress >= 80 ? "w-[80%]" : j.progress >= 70 ? "w-[70%]" : j.progress >= 60 ? "w-[60%]" : j.progress >= 50 ? "w-[50%]" : j.progress >= 40 ? "w-[40%]" : j.progress >= 30 ? "w-[30%]" : j.progress >= 20 ? "w-[20%]" : j.progress >= 10 ? "w-[10%]" : "w-[0%]"}`} />
                 </div>
               </div>
             ))}
@@ -816,7 +833,7 @@ function AnalyticsView() {
             <div key={t.name} className="flex items-center gap-3">
               <span className="w-20 min-[375px]:w-28 text-muted-foreground font-semibold truncate shrink-0">{t.name}</span>
               <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-                <div className="h-full bg-primary rounded-full" style={{ width: `${t.pct}%` }} />
+                <div className={`h-full bg-primary rounded-full ${t.pct === 100 ? "w-[100%]" : t.pct >= 90 ? "w-[90%]" : t.pct >= 80 ? "w-[80%]" : t.pct >= 70 ? "w-[70%]" : t.pct >= 60 ? "w-[60%]" : t.pct >= 50 ? "w-[50%]" : t.pct >= 40 ? "w-[40%]" : t.pct >= 30 ? "w-[30%]" : t.pct >= 20 ? "w-[20%]" : t.pct >= 10 ? "w-[10%]" : "w-[0%]"}`} />
               </div>
               <span className="text-foreground font-bold w-8 text-right shrink-0">{t.pct}%</span>
             </div>
@@ -1181,14 +1198,14 @@ function TestingView() {
   
   // Diagnostic state
   const [diag, setDiag] = useState<{
-    success: boolean;
-    mode: string;
-    keyId: string;
-    hasSecret: boolean;
-    hasWebhookSecret: boolean;
+    mockMode: boolean;
+    razorpayConfigured: boolean;
+    keyLoaded: boolean;
+    secretLoaded: boolean;
+    webhookConfigured: boolean;
     databaseConnected: boolean;
-    envMode: string;
-    timestamp: string;
+    lastOrderCreation: string;
+    lastSignatureVerification: string;
   } | null>(null);
   
   const [checkingHealth, setCheckingHealth] = useState(false);
@@ -1204,11 +1221,11 @@ function TestingView() {
 
   const checkDiagnostics = useCallback(async () => {
     setCheckingHealth(true);
-    addLog("Checking backend diagnostics (GET /api/payment/test)...", "info");
+    addLog("Checking backend diagnostics (GET /api/payment/diagnostics)...", "info");
     try {
-      const res = await apiClient.request<any>("/api/payment/test");
+      const res = await apiClient.request<any>("/api/payment/diagnostics");
       setDiag(res);
-      addLog(`Backend diagnostics: mode=${res.mode}, DB=${res.databaseConnected ? "Connected" : "Disconnected"}, keysLoaded=${res.hasSecret}`, "success");
+      addLog(`Backend diagnostics: mockMode=${res.mockMode ? "enabled" : "disabled"}, DB=${res.databaseConnected ? "Connected" : "Disconnected"}, keyLoaded=${res.keyLoaded}, secretLoaded=${res.secretLoaded}`, "success");
     } catch (err: any) {
       setDiag(null);
       addLog(`Backend diagnostics failed: ${err.message}`, "error");
@@ -1302,7 +1319,7 @@ function TestingView() {
         addLog("Error: Razorpay checkout.js script not loaded on page.", "warn");
       }
 
-      const keyId = orderResponse.isMock ? "rzp_test_mockkey" : (diag?.keyId || import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_mockkey");
+      const keyId = orderResponse.isMock ? "rzp_test_mockkey" : (import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_mockkey");
       addLog("Initializing checkout modal...", "info");
 
       const options = {
@@ -1444,7 +1461,7 @@ function TestingView() {
     }
   };
 
-  const overallHealth = scriptLoaded && diag?.success && diag?.databaseConnected;
+  const overallHealth = !!diag && diag.databaseConnected && diag.keyLoaded && diag.secretLoaded;
   
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -1511,14 +1528,14 @@ function TestingView() {
                 <span className="text-[10px] text-muted-foreground font-black uppercase tracking-wider">Backend Keys</span>
                 <div className="flex items-center justify-between mt-2 font-mono text-[9px]">
                   <span>RAZORPAY_KEY_ID:</span>
-                  <span className={diag?.keyId ? "text-emerald-400 font-bold" : "text-amber-500"}>
-                    {diag?.keyId ? `✅ ${diag.keyId.slice(0, 15)}...` : "❌ Missing"}
+                  <span className={diag?.keyLoaded ? "text-emerald-400 font-bold" : "text-amber-500"}>
+                    {diag?.keyLoaded ? "✅ Loaded" : "❌ Missing"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between mt-1.5 font-mono text-[9px]">
                   <span>RAZORPAY_KEY_SECRET:</span>
-                  <span className={diag?.hasSecret ? "text-emerald-400 font-bold" : "text-red-500 font-bold"}>
-                    {diag?.hasSecret ? "✅ Loaded" : "❌ Missing"}
+                  <span className={diag?.secretLoaded ? "text-emerald-400 font-bold" : "text-red-500 font-bold"}>
+                    {diag?.secretLoaded ? "✅ Loaded" : "❌ Missing"}
                   </span>
                 </div>
               </div>
@@ -1533,8 +1550,8 @@ function TestingView() {
                 </div>
                 <div className="flex items-center justify-between mt-1.5 font-mono text-[9px]">
                   <span>RAZORPAY_WEBHOOK_SECRET:</span>
-                  <span className={diag?.hasWebhookSecret ? "text-emerald-400 font-bold" : "text-amber-500 font-bold"}>
-                    {diag?.hasWebhookSecret ? "✅ Loaded" : "❌ Missing"}
+                  <span className={diag?.webhookConfigured ? "text-emerald-400 font-bold" : "text-amber-500 font-bold"}>
+                    {diag?.webhookConfigured ? "✅ Loaded" : "❌ Missing"}
                   </span>
                 </div>
               </div>
@@ -1549,7 +1566,7 @@ function TestingView() {
                 </div>
                 <div className="flex items-center justify-between mt-1.5 font-mono text-[9px]">
                   <span>NODE_ENV:</span>
-                  <span className="text-indigo-400 font-bold uppercase">{diag?.envMode || "development"}</span>
+                  <span className="text-indigo-400 font-bold uppercase">{import.meta.env.DEV ? "development" : "production"}</span>
                 </div>
               </div>
             </div>
@@ -1619,7 +1636,7 @@ function TestingView() {
                   </div>
                   <div className="space-y-1.5 flex flex-col justify-end text-[10px] text-muted-foreground">
                     <div className="flex justify-between"><span>Calculated paise:</span><span className="font-mono font-bold text-foreground">{Math.round(amountRupees * 100)} paise</span></div>
-                    <div className="flex justify-between mt-1"><span>Mode:</span><span className="font-bold text-indigo-400 uppercase">{diag?.mode || "detecting..."}</span></div>
+                    <div className="flex justify-between mt-1"><span>Mode:</span><span className="font-bold text-indigo-400 uppercase">{diag?.mockMode ? "mock" : "live"}</span></div>
                   </div>
                 </div>
 
@@ -1737,4 +1754,101 @@ function TestingView() {
     </div>
   );
 }
+function DiagnosticsView() {
+  const [status, setStatus] = useState<null | Record<string, any>>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const refreshStatus = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await apiClient.request<any>("/api/payment/diagnostics");
+      setStatus(data);
+    } catch (err: any) {
+      setStatus(null);
+      setError(err.message || "Failed to load diagnostics");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshStatus();
+  }, [refreshStatus]);
+
+  return (
+    <div className="max-w-5xl mx-auto space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-black text-foreground flex items-center gap-2">
+            <Thermometer className="h-5 w-5 text-rose-500" />
+            Developer Diagnostics
+          </h1>
+          <p className="text-xs text-muted-foreground mt-1">
+            Live backend diagnostics for payment integration, environment keys, and system readiness.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={refreshStatus}
+          disabled={loading}
+          className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-xs font-bold text-foreground hover:bg-muted/40 transition disabled:opacity-50"
+        >
+          <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+          Refresh
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div className="rounded-3xl border border-border bg-card p-5">
+          <h2 className="text-sm font-black text-foreground mb-3">Payment Integration Health</h2>
+          <div className="space-y-3 text-xs text-muted-foreground">
+            <div className="rounded-2xl border border-border bg-muted/20 p-4">
+              <p className="font-bold text-foreground text-[11px] uppercase tracking-wider">Razorpay Environment</p>
+              <div className="mt-3 grid gap-2 text-[10px] font-mono">
+                <div className="flex justify-between"><span>Configured</span><span className={status?.razorpayConfigured ? "text-emerald-400" : "text-amber-500"}>{status?.razorpayConfigured ? "Yes" : "No"}</span></div>
+                <div className="flex justify-between"><span>Key Loaded</span><span className={status?.keyLoaded ? "text-emerald-400" : "text-amber-500"}>{status?.keyLoaded ? "Yes" : "No"}</span></div>
+                <div className="flex justify-between"><span>Secret Loaded</span><span className={status?.secretLoaded ? "text-emerald-400" : "text-red-500"}>{status?.secretLoaded ? "Yes" : "No"}</span></div>
+                <div className="flex justify-between"><span>Webhook Secret</span><span className={status?.webhookConfigured ? "text-emerald-400" : "text-amber-500"}>{status?.webhookConfigured ? "Yes" : "No"}</span></div>
+                <div className="flex justify-between"><span>Mock Mode</span><span className={status?.mockMode ? "text-emerald-400" : "text-slate-400"}>{status?.mockMode ? "Enabled" : "Disabled"}</span></div>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-muted/20 p-4">
+              <p className="font-bold text-foreground text-[11px] uppercase tracking-wider">Database</p>
+              <div className="mt-3 grid gap-2 text-[10px] font-mono">
+                <div className="flex justify-between"><span>Connected</span><span className={status?.databaseConnected ? "text-emerald-400" : "text-red-500"}>{status?.databaseConnected ? "Yes" : "No"}</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-3xl border border-border bg-card p-5">
+          <h2 className="text-sm font-black text-foreground mb-3">Recent Payment Operations</h2>
+          <div className="grid gap-3 text-[10px] font-mono text-muted-foreground">
+            <div className="rounded-2xl border border-border bg-muted/20 p-4 flex justify-between"><span>Last Order Creation</span><span className={status?.lastOrderCreation === "success" ? "text-emerald-400" : status?.lastOrderCreation === "failure" ? "text-red-500" : "text-slate-400"}>{status?.lastOrderCreation ?? "unknown"}</span></div>
+            <div className="rounded-2xl border border-border bg-muted/20 p-4 flex justify-between"><span>Last Signature Verification</span><span className={status?.lastSignatureVerification === "success" ? "text-emerald-400" : status?.lastSignatureVerification === "failure" ? "text-red-500" : "text-slate-400"}>{status?.lastSignatureVerification ?? "unknown"}</span></div>
+          </div>
+        </div>
+      </div>
+
+      {error && (
+        <div className="rounded-3xl border border-red-500/20 bg-red-500/10 p-4 text-sm font-bold text-red-500">
+          Diagnostics failed to load: {error}
+        </div>
+      )}
+
+      <div className="rounded-3xl border border-border bg-card p-5">
+        <h2 className="text-sm font-black text-foreground mb-3">Raw Diagnostics Payload</h2>
+        <pre className="max-h-72 overflow-auto rounded-2xl border border-border bg-background/80 p-4 text-[11px] text-slate-200 font-mono">
+          {loading && "Loading..."}
+          {!loading && !status && !error && "No diagnostics data available."}
+          {!loading && status && JSON.stringify(status, null, 2)}
+        </pre>
+      </div>
+    </div>
+  );
+}
+
 function ReleaseNotesView() { return PlaceholderView({ title: "Release Notes", description: "View changelog and release history for all FileNova versions.", icon: <BookOpen className="h-8 w-8 text-sky-400" /> }); }
