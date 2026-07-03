@@ -20,7 +20,6 @@ import { UserProfileDropdown } from "@/components/UserProfileDropdown";
 import { Navbar } from "@/components/Navbar";
 import { BackHomeBar } from "@/components/BackHomeBar";
 import { AuthModal } from "@/components/AuthModal";
-import { OTPVerificationModal } from "@/components/OTPVerificationModal";
 import { SecurityVerificationModal } from "@/components/SecurityVerificationModal";
 import { toast } from "sonner";
 import { BACKEND_URL, HAS_BACKEND } from "@/lib/api";
@@ -370,7 +369,6 @@ function UpiPaymentBox({
 }) {
   const { user } = useAuthStore();
   const [open, setOpen] = React.useState(false);
-  const [otpOpen, setOtpOpen] = React.useState(false);
   const [utrId, setUtrId] = React.useState("");
   const [email, setEmail] = React.useState(userEmail || "");
   const [submitting, setSubmitting] = React.useState(false);
@@ -383,10 +381,6 @@ function UpiPaymentBox({
   const handleOpenUpi = () => {
     if (!user) {
       toast.error("Please sign in first to purchase a plan.");
-      return;
-    }
-    if (!user.phoneVerified) {
-      setOtpOpen(true);
       return;
     }
     setOpen(true);
@@ -445,7 +439,6 @@ function UpiPaymentBox({
       <button type="button" onClick={handleOpenUpi} className="w-full py-3 px-3 rounded-xl text-sm font-black text-primary hover:bg-indigo-500/10 transition flex items-center justify-center gap-2 cursor-pointer border border-indigo-500/20 bg-indigo-500/5">
         <QrCode className="h-4 w-4" /> Pay
       </button>
-      <OTPVerificationModal isOpen={otpOpen} onClose={() => setOtpOpen(false)} onSuccess={() => setOpen(true)} />
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
           <div className="relative w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">

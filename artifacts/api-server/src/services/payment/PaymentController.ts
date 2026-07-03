@@ -22,6 +22,7 @@ export class PaymentController {
       }
 
       const amount = getPlanAmount(planId, billingCycle);
+      const plan = resolveTier(planId);
       const order = await OrderService.createRazorpayOrder(userId, planId, billingCycle);
 
       await db.insert(paymentOrders).values({
@@ -32,6 +33,8 @@ export class PaymentController {
         currency: order.currency,
         status: "created",
       });
+
+      await SubscriptionService.createPendingSubscription(userId, plan, amount, order.orderId);
 
       res.json({
         orderId: order.orderId,

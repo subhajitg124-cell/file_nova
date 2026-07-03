@@ -14,4 +14,3 @@ router.get("/diagnostics", requireAuth, PaymentController.getDiagnostics);
 router.post("/webhook", PaymentController.handleWebhook);
 
 export default router;
-export { router as paymentRoutes };
