@@ -101,7 +101,6 @@ export class SubscriptionService {
         })
         .where(eq(subscriptionsTable.razorpayOrderId, orderId))
         .returning();
-
       if (!updatedSub) {
         logger.error({ orderId }, "Subscription order not found to activate");
         return false;

@@ -44,6 +44,8 @@ if (!dbUrl) {
   console.warn("⚠️ DATABASE_URL environment variable is not set. Using fallback database connection.");
 }
 
+export const forceMockDb = process.env.FORCE_MOCK_DB === "true";
+
 export const pool = new Pool({
   connectionString: dbUrl || "postgresql://postgres:postgres@localhost:5432/postgres",
   allowExitOnIdle: true,
@@ -51,6 +53,8 @@ export const pool = new Pool({
     rejectUnauthorized: false,
   },
   connectionTimeoutMillis: 10000,
+  query_timeout: 10000,
+  statement_timeout: 10000,
 });
 
 pool.on("error", (err) => {
@@ -115,6 +119,21 @@ mockDb.users.set(devUserId, {
   lastActiveAt: new Date(),
 });
 
+// Pre-seed the local_dev user used by the auth middleware for token testing
+mockDb.users.set("local_dev", {
+  id: "local_dev",
+  email: "subhajitgho123@gmail.com",
+  name: "Developer Test",
+  role: "developer",
+  premiumTier: "elite",
+  premiumEnabled: true,
+  phoneVerified: true,
+  referralCode: "FN-DEV",
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  lastActiveAt: new Date(),
+});
+
 function getParamForField(sql: string, fieldName: string, params: any[]): any {
   const pattern = `(?:\\"[a-zA-Z0-9_]+\\"\\.)?\\"${fieldName}\\"\\s*=\\s*\\$(\\d+)`;
   const regex = new RegExp(pattern, "i");
@@ -134,7 +153,23 @@ function getParamForField(sql: string, fieldName: string, params: any[]): any {
   return null;
 }
 
-export function simulateSqlQuery(sql: string, params: any[] = []): { rows: any[]; rowCount: number } {
+function extractColumnOrder(sql: string): string[] {
+  const sqlTrimmed = sql.trim();
+  // RETURNING clause: ... RETURNING "col1", "col2", ...
+  const returningMatch = sqlTrimmed.match(/returning\s+(.*)/is);
+  if (returningMatch) {
+    return returningMatch[1].split(",").map(s => s.trim().replace(/^"?(?:\w+\.)?"?|"?$/g, "")).filter(Boolean);
+  }
+  // SELECT clause: SELECT "col1", "col2", ... FROM  
+  const selectMatch = sqlTrimmed.match(/select\s+(.*?)\s+from/is);
+  if (selectMatch) {
+    const cols = selectMatch[1].split(",").map(s => s.trim().replace(/^"?(?:\w+\.)?"?|"?$/g, "")).filter(Boolean);
+    return cols.filter(c => !c.toLowerCase().startsWith("count(") && c !== "*");
+  }
+  return [];
+}
+
+export function simulateSqlQuery(sql: string, params: any[] = [], asArray = false): { rows: any[]; rowCount: number } {
   const sqlLower = sql.toLowerCase();
   
   let tableName = "";
@@ -152,7 +187,7 @@ export function simulateSqlQuery(sql: string, params: any[] = []): { rows: any[]
   
   if (sqlLower.includes("count(*)")) {
     const countVal = map ? map.size : 0;
-    return { rows: [{ count: String(countVal) }], rowCount: 1 };
+    return maybeAsArray({ rows: [{ count: String(countVal) }], rowCount: 1 }, sql, asArray);
   }
   
   if (sqlLower.includes("sum(") || sqlLower.includes("coalesce(sum(")) {
@@ -162,7 +197,7 @@ export function simulateSqlQuery(sql: string, params: any[] = []): { rows: any[]
         if (item.amount) sum += parseFloat(item.amount);
       }
     }
-    return { rows: [{ total: String(sum) }], rowCount: 1 };
+    return maybeAsArray({ rows: [{ total: String(sum) }], rowCount: 1 }, sql, asArray);
   }
   
   if (sqlLower.startsWith("select")) {
@@ -233,24 +268,27 @@ export function simulateSqlQuery(sql: string, params: any[] = []): { rows: any[]
       results = results.slice(0, limit);
     }
     
-    return { rows: results, rowCount: results.length };
+    return maybeAsArray({ rows: results, rowCount: results.length }, sql, asArray);
   }
   
   if (sqlLower.startsWith("insert")) {
     if (!map) return { rows: [], rowCount: 0 };
     
-    const colMatch = sql.match(/insert\s+into\s+"?([a-zA-Z0-9_]+)"?\s*\(([^)]+)\)\s*values\s*\(([^)]+)\)/i);
+    // Normalize function calls (e.g., gen_random_uuid()) to avoid nested paren matching issues
+    const normalized = sql.replace(/[a-zA-Z_]\w*\(([^()]*)\)/g, (_, inner) => `FN(${inner})`);
+    const colMatch = normalized.match(/insert\s+into\s+"?([a-zA-Z0-9_]+)"?\s*\(([^)]+)\)\s*values\s*\(([^)]+)\)/i);
     if (colMatch) {
       const columns = colMatch[2].split(",").map(c => c.trim().replace(/"/g, ""));
-      const valuesStr = colMatch[3];
+      let valuesStr = colMatch[3];
       
       const record: Record<string, any> = {
         createdAt: new Date(),
         updatedAt: new Date(),
       };
       
+      const vals = valuesStr.split(",").map(v => v.trim());
       columns.forEach((col, idx) => {
-        const valPlaceholder = valuesStr.split(",")[idx]?.trim();
+        const valPlaceholder = vals[idx];
         const numMatch = valPlaceholder?.match(/\$(\d+)/);
         if (numMatch) {
           const paramIdx = parseInt(numMatch[1]) - 1;
@@ -263,7 +301,7 @@ export function simulateSqlQuery(sql: string, params: any[] = []): { rows: any[]
       }
       
       map.set(record.id, record);
-      return { rows: [record], rowCount: 1 };
+      return maybeAsArray({ rows: [record], rowCount: 1 }, sql, asArray);
     }
   }
   
@@ -275,6 +313,13 @@ export function simulateSqlQuery(sql: string, params: any[] = []): { rows: any[]
       const userIdVal = getParamForField(sql, "user_id", params) || getParamForField(sql, "userId", params);
       if (userIdVal) {
         const found = Array.from(map.values()).find(r => String(r.userId || r.user_id) === String(userIdVal));
+        if (found) targetId = found.id;
+      }
+    }
+    if (!targetId) {
+      const orderIdVal = getParamForField(sql, "razorpay_order_id", params) || getParamForField(sql, "razorpayOrderId", params);
+      if (orderIdVal) {
+        const found = Array.from(map.values()).find(r => String(r.razorpayOrderId || r.razorpay_order_id) === String(orderIdVal));
         if (found) targetId = found.id;
       }
     }
@@ -297,7 +342,7 @@ export function simulateSqlQuery(sql: string, params: any[] = []): { rows: any[]
       
       record.updatedAt = new Date();
       map.set(targetId, record);
-      return { rows: [record], rowCount: 1 };
+      return maybeAsArray({ rows: [record], rowCount: 1 }, sql, asArray);
     }
   }
   
@@ -318,36 +363,79 @@ export function simulateSqlQuery(sql: string, params: any[] = []): { rows: any[]
       map.delete(idVal);
     }
     
-    return { rows: [], rowCount: 0 };
+    return maybeAsArray({ rows: [], rowCount: 0 }, sql, asArray);
   }
   
-  return { rows: [], rowCount: 0 };
+  return maybeAsArray({ rows: [], rowCount: 0 }, sql, asArray);
+}
+
+// Helper: normalize JS identifier (table.column -> column, strip quotes)
+function cleanColName(name: string): string {
+  return name.replace(/^"?(?:\w+\.)?"?|"?$/g, "").trim();
+}
+
+// When asArray=true, convert rows from objects to arrays in SQL column order
+function maybeAsArray(result: { rows: any[]; rowCount: number }, sql: string, asArray: boolean): { rows: any[]; rowCount: number } {
+  if (!asArray || result.rows.length === 0) return result;
+  const colOrder = extractColumnOrder(sql);
+  if (colOrder.length === 0) return result;
+  const rows = result.rows.map((row: any) => {
+    return colOrder.map((col) => row[cleanColName(col)]);
+  });
+  return { rows, rowCount: result.rowCount };
 }
 
 // Wrap pool queries & connect requests with fallback
 const originalQuery = pool.query;
 pool.query = async function (this: any, text: any, params: any) {
+  const asArray = typeof text === "object" && text?.rowMode === "array";
+  if (forceMockDb) {
+    const sqlText = typeof text === "string" ? text : (text?.text || "");
+    const sqlValues = typeof text === "string" ? (params as any[]) : ((text?.values || params) as any[]);
+    const result = simulateSqlQuery(sqlText || "", sqlValues || [], asArray);
+    if (asArray && result.rows.length > 0 && Array.isArray(result.rows[0])) {
+      (result as any).fields = result.rows[0].map((_: any, i: number) => ({ name: `col${i}`, dataTypeID: 25 }));
+    }
+    return result as any;
+  }
   try {
     return await (originalQuery as any).apply(this, [text, params]);
   } catch (error: any) {
-    const sqlText = typeof text === "string" ? text : text?.text;
-    const sqlValues = typeof text === "string" ? params : text?.values;
+    const sqlText = typeof text === "string" ? text : (text?.text || "");
+    const sqlValues = typeof text === "string" ? (params as any[]) : ((text?.values || params) as any[]);
     console.warn("⚠️ Database query failed. Falling back to in-memory simulation:", error.message);
-    return simulateSqlQuery(sqlText || "", sqlValues || []) as any;
+    const result = simulateSqlQuery(sqlText || "", sqlValues || [], asArray);
+    if (asArray && result.rows.length > 0 && Array.isArray(result.rows[0])) {
+      (result as any).fields = result.rows[0].map((_: any, i: number) => ({ name: `col${i}`, dataTypeID: 25 }));
+    }
+    return result as any;
   }
 } as any;
 
 const originalConnect = pool.connect;
 pool.connect = async function (this: any) {
+  if (forceMockDb) {
+    return {
+      query: async (text: any, params: any) => {
+        const asArray2 = typeof text === "object" && text?.rowMode === "array";
+        const sqlText = typeof text === "string" ? text : (text?.text || "");
+        const sqlValues = typeof text === "string" ? (params as any[]) : ((text?.values || params) as any[]);
+        return simulateSqlQuery(sqlText || "", sqlValues || [], asArray2);
+      },
+      release: () => {},
+      on: () => {},
+    } as any;
+  }
   try {
     return await (originalConnect as any).apply(this);
   } catch (error: any) {
     console.warn("⚠️ Database connection failed. Returning in-memory client simulation:", error.message);
     return {
       query: async (text: any, params: any) => {
-        const sqlText = typeof text === "string" ? text : text?.text;
-        const sqlValues = typeof text === "string" ? params : text?.values;
-        return simulateSqlQuery(sqlText || "", sqlValues || []);
+        const asArray2 = typeof text === "object" && text?.rowMode === "array";
+        const sqlText = typeof text === "string" ? text : (text?.text || "");
+        const sqlValues = typeof text === "string" ? (params as any[]) : ((text?.values || params) as any[]);
+        return simulateSqlQuery(sqlText || "", sqlValues || [], asArray2);
       },
       release: () => {},
       on: () => {},
