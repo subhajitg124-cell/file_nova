@@ -523,7 +523,7 @@ export default function PricingPage() {
     });
   };
 
-  const handleUpgrade = (planId: string, billingCycle = 'monthly') => {
+  const handleUpgrade = async (planId: string, billingCycle = 'monthly') => {
     if (planId === "free") { 
       if (premiumTier !== "free" && confirm("Confirm cancellation?")) {
         cancelSubscription();
@@ -531,6 +531,15 @@ export default function PricingPage() {
       return; 
     }
     if (!user) {
+      setAuthModalOpen(true);
+      return;
+    }
+
+    // Validate session before showing verification modal to prevent "Session Expired" flash
+    const token = localStorage.getItem('filenova_token');
+    if (!token) {
+      useAuthStore.getState().logout();
+      toast.error("Session expired. Please log in again.");
       setAuthModalOpen(true);
       return;
     }

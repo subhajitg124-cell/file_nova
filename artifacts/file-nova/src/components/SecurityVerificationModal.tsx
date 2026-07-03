@@ -130,8 +130,9 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
     const msg = err.message || fallbackMessage;
     console.log("[SecurityVerification] API error", { message: msg });
     if (msg.includes("Authentication required") || msg.includes("log in first") || msg.includes("401")) {
-      setStep("session-expired");
-      setError("");
+      useAuthStore.getState().logout();
+      onClose();
+      useAuthStore.getState().openLoginModal("Session expired. Please log in again to continue with your purchase.");
     } else {
       setError(msg);
       if (step === "verifying") setStep("choose");
