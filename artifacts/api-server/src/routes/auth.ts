@@ -345,7 +345,7 @@ router.post("/google", async (req, res): Promise<void> => {
 router.get("/me", authMiddleware, async (req: AuthRequest, res): Promise<void> => {
   try {
     if (!req.user) {
-      sendJson(res, { success: true, user: null, subscription: null });
+      sendJson(res, { success: false, error: "Authentication required. Please log in first." }, 401);
       return;
     }
 
@@ -369,7 +369,7 @@ router.get("/me", authMiddleware, async (req: AuthRequest, res): Promise<void> =
     });
   } catch (err: any) {
     logger.error({ err }, "/me endpoint error");
-    sendJson(res, { success: true, user: null, subscription: null });
+    sendJson(res, { success: false, error: "Failed to fetch user profile" }, 500);
   }
 });
 

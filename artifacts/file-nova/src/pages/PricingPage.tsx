@@ -514,7 +514,9 @@ export default function PricingPage() {
         console.error('[PricingPage] Payment failed', { error });
         toast.error(`Payment failed: ${error}`);
         if (typeof error === 'string' && (error.includes('Authentication required') || error.includes('log in first'))) {
-          console.log('[PricingPage] Auth error during payment — showing login prompt');
+          console.log('[PricingPage] Auth error during payment — clearing stale session, showing login prompt');
+          // Clear stale auth state so user sees a clean login modal
+          useAuthStore.getState().logout();
           setAuthModalOpen(true);
         }
       },

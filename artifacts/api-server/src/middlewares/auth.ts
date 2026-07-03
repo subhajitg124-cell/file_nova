@@ -8,6 +8,8 @@ export interface AuthRequest extends Request {
   dbError?: unknown;
 }
 
+const SESSION_REFRESH_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+
 /**
  * Middleware to authenticate requests via session token in headers, cookies, or query params.
  */
@@ -80,6 +82,13 @@ export async function authMiddleware(req: AuthRequest, res: Response, next: Next
 
     if (user) {
       req.user = user;
+
+      // Refresh session expiry for active users (fire-and-forget)
+      const newExpiresAt = new Date(Date.now() + SESSION_REFRESH_MS);
+      db.update(sessionsTable)
+        .set({ expiresAt: newExpiresAt })
+        .where(eq(sessionsTable.token, token))
+        .catch(() => {});
 
       // Update user activity timestamp asynchronously
       db.update(usersTable)

@@ -184,11 +184,8 @@ export function useRazorpay() {
     } catch (err: any) {
       console.error('[useRazorpay] Payment initialization failed', { message: err.message });
       const msg = err.message || 'Could not initialize payment. Please try again.';
-      if (msg.includes('Authentication required') || msg.includes('log in first') || msg.includes('401')) {
-        onFailure(msg);
-      } else {
-        toast.error(msg);
-      }
+      // Always route through onFailure so the caller (PricingPage) can handle auth errors
+      onFailure(msg);
     }
   };
 

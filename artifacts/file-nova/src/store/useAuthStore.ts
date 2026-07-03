@@ -407,22 +407,30 @@ export const useAuthStore = create<AuthState>()(
             initialized: true,
             token: localStorage.getItem(SESSION_TOKEN_KEY),
           });
+          // Sync fresh server user to localStorage so local fallback is current
+          localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(processedUser));
         } else {
-          const localUser = processUser(getLocalSession());
+          // Backend returned 200 but no user — session invalid, clear stale state
+          console.warn("[Auth] /me returned success but no user — clearing stale session");
+          localStorage.removeItem(SESSION_TOKEN_KEY);
+          localStorage.removeItem(LOCAL_USER_KEY);
           set({
-            user: localUser,
-            subscription: processSubscription(localUser ? freeSubscription : null, localUser),
+            user: null,
+            subscription: null,
             initialized: true,
-            token: localStorage.getItem(SESSION_TOKEN_KEY),
+            token: null,
           });
         }
       } else {
-        const localUser = processUser(getLocalSession());
+        // 401 or other error — session expired or invalid, clear stale state
+        console.warn("[Auth] /me returned", res.status, "— clearing stale session");
+        localStorage.removeItem(SESSION_TOKEN_KEY);
+        localStorage.removeItem(LOCAL_USER_KEY);
         set({
-          user: localUser,
-          subscription: processSubscription(localUser ? freeSubscription : null, localUser),
+          user: null,
+          subscription: null,
           initialized: true,
-          token: localStorage.getItem(SESSION_TOKEN_KEY),
+          token: null,
         });
       }
     } catch (err: any) {
@@ -459,7 +467,17 @@ export const useAuthStore = create<AuthState>()(
           });
           localStorage.setItem('fn_user', JSON.stringify(processedUser));
           localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(processedUser));
+        } else {
+          // Session invalid — clear stale state
+          localStorage.removeItem(SESSION_TOKEN_KEY);
+          localStorage.removeItem(LOCAL_USER_KEY);
+          set({ user: null, subscription: null, token: null });
         }
+      } else if (res.status === 401) {
+        // Session expired — clear stale state
+        localStorage.removeItem(SESSION_TOKEN_KEY);
+        localStorage.removeItem(LOCAL_USER_KEY);
+        set({ user: null, subscription: null, token: null });
       }
     } catch (err) {
       console.error("Failed to refresh user:", err);
