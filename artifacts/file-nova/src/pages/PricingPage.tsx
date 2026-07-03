@@ -8,7 +8,7 @@ import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { Sparkles, CheckCircle2, ShieldCheck, Zap, Loader, Copy, QrCode, Check, X, Building2, ServerCog, MessageCircle, Heart } from "lucide-react";
 import { useSubscription, type PremiumTier } from "@/hooks/useSubscription";
-import { useRazorpay } from "@/hooks/useRazorpay";
+import { usePayment } from "@/hooks/usePayment";
 import type { PlanType } from "@/store/useCheckoutStore";
 import { TestingNotice } from "@/components/TestingNotice";
 import { useAdmin } from "@/lib/admin";
@@ -493,7 +493,7 @@ export default function PricingPage() {
   const [hudActiveIndex, setHudActiveIndex] = React.useState<number | null>(null);
 
   const [, setLocation] = useLocation();
-  const { openPayment } = useRazorpay();
+  const { openCheckout: openPayment } = usePayment();
 
   const handleVerified = async (paymentToken: string) => {
     setShowVerification(false);

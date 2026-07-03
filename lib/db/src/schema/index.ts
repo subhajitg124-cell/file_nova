@@ -275,3 +275,6 @@ export { subscriptionsTable, upiPaymentsTable, referralRewardsTable, referralRew
 export type { PaymentOrder, InsertPaymentOrder } from "./subscriptions";
 export * from "./coupons";
 export { discountCodesTable, discountCodeUsagesTable } from "./coupons";
+export * from "./paymentEvents";
+export { paymentEventsTable, insertPaymentEventSchema } from "./paymentEvents";
+export type { PaymentEvent, InsertPaymentEvent } from "./paymentEvents";

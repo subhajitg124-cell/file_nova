@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { X, Mail, Shield, ShieldCheck, CheckCircle, ChevronRight, AlertTriangle, LogIn } from "lucide-react";
+import { X, Mail, Shield, ShieldCheck, CheckCircle, ChevronRight, AlertTriangle } from "lucide-react";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { useAuthStore } from "@/store/useAuthStore";
 import { apiClient } from "@/lib/api";
 
-type VerificationStep = "choose" | "enter-otp" | "verifying" | "verified" | "error" | "session-expired";
+type Step = "choose" | "enter-otp" | "verifying" | "verified" | "error";
 
 interface Props {
   onVerified: (paymentToken: string) => void;
@@ -19,7 +19,7 @@ function maskEmail(email: string): string {
 }
 
 export function SecurityVerificationModal({ onVerified, onClose, planId, billingCycle }: Props) {
-  const [step, setStep] = useState<VerificationStep>("choose");
+  const [step, setStep] = useState<Step>("choose");
   const [otp, setOtp] = useState("");
   const [maskedTarget, setMaskedTarget] = useState("");
   const [error, setError] = useState("");
@@ -43,17 +43,15 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
         method: "POST",
         body: JSON.stringify({}),
       });
-
       if (!res.success) {
         setError(res.error || "Failed to send OTP");
         return;
       }
-
       setMaskedTarget(res.maskedTarget);
       setStep("enter-otp");
       setResendCooldown(60);
     } catch (err: any) {
-      handleApiError(err, "Failed to send OTP. Check your connection.");
+      setError(err.message || "Failed to send OTP");
     } finally {
       setLoading(false);
     }
@@ -73,22 +71,19 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
         method: "POST",
         body: JSON.stringify({ code: otp }),
       });
-
       if (!res.success) {
         setError(res.error || "Verification failed");
         setOtp("");
         setStep("enter-otp");
         return;
       }
-
       setStep("verified");
       setAuthMessage("Preparing secure checkout...");
-      console.log("[SecurityVerification] OTP succeeded", { tokenPrefix: res.paymentToken?.substring(0, 8) });
-      setTimeout(() => {
-        onVerified(res.paymentToken);
-      }, 1500);
+      setTimeout(() => onVerified(res.paymentToken), 1500);
     } catch (err: any) {
-      handleApiError(err, "Verification failed. Please try again.");
+      setError(err.message || "Verification failed");
+      setOtp("");
+      setStep("enter-otp");
     } finally {
       setLoading(false);
     }
@@ -100,85 +95,41 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
     setStep("verifying");
     setAuthMessage("Verifying account...");
     try {
-      console.log("[SecurityVerification] Turnstile succeeded, calling /api/otp/verify-captcha");
       const res = await apiClient.request<any>("/api/otp/verify-captcha", {
         method: "POST",
         body: JSON.stringify({ turnstileToken: token }),
       });
-
       if (!res.success) {
         setError(res.error || "CAPTCHA verification failed");
         setStep("choose");
         return;
       }
-
       setStep("verified");
       setAuthMessage("Preparing secure checkout...");
-      console.log("[SecurityVerification] CAPTCHA succeeded", { tokenPrefix: res.paymentToken?.substring(0, 8) });
       setTimeout(() => {
-        setAuthMessage("Opening Razorpay...");
         onVerified(res.paymentToken);
       }, 1500);
     } catch (err: any) {
-      handleApiError(err, "Verification failed. Please try again.");
+      setError(err.message || "Verification failed");
+      setStep("choose");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleApiError = (err: any, fallbackMessage: string) => {
-    const msg = err.message || fallbackMessage;
-    console.log("[SecurityVerification] API error", { message: msg });
-    if (msg.includes("Authentication required") || msg.includes("log in first") || msg.includes("401")) {
-      useAuthStore.getState().logout();
-      onClose();
-      useAuthStore.getState().openLoginModal("Session expired. Please log in again to continue with your purchase.");
-    } else {
-      setError(msg);
-      if (step === "verifying") setStep("choose");
-    }
-  };
-
   useEffect(() => {
     if (otp.length === 6) handleVerifyOTP();
-  }, [otp]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [otp]);
 
   const isDark = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
-
-  const handleLoginClick = () => {
-    onClose();
-    useAuthStore.getState().openLoginModal("Please log in to continue with payment.");
-  };
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
       <div className="fn-glass rounded-3xl p-8 max-w-sm w-full relative">
-        {step !== "verified" && step !== "session-expired" && (
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[var(--fn-surface-elevated)] flex items-center justify-center text-[var(--fn-text-secondary)] hover:text-[var(--fn-text-primary)] transition"
-          >
+        {step !== "verified" && (
+          <button onClick={onClose} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[var(--fn-surface-elevated)] flex items-center justify-center text-[var(--fn-text-secondary)] hover:text-[var(--fn-text-primary)] transition">
             <X size={16} />
           </button>
-        )}
-
-        {step === "session-expired" && (
-          <>
-            <div className="w-14 h-14 rounded-2xl bg-amber-500/20 flex items-center justify-center mx-auto mb-4">
-              <AlertTriangle className="text-amber-400" size={28} />
-            </div>
-            <h2 className="text-xl font-bold text-center text-[var(--fn-text-primary)] mb-2">Session Expired</h2>
-            <p className="text-[var(--fn-text-secondary)] text-sm text-center mb-6">
-              Your session has expired. Please log in again to continue with your purchase.
-            </p>
-            <button
-              onClick={handleLoginClick}
-              className="w-full bg-indigo-600 text-white rounded-2xl py-3 font-semibold flex items-center justify-center gap-2 transition hover:bg-indigo-500"
-            >
-              <LogIn size={18} />
-              Log In
-            </button>
-          </>
         )}
 
         {step === "choose" && (
@@ -191,11 +142,7 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
               Verify your account to protect your billing profile and enable checkout.
             </p>
 
-            <button
-              onClick={handleSendOTP}
-              disabled={loading}
-              className="w-full fn-card p-4 flex items-center gap-4 mb-3 hover:border-indigo-500/40 transition-all hover:shadow-[var(--fn-shadow-elevated)]"
-            >
+            <button onClick={handleSendOTP} disabled={loading} className="w-full fn-card p-4 flex items-center gap-4 mb-3 hover:border-indigo-500/40 transition-all">
               <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
                 <Mail className="text-indigo-400" size={20} />
               </div>
@@ -221,11 +168,7 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
                 onSuccess={handleTurnstileSuccess}
                 onError={() => setError("CAPTCHA failed. Please refresh.")}
                 onExpire={() => setError("CAPTCHA expired. Please try again.")}
-                options={{
-                  theme: isDark ? "dark" : "light",
-                  size: "flexible",
-                  language: "en",
-                }}
+                options={{ theme: isDark ? "dark" : "light", size: "flexible", language: "en" }}
                 className="w-full"
               />
             </div>
@@ -257,14 +200,10 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
                     const newOtp = otp.split("");
                     newOtp[i] = val;
                     setOtp(newOtp.join(""));
-                    if (val && i < 5) {
-                      document.getElementById(`sv-otp-${i + 1}`)?.focus();
-                    }
+                    if (val && i < 5) document.getElementById(`sv-otp-${i + 1}`)?.focus();
                   }}
                   onKeyDown={(e) => {
-                    if (e.key === "Backspace" && !otp[i] && i > 0) {
-                      document.getElementById(`sv-otp-${i - 1}`)?.focus();
-                    }
+                    if (e.key === "Backspace" && !otp[i] && i > 0) document.getElementById(`sv-otp-${i - 1}`)?.focus();
                   }}
                   id={`sv-otp-${i}`}
                   autoFocus={i === 0}
@@ -287,24 +226,11 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
               {resendCooldown > 0 ? (
                 <p className="text-[var(--fn-text-tertiary)] text-sm">Resend in {resendCooldown}s</p>
               ) : (
-                <button
-                  onClick={() => {
-                    setOtp("");
-                    handleSendOTP();
-                  }}
-                  className="text-indigo-500 text-sm hover:underline"
-                >
+                <button onClick={() => { setOtp(""); handleSendOTP(); }} className="text-indigo-500 text-sm hover:underline">
                   Resend OTP
                 </button>
               )}
-              <button
-                onClick={() => {
-                  setStep("choose");
-                  setOtp("");
-                  setError("");
-                }}
-                className="block mx-auto mt-2 text-[var(--fn-text-tertiary)] text-xs hover:text-[var(--fn-text-secondary)]"
-              >
+              <button onClick={() => { setStep("choose"); setOtp(""); setError(""); }} className="block mx-auto mt-2 text-[var(--fn-text-tertiary)] text-xs hover:text-[var(--fn-text-secondary)]">
                 Use different method
               </button>
             </div>
@@ -338,10 +264,7 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
             </div>
             <h2 className="text-xl font-bold text-center text-[var(--fn-text-primary)] mb-2">Verification Failed</h2>
             <p className="text-[var(--fn-text-secondary)] text-sm text-center mb-6">{error}</p>
-            <button
-              onClick={() => { setStep("choose"); setError(""); }}
-              className="w-full bg-indigo-600 text-white rounded-2xl py-3 font-semibold transition hover:bg-indigo-500"
-            >
+            <button onClick={() => { setStep("choose"); setError(""); }} className="w-full bg-indigo-600 text-white rounded-2xl py-3 font-semibold transition hover:bg-indigo-500">
               Try Again
             </button>
           </>
