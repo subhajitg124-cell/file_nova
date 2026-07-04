@@ -612,7 +612,8 @@ export default function PricingPage() {
     if (!user) { toast.error("Sign in to apply."); setAuthModalOpen(true); return; }
     try {
       const token = localStorage.getItem("filenova_token");
-      const res = await fetch(`${BACKEND_URL}/api/v1/premium/subscription/coupons/validate`, { method: "POST", headers: { "Content-Type": "application/json", ...(token && { Authorization: `Bearer ${token}` }) }, body: JSON.stringify({ coupon: cleanCode, plan: "pro" }) });
+      const planToValidate = pendingPlan?.planId || "pro";
+      const res = await fetch(`${BACKEND_URL}/api/v1/premium/subscription/coupons/validate`, { method: "POST", headers: { "Content-Type": "application/json", ...(token && { Authorization: `Bearer ${token}` }) }, body: JSON.stringify({ coupon: cleanCode, plan: planToValidate }) });
       const data = await res.json();
       if (res.ok && data.valid) { setAppliedDiscount(data.discountPercentage); setCouponSuccess(`Coupon '${cleanCode}' applied!`); setCouponError(""); }
       else { setAppliedDiscount(0); setCouponError(data.message || "Invalid code."); setCouponSuccess(""); }

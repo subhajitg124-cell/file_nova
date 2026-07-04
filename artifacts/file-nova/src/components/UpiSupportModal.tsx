@@ -3,6 +3,7 @@ import { X, Copy, Check, ExternalLink, CreditCard, Loader } from "lucide-react";
 import { toast } from "sonner";
 import { apiClient, apiMock, HAS_BACKEND } from "@/lib/api";
 import { FILENOVA_UPI_ID, FILENOVA_PAYEE_NAME, createUpiLink } from "@/lib/upi";
+import { loadRazorpayScript } from "@/lib/razorpayLoader";
 
 interface UpiSupportModalProps {
   isOpen: boolean;
@@ -10,22 +11,6 @@ interface UpiSupportModalProps {
   amount: number;
   note: string;
 }
-
-const loadRazorpayScript = (): Promise<boolean> => {
-  return new Promise((resolve) => {
-    if ((window as any).Razorpay) {
-      resolve(true);
-      return;
-    }
-
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.async = true;
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
-};
 
 export function UpiSupportModal({ isOpen, onClose, amount, note }: UpiSupportModalProps) {
   const [copied, setCopied] = useState(false);

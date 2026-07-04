@@ -57,8 +57,14 @@ export function useRazorpay() {
               success: boolean; plan: string; expiresAt: string; error?: string;
             }>('/api/payment/verify', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(response),
+              headers: { 
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              }),
             });
             if (result.success) {
               onSuccess(result);

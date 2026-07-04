@@ -219,7 +219,7 @@ export const apiClient = {
   },
 
   async getPaymentHistory(): Promise<any> {
-    return this.request<any>('/api/payments/history', {
+    return this.request<any>('/api/v1/premium/subscription/history', {
       method: 'GET',
     });
   },
@@ -237,7 +237,7 @@ export const apiClient = {
   },
 
   async getInvoice(subId: string): Promise<any> {
-    return this.request<any>(`/api/payments/invoice/${subId}`, {
+    return this.request<any>(`/api/v1/premium/subscription/invoice/${subId}`, {
       method: 'GET',
     });
   },
@@ -497,6 +497,7 @@ export const apiMock = {
     await new Promise((resolve) => setTimeout(resolve, 500));
     return {
       success: true,
+      isMock: true,
       orderId: `order_mock_${Math.random().toString(36).substring(7)}`,
       amount: plan === 'basic' ? 4900 : plan === 'pro' ? 9900 : 19900,
       currency: 'INR',

@@ -56,7 +56,9 @@ export const PLAN_AMOUNTS: Record<string, number> = {
   elite_monthly: 19900,
   elite_yearly: 199000,
   pass_24hr: 900,
+  pass_24h: 900,
   pass_weekly: 2900,
+  pass_7d: 2900,
 };
 
 export const PLAN_DURATIONS: Record<string, { days: number; label: string }> = {
@@ -75,7 +77,11 @@ export function getPlanAmount(planId: string, billingCycle: string): number {
   const amount = PLAN_AMOUNTS[key];
   if (amount !== undefined) return amount;
   if (planId === "pass" && billingCycle === "24hr") return PLAN_AMOUNTS.pass_24hr;
+  if (planId === "pass" && billingCycle === "24h") return PLAN_AMOUNTS.pass_24h;
   if (planId === "pass" && billingCycle === "weekly") return PLAN_AMOUNTS.pass_weekly;
+  if (planId === "pass" && billingCycle === "7d") return PLAN_AMOUNTS.pass_7d;
+  if (planId === "pass_24h" || planId === "pass_24hr") return PLAN_AMOUNTS.pass_24hr;
+  if (planId === "pass_weekly" || planId === "pass_7d") return PLAN_AMOUNTS.pass_weekly;
   throw new Error(`Invalid plan: ${planId}/${billingCycle}`);
 }
 

@@ -284,7 +284,7 @@ router.post("/coupons/validate", authMiddleware, async (req: Request, res: Respo
   try {
     const { coupon, plan } = z.object({
       coupon: z.string(),
-      plan: z.enum(["basic", "pro", "elite"]),
+      plan: z.enum(["basic", "pro", "elite", "pass_24h", "pass_7d"]),
     }).parse(req.body);
 
     const userId = (req as AuthRequest).user?.id;
@@ -375,6 +375,77 @@ router.post("/cancel", authMiddleware, requireAuth, async (req: AuthRequest, res
     }
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message || "Failed to cancel subscription" });
+  }
+});
+
+// ── 4b. GET /history — Payment History ────────────────────────────────────────
+router.get("/history", authMiddleware, requireAuth, async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user!.id;
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const offset = (page - 1) * limit;
+
+    const items = await db
+      .select()
+      .from(subscriptionsTable)
+      .where(
+        and(
+          eq(subscriptionsTable.userId, userId),
+          eq(subscriptionsTable.isDeleted, false)
+        )
+      )
+      .orderBy(desc(subscriptionsTable.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    res.json({ success: true, history: items });
+  } catch (err: any) {
+    logger.error({ err }, "Failed to fetch payment history");
+    res.status(500).json({ success: false, error: "Failed to fetch payment history" });
+  }
+});
+
+// ── 4c. GET /invoice/:id — Invoice for a subscription ─────────────────────────
+router.get("/invoice/:id", authMiddleware, requireAuth, async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user!.id;
+    const id = req.params.id as string;
+
+    const [sub] = await db
+      .select()
+      .from(subscriptionsTable)
+      .where(
+        and(
+          eq(subscriptionsTable.id, id),
+          eq(subscriptionsTable.userId, userId),
+          eq(subscriptionsTable.isDeleted, false)
+        )
+      )
+      .limit(1);
+
+    if (!sub) {
+      res.status(404).json({ success: false, error: "Subscription not found" });
+      return;
+    }
+
+    res.json({
+      success: true,
+      invoice: {
+        id: sub.id,
+        plan: sub.plan,
+        amount: sub.amount,
+        currency: sub.currency,
+        status: sub.status,
+        createdAt: sub.createdAt,
+        currentPeriodStart: sub.currentPeriodStart,
+        currentPeriodEnd: sub.currentPeriodEnd,
+        razorpayPaymentId: sub.razorpayPaymentId,
+      },
+    });
+  } catch (err: any) {
+    logger.error({ err }, "Failed to fetch invoice");
+    res.status(500).json({ success: false, error: "Failed to fetch invoice" });
   }
 });
 

@@ -12,6 +12,7 @@ import { apiClient, apiMock, HAS_BACKEND } from "@/lib/api";
 import { FILENOVA_UPI_ID, FILENOVA_PAYEE_NAME, createUpiQrUrl } from "@/lib/upi";
 import { FEATURE_PAYMENT_GATEWAY } from "@/config/featureFlags";
 import { useSupportDevStore } from "@/store/useSupportDevStore";
+import { loadRazorpayScript } from "@/lib/razorpayLoader";
 import { toast } from "sonner";
 import {
   Sparkles,
@@ -97,24 +98,6 @@ const PLAN_DETAILS: Record<PlanType, {
   },
 };
 
-let razorpayScriptEl: HTMLScriptElement | null = null;
-
-const loadRazorpayScript = (): Promise<boolean> => {
-  return new Promise((resolve) => {
-    if ((window as any).Razorpay) {
-      resolve(true);
-      return;
-    }
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.async = true;
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    razorpayScriptEl = script;
-    document.body.appendChild(script);
-  });
-};
-
 export function CheckoutModal() {
   const { isOpen, selectedPlan, coupon, closeCheckout, setCoupon } = useCheckoutStore();
   const { user, fetchMe, openLoginModal } = useAuthStore();
@@ -131,16 +114,6 @@ export function CheckoutModal() {
   const [copiedUpi, setCopiedUpi] = useState(false);
   const [submittingUpi, setSubmittingUpi] = useState(false);
   const [upiSubmitted, setUpiSubmitted] = useState(false);
-
-  // Clean up Razorpay script on unmount
-  useEffect(() => {
-    return () => {
-      if (razorpayScriptEl && document.body.contains(razorpayScriptEl)) {
-        document.body.removeChild(razorpayScriptEl);
-        razorpayScriptEl = null;
-      }
-    };
-  }, []);
 
   // General state
   const [processing, setProcessing] = useState(false);

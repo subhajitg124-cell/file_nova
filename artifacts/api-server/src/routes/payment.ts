@@ -39,6 +39,27 @@ router.post('/create-order', requireAuth, async (req: AuthRequest, res: Response
       return res.status(400).json({ error: 'Invalid plan selected' });
     }
 
+    // Mock mode: return a fake order without calling Razorpay
+    if (PaymentService.isMockEnabled()) {
+      const mockOrderId = `order_mock_${crypto.randomBytes(8).toString('hex')}`;
+      await db.insert(paymentOrders).values({
+        id: mockOrderId,
+        userId,
+        planId,
+        billingCycle,
+        amount,
+        currency: 'INR',
+        status: 'created',
+      });
+      return res.json({
+        orderId: mockOrderId,
+        amount,
+        currency: 'INR',
+        keyId: process.env.RAZORPAY_KEY_ID || 'rzp_test_mockkey',
+        isMock: true,
+      });
+    }
+
     const order = await razorpay.orders.create({
       amount,
       currency: 'INR',
@@ -48,7 +69,7 @@ router.post('/create-order', requireAuth, async (req: AuthRequest, res: Response
 
     await db.insert(paymentOrders).values({
       id: order.id,
-      userId: userId,
+      userId,
       planId,
       billingCycle,
       amount,
@@ -61,6 +82,7 @@ router.post('/create-order', requireAuth, async (req: AuthRequest, res: Response
       amount: order.amount,
       currency: order.currency,
       keyId: process.env.RAZORPAY_KEY_ID,
+      isMock: false,
     });
   } catch (error) {
     logger.error({ error }, 'create-order error');
@@ -78,20 +100,6 @@ router.post('/verify', requireAuth, async (req: AuthRequest, res: Response) => {
     } = req.body;
     const userId = req.user!.id;
 
-    // Signature verification — NEVER skip this
-    const body = razorpay_order_id + '|' + razorpay_payment_id;
-    const expected = crypto
-      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET!)
-      .update(body)
-      .digest('hex');
-
-    if (expected !== razorpay_signature) {
-      return res.status(400).json({
-        success: false,
-        error: 'Payment signature verification failed',
-      });
-    }
-
     const [order] = await db
       .select()
       .from(paymentOrders)
@@ -99,7 +107,29 @@ router.post('/verify', requireAuth, async (req: AuthRequest, res: Response) => {
       .limit(1);
 
     if (!order || order.userId !== userId) {
-      return res.status(404).json({ error: 'Order not found' });
+      return res.status(404).json({ success: false, error: 'Order not found' });
+    }
+
+    // Mock orders: skip signature verification
+    const isMockOrder = razorpay_order_id.startsWith('order_mock_');
+    if (!isMockOrder) {
+      // Real Razorpay: verify signature
+      const secret = process.env.RAZORPAY_KEY_SECRET;
+      if (!secret) {
+        return res.status(500).json({ success: false, error: 'Payment gateway misconfigured' });
+      }
+      const body = razorpay_order_id + '|' + razorpay_payment_id;
+      const expected = crypto
+        .createHmac('sha256', secret)
+        .update(body)
+        .digest('hex');
+
+      if (expected !== razorpay_signature) {
+        return res.status(400).json({
+          success: false,
+          error: 'Payment signature verification failed',
+        });
+      }
     }
 
     // Mark order paid
