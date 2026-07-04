@@ -1,11 +1,12 @@
 import crypto from 'crypto';
 import { Router, type Response } from 'express';
 import { eq } from 'drizzle-orm';
-import { db, users, paymentOrders, subscriptionsTable } from '@workspace/db';
+import { db, users, paymentOrders, subscriptionsTable, usersTable } from '@workspace/db';
 import { razorpay, PLAN_AMOUNTS, getPlanExpiry } from '../lib/razorpay';
 import { requireAuth, type AuthRequest } from '../middlewares/auth';
 import { verifyPaymentToken } from './otp';
 import { logger } from '../lib/logger';
+import { PaymentService } from '../services/PaymentService';
 
 const router = Router();
 
@@ -143,6 +144,75 @@ router.post('/verify', requireAuth, async (req: AuthRequest, res: Response) => {
   }
 });
 
+// ── SIMULATE WEBHOOK (dev-only, no auth) ──────────────────────
+router.post('/simulate-webhook', async (req, res) => {
+  try {
+    const { event, payload } = req.body;
+    if (!event || !payload) {
+      return res.status(400).json({ success: false, error: 'Missing event or payload' });
+    }
+
+    if (event === 'payment.captured') {
+      const payment = payload.payment?.entity;
+      if (!payment?.order_id) {
+        return res.status(400).json({ success: false, error: 'Missing order_id in payload' });
+      }
+
+      const [order] = await db
+        .select()
+        .from(paymentOrders)
+        .where(eq(paymentOrders.id, payment.order_id))
+        .limit(1);
+
+      if (order) {
+        await db.update(paymentOrders)
+          .set({ status: 'paid', paymentId: payment.id, paidAt: new Date() })
+          .where(eq(paymentOrders.id, payment.order_id));
+
+        const expiry = getPlanExpiry(`${order.planId}_${order.billingCycle}`);
+        const planTier = order.planId === 'pass'
+          ? `pass_${order.billingCycle}`
+          : order.planId.split('_')[0];
+
+        await db.update(users)
+          .set({ plan: planTier, planExpiresAt: expiry, premiumTier: planTier, premiumEnabled: true })
+          .where(eq(users.id, order.userId));
+
+        await db.insert(subscriptionsTable).values({
+          userId: order.userId,
+          plan: planTier,
+          status: 'active',
+          amount: order.amount,
+          currency: order.currency || 'INR',
+          razorpayOrderId: payment.order_id,
+          razorpayPaymentId: payment.id,
+          currentPeriodStart: new Date(),
+          currentPeriodEnd: expiry,
+        }).onConflictDoNothing({ target: subscriptionsTable.razorpayOrderId });
+
+        logger.info({ orderId: payment.order_id }, 'Simulated webhook: payment.captured');
+        return res.json({ success: true, message: `Simulated ${event} processed for order ${payment.order_id}` });
+      }
+      return res.status(404).json({ success: false, error: 'Order not found for simulation' });
+    }
+
+    if (event === 'payment.failed') {
+      const payment = payload.payment?.entity;
+      if (payment?.order_id) {
+        await db.update(paymentOrders)
+          .set({ status: 'failed' })
+          .where(eq(paymentOrders.id, payment.order_id));
+      }
+      return res.json({ success: true, message: `Simulated ${event} processed` });
+    }
+
+    return res.status(400).json({ success: false, error: `Unsupported event type: ${event}` });
+  } catch (error) {
+    logger.error({ error }, 'simulate-webhook error');
+    return res.status(500).json({ success: false, error: 'Webhook simulation failed' });
+  }
+});
+
 // ── WEBHOOK (public — no requireAuth) ─────────────────────────
 router.post(
   '/webhook',
@@ -214,5 +284,33 @@ router.post(
     }
   }
 );
+
+// ── DIAGNOSTICS (dev-only, no auth required) ─────────────────
+router.get('/diagnostics', async (_req, res) => {
+  const razorpayConfigured = !!(process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET);
+  const mockMode = PaymentService.isMockEnabled();
+  const keyLoaded = !!process.env.RAZORPAY_KEY_ID;
+  const secretLoaded = !!process.env.RAZORPAY_KEY_SECRET;
+  const webhookConfigured = !!process.env.RAZORPAY_WEBHOOK_SECRET;
+
+  let databaseConnected = false;
+  try {
+    await db.select().from(usersTable).limit(1);
+    databaseConnected = true;
+  } catch {
+    databaseConnected = false;
+  }
+
+  res.json({
+    razorpayConfigured,
+    mockMode,
+    keyLoaded,
+    secretLoaded,
+    webhookConfigured,
+    databaseConnected,
+    lastOrderCreation: PaymentService.getLastOrderCreationStatus(),
+    lastSignatureVerification: PaymentService.getLastSignatureVerificationStatus(),
+  });
+});
 
 export default router;

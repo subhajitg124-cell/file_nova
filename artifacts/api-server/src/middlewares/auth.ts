@@ -45,10 +45,17 @@ export async function authMiddleware(req: AuthRequest, res: Response, next: Next
     return next();
   }
 
-  if (token.startsWith("local_") && process.env.NODE_ENV !== "production") {
+  // Allow dev mock tokens (local_*) in development OR in production when
+  // DEVELOPER_EMAILS is configured — this lets the Dev Console work against
+  // a production backend without a real session.
+  const developerEmails = (process.env.DEVELOPER_EMAILS || "").split(",").map(e => e.trim()).filter(Boolean);
+  const isDevToken = token.startsWith("local_");
+  const devMockAllowed = process.env.NODE_ENV !== "production" || developerEmails.length > 0;
+
+  if (isDevToken && devMockAllowed) {
     req.user = {
       id: "local_dev",
-      email: "subhajitgho123@gmail.com",
+      email: developerEmails[0] || "subhajitgho123@gmail.com",
       name: "Developer Test",
       phoneNumber: null,
       phoneVerified: true,
@@ -117,12 +124,13 @@ export async function authMiddleware(req: AuthRequest, res: Response, next: Next
  */
 export function requireAuth(req: AuthRequest, res: Response, next: NextFunction) {
   if (req.dbError) {
-    // In production always return 500 so we don't silently bypass auth
-    if (process.env.NODE_ENV === "production") {
+    // For dev mock tokens, allow fallback even in production (auth already passed)
+    const isDevToken = req.sessionToken?.startsWith("local_");
+    if (process.env.NODE_ENV === "production" && !isDevToken) {
       res.status(500).json({ error: "Database connection failed. Please try again in a few seconds." });
       return;
     }
-    // In development, if a token was presented but the DB lookup failed,
+    // In development or for dev tokens, if a token was presented but the DB lookup failed,
     // inject a fallback developer user so API endpoints remain testable.
     if (!req.user && req.sessionToken) {
       req.user = {

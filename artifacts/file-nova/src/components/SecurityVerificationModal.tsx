@@ -35,6 +35,8 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
     }
   }, [resendCooldown]);
 
+  const [authFailed, setAuthFailed] = useState(false);
+
   const handleSendOTP = async () => {
     setLoading(true);
     setError("");
@@ -51,7 +53,14 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
       setStep("enter-otp");
       setResendCooldown(60);
     } catch (err: any) {
-      setError(err.message || "Failed to send OTP");
+      const msg = err.message || "Failed to send OTP";
+      if (msg.includes("Authentication required") || msg.includes("401")) {
+        setAuthFailed(true);
+        setError("Session expired. Please log in again.");
+        useAuthStore.getState().logout();
+      } else {
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -81,15 +90,23 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
       setAuthMessage("Preparing secure checkout...");
       setTimeout(() => onVerified(res.paymentToken), 1500);
     } catch (err: any) {
-      setError(err.message || "Verification failed");
-      setOtp("");
-      setStep("enter-otp");
+      const msg = err.message || "Verification failed";
+      if (msg.includes("Authentication required") || msg.includes("401")) {
+        setAuthFailed(true);
+        setError("Session expired. Please log in again.");
+        useAuthStore.getState().logout();
+      } else {
+        setError(msg);
+        setOtp("");
+        setStep("enter-otp");
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const handleTurnstileSuccess = async (token: string) => {
+    if (authFailed) return;
     setLoading(true);
     setError("");
     setStep("verifying");
@@ -110,8 +127,15 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
         onVerified(res.paymentToken);
       }, 1500);
     } catch (err: any) {
-      setError(err.message || "Verification failed");
-      setStep("choose");
+      const msg = err.message || "Verification failed";
+      if (msg.includes("Authentication required") || msg.includes("401")) {
+        setAuthFailed(true);
+        setError("Session expired. Please log in again.");
+        useAuthStore.getState().logout();
+      } else {
+        setError(msg);
+        setStep("choose");
+      }
     } finally {
       setLoading(false);
     }
@@ -166,8 +190,8 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
               <Turnstile
                 siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
                 onSuccess={handleTurnstileSuccess}
-                onError={() => setError("CAPTCHA failed. Please refresh.")}
-                onExpire={() => setError("CAPTCHA expired. Please try again.")}
+                onError={() => { if (!authFailed) setError("CAPTCHA failed. Please refresh."); }}
+                onExpire={() => { if (!authFailed) setError("CAPTCHA expired. Please try again."); }}
                 options={{ theme: isDark ? "dark" : "light", size: "flexible", language: "en" }}
                 className="w-full"
               />

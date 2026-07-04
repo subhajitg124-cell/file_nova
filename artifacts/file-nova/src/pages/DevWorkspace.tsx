@@ -1261,10 +1261,10 @@ function TestingView() {
 
     try {
       const amountPaise = Math.round(targetAmount * 100);
-      addLog(`Calling POST /api/create-order with amount=${amountPaise} paise`, "info");
+      addLog(`Calling POST /api/payment/create-order with amount=${amountPaise} paise`, "info");
 
       const orderResponse = await apiClient.request<{ order_id: string; amount: number; currency: string; isMock?: boolean }>(
-        "/api/create-order",
+        "/api/payment/create-order",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -1279,7 +1279,7 @@ function TestingView() {
       // ── Mock payment flow (backend returned isMock: true) ─────────────────
       if (orderResponse.isMock) {
         addLog("ℹ️  Mock payment mode detected — skipping real Razorpay modal.", "info");
-        addLog("Simulating successful payment and calling /api/verify-payment...", "info");
+        addLog("Simulating successful payment and calling /api/payment/verify...", "info");
 
         const fakePaymentId = `pay_mock_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`;
         const fakeSignature = `mock_sig_${crypto.randomUUID().replace(/-/g, "")}`;
@@ -1287,7 +1287,7 @@ function TestingView() {
 
         try {
           const verifyResponse = await apiClient.request<{ success: boolean; message: string }>(
-            "/api/verify-payment",
+            "/api/payment/verify",
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -1333,11 +1333,11 @@ function TestingView() {
           setLastPaymentId(response.razorpay_payment_id);
           addLog("Payment callback received from modal!", "success");
           addLog(`Callback parameters: ${JSON.stringify(response)}`, "info");
-          addLog("Calling POST /api/verify-payment to verify signature...", "info");
+          addLog("Calling POST /api/payment/verify to verify signature...", "info");
 
           try {
             const verifyResponse = await apiClient.request<{ success: boolean; message: string }>(
-              "/api/verify-payment",
+              "/api/payment/verify",
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -1446,7 +1446,7 @@ function TestingView() {
     addLog("Manually verifying signature with fake/mock signature parameters...", "info");
     const fakeSig = `mock_sig_${crypto.randomUUID().replace(/-/g, "")}`;
     try {
-      const res = await apiClient.request<any>("/api/verify-payment", {
+      const res = await apiClient.request<any>("/api/payment/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
