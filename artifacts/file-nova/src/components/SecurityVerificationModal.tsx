@@ -36,6 +36,18 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
   }, [resendCooldown]);
 
   const [authFailed, setAuthFailed] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
+
+  useEffect(() => {
+    if (step === "verifying") {
+      const timeout = setTimeout(() => {
+        setError("Verification timed out. Please try again.");
+        setStep("choose");
+        setIsVerifying(false);
+      }, 15_000);
+      return () => clearTimeout(timeout);
+    }
+  }, [step]);
 
   const handleSendOTP = async () => {
     setLoading(true);
@@ -106,7 +118,8 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
   };
 
   const handleTurnstileSuccess = async (token: string) => {
-    if (authFailed) return;
+    if (authFailed || isVerifying) return;
+    setIsVerifying(true);
     setLoading(true);
     setError("");
     setStep("verifying");
@@ -138,6 +151,7 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
       }
     } finally {
       setLoading(false);
+      setIsVerifying(false);
     }
   };
 
@@ -177,25 +191,27 @@ export function SecurityVerificationModal({ onVerified, onClose, planId, billing
               <ChevronRight className="ml-auto text-[var(--fn-text-tertiary)]" size={16} />
             </button>
 
-            <div className="fn-card p-4">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center flex-shrink-0">
-                  <Shield className="text-orange-400" size={20} />
+            {import.meta.env.VITE_TURNSTILE_SITE_KEY && (
+              <div className="fn-card p-4">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center flex-shrink-0">
+                    <Shield className="text-orange-400" size={20} />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-semibold text-[var(--fn-text-primary)] text-sm">Quick CAPTCHA Verify</p>
+                    <p className="text-[var(--fn-text-secondary)] text-xs">One-click verification — no code needed</p>
+                  </div>
                 </div>
-                <div className="text-left">
-                  <p className="font-semibold text-[var(--fn-text-primary)] text-sm">Quick CAPTCHA Verify</p>
-                  <p className="text-[var(--fn-text-secondary)] text-xs">One-click verification — no code needed</p>
-                </div>
+                <Turnstile
+                  siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+                  onSuccess={handleTurnstileSuccess}
+                  onError={() => { if (!authFailed) setError("CAPTCHA failed. Please refresh."); }}
+                  onExpire={() => { if (!authFailed) setError("CAPTCHA expired. Please try again."); }}
+                  options={{ theme: isDark ? "dark" : "light", size: "flexible", language: "en" }}
+                  className="w-full"
+                />
               </div>
-              <Turnstile
-                siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
-                onSuccess={handleTurnstileSuccess}
-                onError={() => { if (!authFailed) setError("CAPTCHA failed. Please refresh."); }}
-                onExpire={() => { if (!authFailed) setError("CAPTCHA expired. Please try again."); }}
-                options={{ theme: isDark ? "dark" : "light", size: "flexible", language: "en" }}
-                className="w-full"
-              />
-            </div>
+            )}
 
             {error && <p className="text-red-400 text-sm text-center mt-3">{error}</p>}
           </>
