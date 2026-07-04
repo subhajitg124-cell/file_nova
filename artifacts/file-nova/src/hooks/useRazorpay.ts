@@ -1,10 +1,7 @@
 import { useAuthStore } from '@/store/useAuthStore';
 import { apiClient } from '@/lib/api';
+import { loadRazorpayScript } from '@/lib/razorpayLoader';
 import { toast } from 'sonner';
-
-declare global {
-  interface Window { Razorpay: any; }
-}
 
 interface OpenPaymentParams {
   planId: string;
@@ -17,21 +14,11 @@ interface OpenPaymentParams {
 export function useRazorpay() {
   const { user } = useAuthStore();
 
-  const loadScript = (): Promise<boolean> =>
-    new Promise(resolve => {
-      if (window.Razorpay) { resolve(true); return; }
-      const s = document.createElement('script');
-      s.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      s.onload = () => resolve(true);
-      s.onerror = () => resolve(false);
-      document.body.appendChild(s);
-    });
-
   const openPayment = async ({
     planId, billingCycle, paymentToken,
     onSuccess, onFailure,
   }: OpenPaymentParams) => {
-    const loaded = await loadScript();
+    const loaded = await loadRazorpayScript();
     if (!loaded) {
       toast.error('Payment gateway failed to load. Refresh and try again.');
       return;

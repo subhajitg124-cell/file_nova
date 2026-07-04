@@ -3,6 +3,15 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { BACKEND_URL, HAS_BACKEND } from '@/lib/api';
 import { useFileStore } from './useFileStore';
 
+const DEVELOPER_EMAILS = (
+  import.meta.env.VITE_DEVELOPER_EMAILS || 'subhajitgho123@gmail.com'
+).split(',').map((e: string) => e.trim().toLowerCase());
+
+const isDeveloper = (email?: string | null): boolean => {
+  if (!email) return false;
+  return DEVELOPER_EMAILS.includes(email.toLowerCase());
+};
+
 const isMockActive = () => {
   return !HAS_BACKEND || useFileStore.getState().isMockMode;
 };
@@ -14,7 +23,7 @@ export interface UserProfile {
   phoneNumber: string | null;
   phoneVerified: boolean;
   role: 'user' | 'operator' | 'admin' | 'super_admin' | 'developer';
-  premiumTier: 'free' | 'basic' | 'pro' | 'elite';
+  premiumTier: 'free' | 'basic' | 'pro' | 'elite' | 'pass_24hr' | 'pass_weekly';
   premiumEnabled: boolean;
   referralCode?: string | null;
 }
@@ -91,7 +100,7 @@ const processUser = (user: UserProfile | null): UserProfile | null => {
 
   // For server-backed users: never generate a client-side code — server owns it
   if (!user.id.startsWith("local_")) {
-    if (user.email?.toLowerCase() === 'subhajitgho123@gmail.com') {
+    if (isDeveloper(user.email)) {
       return {
         ...user,
         role: 'developer',
@@ -131,7 +140,7 @@ const processUser = (user: UserProfile | null): UserProfile | null => {
     } catch (_) {}
   }
 
-  if (user.email?.toLowerCase() === 'subhajitgho123@gmail.com') {
+  if (isDeveloper(user.email)) {
     return {
       ...user,
       role: 'developer',
@@ -144,7 +153,7 @@ const processUser = (user: UserProfile | null): UserProfile | null => {
 };
 
 const processSubscription = (sub: UserSubscription | null, user: UserProfile | null): UserSubscription | null => {
-  if (user?.email?.toLowerCase() === 'subhajitgho123@gmail.com') {
+  if (isDeveloper(user?.email)) {
     return {
       plan: 'elite',
       status: 'active',
@@ -323,6 +332,28 @@ async function safeJsonParse(response: Response) {
   }
 }
 
+// Attempt to refresh an expired session token via /api/v1/auth/refresh
+async function attemptTokenRefresh(): Promise<boolean> {
+  try {
+    const token = localStorage.getItem(SESSION_TOKEN_KEY);
+    if (!token) return false;
+    const res = await fetch(`${BACKEND_URL}/api/v1/auth/refresh`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      credentials: 'include',
+    });
+    if (!res.ok) return false;
+    const data = await res.json();
+    if (data.success && data.token) {
+      localStorage.setItem(SESSION_TOKEN_KEY, data.token);
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
 // Safe fetch with timeout
 async function safeFetch(input: RequestInfo, init?: RequestInit): Promise<Response> {
   const controller = new AbortController();
@@ -434,17 +465,10 @@ export const useAuthStore = create<AuthState>()(
         });
       }
     } catch (err: any) {
-      const localUser = processUser(getLocalSession());
-      const elapsed = Date.now() - startTime;
-      if (elapsed < 1000) {
-        await new Promise((resolve) => setTimeout(resolve, 1000 - elapsed));
-      }
+      console.error("fetchMe network error:", err);
       set({
-        user: localUser,
-        subscription: processSubscription(localUser ? freeSubscription : null, localUser),
         initialized: true,
-        token: localStorage.getItem(SESSION_TOKEN_KEY),
-        error: err.message || 'Failed to fetch user profile',
+        error: 'Failed to reach server. Please check your connection.',
       });
     } finally {
       set({ loading: false });
@@ -452,11 +476,31 @@ export const useAuthStore = create<AuthState>()(
   },
 
   refreshUser: async () => {
+    if (isMockActive()) {
+      const localUser = processUser(getLocalSession());
+      set({
+        user: localUser,
+        subscription: processSubscription(localUser ? freeSubscription : null, localUser),
+      });
+      return;
+    }
     try {
-      const res = await fetch(`${BACKEND_URL}/api/v1/auth/me`, {
+      let res = await fetch(`${BACKEND_URL}/api/v1/auth/me`, {
         headers: getAuthHeaders(),
         credentials: 'include',
       });
+
+      // Attempt token refresh on 401 before clearing auth
+      if (res.status === 401) {
+        const refreshed = await attemptTokenRefresh();
+        if (refreshed) {
+          res = await fetch(`${BACKEND_URL}/api/v1/auth/me`, {
+            headers: getAuthHeaders(),
+            credentials: 'include',
+          });
+        }
+      }
+
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.user) {
@@ -465,16 +509,13 @@ export const useAuthStore = create<AuthState>()(
             user: processedUser,
             subscription: processSubscription(data.subscription, processedUser)
           });
-          localStorage.setItem('fn_user', JSON.stringify(processedUser));
           localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(processedUser));
         } else {
-          // Session invalid — clear stale state
           localStorage.removeItem(SESSION_TOKEN_KEY);
           localStorage.removeItem(LOCAL_USER_KEY);
           set({ user: null, subscription: null, token: null });
         }
-      } else if (res.status === 401) {
-        // Session expired — clear stale state
+      } else if (res.status === 401 || res.status === 403) {
         localStorage.removeItem(SESSION_TOKEN_KEY);
         localStorage.removeItem(LOCAL_USER_KEY);
         set({ user: null, subscription: null, token: null });
@@ -796,7 +837,7 @@ export const useAuthStore = create<AuthState>()(
         return true;
       }
 
-      const res = await safeFetch(`${BACKEND_URL}/api/send-otp`, {
+      const res = await safeFetch(`${BACKEND_URL}/api/v1/auth/send-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -833,7 +874,7 @@ export const useAuthStore = create<AuthState>()(
         return true;
       }
 
-      const res = await safeFetch(`${BACKEND_URL}/api/verify-otp`, {
+      const res = await safeFetch(`${BACKEND_URL}/api/v1/auth/verify-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

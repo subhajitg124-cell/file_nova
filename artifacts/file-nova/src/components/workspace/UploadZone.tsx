@@ -37,13 +37,15 @@ const CATEGORY_META = {
   office: { icon: FileSpreadsheet,label: 'Office Suite',  color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30' },
 };
 
-type PlanName = 'free' | 'basic' | 'pro' | 'elite';
+type PlanName = 'free' | 'basic' | 'pro' | 'elite' | 'pass_24hr' | 'pass_weekly';
 
 const FILE_SIZE_LIMITS_MB: Record<PlanName, number> = {
   free: 3,
   basic: 15,
   pro: 50,
   elite: 100,
+  pass_24hr: 50,
+  pass_weekly: 50,
 };
 
 const formatFileSizeMb = (bytes: number) => {

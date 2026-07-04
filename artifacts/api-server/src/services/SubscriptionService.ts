@@ -1,5 +1,6 @@
 import { db, usersTable, subscriptionsTable, processingJobsTable } from "@workspace/db";
 import { eq, desc, and, count } from "drizzle-orm";
+import { getPlanExpiry } from "../lib/razorpay";
 import { logger } from "../lib/logger";
 import { handleUserReferrerUpgradeReward } from "./referralService";
 import { CouponService } from "./CouponService";
@@ -20,22 +21,7 @@ export interface SubscriptionStatus {
 
 export class SubscriptionService {
   public static calculateExpiry(plan: string): Date {
-    const expiresAt = new Date();
-    
-    if (plan.includes("24h") || plan.includes("24")) {
-      expiresAt.setHours(expiresAt.getHours() + 24);
-    } else if (plan.includes("7d") || plan.includes("7")) {
-      expiresAt.setDate(expiresAt.getDate() + 7);
-    } else if (plan.includes("yearly") || plan.includes("year")) {
-      expiresAt.setDate(expiresAt.getDate() + 365);
-    } else if (plan.includes("lifetime") || plan.includes("infinite")) {
-      expiresAt.setDate(expiresAt.getDate() + 36500); // ~100 years
-    } else {
-      // Default monthly (30 days)
-      expiresAt.setDate(expiresAt.getDate() + 30);
-    }
-
-    return expiresAt;
+    return getPlanExpiry(plan);
   }
 
   public static async createPendingSubscription(
@@ -112,6 +98,8 @@ export class SubscriptionService {
         .set({
           premiumTier: plan,
           premiumEnabled: true,
+          plan: plan,
+          planExpiresAt: expiresAt,
           updatedAt: now,
         })
         .where(eq(usersTable.id, updatedSub.userId));

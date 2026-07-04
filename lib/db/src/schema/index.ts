@@ -15,7 +15,7 @@ import {
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
-export const userRoleEnum = pgEnum("user_role", ["user", "operator", "admin", "super_admin"]);
+export const userRoleEnum = pgEnum("user_role", ["user", "operator", "admin", "super_admin", "developer"]);
 export const jobStatusEnum = pgEnum("job_status", ["queued", "processing", "completed", "failed", "expired"]);
 export const eventCategoryEnum = pgEnum("event_category", ["scheme", "student", "identity", "job", "admission"]);
 

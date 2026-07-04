@@ -2,6 +2,10 @@ import type { Request, Response, NextFunction } from "express";
 import { db, usersTable, sessionsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 
+// Throttle lastActiveAt updates to at most once per 5 minutes per user
+const lastActiveCache = new Set<string>();
+setInterval(() => lastActiveCache.clear(), 5 * 60 * 1000);
+
 export interface AuthRequest extends Request {
   user?: typeof usersTable.$inferSelect;
   sessionToken?: string;
@@ -90,11 +94,14 @@ export async function authMiddleware(req: AuthRequest, res: Response, next: Next
         .where(eq(sessionsTable.token, token))
         .catch(() => {});
 
-      // Update user activity timestamp asynchronously
-      db.update(usersTable)
-        .set({ lastActiveAt: new Date() })
-        .where(eq(usersTable.id, user.id))
-        .catch(() => {});
+      // Update user activity timestamp (throttled to once per 5 minutes)
+      if (!lastActiveCache.has(user.id)) {
+        lastActiveCache.add(user.id);
+        db.update(usersTable)
+          .set({ lastActiveAt: new Date() })
+          .where(eq(usersTable.id, user.id))
+          .catch(() => {});
+      }
     }
   } catch (err) {
     // Database connection could be down, fallback silently but flag the error

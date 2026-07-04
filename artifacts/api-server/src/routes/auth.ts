@@ -3,9 +3,9 @@ import crypto from "node:crypto";
 import { z } from "zod";
 import { OAuth2Client } from "google-auth-library";
 import { db, usersTable, sessionsTable, subscriptionsTable } from "@workspace/db";
-import { eq, or, desc } from "drizzle-orm";
-import { hashPassword, verifyPassword } from "../utils/hash";
-import { authMiddleware, AuthRequest } from "../middlewares/auth";
+import { eq, ne, or, and, desc } from "drizzle-orm";
+import { hashPassword, verifyPassword, isLegacyHash } from "../utils/hash";
+import { authMiddleware, requireAuth, AuthRequest } from "../middlewares/auth";
 import { completeReferral, generateUniqueReferralCode, ensureUserReferralCode } from "../services/referralService";
 import { logger } from "../lib/logger";
 import { NotificationService } from "../services/NotificationService";
@@ -83,7 +83,7 @@ router.post("/signup", async (req, res): Promise<void> => {
   try {
     const bodySchema = z.object({
       email: z.string().email("Invalid email format"),
-      phoneNumber: z.string().min(10, "Phone number must be at least 10 digits").max(15).optional().nullable(),
+      phoneNumber: z.string().regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit Indian mobile number").optional().nullable(),
       password: z.string().min(6, "Password must be at least 6 characters"),
       name: z.string().min(1, "Name is required").optional().nullable(),
       referralCode: z.string().max(8).optional().nullable(),
@@ -134,14 +134,18 @@ router.post("/signup", async (req, res): Promise<void> => {
       })
       .returning();
 
-    await completeReferral(
-      parsed.referralCode,
-      newUser.id,
-      newUser.email,
-      parsed.referralTrackingId ?? undefined,
-      req.ip || undefined,
-      req.headers["user-agent"] || undefined
-    );
+    try {
+      await completeReferral(
+        parsed.referralCode,
+        newUser.id,
+        newUser.email,
+        parsed.referralTrackingId ?? undefined,
+        req.ip || undefined,
+        req.headers["user-agent"] || undefined
+      );
+    } catch (referralErr) {
+      logger.warn({ err: referralErr }, "Referral completion failed (non-critical)");
+    }
 
     // Seed welcome notification (non-blocking)
     NotificationService.sendWelcome(newUser.id, newUser.name).catch((err) =>
@@ -172,7 +176,7 @@ router.post("/signup", async (req, res): Promise<void> => {
       sendJson(res, { error: err.errors[0].message }, 400);
       return;
     }
-    sendJson(res, { error: err.message || "Failed to create user" }, 500);
+    sendJson(res, { error: "Failed to create user" }, 500);
   }
 });
 
@@ -181,7 +185,7 @@ router.post("/login", async (req, res): Promise<void> => {
   try {
     const bodySchema = z.object({
       identifier: z.string().min(1, "Email or Phone Number is required"),
-      password: z.string().min(1, "Password is required"),
+      password: z.string().min(8, "Password must be at least 8 characters"),
     });
 
     const parsed = bodySchema.parse(req.body);
@@ -203,6 +207,16 @@ router.post("/login", async (req, res): Promise<void> => {
     if (!user || !user.passwordHash || !verifyPassword(parsed.password, user.passwordHash)) {
       sendJson(res, { error: "Invalid email/phone number or password" }, 401);
       return;
+    }
+
+    // Upgrade legacy password hashes (1000 → 600000 PBKDF2 iterations)
+    if (isLegacyHash(user.passwordHash)) {
+      try {
+        const newHash = hashPassword(parsed.password);
+        await db.update(usersTable).set({ passwordHash: newHash }).where(eq(usersTable.id, user.id));
+      } catch (upgradeErr) {
+        logger.warn({ err: upgradeErr }, "Failed to upgrade password hash on login");
+      }
     }
 
     const token = await createSession(user.id, res);
@@ -230,7 +244,7 @@ router.post("/login", async (req, res): Promise<void> => {
       sendJson(res, { error: err.errors[0].message }, 400);
       return;
     }
-    sendJson(res, { error: err.message || "Failed to authenticate" }, 500);
+    sendJson(res, { error: "Failed to authenticate" }, 500);
   }
 });
 
@@ -244,7 +258,7 @@ router.post("/google", async (req, res): Promise<void> => {
     });
 
     const parsed = bodySchema.parse(req.body);
-    const googleClientId = process.env.GOOGLE_CLIENT_ID || process.env.VITE_GOOGLE_CLIENT_ID;
+    const googleClientId = process.env.GOOGLE_CLIENT_ID;
 
     if (!googleClientId || googleClientId === "your_google_client_id") {
       sendJson(res, { error: "Google OAuth client ID is not configured" }, 500);
@@ -337,32 +351,27 @@ router.post("/google", async (req, res): Promise<void> => {
       sendJson(res, { error: err.errors[0].message }, 400);
       return;
     }
-    sendJson(res, { error: err.message || "Google auth processing failed" }, 500);
+    sendJson(res, { error: "Google auth processing failed" }, 500);
   }
 });
 
 // ── 4. GET /me ──
-router.get("/me", authMiddleware, async (req: AuthRequest, res): Promise<void> => {
+router.get("/me", requireAuth, async (req: AuthRequest, res): Promise<void> => {
   try {
-    if (!req.user) {
-      sendJson(res, { success: false, error: "Authentication required. Please log in first." }, 401);
-      return;
-    }
-
-    const referralCode = await ensureUserReferralCode(req.user.id);
-    const subscription = await getUserSubscriptionInfo(req.user.id);
+    const referralCode = await ensureUserReferralCode(req.user!.id);
+    const subscription = await getUserSubscriptionInfo(req.user!.id);
 
     sendJson(res, {
       success: true,
       user: {
-        id: req.user.id,
-        email: req.user.email,
-        name: req.user.name,
-        phoneNumber: req.user.phoneNumber,
-        phoneVerified: req.user.phoneVerified,
-        role: req.user.role,
-        premiumTier: req.user.premiumTier,
-        premiumEnabled: req.user.premiumEnabled,
+        id: req.user!.id,
+        email: req.user!.email,
+        name: req.user!.name,
+        phoneNumber: req.user!.phoneNumber,
+        phoneVerified: req.user!.phoneVerified,
+        role: req.user!.role,
+        premiumTier: req.user!.premiumTier,
+        premiumEnabled: req.user!.premiumEnabled,
         referralCode,
       },
       subscription,
@@ -453,7 +462,7 @@ router.post("/refresh", async (req, res): Promise<void> => {
     sendJson(res, { success: true, token: newToken });
   } catch (err: any) {
     logger.error({ err }, "Session refresh error");
-    sendJson(res, { error: err.message || "Failed to refresh session" }, 500);
+    sendJson(res, { error: "Failed to refresh session" }, 500);
   }
 });
 
@@ -497,10 +506,23 @@ router.put("/me", authMiddleware, async (req: AuthRequest, res): Promise<void> =
 
     const bodySchema = z.object({
       name: z.string().min(1, "Name is required").optional().nullable(),
-      phoneNumber: z.string().min(10, "Phone number must be at least 10 digits").max(15).optional().nullable(),
+      phoneNumber: z.string().regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit Indian mobile number").optional().nullable(),
     });
 
     const parsed = bodySchema.parse(req.body);
+
+    // Check phone number uniqueness if being updated
+    if (parsed.phoneNumber) {
+      const [existingPhone] = await db
+        .select()
+        .from(usersTable)
+        .where(and(eq(usersTable.phoneNumber, parsed.phoneNumber), ne(usersTable.id, req.user.id)))
+        .limit(1);
+      if (existingPhone) {
+        sendJson(res, { error: "This phone number is already registered" }, 409);
+        return;
+      }
+    }
 
     const [updatedUser] = await db
       .update(usersTable)
@@ -541,7 +563,7 @@ router.put("/me", authMiddleware, async (req: AuthRequest, res): Promise<void> =
       sendJson(res, { error: err.errors[0].message }, 400);
       return;
     }
-    sendJson(res, { error: err.message || "Failed to update profile" }, 500);
+    sendJson(res, { error: "Failed to update profile" }, 500);
   }
 });
 
@@ -603,7 +625,7 @@ router.post("/change-password", authMiddleware, async (req: AuthRequest, res): P
       sendJson(res, { error: err.errors[0].message }, 400);
       return;
     }
-    sendJson(res, { error: err.message || "Failed to change password" }, 500);
+    sendJson(res, { error: "Failed to change password" }, 500);
   }
 });
 
@@ -636,12 +658,22 @@ router.delete("/me", authMiddleware, async (req: AuthRequest, res): Promise<void
     });
   } catch (err: any) {
     logger.error({ err }, "Delete account error");
-    sendJson(res, { error: err.message || "Failed to delete account" }, 500);
+    sendJson(res, { error: "Failed to delete account" }, 500);
   }
 });
 
 // Memory store for OTPs
 const otpStore = new Map<string, { otp: string; expiresAt: number }>();
+
+// Clean up expired OTP entries every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, value] of otpStore.entries()) {
+    if (value.expiresAt < now) {
+      otpStore.delete(key);
+    }
+  }
+}, 5 * 60 * 1000);
 
 // ── 9. POST /send-otp ──
 router.post("/send-otp", authMiddleware, async (req: AuthRequest, res): Promise<void> => {
@@ -684,7 +716,7 @@ router.post("/send-otp", authMiddleware, async (req: AuthRequest, res): Promise<
       sendJson(res, { error: err.errors[0].message }, 400);
       return;
     }
-    sendJson(res, { error: err.message || "Failed to send OTP" }, 500);
+    sendJson(res, { error: "Failed to send OTP" }, 500);
   }
 });
 
@@ -706,10 +738,9 @@ router.post("/verify-otp", authMiddleware, async (req: AuthRequest, res): Promis
     const storeKey = `${req.user.id}:${parsed.type}:${parsed.target}`;
     const record = otpStore.get(storeKey);
 
-    const isMockOtp = parsed.otp === "1234";
     const isValidOtp = record && record.otp === parsed.otp && record.expiresAt > Date.now();
 
-    if (!isMockOtp && !isValidOtp) {
+    if (!isValidOtp) {
       sendJson(res, { error: "Invalid or expired verification code" }, 400);
       return;
     }
@@ -762,7 +793,7 @@ router.post("/verify-otp", authMiddleware, async (req: AuthRequest, res): Promis
       sendJson(res, { error: err.errors[0].message }, 400);
       return;
     }
-    sendJson(res, { error: err.message || "Verification failed" }, 500);
+    sendJson(res, { error: "Verification failed" }, 500);
   }
 });
 

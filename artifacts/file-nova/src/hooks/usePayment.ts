@@ -1,13 +1,8 @@
 import { useRef, useCallback } from "react";
 import { apiClient } from "@/lib/api";
+import { loadRazorpayScript } from "@/lib/razorpayLoader";
 import { useAuthStore } from "@/store/useAuthStore";
 import { toast } from "sonner";
-
-declare global {
-  interface Window {
-    Razorpay: any;
-  }
-}
 
 interface PaymentOptions {
   planId: string;
@@ -17,22 +12,6 @@ interface PaymentOptions {
   paymentToken?: string;
   onSuccess: (data: any) => void;
   onFailure: (error: any) => void;
-}
-
-let razorpyScriptLoaded = false;
-
-function loadRazorpayScript(): Promise<boolean> {
-  if (window.Razorpay) return Promise.resolve(true);
-  if (razorpyScriptLoaded) return Promise.resolve(true);
-
-  return new Promise((resolve) => {
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.async = true;
-    script.onload = () => { razorpyScriptLoaded = true; resolve(true); };
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
 }
 
 function getToken(): string | null {

@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import { Router, type Response } from 'express';
 import { eq } from 'drizzle-orm';
-import { db, users, paymentOrders } from '@workspace/db';
+import { db, users, paymentOrders, subscriptionsTable } from '@workspace/db';
 import { razorpay, PLAN_AMOUNTS, getPlanExpiry } from '../lib/razorpay';
 import { requireAuth, type AuthRequest } from '../middlewares/auth';
 import { verifyPaymentToken } from './otp';
@@ -111,11 +111,26 @@ router.post('/verify', requireAuth, async (req: AuthRequest, res: Response) => {
     const planExpiry = getPlanExpiry(
       `${order.planId}_${order.billingCycle}`
     );
-    const planTier = order.planId.split('_')[0]; // basic|pro|elite
+    const planTier = order.planId === 'pass'
+      ? `pass_${order.billingCycle}`
+      : order.planId.split('_')[0];
 
     await db.update(users)
       .set({ plan: planTier, planExpiresAt: planExpiry, premiumTier: planTier, premiumEnabled: true })
       .where(eq(users.id, userId));
+
+    // Also write to subscriptionsTable so SubscriptionService.getUserStatus finds it
+    await db.insert(subscriptionsTable).values({
+      userId,
+      plan: planTier,
+      status: 'active',
+      amount: order.amount,
+      currency: order.currency || 'INR',
+      razorpayOrderId: razorpay_order_id,
+      razorpayPaymentId: razorpay_payment_id,
+      currentPeriodStart: new Date(),
+      currentPeriodEnd: planExpiry,
+    }).onConflictDoNothing({ target: subscriptionsTable.razorpayOrderId });
 
     return res.json({
       success: true,
@@ -164,10 +179,24 @@ router.post(
           const expiry = getPlanExpiry(
             `${order.planId}_${order.billingCycle}`
           );
-          const planTier = order.planId.split('_')[0];
+          const planTier = order.planId === 'pass'
+            ? `pass_${order.billingCycle}`
+            : order.planId.split('_')[0];
           await db.update(users)
             .set({ plan: planTier, planExpiresAt: expiry, premiumTier: planTier, premiumEnabled: true })
             .where(eq(users.id, order.userId));
+          // Also write to subscriptionsTable
+          await db.insert(subscriptionsTable).values({
+            userId: order.userId,
+            plan: planTier,
+            status: 'active',
+            amount: order.amount,
+            currency: order.currency || 'INR',
+            razorpayOrderId: payment.order_id,
+            razorpayPaymentId: payment.id,
+            currentPeriodStart: new Date(),
+            currentPeriodEnd: expiry,
+          }).onConflictDoNothing({ target: subscriptionsTable.razorpayOrderId });
         }
       }
 
