@@ -88,10 +88,12 @@ export const paymentOrders = pgTable('payment_orders', {
   id: varchar('id', { length: 64 }).primaryKey(),
   userId: uuid('user_id').notNull().references(() => usersTable.id, { onDelete: 'cascade' }),
   planId: varchar('plan_id', { length: 32 }).notNull(),
+  billingCycle: varchar('billing_cycle', { length: 10 }).default('monthly'),
   amount: integer('amount').notNull(),
   currency: varchar('currency', { length: 3 }).default('INR'),
   status: varchar('status', { length: 16 }).default('created'),
   paymentId: varchar('payment_id', { length: 64 }),
+  signature: varchar('signature', { length: 128 }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
   paidAt: timestamp('paid_at', { withTimezone: true }),
 }, (table) => {

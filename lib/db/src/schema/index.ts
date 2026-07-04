@@ -34,6 +34,8 @@ export const usersTable = pgTable("users", {
   // Premium features
   premiumEnabled: boolean("premium_enabled").notNull().default(false),
   premiumTier: varchar("premium_tier", { length: 50 }).default("free"), // free, basic, pro, elite
+  plan: varchar("plan", { length: 16 }).default("free"),
+  planExpiresAt: timestamp("plan_expires_at", { withTimezone: true }),
   voiceLanguage: varchar("voice_language", { length: 10 }).default("en"), // en, hi, bn
   privacyMode: boolean("privacy_mode").notNull().default(false), // No logging mode
   cafeOperatorId: uuid("cafe_operator_id"), // Link to cafe if operator
@@ -278,3 +280,6 @@ export { discountCodesTable, discountCodeUsagesTable } from "./coupons";
 export * from "./paymentEvents";
 export { paymentEventsTable, insertPaymentEventSchema } from "./paymentEvents";
 export type { PaymentEvent, InsertPaymentEvent } from "./paymentEvents";
+
+export { usersTable as users, otpVerificationsTable as otpVerifications };
+

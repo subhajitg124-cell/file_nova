@@ -97,7 +97,7 @@ export class RazorpayGateway implements PaymentGateway {
       return;
     }
 
-    const rawBody = req.rawBody || Buffer.from(JSON.stringify(req.body), "utf8");
+    const rawBody = (req as any).rawBody || Buffer.from(JSON.stringify(req.body), "utf8");
     if (!this.verifyWebhookSignature(rawBody, signature, secret)) {
       logger.error({ eventId, event }, "Invalid Razorpay webhook signature");
       return;
