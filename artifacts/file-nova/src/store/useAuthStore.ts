@@ -7,9 +7,17 @@ const DEVELOPER_EMAILS = (
   import.meta.env.VITE_DEVELOPER_EMAILS || 'subhajitgho123@gmail.com'
 ).split(',').map((e: string) => e.trim().toLowerCase());
 
-const isDeveloper = (email?: string | null): boolean => {
+export const isDeveloper = (email?: string | null): boolean => {
   if (!email) return false;
   return DEVELOPER_EMAILS.includes(email.toLowerCase());
+};
+
+const hashMockPassword = async (password: string): Promise<string> => {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 };
 
 const isMockActive = () => {
@@ -90,26 +98,29 @@ const createLocalUser = (email: string, name: string | null, phoneNumber: string
   phoneNumber,
   phoneVerified: false,
   role: 'user',
-  premiumTier: 'free',
-  premiumEnabled: false,
+  premiumTier: 'elite',
+  premiumEnabled: true,
   referralCode: null,
 });
 
 const processUser = (user: UserProfile | null): UserProfile | null => {
   if (!user) return null;
 
+  // Ensure all users have Elite tier benefits since the platform is 100% free
+  const role = isDeveloper(user.email) ? 'developer' : user.role;
+  const phoneVerified = isDeveloper(user.email) ? true : user.phoneVerified;
+
+  const upgradedUser = {
+    ...user,
+    role,
+    phoneVerified,
+    premiumTier: 'elite' as const,
+    premiumEnabled: true,
+  };
+
   // For server-backed users: never generate a client-side code — server owns it
-  if (!user.id.startsWith("local_")) {
-    if (isDeveloper(user.email)) {
-      return {
-        ...user,
-        role: 'developer',
-        premiumTier: 'elite',
-        premiumEnabled: true,
-        phoneVerified: true,
-      };
-    }
-    return user;
+  if (!upgradedUser.id.startsWith("local_")) {
+    return upgradedUser;
   }
 
   // Local-only users: generate a code once and persist it
@@ -164,7 +175,7 @@ const processSubscription = (sub: UserSubscription | null, user: UserProfile | n
   return sub;
 };
 
-const getLocalUsers = (): Record<string, { user: UserProfile; password: string }> => {
+const getLocalUsers = (): Record<string, { user: UserProfile; password?: string; passwordHash?: string }> => {
   try {
     return JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || '{}');
   } catch {
@@ -532,7 +543,8 @@ export const useAuthStore = create<AuthState>()(
         const key = identifier.trim().toLowerCase();
         const localUsers = getLocalUsers();
         const saved = localUsers[key];
-        if (!saved || saved.password !== password) {
+        const passwordHash = await hashMockPassword(password);
+        if (!saved || (saved.passwordHash !== passwordHash && saved.password !== password)) {
           throw new Error('No local account found with those credentials. Create an account first.');
         }
         const processedUser = processUser(saved.user);
@@ -583,7 +595,8 @@ export const useAuthStore = create<AuthState>()(
           throw new Error('An account already exists with this email.');
         }
         const user = createLocalUser(key, name || key.split('@')[0], phoneNumber);
-        localUsers[key] = { user, password };
+        const passwordHash = await hashMockPassword(password);
+        localUsers[key] = { user, passwordHash };
         localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(localUsers));
         const processedUser = processUser(user);
         simulateMockReferral(processedUser!);

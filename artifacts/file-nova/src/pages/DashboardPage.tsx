@@ -12,19 +12,17 @@ import {
   CreditCard, 
   Zap, 
   History, 
-  User, 
   ArrowUpRight,
   Loader2,
-  AlertCircle,
   Gift,
   LayoutDashboard,
   Copy,
   BrainCircuit,
-  Star,
+  Heart,
+  Server
 } from "lucide-react";
 import { useSubscription, type PremiumTier } from "@/hooks/useSubscription";
 import { useAuthStore } from "@/store/useAuthStore";
-import { useCheckoutStore } from "@/store/useCheckoutStore";
 import { toast } from "sonner";
 import { apiClient } from "@/lib/api";
 
@@ -41,12 +39,7 @@ export default function DashboardPage() {
   const { user } = useAuthStore();
   const { 
     premiumTier, 
-    premiumEnabled, 
-    expiresAt, 
     useCount, 
-    getDailyLimit, 
-    loading: subLoading,
-    cancelSubscription,
     refreshStatus
   } = useSubscription();
 
@@ -55,9 +48,6 @@ export default function DashboardPage() {
 
   const userName = user?.name || "FileNova Member";
   const userEmail = user?.email || "user@filenova.in";
-
-  const dailyLimit = getDailyLimit();
-  const usagePercentage = dailyLimit === Infinity || dailyLimit === -1 ? 0 : Math.min(100, (useCount / dailyLimit) * 100);
 
   // Authentication Route Protection
   useEffect(() => {
@@ -102,39 +92,6 @@ export default function DashboardPage() {
     }).format(paise / 100);
   };
 
-  // Helper to get plan styles
-  const getPlanBadge = (tier: PremiumTier) => {
-    switch (tier) {
-      case "elite":
-        return (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 border border-amber-400 px-3 py-1 text-xs font-black uppercase tracking-wider text-white shadow-glow animate-pulse">
-            <Sparkles className="h-3 w-3 fill-white" />
-            Elite Plan
-          </span>
-        );
-      case "pro":
-        return (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 border border-violet-500 px-3 py-1 text-xs font-black uppercase tracking-wider text-white shadow-glow">
-            <Sparkles className="h-3 w-3 fill-white animate-pulse" />
-            Pro Plan
-          </span>
-        );
-      case "basic":
-        return (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-sky-500 to-primary border border-sky-400 px-3 py-1 text-xs font-black uppercase tracking-wider text-white">
-            <Zap className="h-3 w-3 fill-white" />
-            Basic Plan
-          </span>
-        );
-      default:
-        return (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary border border-border px-3 py-1 text-xs font-black uppercase tracking-wider text-muted-foreground">
-            Free Account
-          </span>
-        );
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background text-foreground bg-mesh pb-16 font-sans">
       {/* Sticky Header */}
@@ -155,11 +112,12 @@ export default function DashboardPage() {
       <main className="mx-auto max-w-7xl px-4 py-8 space-y-8 animate-fade-in">
         {/* Welcome Section */}
         <section className="relative overflow-hidden rounded-3xl border border-border/80 bg-card/95 glass shadow-premium p-8 card-shine">
-          <div className="absolute -right-16 -top-16 w-48 h-48 bg-primary/10 rounded-full blur-3xl" />
+          <div className="absolute -right-16 -top-16 w-48 h-48 bg-rose-500/10 rounded-full blur-3xl" />
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 z-10 relative">
             <div className="space-y-2">
-              <p className="text-xs font-bold text-sky-500 uppercase tracking-widest">
-                Account Command Center
+              <p className="text-xs font-bold text-rose-500 uppercase tracking-widest flex items-center gap-1">
+                <Heart className="h-3.5 w-3.5 fill-rose-500" />
+                Community Dashboard
               </p>
               <h1 className="text-3xl font-black md:text-4xl tracking-tight">
                 Welcome, {userName}
@@ -169,202 +127,90 @@ export default function DashboardPage() {
               </p>
             </div>
             <div>
-              {getPlanBadge(premiumTier)}
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-rose-500 via-amber-500 to-rose-600 border border-rose-400/30 px-4 py-1.5 text-xs font-black uppercase tracking-wider text-white shadow-glow">
+                <Sparkles className="h-3 w-3 fill-white animate-pulse" />
+                Lifetime Free Elite
+              </span>
             </div>
           </div>
         </section>
 
-        {/* Stats Grid */}
+        {/* Benefits Grid */}
         <section className="grid gap-6 md:grid-cols-2">
-          {/* Card 1: Usage Meter */}
+          {/* Card 1: Unlimited Workspace Benefits */}
           <div className="rounded-3xl border border-border bg-card p-6 shadow-premium flex flex-col justify-between space-y-6 relative overflow-hidden group/stats">
-            <div className="absolute top-0 right-0 -translate-y-12 translate-x-12 w-32 h-32 bg-sky-500/[0.02] rounded-full blur-2xl group-hover/stats:bg-sky-500/[0.04] transition-all duration-700 pointer-events-none" />
+            <div className="absolute top-0 right-0 -translate-y-12 translate-x-12 w-32 h-32 bg-rose-500/[0.02] rounded-full blur-2xl group-hover/stats:bg-rose-500/[0.04] transition-all duration-700 pointer-events-none" />
 
-            <div className="flex items-center justify-between relative z-10">
+            <div className="space-y-4 relative z-10">
               <div className="space-y-1">
                 <h2 className="text-base font-black flex items-center gap-2 text-foreground">
-                  <TrendingUp className="h-5 w-5 text-sky-400" />
-                  Today's Usage Meter
+                  <ShieldCheck className="h-5 w-5 text-emerald-400" />
+                  Your Workspace Benefits
                 </h2>
                 <p className="text-[11px] text-muted-foreground">
-                  Resets daily at midnight Indian Standard Time (IST)
+                  FileNova is 100% free. Enjoy premium operations with zero limitations.
                 </p>
               </div>
-              <span className="text-xl font-black font-mono text-foreground bg-muted/60 border border-border rounded-xl px-3 py-1.5">
-                {useCount} / {dailyLimit === Infinity || dailyLimit === -1 ? "∞" : dailyLimit}
-              </span>
-            </div>
 
-            {/* Progress bar */}
-            <div className="space-y-2 relative z-10">
-              <div className="h-3.5 w-full bg-muted border border-border rounded-full overflow-hidden p-0.5">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: `${dailyLimit === Infinity || dailyLimit === -1 ? 100 : usagePercentage}%` }}
-                  transition={{ type: "spring", stiffness: 80, damping: 15 }}
-                  className={`h-full rounded-full ${
-                    usagePercentage >= 90 
-                      ? "bg-gradient-to-r from-red-500 to-rose-600 shadow-glow-sm" 
-                      : usagePercentage >= 60 
-                      ? "bg-gradient-to-r from-amber-500 to-orange-500" 
-                      : "bg-gradient-to-r from-sky-500 to-indigo-600"
-                  }`} 
-                />
-              </div>
-              <div className="flex justify-between text-[10px] text-muted-foreground font-bold">
-                <span>0% Usage</span>
-                <span>{dailyLimit === Infinity || dailyLimit === -1 ? "Unlimited operations available" : `${Math.round(usagePercentage)}% of daily limit consumed`}</span>
-              </div>
-            </div>
-
-            {/* Weekly activity visualizer */}
-            <div className="pt-2 border-t border-slate-900 relative z-10">
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-3">Weekly Files Processed</p>
-              <div className="h-24 w-full flex items-end justify-between gap-3 pt-2">
+              <div className="space-y-3 pt-2">
                 {[
-                  { day: "Mon", count: 2 },
-                  { day: "Tue", count: 4 },
-                  { day: "Wed", count: 1 },
-                  { day: "Thu", count: 5 },
-                  { day: "Fri", count: 3 },
-                  { day: "Sat", count: 0 },
-                  { day: "Sun", count: useCount }
-                ].map((item, i) => {
-                  const maxCount = 6;
-                  const heightPercent = (item.count / maxCount) * 100;
-                  return (
-                    <div key={i} className="flex-1 flex flex-col items-center gap-1.5 group/bar">
-                      <div className="w-full relative bg-muted/40 rounded-t-lg border border-border overflow-hidden flex items-end justify-center h-[60px]">
-                        <motion.div
-                          initial={{ height: 0 }}
-                          animate={{ height: `${heightPercent}%` }}
-                          transition={{ type: "spring", stiffness: 100, damping: 15, delay: i * 0.04 }}
-                          className="w-full bg-gradient-to-t from-sky-600/40 to-indigo-500/80 rounded-t group-hover/bar:to-indigo-400 relative"
-                        >
-                          <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-opacity bg-card border border-border text-[8px] font-mono font-bold text-foreground px-1 py-0.5 rounded pointer-events-none z-20">
-                            {item.count}
-                          </div>
-                        </motion.div>
-                      </div>
-                      <span className="text-[9px] text-muted-foreground font-bold font-mono">{item.day}</span>
-                    </div>
-                  );
-                })}
+                  "Unlimited document operations per day",
+                  "Bulk upload & batch processing enabled",
+                  "Up to 100MB file uploads for larger documents",
+                  "100% private, local browser processing",
+                  "Ad-free workspace with instant downloads"
+                ].map((benefit, i) => (
+                  <div key={i} className="flex items-center gap-2.5 text-xs font-bold text-foreground">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                    <span>{benefit}</span>
+                  </div>
+                ))}
               </div>
             </div>
 
-            {dailyLimit !== Infinity && dailyLimit !== -1 && usagePercentage >= 100 && (
-              <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-4 flex items-start gap-3 relative z-10">
-                <AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
-                <div className="text-xs space-y-1">
-                  <p className="font-bold text-red-500">Operation limit reached today</p>
-                  <p className="text-muted-foreground">Please wait until midnight IST or upgrade your plan now for uninterrupted access to PDF tools, government form presets, and Aadhaar masking.</p>
-                </div>
-              </div>
-            )}
-
-            {premiumTier === "free" && (
-              <button
-                onClick={() => useCheckoutStore.getState().openCheckout("pro")}
-                className="w-full py-3 inline-flex items-center justify-center gap-2 rounded-xl border border-indigo-500/10 bg-indigo-500/5 hover:bg-indigo-500/10 text-indigo-400 transition text-xs font-black relative z-10"
-              >
-                <Sparkles className="h-4 w-4 text-amber-500 animate-pulse" />
-                Upgrade to Basic or Pro for more daily actions
-              </button>
-            )}
+            <Link href="/" className="w-full py-3 inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-rose-600 hover:opacity-95 text-white transition text-xs font-black relative z-10 cursor-pointer shadow-md">
+              <Zap className="h-4 w-4 fill-white" />
+              Open Tools Directory
+            </Link>
           </div>
 
-          {/* Card 2: Subscription Details */}
+          {/* Card 2: Keep Us Online */}
           <div className="rounded-3xl border border-border bg-card p-6 shadow-premium flex flex-col justify-between space-y-6 relative overflow-hidden group/sub">
-            <div className="absolute top-0 right-0 -translate-y-12 translate-x-12 w-32 h-32 bg-indigo-500/[0.02] rounded-full blur-2xl group-hover/sub:bg-indigo-500/[0.04] transition-all duration-700 pointer-events-none" />
+            <div className="absolute top-0 right-0 -translate-y-12 translate-x-12 w-32 h-32 bg-amber-500/[0.02] rounded-full blur-2xl group-hover/sub:bg-amber-500/[0.04] transition-all duration-700 pointer-events-none" />
 
-            <div className="space-y-1 relative z-10">
-              <h2 className="text-base font-black flex items-center gap-2 text-foreground">
-                <CreditCard className="h-5 w-5 text-indigo-400" />
-                Subscription Status
-              </h2>
-              <p className="text-[11px] text-muted-foreground">
-                Manage renewal details and payments securely via Razorpay
+            <div className="space-y-4 relative z-10">
+              <div className="space-y-1">
+                <h2 className="text-base font-black flex items-center gap-2 text-foreground">
+                  <Server className="h-5 w-5 text-amber-400" />
+                  Fund Server Costs
+                </h2>
+                <p className="text-[11px] text-muted-foreground">
+                  We run on community support. Even a small contribution helps cover API fees.
+                </p>
+              </div>
+
+              <p className="text-xs text-[var(--fn-text-secondary)] font-medium leading-relaxed">
+                By removing paywalls, FileNova guarantees accessible document tools for everyone. If FileNova helped you save time today, please consider buying us a cutting chai (₹10) to support server hardware and keeping the platform completely ad-free.
               </p>
             </div>
 
-            {/* Virtual Membership Card Visual */}
-            <div className="p-5 rounded-2xl bg-gradient-to-br from-card to-card border border-border shadow-inner space-y-4 relative overflow-hidden select-none z-10">
-              <div className="absolute top-0 right-0 p-1 px-3 rounded-bl-xl bg-indigo-500/10 border-l border-b border-indigo-500/20 text-[9px] font-black text-indigo-400 uppercase tracking-widest">
-                Active Member
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded bg-gradient-to-tr from-brand-primary to-violet-600 flex items-center justify-center text-white font-extrabold text-[10px] shadow">FN</div>
-                  <div>
-                    <p className="text-[9px] text-muted-foreground uppercase font-black tracking-wider leading-none">Subscription</p>
-                    <p className="text-xs font-black text-foreground capitalize mt-1 leading-none">FileNova {premiumTier}</p>
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center justify-between pt-2 border-t border-slate-900/60">
-                <div>
-                  <p className="text-[8px] text-muted-foreground uppercase font-black tracking-wider">Subscriber Name</p>
-                  <p className="text-[11px] font-bold text-foreground mt-1">{userName}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-[8px] text-muted-foreground uppercase font-black tracking-wider">Status</p>
-                  <p className={`text-[10px] font-black uppercase mt-1 ${premiumEnabled ? "text-emerald-400" : "text-muted-foreground"}`}>
-                    {premiumEnabled ? "Subscribed" : "Free Plan"}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid gap-3 text-sm relative z-10">
-              {expiresAt && (
-                <div className="flex items-center justify-between rounded-xl bg-muted/40 border border-border px-4 py-2.5">
-                  <span className="text-muted-foreground text-xs font-semibold flex items-center gap-1">
-                    <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                    Renewal Date
-                  </span>
-                  <span className="font-bold font-mono text-foreground text-xs">
-                    {new Date(expiresAt).toLocaleDateString("en-IN", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric"
-                    })}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {premiumEnabled && premiumTier !== "free" ? (
-              <button
-                onClick={cancelSubscription}
-                disabled={subLoading}
-                className="w-full py-3 inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 text-red-500 transition text-xs font-black disabled:opacity-50 relative z-10"
-              >
-                {subLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                Downgrade Subscription to Free
-              </button>
-            ) : (
-              <button
-                onClick={() => useCheckoutStore.getState().openCheckout("pro")}
-                className="w-full py-3.5 bg-gradient-to-r from-primary to-indigo-600 hover:opacity-95 text-white font-black text-xs rounded-xl shadow-premium shadow-glow hover:-translate-y-0.5 transition duration-200 cursor-pointer flex items-center justify-center gap-2 relative z-10"
-              >
-                <Sparkles className="h-4 w-4 text-amber-300 animate-pulse" />
-                Explore Premium Billing Plans
-              </button>
-            )}
+            <Link href="/pricing" className="w-full py-3.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:opacity-95 text-white font-black text-xs rounded-xl shadow-premium hover:-translate-y-0.5 transition duration-200 cursor-pointer flex items-center justify-center gap-2 relative z-10">
+              <Heart className="h-4 w-4 fill-current text-white animate-pulse" />
+              Support Our Work (UPI / QR)
+            </Link>
           </div>
         </section>
 
-        {/* Refer & Earn Section with link copy helper */}
+        {/* Refer & Earn Section */}
         <section className="rounded-3xl border border-emerald-500/20 bg-emerald-500/5 p-6 shadow-premium space-y-4">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-lg font-black flex items-center gap-2">
                 <Gift className="h-5 w-5 text-emerald-500" />
-                Refer & Earn program
+                Refer &amp; Share
               </h2>
               <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                Invite friends to FileNova. When they sign up using your referral link, both of you get 7 days of Pro plan access for free!
+                Invite friends and colleagues to FileNova. Help students and kiosk operators discover India's best free PDF and image processing workspace.
               </p>
             </div>
             <Link href="/referral" className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-xs font-black text-white shadow-sm hover:bg-emerald-700 transition cursor-pointer">
@@ -389,7 +235,7 @@ export default function DashboardPage() {
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(`https://filenova.in/ref?code=${user.referralCode}`);
-                    toast.success("Referral link copied to clipboard!");
+                    toast.success("Referral link copied!");
                   }}
                   className="px-4 py-2 bg-card border border-border hover:bg-muted text-foreground rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-1.5"
                 >
@@ -398,7 +244,7 @@ export default function DashboardPage() {
                 </button>
                 <a
                   href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
-                    `Hey! Join me on FileNova to resize images, compress PDFs, mask Aadhaar cards locally, and more. Use my referral link to get Pro benefits: https://filenova.in/ref?code=${user.referralCode}`
+                    `Hey! Join me on FileNova to resize images, compress PDFs, mask Aadhaar cards locally, and more. It is fully free with no daily limits: https://filenova.in/ref?code=${user.referralCode}`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -413,18 +259,7 @@ export default function DashboardPage() {
 
         {/* AI Credits Section */}
         {(() => {
-          const AI_LIMITS: Record<string, { label: string; monthly: number | null }> = {
-            free:     { label: "Free",       monthly: 5 },
-            basic:    { label: "Basic",      monthly: 50 },
-            pro:      { label: "Pro",        monthly: 200 },
-            elite:    { label: "Elite",      monthly: null },
-            pass_24h: { label: "Day Pass",   monthly: 20 },
-            pass_7d:  { label: "Week Pass",  monthly: 100 },
-          };
-          const aiLimit = AI_LIMITS[premiumTier] ?? AI_LIMITS.free;
           const estimatedAiUsage = Math.max(0, useCount * 2);
-          const aiUsed = aiLimit.monthly === null ? estimatedAiUsage : Math.min(estimatedAiUsage, aiLimit.monthly);
-          const aiPct  = aiLimit.monthly ? Math.min(100, (aiUsed / aiLimit.monthly) * 100) : 0;
           return (
             <section className="rounded-3xl border border-border bg-card p-6 shadow-premium space-y-5">
               <div className="flex items-center justify-between">
@@ -433,56 +268,27 @@ export default function DashboardPage() {
                   AI Credits
                 </h2>
                 <span className="text-xs font-black text-muted-foreground bg-muted border border-border rounded-full px-3 py-1">
-                  {aiLimit.label} Plan
+                  Elite Plan
                 </span>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-3">
                 {/* Used */}
                 <div className="rounded-2xl border border-border bg-background/60 p-4 text-center space-y-1">
-                  <p className="text-2xl font-black text-foreground">{aiLimit.monthly === null ? "∞" : aiUsed}</p>
+                  <p className="text-2xl font-black text-foreground">{estimatedAiUsage}</p>
                   <p className="text-[11px] text-muted-foreground font-semibold">AI Ops Used (est.)</p>
                 </div>
                 {/* Remaining */}
                 <div className="rounded-2xl border border-fuchsia-500/20 bg-fuchsia-500/5 p-4 text-center space-y-1">
-                  <p className="text-2xl font-black text-fuchsia-500">
-                    {aiLimit.monthly === null ? "∞" : Math.max(0, aiLimit.monthly - aiUsed)}
-                  </p>
+                  <p className="text-2xl font-black text-fuchsia-500">∞</p>
                   <p className="text-[11px] text-muted-foreground font-semibold">Remaining This Month</p>
                 </div>
                 {/* Total */}
                 <div className="rounded-2xl border border-border bg-background/60 p-4 text-center space-y-1">
-                  <p className="text-2xl font-black text-foreground">{aiLimit.monthly === null ? "∞" : aiLimit.monthly}</p>
+                  <p className="text-2xl font-black text-foreground">∞</p>
                   <p className="text-[11px] text-muted-foreground font-semibold">Monthly Allowance</p>
                 </div>
               </div>
-
-              {aiLimit.monthly !== null && (
-                <div className="space-y-2">
-                  <div className="h-2.5 w-full bg-muted border border-border rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${aiPct}%` }}
-                      transition={{ type: "spring", stiffness: 80, damping: 15 }}
-                      className="h-full rounded-full bg-gradient-to-r from-fuchsia-500 to-purple-600"
-                    />
-                  </div>
-                  <div className="flex justify-between text-[10px] text-muted-foreground font-bold">
-                    <span>0% used</span>
-                    <span>{Math.round(aiPct)}% of monthly AI limit</span>
-                  </div>
-                </div>
-              )}
-
-              {premiumTier === "free" && (
-                <button
-                  onClick={() => useCheckoutStore.getState().openCheckout("pro")}
-                  className="w-full py-3 inline-flex items-center justify-center gap-2 rounded-xl border border-fuchsia-500/20 bg-fuchsia-500/5 hover:bg-fuchsia-500/10 text-fuchsia-500 transition text-xs font-black"
-                >
-                  <Star className="h-4 w-4 animate-pulse" />
-                  Upgrade to Pro for 200 monthly AI operations
-                </button>
-              )}
             </section>
           );
         })()}
@@ -558,7 +364,7 @@ export default function DashboardPage() {
             <div className="flex flex-col items-center justify-center py-10 border border-dashed border-border rounded-2xl bg-background/30 text-center space-y-2">
               <CreditCard className="h-8 w-8 text-muted-foreground/40" />
               <p className="text-sm font-bold text-muted-foreground">No active payment invoices found</p>
-              <p className="text-xs text-muted-foreground/60 max-w-sm">You are currently on the Free/Guest plan. Complete a billing checkout to unlock unlimited PDF workflows and government portal templates.</p>
+              <p className="text-xs text-muted-foreground/60 max-w-sm">All operations are free. No invoices will be generated unless you choose to donate using the Support page.</p>
             </div>
           )}
         </section>
@@ -571,9 +377,9 @@ export default function DashboardPage() {
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[
-              { name: "Aadhaar Card Masking", path: "/premium", desc: "Redact first 8 digits of Aadhaar XML locally in browser" },
-              { name: "PDF Merge & Compress", path: "/", desc: "Combine and optimize files to meet portal upload limits" },
-              { name: "Exam Toolkit presets", path: "/premium", desc: "Optimize photos & signatures to fit exact board limits" }
+              { name: "Aadhaar Card Masking", path: "/aadhaar-mask-pdf", desc: "Redact first 8 digits of Aadhaar XML locally in browser" },
+              { name: "PDF Merge & Compress", path: "/compress-pdf", desc: "Combine and optimize files to meet portal upload limits" },
+              { name: "Exam Toolkit presets", path: "/pan-card-resize", desc: "Optimize photos & signatures to fit exact board limits" }
             ].map((tool) => (
               <Link 
                 key={tool.name} 
@@ -603,7 +409,7 @@ export default function DashboardPage() {
             </Link>
           </div>
           <p className="text-sm text-muted-foreground">
-            Track all your processed files. Free users can see their last 5 files; Pro users get unlimited history.
+            Track all your processed files. As an Elite member, you have unlimited history storage and access.
           </p>
           <Link href="/history" className="inline-flex items-center gap-2 rounded-lg border border-border bg-background/50 px-4 py-2 text-sm font-bold text-foreground hover:bg-muted transition">
             <History className="h-4 w-4" />

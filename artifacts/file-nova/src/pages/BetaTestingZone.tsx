@@ -24,7 +24,7 @@ import {
   Lock,
 } from "lucide-react";
 import { useFileStore } from "@/store/useFileStore";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useAuthStore, isDeveloper } from "@/store/useAuthStore";
 import { useSubscription } from "@/hooks/useSubscription";
 import { toast } from "sonner";
 import { FeatureKey, isFeatureEnabled } from "@/features.config";
@@ -60,7 +60,7 @@ export default function BetaTestingZone() {
   // Redirect if not developer (subhajitgho123@gmail.com, super_admin, admin, or developer)
   useEffect(() => {
     const isDeveloperOrAdmin = user && (
-      user.email?.toLowerCase() === "subhajitgho123@gmail.com" || 
+      isDeveloper(user.email) || 
       user.role === "super_admin" || 
       user.role === "admin" || 
       user.role === "developer"
@@ -235,7 +235,7 @@ export default function BetaTestingZone() {
   };
 
   const isDeveloperOrAdmin = user && (
-    user.email?.toLowerCase() === "subhajitgho123@gmail.com" || 
+    isDeveloper(user.email) || 
     user.role === "super_admin" || 
     user.role === "admin" || 
     user.role === "developer"

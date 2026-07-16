@@ -239,6 +239,13 @@ useEffect(() => {
     };
   }, []);
 
+  // Trigger support nudge on successful tool completion
+  useEffect(() => {
+    if (resultFile) {
+      window.dispatchEvent(new CustomEvent("trigger-support-nudge", { detail: { reason: "tool-use" } }));
+    }
+  }, [resultFile]);
+
   // Load projects list from localStorage & run auto storage cleanup
   useEffect(() => {
     const saved = localStorage.getItem("fn_user_projects_list");

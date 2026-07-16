@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, type ReactNode } from "react";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useAuthStore, isDeveloper } from "@/store/useAuthStore";
 import { Link as WouterLink, useLocation, useRoute } from "wouter";
 import { apiClient } from "@/lib/api";
 import { toast } from "sonner";
@@ -218,7 +218,7 @@ export default function DevWorkspace() {
     return () => mq.removeEventListener("change", handler);
   }, []);
 
-  const isDev = user?.role === "developer" || user?.role === "admin" || user?.role === "super_admin" || user?.email === "subhajitgho123@gmail.com" || user?.email === "subhajitg124@gmail.com";
+  const isDev = user?.role === "developer" || user?.role === "admin" || user?.role === "super_admin" || isDeveloper(user?.email);
 
   // ── Command palette shortcut ──
   useEffect(() => {

@@ -15,7 +15,9 @@ export const useCheckoutStore = create<CheckoutState>((set) => ({
   isOpen: false,
   selectedPlan: null,
   coupon: '',
-  openCheckout: (plan, coupon = '') => set({ isOpen: true, selectedPlan: plan, coupon }),
+  openCheckout: (plan, coupon = '') => {
+    window.location.assign('/pricing');
+  },
   closeCheckout: () => set({ isOpen: false, selectedPlan: null, coupon: '' }),
   setCoupon: (coupon) => set({ coupon }),
 }));

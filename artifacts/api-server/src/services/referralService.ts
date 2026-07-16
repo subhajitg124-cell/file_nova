@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { db, referralsTable, subscriptionsTable, usersTable } from "@workspace/db";
+import { db, referralsTable, usersTable } from "@workspace/db";
 import { and, eq, desc } from "drizzle-orm";
 
 const REFERRAL_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -33,53 +33,7 @@ export async function ensureUserReferralCode(userId: string) {
 }
 
 export async function grantReferralReward(userId: string, days: number) {
-  const now = new Date();
-  
-  // Find user to check their current tier
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId)).limit(1);
-  if (!user) return;
-  
-  const currentTier = user.premiumTier || "free";
-  
-  // Find active subscriptions
-  const activeSubs = await db
-    .select()
-    .from(subscriptionsTable)
-    .where(and(eq(subscriptionsTable.userId, userId), eq(subscriptionsTable.status, "active")))
-    .orderBy(desc(subscriptionsTable.currentPeriodEnd));
-  
-  let start = now;
-  let end = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
-  
-  let targetTier = "pro";
-  if (currentTier !== "free") {
-    // Keep their premium tier if they already have one, just extend it
-    targetTier = currentTier;
-  }
-  
-  if (activeSubs.length > 0 && activeSubs[0].currentPeriodEnd) {
-    const currentEnd = new Date(activeSubs[0].currentPeriodEnd);
-    if (currentEnd > now) {
-      start = currentEnd;
-      end = new Date(currentEnd.getTime() + days * 24 * 60 * 60 * 1000);
-    }
-  }
-
-  await db.insert(subscriptionsTable).values({
-    userId,
-    plan: targetTier,
-    status: "active",
-    amount: 0,
-    currency: "INR",
-    currentPeriodStart: start,
-    currentPeriodEnd: end,
-  });
-
-  await db.update(usersTable).set({
-    premiumEnabled: true,
-    premiumTier: targetTier,
-    updatedAt: now,
-  }).where(eq(usersTable.id, userId));
+  // No-op in fully free mode - all users are Elite permanently
 }
 
 export async function trackReferralClick(referralCode: string, ipAddress?: string, userAgent?: string) {
@@ -133,48 +87,7 @@ const MILESTONES = [
 ];
 
 export async function checkAndTriggerMilestoneRewards(referrerId: string): Promise<void> {
-  try {
-    // 1. Count completed referrals for this referrer
-    const referrals = await db
-      .select()
-      .from(referralsTable)
-      .where(and(eq(referralsTable.referrerUserId, referrerId), eq(referralsTable.status, "completed")));
-    
-    const completedCount = referrals.length;
-
-    // 2. Find if any milestone matches this count
-    const milestone = MILESTONES.find(m => m.target === completedCount);
-    if (!milestone) return;
-
-    // 3. Prevent duplicate milestone reward records
-    const { referralRewardsTable } = await import("@workspace/db");
-    const [alreadyRewarded] = await db
-      .select()
-      .from(referralRewardsTable)
-      .where(
-        and(
-          eq(referralRewardsTable.referrerUserId, referrerId),
-          eq(referralRewardsTable.rewardType, "bonus_days"),
-          eq(referralRewardsTable.notes, `Milestone Reward: Reached ${milestone.target} referrals (${milestone.name})`)
-        )
-      )
-      .limit(1);
-
-    if (alreadyRewarded) return;
-
-    // 4. Distribute reward automatically
-    await db.insert(referralRewardsTable).values({
-      referrerUserId: referrerId,
-      rewardType: "bonus_days",
-      rewardValue: milestone.reward,
-      status: "approved",
-      notes: `Milestone Reward: Reached ${milestone.target} referrals (${milestone.name})`,
-    });
-
-    await grantReferralReward(referrerId, milestone.reward);
-  } catch (err) {
-    // Fail silently, don't block auth/signup operations
-  }
+  // No-op in fully free mode
 }
 
 export async function completeReferral(
@@ -249,11 +162,6 @@ export async function completeReferral(
         .where(eq(referralsTable.id, tracked.id))
         .returning();
 
-      if (!isFraud) {
-        await grantReferralReward(referrer.id, 3);
-        await grantReferralReward(referredUserId, 3);
-        await checkAndTriggerMilestoneRewards(referrer.id);
-      }
       return updated;
     }
   }
@@ -283,11 +191,6 @@ export async function completeReferral(
       .where(eq(referralsTable.id, pendingReferral.id))
       .returning();
 
-    if (!isFraud) {
-      await grantReferralReward(referrer.id, 3);
-      await grantReferralReward(referredUserId, 3);
-      await checkAndTriggerMilestoneRewards(referrer.id);
-    }
     return updated;
   }
 
@@ -301,46 +204,11 @@ export async function completeReferral(
     userAgent: userAgent || null,
   }).returning();
 
-  if (!isFraud) {
-    await grantReferralReward(referrer.id, 3);
-    await grantReferralReward(referredUserId, 3);
-    await checkAndTriggerMilestoneRewards(referrer.id);
-  }
-
   return referral;
 }
 
 export async function handleUserReferrerUpgradeReward(userId: string) {
-  try {
-    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId)).limit(1);
-    if (!user || !user.email) return;
-
-    // Find if this user was referred by someone and the upgrade reward hasn't been given yet
-    const [referral] = await db
-      .select()
-      .from(referralsTable)
-      .where(and(eq(referralsTable.referredEmail, user.email), eq(referralsTable.upgradeRewardGiven, false)))
-      .limit(1);
-
-    if (referral && referral.status === "completed") {
-      // Find the user's latest active subscription to get subscriptionId and amountPaid
-      const [latestSub] = await db
-        .select()
-        .from(subscriptionsTable)
-        .where(and(eq(subscriptionsTable.userId, userId), eq(subscriptionsTable.status, "active")))
-        .orderBy(desc(subscriptionsTable.createdAt))
-        .limit(1);
-
-      const subId = latestSub ? latestSub.id : "unknown";
-      const amountPaid = latestSub ? latestSub.amount : 0;
-
-      // Dynamically import ReferralRewardService to prevent circular dependency
-      const { ReferralRewardService } = await import("./ReferralRewardService");
-      await ReferralRewardService.processReferralUpgrade(userId, subId, amountPaid);
-    }
-  } catch (err) {
-    // Ignore database errors, don't crash the request
-  }
+  // No-op in fully free mode
 }
 
 export async function backfillMissingReferralCodes() {

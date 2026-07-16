@@ -2,7 +2,7 @@ import { Router, type Response } from "express";
 import crypto from "node:crypto";
 import { z } from "zod";
 import { OAuth2Client } from "google-auth-library";
-import { db, usersTable, sessionsTable, subscriptionsTable } from "@workspace/db";
+import { db, usersTable, sessionsTable } from "@workspace/db";
 import { eq, ne, or, and, desc } from "drizzle-orm";
 import { hashPassword, verifyPassword, isLegacyHash } from "../utils/hash";
 import { authMiddleware, requireAuth, AuthRequest } from "../middlewares/auth";
@@ -49,33 +49,12 @@ async function createSession(userId: string, res: Response) {
 
 // Helper to fetch subscription details and remaining days
 async function getUserSubscriptionInfo(userId: string) {
-  try {
-    const subs = await db
-      .select()
-      .from(subscriptionsTable)
-      .where(eq(subscriptionsTable.userId, userId))
-      .orderBy(desc(subscriptionsTable.createdAt));
-
-    const activeSub = subs.find((s) => s.status === "active");
-
-    let daysActive = null;
-    if (activeSub && activeSub.currentPeriodEnd) {
-      const msDiff = new Date(activeSub.currentPeriodEnd).getTime() - Date.now();
-      daysActive = Math.max(0, Math.ceil(msDiff / (1000 * 60 * 60 * 24)));
-    }
-
-    return activeSub
-      ? {
-          plan: activeSub.plan,
-          status: activeSub.status,
-          expiresAt: activeSub.currentPeriodEnd,
-          daysActive,
-        }
-      : null;
-  } catch (err) {
-    logger.error({ err, userId }, "Failed to fetch subscription info");
-    return null;
-  }
+  return {
+    plan: "elite",
+    status: "active",
+    expiresAt: null,
+    daysActive: null,
+  };
 }
 
 // ── 1. POST /signup ──
@@ -128,8 +107,6 @@ router.post("/signup", async (req, res): Promise<void> => {
         passwordHash,
         name: parsed.name || null,
         role: "user",
-        premiumTier: "free",
-        premiumEnabled: false,
         referralCode,
       })
       .returning();
@@ -164,8 +141,8 @@ router.post("/signup", async (req, res): Promise<void> => {
         phoneNumber: newUser.phoneNumber,
         phoneVerified: newUser.phoneVerified,
         role: newUser.role,
-        premiumTier: newUser.premiumTier,
-        premiumEnabled: newUser.premiumEnabled,
+        premiumTier: "elite",
+        premiumEnabled: true,
         referralCode: newUser.referralCode,
       },
       subscription: null,
@@ -232,8 +209,8 @@ router.post("/login", async (req, res): Promise<void> => {
         phoneNumber: user.phoneNumber,
         phoneVerified: user.phoneVerified,
         role: user.role,
-        premiumTier: user.premiumTier,
-        premiumEnabled: user.premiumEnabled,
+        premiumTier: "elite",
+        premiumEnabled: true,
         referralCode: user.referralCode,
       },
       subscription,
@@ -310,20 +287,22 @@ router.post("/google", async (req, res): Promise<void> => {
           name,
           googleSubject: payload.sub,
           role: "user",
-          premiumTier: "free",
-          premiumEnabled: false,
           referralCode,
         })
         .returning();
       user = newUser;
-      await completeReferral(
-        parsed.referralCode,
-        user.id,
-        user.email,
-        parsed.referralTrackingId ?? undefined,
-        req.ip || undefined,
-        req.headers["user-agent"] || undefined
-      );
+      try {
+        await completeReferral(
+          parsed.referralCode,
+          user.id,
+          user.email,
+          parsed.referralTrackingId ?? undefined,
+          req.ip || undefined,
+          req.headers["user-agent"] || undefined
+        );
+      } catch (referralErr) {
+        logger.warn({ err: referralErr }, "Referral completion failed (non-critical) during Google signup");
+      }
     }
 
     const token = await createSession(user.id, res);
@@ -339,8 +318,8 @@ router.post("/google", async (req, res): Promise<void> => {
         phoneNumber: user.phoneNumber,
         phoneVerified: user.phoneVerified,
         role: user.role,
-        premiumTier: user.premiumTier,
-        premiumEnabled: user.premiumEnabled,
+        premiumTier: "elite",
+        premiumEnabled: true,
         referralCode: user.referralCode,
       },
       subscription,
@@ -370,8 +349,8 @@ router.get("/me", requireAuth, async (req: AuthRequest, res): Promise<void> => {
         phoneNumber: req.user!.phoneNumber,
         phoneVerified: req.user!.phoneVerified,
         role: req.user!.role,
-        premiumTier: req.user!.premiumTier,
-        premiumEnabled: req.user!.premiumEnabled,
+        premiumTier: "elite",
+        premiumEnabled: true,
         referralCode,
       },
       subscription,
@@ -551,8 +530,8 @@ router.put("/me", authMiddleware, async (req: AuthRequest, res): Promise<void> =
         phoneNumber: updatedUser.phoneNumber,
         phoneVerified: updatedUser.phoneVerified,
         role: updatedUser.role,
-        premiumTier: updatedUser.premiumTier,
-        premiumEnabled: updatedUser.premiumEnabled,
+        premiumTier: "elite",
+        premiumEnabled: true,
         referralCode: updatedUser.referralCode,
       },
       subscription,
@@ -781,8 +760,8 @@ router.post("/verify-otp", authMiddleware, async (req: AuthRequest, res): Promis
         phoneNumber: updatedUser.phoneNumber,
         phoneVerified: updatedUser.phoneVerified,
         role: updatedUser.role,
-        premiumTier: updatedUser.premiumTier,
-        premiumEnabled: updatedUser.premiumEnabled,
+        premiumTier: "elite",
+        premiumEnabled: true,
         referralCode: updatedUser.referralCode,
       },
       subscription,

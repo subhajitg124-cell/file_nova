@@ -25,7 +25,7 @@ import { BACKEND_URL, HAS_BACKEND } from "@/lib/api";
 import { EditingWindow } from "@/components/EditingWindow";
 import { apiClient, apiMock } from "@/lib/api";
 import { setupFetchInterceptor } from "@/lib/fetchInterceptor";
-import { CheckoutModal } from "@/components/CheckoutModal";
+import { SupportNudge } from "@/components/SupportNudge";
 import { SupportDevModal } from "@/components/SupportDevModal";
 import { DevSupportBanner } from "@/components/DevSupportBanner";
 import { DevSupportNotification } from "@/components/DevSupportNotification";
@@ -292,6 +292,17 @@ function App({ ssrPath }: { ssrPath?: string } = {}) {
       .catch(() => {});
   }, []);
 
+  useEffect(() => {
+    // Check if return visit nudge is needed
+    const hasNudgedSession = sessionStorage.getItem("fn_session_nudged");
+    if (!hasNudgedSession) {
+      const timer = setTimeout(() => {
+        window.dispatchEvent(new CustomEvent("trigger-support-nudge", { detail: { reason: "return-visit" } }));
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
   if ((!initialized || !splashDone) && !ssrPath) {
     return <LoadingScreen />;
   }
@@ -335,7 +346,7 @@ function App({ ssrPath }: { ssrPath?: string } = {}) {
                       isOpen={supportModalOpen}
                       onClose={closeSupportModal}
                     />
-                    <CheckoutModal />
+                    <SupportNudge />
                     <MobileSearchFab />
                     <GlobalCommandPalette />
                     {editorOpen && editorFile && (

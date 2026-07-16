@@ -8,8 +8,6 @@ import { z } from "zod";
 import rateLimit from "express-rate-limit";
 import { logger } from "../lib/logger";
 import { execSync } from "child_process";
-import premiumRouter from "./premium";
-import subscriptionRouter from "./subscriptions";
 import authRouter from "./auth";
 import referralRouter from "./referral";
 import notificationsRouter from "./notifications";
@@ -31,9 +29,7 @@ const FILE_SIZE_LIMITS_MB: Record<UploadPlan, number> = {
 };
 
 const getUploadPlan = (req: AuthRequest): UploadPlan => {
-  const tier = req.user?.premiumTier;
-  if (tier === "basic" || tier === "pro" || tier === "elite") return tier;
-  return "free";
+  return "elite";
 };
 
 const formatFileSizeMb = (bytes: number) => {
@@ -693,9 +689,7 @@ router.post("/ai/chat", async (req, res): Promise<void> => {
   }
 });
 
-// Mount premium features routes
-router.use("/premium", premiumRouter);
-router.use("/premium/subscription", subscriptionRouter);
+// Mount auth, referral, and notification routes
 router.use("/auth", authLimiter, authRouter);
 router.use("/referral", referralRouter);
 router.use("/", notificationsRouter);

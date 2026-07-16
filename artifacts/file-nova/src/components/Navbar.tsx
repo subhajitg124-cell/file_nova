@@ -2,7 +2,7 @@ import React, { memo, useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "wouter";
 import {
-  Settings2, Crown, Menu, X, Check, CreditCard, FileText, Code, Bell
+  Settings2, Menu, X, Check, FileText, Code, Bell, Shield, Workflow, Heart
 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 import { UserProfileDropdown } from "@/components/UserProfileDropdown";
@@ -189,9 +189,13 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
           <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 relative z-10">
             <nav className="hidden xl:flex items-center gap-1" aria-label="Main navigation">
               <PopularToolsDropdown />
-              <Link href="/pricing" className="flex items-center gap-1.5 text-sm text-[var(--fn-text-secondary)] hover:text-[var(--fn-text-primary)] font-medium py-1.5 px-3 rounded-full hover:bg-[var(--fn-surface-elevated)] transition-colors duration-150 whitespace-nowrap">
-                <CreditCard className="h-3.5 w-3.5" />
-                {tText("Pricing")}
+              <Link href="/india-tools" className="flex items-center gap-1.5 text-sm text-[var(--fn-text-secondary)] hover:text-[var(--fn-text-primary)] font-medium py-1.5 px-3 rounded-full hover:bg-[var(--fn-surface-elevated)] transition-colors duration-150 whitespace-nowrap">
+                <Shield className="h-3.5 w-3.5 text-emerald-500" />
+                {tText("India Tools")}
+              </Link>
+              <Link href="/workflows" className="flex items-center gap-1.5 text-sm text-[var(--fn-text-secondary)] hover:text-[var(--fn-text-primary)] font-medium py-1.5 px-3 rounded-full hover:bg-[var(--fn-surface-elevated)] transition-colors duration-150 whitespace-nowrap">
+                <Workflow className="h-3.5 w-3.5 text-amber-500" />
+                {tText("Workflows")}
               </Link>
               {isDev && (
                 <Link href="/dev" className="flex items-center gap-1.5 text-sm text-indigo-600 dark:text-indigo-400 font-black py-1.5 px-3 rounded-full hover:bg-indigo-500/5 dark:hover:bg-indigo-500/10 border border-indigo-500/10 dark:border-indigo-500/20 hover:border-indigo-500/20 dark:hover:border-indigo-400/30 transition-all duration-150 whitespace-nowrap">
@@ -199,6 +203,10 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
                   DevWorkspace
                 </Link>
               )}
+              <Link href="/pricing" className="flex items-center gap-1.5 text-sm text-[var(--fn-text-secondary)] hover:text-[var(--fn-text-primary)] font-medium py-1.5 px-3 rounded-full hover:bg-[var(--fn-surface-elevated)] transition-colors duration-150 whitespace-nowrap">
+                <Heart className="h-3.5 w-3.5 text-rose-500 fill-rose-500/10" />
+                {tText("Support")}
+              </Link>
             </nav>
 
             {/* Notification bell */}
@@ -328,44 +336,9 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
               </AnimatePresence>
             </div>
 
-            {/* Smart Premium / Upgrade button */}
-            {(() => {
-              const tier = user?.premiumTier || 'free';
-              const isDev = user?.role === 'developer' || user?.role === 'admin' || user?.role === 'super_admin';
-              if (isDev) {
-                return <DevBadge />;
-              }
-              if (tier === 'elite') {
-                return (
-                  <Link href="/pricing" className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 px-3.5 py-2 rounded-full transition-all whitespace-nowrap shrink-0">
-                    <Check className="h-3.5 w-3.5" />
-                    {tText("Member")}
-                  </Link>
-                );
-              }
-              const targetPlan = tier === 'free' ? 'pro' : 'elite';
-              const label = tier === 'free' ? 'Upgrade' : 'Go Elite';
-              const handleUpgradeClick = () => {
-                if (!FEATURE_PAYMENT_GATEWAY) {
-                  useSupportDevStore.getState().open();
-                } else {
-                  useCheckoutStore.getState().openCheckout(targetPlan);
-                }
-              };
-              return (
-                <button onClick={handleUpgradeClick} className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-black text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 px-3.5 py-2 rounded-full transition-all shadow-md hover:shadow-lg hover:scale-[1.02] whitespace-nowrap shrink-0 active:scale-95">
-                  <Crown className="h-3.5 w-3.5 fill-current" />
-                  {tText(label)}
-                </button>
-              );
-            })()}
+            {isDev && <DevBadge />}
 
             <div className="flex items-center gap-1.5 shrink-0">
-              {!isDev && (
-                <div className="hidden sm:block">
-                  <PlanBadge />
-                </div>
-              )}
               {user ? (
                 <UserProfileDropdown />
               ) : (
@@ -407,47 +380,18 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
               </div>
             )}
             <div className="flex flex-col gap-2 pt-2 border-t border-border">
-              {(() => {
-                const tier = user?.premiumTier || 'free';
-                const isDev = user?.role === 'developer' || user?.role === 'admin' || user?.role === 'super_admin';
-                if (isDev) {
-                  return (
-                    <Link onClick={() => setMobileMenuOpen(false)} href="/dev" className="flex items-center justify-center gap-2 text-sm font-black text-indigo-600 dark:text-indigo-400 bg-indigo-500/5 dark:bg-indigo-500/10 border border-indigo-500/10 dark:border-indigo-500/20 py-2.5 rounded-lg">
-                      <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75" />
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500" />
-                      </span>
-                      DevWorkspace
-                    </Link>
-                  );
-                }
-                if (tier === 'elite') {
-                  return (
-                    <Link onClick={() => setMobileMenuOpen(false)} href="/pricing" className="flex items-center justify-center gap-2 text-sm font-black text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 py-2.5 rounded-lg">
-                      <Check className="h-4 w-4" />
-                      {tText("Member — Elite")}
-                    </Link>
-                  );
-                }
-                const targetPlan = tier === 'free' ? 'pro' : 'elite';
-                const label = tier === 'free' ? 'Premium Suite' : 'Go Elite';
-                const handleMobileUpgrade = () => {
-                  setMobileMenuOpen(false);
-                  if (!FEATURE_PAYMENT_GATEWAY) {
-                    useSupportDevStore.getState().open();
-                  } else {
-                    useCheckoutStore.getState().openCheckout(targetPlan);
-                  }
-                };
-                return (
-                  <button onClick={handleMobileUpgrade} className="flex items-center justify-center gap-2 text-sm font-black text-white bg-gradient-to-r from-amber-500 to-orange-600 py-2.5 rounded-lg">
-                    <Crown className="h-4 w-4 fill-current" />
-                    {tText(label)}
-                  </button>
-                );
-              })()}
-              <Link onClick={() => setMobileMenuOpen(false)} href="/pricing" className="text-center text-sm border border-border text-foreground font-bold py-2 rounded-lg">
-                {tText("View Plans & Pricing")}
+              {isDev && (
+                <Link onClick={() => setMobileMenuOpen(false)} href="/dev" className="flex items-center justify-center gap-2 text-sm font-black text-indigo-600 dark:text-indigo-400 bg-indigo-500/5 dark:bg-indigo-500/10 border border-indigo-500/10 dark:border-indigo-500/20 py-2.5 rounded-lg">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500" />
+                  </span>
+                  DevWorkspace
+                </Link>
+              )}
+              <Link onClick={() => setMobileMenuOpen(false)} href="/pricing" className="flex items-center justify-center gap-2 text-sm font-black text-white bg-gradient-to-r from-rose-500 to-rose-600 py-2.5 rounded-lg">
+                <Heart className="h-4 w-4 fill-current text-white animate-pulse" />
+                {tText("Support Us")}
               </Link>
               <Link onClick={() => setMobileMenuOpen(false)} href="/workspace" className="text-center text-sm border border-border text-foreground font-bold py-2 rounded-lg">
                 <FileText className="h-4 w-4 inline-block mr-1.5" />{tText("Open Workspace")}
