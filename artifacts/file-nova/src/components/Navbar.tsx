@@ -171,7 +171,7 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
         transition={{ type: "spring", stiffness: 260, damping: 20 }}
         className="sticky top-0 z-40 w-full bg-transparent py-3 px-3 sm:px-4 transition-all duration-300"
       >
-        <div className="max-w-6xl mx-auto h-14 px-4 sm:px-6 flex items-center justify-between gap-2 rounded-full border border-border relative group/nav">
+        <div className="max-w-6xl mx-auto h-14 px-4 sm:px-6 flex items-center justify-between gap-2 rounded-full border border-border relative group/nav overflow-visible">
           <div className="absolute inset-0 bg-card/45 backdrop-blur-xl shadow-premium rounded-full -z-20 pointer-events-none" />
           <div className="absolute inset-0 bg-gradient-to-r from-brand-primary/0 via-brand-primary/10 to-brand-primary/0 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-500 pointer-events-none rounded-full -z-10" />
 
@@ -181,7 +181,7 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
           </Link>
 
           {showSearch && (
-            <div className="relative flex-1 min-w-[140px] max-w-[200px] hidden lg:block z-10">
+            <div className="relative flex-1 min-w-[180px] max-w-xs hidden lg:block z-[9999]">
               <SmartSearchBar placeholder={tText("Search tools...")} />
             </div>
           )}

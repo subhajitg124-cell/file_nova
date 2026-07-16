@@ -204,7 +204,7 @@ export function SmartSearchBar({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.98 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
-            className="absolute top-full left-0 right-0 mt-2.5 z-[9999]
+            className="absolute top-full left-0 mt-2.5 z-[99999] min-w-[300px]
                        fn-glass rounded-2xl shadow-[var(--fn-shadow-elevated)] overflow-hidden text-[var(--fn-text-primary)]"
           >
           {/* Section header */}
