@@ -49,13 +49,13 @@ export function PopularToolsDropdown() {
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         onClick={() => setOpen((o) => !o)}
-        className="group flex items-center gap-2 border border-[var(--fn-border)] rounded-full px-3 py-1.5 text-sm text-[var(--fn-text-primary)] hover:bg-[var(--fn-surface-elevated)] transition-colors duration-150 cursor-pointer shadow-sm select-none whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[var(--fn-accent-primary)] focus-visible:outline-none"
+        className="group flex items-center gap-1.5 border border-border rounded-full px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors duration-150 cursor-pointer shadow-sm select-none whitespace-nowrap focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
         title="Popular Tools Shortcuts"
         aria-haspopup="true"
         aria-expanded={open}
       >
         <Zap className="h-4 w-4 text-amber-500 dark:text-amber-400 shrink-0 transition-transform group-hover:scale-110 duration-300 fill-amber-500/20 dark:fill-amber-400/20 animate-pulse" />
-        <span className="font-medium">Popular Tools</span>
+        <span className="font-semibold">Popular Tools</span>
         <motion.span
           animate={{ rotate: open ? 180 : 0 }}
           transition={{ duration: 0.25, ease: "easeInOut" }}

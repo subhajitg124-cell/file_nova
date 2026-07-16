@@ -1,594 +1,160 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { Languages, Zap, FileText, ChevronLeft, ChevronRight } from "lucide-react";
+import { Languages, Zap, FileText, ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
+import { motion, AnimatePresence } from "framer-motion";
+
+interface PanelItem {
+  id: string;
+  path: string;
+  icon: React.ElementType;
+  label: string;
+  color: string;
+  show: boolean;
+}
 
 export function FloatingSidePanel() {
   const { tText } = useTranslation();
-  const [location, setLocation] = useLocation();
-  const [open, setOpen] = useState(false);
-  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
-  const [isTouchDevice, setIsTouchDevice] = useState(false);
-  const [mobileExpandedIcon, setMobileExpandedIcon] = useState<string | null>(null);
-  const [longPressedIcon, setLongPressedIcon] = useState<string | null>(null);
+  const [location] = useLocation();
+  const [expanded, setExpanded] = useState(false);
   const [hintOpen, setHintOpen] = useState(false);
-  const longPressTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const hoverTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  const HIDE_FAB_ROUTES = [
-    '/login', '/signup', '/pricing', '/referral',
-    '/admin', '/dev', '/auth', '/checkout'
+  const HIDE_ROUTES = ['/login', '/signup', '/pricing', '/referral', '/admin', '/dev', '/auth', '/checkout'];
+  const shouldShow = !HIDE_ROUTES.some(route => location.startsWith(route));
+
+  const isWorkspacePage = location === '/workspace';
+  const isDashboard = location === '/dashboard';
+
+  const items: PanelItem[] = [
+    { id: "india-tools", path: "/india-tools", icon: Languages, label: "India Tools", color: "text-emerald-500", show: !isDashboard },
+    { id: "workflows", path: "/workflows", icon: Zap, label: "Workflows", color: "text-amber-500", show: true },
+    { id: "workspace", path: "/workspace", icon: FileText, label: "Workspace", color: "text-primary", show: !isWorkspacePage },
   ];
-  
-  const shouldShowFAB = !HIDE_FAB_ROUTES.some(route => 
-    location.startsWith(route)
-  );
 
   useEffect(() => {
     setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
-
-    const hintSeen = localStorage.getItem("sidebar_hint_seen");
+    const hintSeen = localStorage.getItem("sidebar_hint_seen_v2");
     if (!hintSeen) {
-      const timer = setTimeout(() => {
-        setHintOpen(true);
-      }, 1000);
+      const timer = setTimeout(() => setHintOpen(true), 1500);
       return () => clearTimeout(timer);
     }
   }, []);
 
   useEffect(() => {
-    return () => {
-      if (hoverTimeout.current) clearTimeout(hoverTimeout.current);
-      if (longPressTimeout.current) clearTimeout(longPressTimeout.current);
-    };
-  }, []);
-
-  useEffect(() => {
     const handleClickOutside = (e: MouseEvent | TouchEvent) => {
       if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
-        setOpen(false);
-        setHoveredItem(null);
-        setMobileExpandedIcon(null);
+        setExpanded(false);
       }
+    };
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setExpanded(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     document.addEventListener("touchstart", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("touchstart", handleClickOutside);
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setOpen(false);
-        setHoveredItem(null);
-        setMobileExpandedIcon(null);
-      }
-    };
-    document.addEventListener("keydown", handleEscape);
-    return () => {
       document.removeEventListener("keydown", handleEscape);
     };
   }, []);
 
-  if (!shouldShowFAB) return null;
+  if (!shouldShow) return null;
 
-  const isWorkspacePage = location === '/workspace';
-  const isDashboard = location === '/dashboard';
-
-  const showIndianTools = !isDashboard;
-  const showWorkflows = true;
-  const showWorkspace = !isWorkspacePage;
-
-  const handleNavigate = (path: string) => {
-    setLocation(path);
-  };
-
-  const dismissHint = () => {
-    localStorage.setItem("sidebar_hint_seen", "true");
-    setHintOpen(false);
-  };
-
-  const handleButtonClick = (path: string, iconId: string, event: React.MouseEvent) => {
-    if (isTouchDevice) {
-      const isCurrentlyExpanded = open || hoveredItem;
-      if (!isCurrentlyExpanded) {
-        event.preventDefault();
-        setOpen(true);
-        setMobileExpandedIcon(iconId);
-        return;
-      }
-      if (mobileExpandedIcon !== iconId) {
-        event.preventDefault();
-        setMobileExpandedIcon(iconId);
-        return;
-      }
-    }
-    handleNavigate(path);
-  };
-
-  const handleItemEnter = (iconId: string) => {
-    if (isTouchDevice) return;
-    if (hoverTimeout.current) clearTimeout(hoverTimeout.current);
-    setHoveredItem(iconId);
-  };
-
-  const handleItemLeave = () => {
-    if (isTouchDevice) return;
-    hoverTimeout.current = setTimeout(() => {
-      setHoveredItem(null);
-    }, 100);
-  };
-
-  const handleTouchStart = (iconId: string) => {
-    longPressTimeout.current = setTimeout(() => {
-      setLongPressedIcon(iconId);
-      if ('vibrate' in navigator) {
-        navigator.vibrate(50);
-      }
-    }, 500);
-  };
-
-  const handleTouchEnd = () => {
-    if (longPressTimeout.current) {
-      clearTimeout(longPressTimeout.current);
-    }
-    setTimeout(() => {
-      setLongPressedIcon(null);
-    }, 1500);
-  };
-
-  const isExpanded = open || hoveredItem !== null;
+  const visibleItems = items.filter(item => item.show);
 
   return (
     <>
-      <style>{`
-        .fab-container {
-          position: fixed;
-          bottom: 24px;
-          right: 16px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 10px;
-          z-index: 9999;
-          background: var(--card);
-          border: 1px solid var(--border);
-          border-radius: 20px;
-          padding: 8px;
-          box-shadow: var(--card-shadow);
-          width: 56px;
-          transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
-          overflow: hidden;
-          box-sizing: border-box;
-          backdrop-filter: blur(12px);
-        }
+      {/* Coachmark hint */}
+      <AnimatePresence>
+        {hintOpen && (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            className="fixed bottom-[90px] right-20 z-[9998] max-w-[200px] bg-card border border-border rounded-xl p-3.5 shadow-lg backdrop-blur-xl"
+          >
+            <p className="text-xs font-bold text-foreground mb-1">{tText("Quick Access")}</p>
+            <p className="text-[10px] text-muted-foreground leading-relaxed mb-2.5">
+              {tText("Navigate to India Tools, Workflows, or Workspace from anywhere.")}
+            </p>
+            <button
+              onClick={() => { localStorage.setItem("sidebar_hint_seen_v2", "true"); setHintOpen(false); }}
+              className="w-full text-[10px] font-bold text-primary hover:text-primary/80 py-1.5 rounded-lg bg-primary/10 transition cursor-pointer"
+            >
+              {tText("Got it")}
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-        .fab-container.expanded {
-          width: 172px;
-          align-items: flex-start;
-          padding: 8px 10px;
-        }
+      {/* Main panel */}
+      <div ref={panelRef} className="fixed bottom-6 right-4 z-[9999] flex flex-col items-center">
+        <div
+          className={`
+            flex flex-col gap-1.5 p-1.5 rounded-2xl
+            bg-card/80 backdrop-blur-xl border border-border/60
+            shadow-lg
+            transition-all duration-200 ease-out
+            ${expanded ? 'w-[180px] items-stretch' : 'w-[52px] items-center'}
+          `}
+        >
+          {/* Nav items */}
+          {visibleItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = location === item.path;
+            return (
+              <button
+                key={item.id}
+                onClick={() => { window.location.href = item.path; }}
+                className={`
+                  group relative flex items-center rounded-xl transition-all duration-150 cursor-pointer
+                  ${expanded ? 'justify-start gap-2.5 px-3 py-2' : 'justify-center w-[40px] h-[40px] mx-auto'}
+                  ${isActive
+                    ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
+                  }
+                `}
+                aria-label={tText(item.label)}
+                title={!expanded ? item.label : undefined}
+              >
+                <Icon className={`h-[18px] w-[18px] shrink-0 ${isActive ? 'text-primary-foreground' : item.color}`} strokeWidth={isActive ? 2.5 : 2} />
+                {expanded && (
+                  <span className="text-xs font-semibold truncate">{tText(item.label)}</span>
+                )}
+              </button>
+            );
+          })}
 
-        .fab-btn-list {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 10px;
-          width: 100%;
-        }
+          {/* Divider */}
+          <div className={`h-px bg-border/50 my-0.5 ${expanded ? 'mx-0' : 'mx-2'}`} />
 
-        .fab-container.expanded .fab-btn-list {
-          align-items: flex-start;
-        }
-
-        .fab-btn {
-          width: 40px;
-          height: 40px;
-          border-radius: 12px;
-          background: transparent;
-          border: none;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease, width 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-          position: relative;
-          color: var(--muted-foreground);
-          text-decoration: none;
-          outline: none;
-          gap: 0px;
-          box-sizing: border-box;
-        }
-
-        .fab-container.expanded .fab-btn {
-          width: 100%;
-          justify-content: flex-start;
-          gap: 12px;
-          padding-left: 8px;
-        }
-        
-        .fab-container.expanded .fab-btn[data-hovered="true"] {
-          background: var(--secondary);
-        }
-
-        .fab-container.expanded .fab-btn:not([data-hovered="true"]) {
-          background: transparent;
-        }
-
-        .fab-btn:hover {
-          background: var(--secondary);
-          color: var(--foreground);
-          transform: scale(1.04);
-        }
-
-        .fab-btn.active {
-          background: linear-gradient(135deg, var(--primary) 0%, #6366F1 100%) !important;
-          color: #FFFFFF !important;
-          box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
-        }
-
-        .high-contrast .fab-btn.active {
-          background: var(--primary) !important;
-          color: var(--primary-foreground) !important;
-          box-shadow: none !important;
-          outline: 2px solid #ffffff !important;
-        }
-
-        .fab-btn-text {
-          font-size: 12px;
-          font-weight: 700;
-          color: var(--foreground);
-          opacity: 0;
-          max-width: 0;
-          transform: translateX(-10px);
-          overflow: hidden;
-          white-space: nowrap;
-          transition: opacity 0.2s ease, max-width 0.2s ease, transform 0.2s ease;
-        }
-
-        .fab-btn.active .fab-btn-text {
-          color: #FFFFFF !important;
-        }
-
-        .high-contrast .fab-btn.active .fab-btn-text {
-          color: var(--primary-foreground) !important;
-        }
-
-        .fab-container.expanded .fab-btn[data-hovered="true"] .fab-btn-text {
-          opacity: 1;
-          max-width: 110px;
-          transform: translateX(0);
-        }
-
-        /* Divider line */
-        .fab-divider {
-          width: 24px;
-          height: 1px;
-          background: var(--border);
-          margin: 4px 0;
-          transition: width 0.2s ease;
-        }
-
-        .fab-container.expanded .fab-divider {
-          width: 100%;
-        }
-
-        /* Bottom handle button */
-        .fab-toggle-pill {
-          width: 40px;
-          height: 28px;
-          border-radius: 8px;
-          background: var(--secondary);
-          border: none;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: var(--primary);
-          transition: background-color 0.15s ease, width 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.15s ease;
-          position: relative;
-        }
-
-        .fab-toggle-pill:hover {
-          background: var(--border);
-        }
-
-        .fab-container.expanded .fab-toggle-pill {
-          width: 100%;
-          justify-content: flex-start;
-          gap: 12px;
-          padding-left: 8px;
-          background: transparent;
-          color: var(--primary);
-        }
-
-        .fab-container.expanded .fab-toggle-pill .fab-btn-text {
-          opacity: 1;
-          max-width: 110px;
-          transform: translateX(0);
-        }
-
-        .fab-container.expanded .fab-toggle-pill:hover {
-          background: var(--secondary);
-        }
-
-        /* Bouncing animation for collapsed handle */
-        @keyframes idle-bounce {
-          0%, 80%, 100% {
-            transform: translateY(0);
-          }
-          85% {
-            transform: translateY(-4px);
-          }
-          90% {
-            transform: translateY(1px);
-          }
-          95% {
-            transform: translateY(-2px);
-          }
-        }
-
-        .fab-container:not(.expanded) .fab-toggle-pill.animate-bounce {
-          animation: idle-bounce 5s ease-in-out infinite;
-        }
-
-        /* Tooltips */
-        .fab-tooltip {
-          position: absolute;
-          right: 52px;
-          top: 50%;
-          transform: translateY(-50%) translateX(10px);
-          background: var(--card);
-          color: var(--foreground);
-          font-size: 11px;
-          font-weight: 700;
-          padding: 6px 12px;
-          border-radius: 8px;
-          box-shadow: var(--card-shadow);
-          white-space: nowrap;
-          pointer-events: none;
-          opacity: 0;
-          z-index: 10000;
-          backdrop-filter: blur(8px);
-          border: 1px solid var(--border);
-          transition: opacity 0.15s ease, transform 0.15s ease;
-        }
-
-        .fab-btn:hover .fab-tooltip,
-        .fab-toggle-pill:hover .fab-tooltip,
-        .fab-tooltip.visible-tooltip {
-          opacity: 1;
-          transform: translateY(-50%) translateX(0);
-        }
-
-        .fab-tooltip::after {
-          content: '';
-          position: absolute;
-          left: 100%;
-          top: 50%;
-          transform: translateY(-50%);
-          border: 5px solid transparent;
-          border-left-color: var(--card);
-        }
-
-        .fab-container.expanded .fab-tooltip {
-          display: none !important;
-        }
-
-        .fab-btn[data-hovered="true"] .fab-tooltip {
-          display: none !important;
-        }
-
-        /* Keyboard Focus Visible */
-        .fab-btn:focus-visible,
-        .fab-toggle-pill:focus-visible {
-          outline: 2px solid var(--primary);
-          outline-offset: 2px;
-        }
-
-        /* First-time coach mark hint styling */
-        .fab-coachmark {
-          position: fixed;
-          bottom: 24px;
-          right: 88px;
-          width: 220px;
-          background: var(--card);
-          color: var(--foreground);
-          border: 1px solid var(--border);
-          border-radius: 16px;
-          padding: 14px;
-          box-shadow: var(--card-shadow-elevated);
-          z-index: 9999;
-          font-family: inherit;
-          backdrop-filter: blur(12px);
-          animation: coachmark-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes coachmark-in {
-          from {
-            opacity: 0;
-            transform: translateX(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-
-        .fab-coachmark::after {
-          content: '';
-          position: absolute;
-          left: 100%;
-          bottom: 18px;
-          border: 8px solid transparent;
-          border-left-color: var(--card);
-        }
-
-        .fab-coachmark-title {
-          font-weight: 700;
-          font-size: 13px;
-          margin-bottom: 6px;
-          color: var(--primary);
-          display: flex;
-          align-items: center;
-          gap: 6px;
-        }
-
-        .fab-coachmark-text {
-          font-size: 11px;
-          line-height: 1.4;
-          color: var(--muted-foreground);
-          margin-bottom: 10px;
-        }
-
-        .fab-coachmark-btn {
-          width: 100%;
-          background: var(--primary);
-          color: var(--primary-foreground);
-          font-size: 11px;
-          font-weight: 600;
-          padding: 6px;
-          border-radius: 8px;
-          border: none;
-          cursor: pointer;
-          transition: background-color 0.15s ease;
-        }
-
-        .fab-coachmark-btn:hover {
-          opacity: 0.9;
-        }
-
-        /* Reduced motion support */
-        @media (prefers-reduced-motion: reduce) {
-          .fab-container, .fab-btn, .fab-toggle-pill, .fab-btn-text, .fab-tooltip, .fab-coachmark {
-            transition: none !important;
-            animation: none !important;
-          }
-        }
-      `}</style>
-
-      {hintOpen && (
-        <div className="fab-coachmark">
-          <div className="fab-coachmark-title">
-            <span>💡</span> {tText("Tip")}
-          </div>
-          <div className="fab-coachmark-text">
-            {isTouchDevice 
-              ? tText("Tap the bottom handle to expand the sidebar and see labels.") 
-              : tText("Hover over icons to see labels. Click the bottom handle to expand the sidebar.")
-            }
-          </div>
-          <button onClick={dismissHint} className="fab-coachmark-btn">
-            {tText("Got it")}
+          {/* Toggle button */}
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className={`
+              flex items-center rounded-xl transition-all duration-150 cursor-pointer
+              ${expanded ? 'justify-start gap-2.5 px-3 py-2' : 'justify-center w-[40px] h-[40px] mx-auto'}
+              text-muted-foreground hover:text-foreground hover:bg-muted/60
+            `}
+            aria-label={expanded ? tText("Collapse") : tText("Expand")}
+            aria-expanded={expanded}
+          >
+            {expanded ? (
+              <>
+                <ChevronRight className="h-[18px] w-[18px] shrink-0" />
+                <span className="text-xs font-semibold">{tText("Collapse")}</span>
+              </>
+            ) : (
+              <ChevronLeft className="h-[18px] w-[18px] shrink-0" />
+            )}
           </button>
         </div>
-      )}
-
-      <div 
-        ref={panelRef}
-        className={`fab-container ${isExpanded ? "expanded" : ""}`}
-        onMouseLeave={() => {
-          if (!open) setHoveredItem(null);
-        }}
-      >
-        <div className="fab-btn-list">
-          {showIndianTools && (
-            <button
-              onClick={(e) => handleButtonClick("/india-tools", "india-tools", e)}
-              onTouchStart={() => handleTouchStart("india-tools")}
-              onTouchEnd={handleTouchEnd}
-              onMouseEnter={() => handleItemEnter("india-tools")}
-              onMouseLeave={handleItemLeave}
-              className={`fab-btn ${location === "/india-tools" ? "active" : ""}`}
-              data-hovered={hoveredItem === "india-tools" ? "true" : "false"}
-              aria-label={tText("Indian Tools")}
-            >
-              <Languages
-                className="h-[22px] w-[22px] shrink-0"
-                style={{ color: location === "/india-tools" ? "currentColor" : "#10B981" }}
-              />
-              <span className="fab-btn-text">{tText("India Tools")}</span>
-              <div className={`fab-tooltip ${longPressedIcon === "india-tools" ? "visible-tooltip" : ""}`} role="tooltip">
-                🌐 {tText("India Tools")}
-              </div>
-            </button>
-          )}
-
-          {showWorkflows && (
-            <button
-              onClick={(e) => handleButtonClick("/workflows", "workflows", e)}
-              onTouchStart={() => handleTouchStart("workflows")}
-              onTouchEnd={handleTouchEnd}
-              onMouseEnter={() => handleItemEnter("workflows")}
-              onMouseLeave={handleItemLeave}
-              className={`fab-btn ${location === "/workflows" ? "active" : ""}`}
-              data-hovered={hoveredItem === "workflows" ? "true" : "false"}
-              aria-label={tText("Workflows")}
-            >
-              <Zap
-                className="h-[22px] w-[22px] shrink-0"
-                style={{ color: location === "/workflows" ? "currentColor" : "#F59E0B" }}
-              />
-              <span className="fab-btn-text">{tText("Workflows")}</span>
-              <div className={`fab-tooltip ${longPressedIcon === "workflows" ? "visible-tooltip" : ""}`} role="tooltip">
-                ⚡ {tText("Workflows")}
-              </div>
-            </button>
-          )}
-
-          {showWorkspace && (
-            <button
-              onClick={(e) => handleButtonClick("/workspace", "workspace", e)}
-              onTouchStart={() => handleTouchStart("workspace")}
-              onTouchEnd={handleTouchEnd}
-              onMouseEnter={() => handleItemEnter("workspace")}
-              onMouseLeave={handleItemLeave}
-              className={`fab-btn ${location === "/workspace" ? "active" : ""}`}
-              data-hovered={hoveredItem === "workspace" ? "true" : "false"}
-              aria-label={tText("Workspace")}
-            >
-              <FileText
-                className="h-[22px] w-[22px] shrink-0"
-                style={{ color: location === "/workspace" ? "currentColor" : "#6366F1" }}
-              />
-              <span className="fab-btn-text">{tText("Workspace")}</span>
-              <div className={`fab-tooltip ${longPressedIcon === "workspace" ? "visible-tooltip" : ""}`} role="tooltip">
-                📄 {tText("Workspace")}
-              </div>
-            </button>
-          )}
-        </div>
-
-        <div className="fab-divider" />
-
-        <button
-          onClick={() => {
-            setOpen(!open);
-            setMobileExpandedIcon(null);
-          }}
-          className={`fab-toggle-pill ${!isExpanded ? "animate-bounce" : ""}`}
-          aria-label={isExpanded ? tText("Collapse Sidebar") : tText("Expand Sidebar")}
-          {...(isExpanded ? { "aria-expanded": "true" } : { "aria-expanded": "false" })}
-        >
-          {isExpanded ? (
-            <>
-              <ChevronRight className="h-[18px] w-[18px] shrink-0" />
-              <span className="fab-btn-text">{tText("Collapse")}</span>
-            </>
-          ) : (
-            <>
-              <ChevronLeft className="h-[18px] w-[18px] shrink-0" />
-              <div className="fab-tooltip" role="tooltip">
-                {tText("Expand Sidebar")}
-              </div>
-            </>
-          )}
-        </button>
       </div>
     </>
   );
 }
+
+export default FloatingSidePanel;

@@ -260,6 +260,22 @@ export async function sendOtpEmail(email: string, otp: string, userName?: string
   }
 }
 
+export async function sendContactEmail(toEmail: string, html: string, subject: string, replyTo?: string): Promise<boolean> {
+  try {
+    await transporter.sendMail({
+      from: FROM_EMAIL,
+      to: toEmail,
+      replyTo: replyTo || undefined,
+      subject: `[FileNova Contact] ${subject}`,
+      html,
+    });
+    return true;
+  } catch (error) {
+    console.error("Failed to send contact email:", error);
+    return false;
+  }
+}
+
 export const emailService = {
   sendWelcomeEmail,
   sendSubscriptionConfirmation,
@@ -267,6 +283,7 @@ export const emailService = {
   sendUPIPaymentApproved,
   sendSubscriptionRenewalNotice,
   sendOtpEmail,
+  sendContactEmail,
 };
 
 export default emailService;

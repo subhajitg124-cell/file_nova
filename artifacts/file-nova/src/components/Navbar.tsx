@@ -177,33 +177,27 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
 
           <Link href="/" className="flex items-center gap-2.5 shrink-0 relative z-10">
             <img src="/logo.png" alt="FileNova - AI PDF & Image Tools" className="h-8 w-auto" width="32" height="32" fetchPriority="high" />
-            <span className="font-extrabold text-sm text-[var(--fn-text-primary)] hidden sm:block">FileNova</span>
+            <span className="font-extrabold text-sm text-foreground hidden sm:block">FileNova</span>
           </Link>
 
           {showSearch && (
-            <div className="relative max-w-[200px] xl:max-w-xs w-full hidden lg:block z-10">
-              <SmartSearchBar placeholder={tText("Search 30+ document tools...")} />
+            <div className="relative flex-1 min-w-[140px] max-w-[200px] hidden lg:block z-10">
+              <SmartSearchBar placeholder={tText("Search tools...")} />
             </div>
           )}
 
           <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 relative z-10">
             <nav className="hidden xl:flex items-center gap-1" aria-label="Main navigation">
               <PopularToolsDropdown />
-              <Link href="/india-tools" className="flex items-center gap-1.5 text-sm text-[var(--fn-text-secondary)] hover:text-[var(--fn-text-primary)] font-medium py-1.5 px-3 rounded-full hover:bg-[var(--fn-surface-elevated)] transition-colors duration-150 whitespace-nowrap">
+              <Link href="/india-tools" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground font-semibold py-1.5 px-2.5 rounded-full hover:bg-secondary/60 transition-colors duration-150 whitespace-nowrap">
                 <Shield className="h-3.5 w-3.5 text-emerald-500" />
                 {tText("India Tools")}
               </Link>
-              <Link href="/workflows" className="flex items-center gap-1.5 text-sm text-[var(--fn-text-secondary)] hover:text-[var(--fn-text-primary)] font-medium py-1.5 px-3 rounded-full hover:bg-[var(--fn-surface-elevated)] transition-colors duration-150 whitespace-nowrap">
+              <Link href="/workflows" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground font-semibold py-1.5 px-2.5 rounded-full hover:bg-secondary/60 transition-colors duration-150 whitespace-nowrap">
                 <Workflow className="h-3.5 w-3.5 text-amber-500" />
                 {tText("Workflows")}
               </Link>
-              {isDev && (
-                <Link href="/dev" className="flex items-center gap-1.5 text-sm text-indigo-600 dark:text-indigo-400 font-black py-1.5 px-3 rounded-full hover:bg-indigo-500/5 dark:hover:bg-indigo-500/10 border border-indigo-500/10 dark:border-indigo-500/20 hover:border-indigo-500/20 dark:hover:border-indigo-400/30 transition-all duration-150 whitespace-nowrap">
-                  <Code className="h-3.5 w-3.5" />
-                  DevWorkspace
-                </Link>
-              )}
-              <Link href="/pricing" className="flex items-center gap-1.5 text-sm text-[var(--fn-text-secondary)] hover:text-[var(--fn-text-primary)] font-medium py-1.5 px-3 rounded-full hover:bg-[var(--fn-surface-elevated)] transition-colors duration-150 whitespace-nowrap">
+              <Link href="/pricing" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground font-semibold py-1.5 px-2.5 rounded-full hover:bg-secondary/60 transition-colors duration-150 whitespace-nowrap">
                 <Heart className="h-3.5 w-3.5 text-rose-500 fill-rose-500/10" />
                 {tText("Support")}
               </Link>
@@ -336,7 +330,11 @@ export const Navbar = memo(function Navbar({ showSearch = true }: NavbarProps) {
               </AnimatePresence>
             </div>
 
-            {isDev && <DevBadge />}
+            {isDev && (
+              <div className="hidden sm:block">
+                <DevBadge />
+              </div>
+            )}
 
             <div className="flex items-center gap-1.5 shrink-0">
               {user ? (

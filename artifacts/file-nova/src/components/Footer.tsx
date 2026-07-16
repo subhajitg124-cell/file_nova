@@ -6,6 +6,7 @@ import { useTranslation } from "@/lib/i18n";
 import { createUpiLink } from "@/lib/upi";
 import { Lock, Mail, MessageCircle, MessageSquare, Heart, Coffee } from "lucide-react";
 import { UpiSupportModal } from "./UpiSupportModal";
+import { ContactFormDialog } from "./ContactFormDialog";
 
 const TelegramContact: React.FC = () => {
   const { user } = useAuthStore();
@@ -38,7 +39,7 @@ const TelegramContact: React.FC = () => {
   );
 };
 
-const WhatsAppContact: React.FC = () => {
+const WhatsAppContact: React.FC<{ onContactOpen: () => void }> = ({ onContactOpen }) => {
   const { user } = useAuthStore();
   const { tText } = useTranslation();
   const isEliteUser = user?.premiumTier === 'elite';
@@ -57,14 +58,9 @@ const WhatsAppContact: React.FC = () => {
   return (
       <li className="flex items-center gap-2">
         <MessageSquare className="h-4 w-4 text-emerald-500" />
-        <a
-          href="https://wa.me/919064560741?text=Hi! I am a FileNova Elite user and need assistance with..."
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hover:text-primary transition-colors"
-        >
-          WhatsApp: +91 9064560741
-        </a>
+        <button onClick={onContactOpen} className="hover:text-primary transition-colors cursor-pointer text-sm font-semibold" type="button">
+          {tText("Chat with us")}
+        </button>
         <span className="text-xs bg-amber-500 text-white px-2 py-0.5 rounded font-semibold">
           Elite
         </span>
@@ -77,6 +73,7 @@ const Footer: React.FC = memo(() => {
   const [upiOpen, setUpiOpen] = React.useState(false);
   const [upiAmount, setUpiAmount] = React.useState(10);
   const [upiNote, setUpiNote] = React.useState("Chai for FileNova");
+  const [contactOpen, setContactOpen] = React.useState(false);
 
   const triggerUpi = (e: React.MouseEvent, amount: number, note: string) => {
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -258,7 +255,7 @@ const Footer: React.FC = memo(() => {
                 </a>
               </li>
               <TelegramContact />
-              <WhatsAppContact />
+              <WhatsAppContact onContactOpen={() => setContactOpen(true)} />
               <li>
                 <a href="/sitemap.xml" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors text-xs text-muted-foreground/80">
                   {tText("Sitemap (XML)")}
@@ -317,6 +314,8 @@ const Footer: React.FC = memo(() => {
             amount={upiAmount}
             note={upiNote}
           />
+
+          <ContactFormDialog isOpen={contactOpen} onClose={() => setContactOpen(false)} />
 
           <div className="flex justify-center gap-4 mt-6 text-xs flex-wrap">
             <Link href="/privacy" className="hover:text-foreground transition-colors">

@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import SocialMediaLinks from "@/components/SocialMediaLinks";
 import { Lock, Mail, MessageCircle, MessageSquare, Code2 } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
+import { ContactFormDialog } from "@/components/ContactFormDialog";
 
 const TelegramSupport: React.FC = () => {
   const { user } = useAuthStore();
@@ -72,7 +73,7 @@ const TelegramSupport: React.FC = () => {
   );
 };
 
-const WhatsAppSupport: React.FC = () => {
+const WhatsAppSupport: React.FC<{ onContactOpen: () => void }> = ({ onContactOpen }) => {
   const { user } = useAuthStore();
   const isEliteUser = user?.premiumTier === 'elite';
 
@@ -124,22 +125,22 @@ const WhatsAppSupport: React.FC = () => {
       </div>
       <h3 className="text-xl font-bold text-foreground mb-2">WhatsApp Support</h3>
       <p className="text-muted-foreground mb-4">Priority support for Elite users</p>
-      <a
-        href="https://wa.me/919064560741?text=Hi! I am a FileNova Elite user and need assistance with..."
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block w-full bg-emerald-600 text-white text-center py-3 rounded-lg font-semibold hover:bg-emerald-500 transition"
+      <button
+        onClick={onContactOpen}
+        className="block w-full bg-emerald-600 text-white text-center py-3 rounded-lg font-semibold hover:bg-emerald-500 transition cursor-pointer"
       >
-        Chat on WhatsApp
-      </a>
+        Chat with us
+      </button>
       <p className="text-sm text-muted-foreground mt-2 text-center">
-        +91 9064560741
+        We'll connect you directly
       </p>
     </motion.div>
   );
 };
 
 const Contact: React.FC = () => {
+  const [contactOpen, setContactOpen] = React.useState(false);
+
   return (
     <div className="min-h-screen bg-background text-foreground font-sans py-12 px-4 relative">
       <div className="absolute top-0 left-0 right-0 h-[600px] bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.15),_transparent_60%)] pointer-events-none z-0" />
@@ -172,14 +173,14 @@ const Contact: React.FC = () => {
             </div>
             <h3 className="text-xl font-bold text-foreground mb-2">Email Support</h3>
             <p className="text-muted-foreground mb-4">For all users — Free & Premium</p>
-            <a
-              href="mailto:subhajiteditz90@gmail.com?subject=FileNova Support Request&body=Hi, I need help with..."
-              className="block w-full bg-primary text-primary-foreground text-center py-3 rounded-lg font-semibold hover:bg-primary/90 transition"
+            <button
+              onClick={() => setContactOpen(true)}
+              className="block w-full bg-primary text-primary-foreground text-center py-3 rounded-lg font-semibold hover:bg-primary/90 transition cursor-pointer"
             >
-              Send Email
-            </a>
+              Send Message
+            </button>
             <p className="text-sm text-muted-foreground mt-2 text-center">
-              subhajiteditz90@gmail.com
+              We reply within 24 hours
             </p>
           </motion.div>
 
@@ -187,7 +188,7 @@ const Contact: React.FC = () => {
           <TelegramSupport />
 
           {/* WhatsApp Support with Premium Gate */}
-          <WhatsAppSupport />
+          <WhatsAppSupport onContactOpen={() => setContactOpen(true)} />
         </div>
 
         {/* Support Details & Business Hours */}
@@ -209,7 +210,7 @@ const Contact: React.FC = () => {
           <div>
             <h3 className="text-lg font-bold text-foreground mb-3">Billing & Template Inquiries</h3>
             <ul className="space-y-2 text-xs text-muted-foreground leading-relaxed">
-              <li><strong>Payment Queries:</strong> If subscription is delayed, email transaction IDs directly to subhajiteditz90@gmail.com. We resolve all billing checks within 1 hour.</li>
+              <li><strong>Payment Queries:</strong> If subscription is delayed, email transaction IDs through the contact form. We resolve all billing checks within 1 hour.</li>
               <li><strong>Portal Presets:</strong> If an Indian portal changes dimensions, contact us to request new layout crops or document compression specifications.</li>
             </ul>
           </div>
@@ -286,6 +287,8 @@ const Contact: React.FC = () => {
             ← Back to Home
           </Link>
         </div>
+
+        <ContactFormDialog isOpen={contactOpen} onClose={() => setContactOpen(false)} />
       </div>
     </div>
   );

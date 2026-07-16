@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from "react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Phone, 
   HelpCircle, 
   Bot, 
   MessageCircle, 
@@ -16,7 +15,8 @@ import {
   Zap,
   Percent,
   ChevronRight,
-  Briefcase
+  Briefcase,
+  MessageSquare
 } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useTranslation } from "@/lib/i18n";
@@ -146,21 +146,12 @@ export function FloatingShortcuts() {
     ...(isPremiumUser ? [
       {
         id: "whatsapp",
-        icon: <MessageCircle className="h-5 w-5 text-emerald-400 fill-emerald-400/10" />,
-        label: tText("WhatsApp Support"),
-        description: tText("Elite priority chat"),
+        icon: <MessageSquare className="h-5 w-5 text-emerald-400" />,
+        label: tText("Chat with us"),
+        description: tText("Send a message"),
         gradient: "from-emerald-500/10 to-green-500/10 border-emerald-500/25",
-        route: "https://wa.me/919064560741?text=Hi! I am a FileNova Premium user and need assistance with...",
-        isInternal: false
-      },
-      {
-        id: "phone",
-        icon: <Phone className="h-5 w-5 text-rose-400" />,
-        label: tText("Call Support"),
-        description: tText("Direct operator line"),
-        gradient: "from-rose-500/10 to-orange-500/10 border-rose-500/25",
-        route: "tel:+919064560741",
-        isInternal: false
+        route: "/contact",
+        isInternal: true
       }
     ] : [])
   ];
