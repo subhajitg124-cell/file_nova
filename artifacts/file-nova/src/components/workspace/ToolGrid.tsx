@@ -365,7 +365,7 @@ export const ToolGrid: React.FC = () => {
           placeholder={t.searchToolsPlaceholder}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-10 pr-10 py-2.5 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all placeholder:text-muted-foreground/60"
+          className="w-full pl-10 pr-10 py-2.5 fn-glass rounded-xl text-sm outline-none focus:border-primary/40 focus:shadow-glow-sm transition-all placeholder:text-muted-foreground/60"
         />
         {searchQuery && (
           <button
@@ -476,14 +476,14 @@ export const ToolGrid: React.FC = () => {
                   className="space-y-3">
                   {/* Section header */}
                   <div className="flex items-center gap-2.5">
-                    <div className={`h-7 w-7 rounded-lg ${meta.iconBg} border ${meta.borderColor} flex items-center justify-center shrink-0`}>
-                      <SubIcon className={`h-3.5 w-3.5 ${meta.iconColor}`} />
+                    <div className={`h-8 w-8 rounded-xl ${meta.iconBg} border ${meta.borderColor} flex items-center justify-center shrink-0 backdrop-blur-sm`}>
+                      <SubIcon className={`h-4 w-4 ${meta.iconColor}`} />
                     </div>
                     <span className="text-sm font-bold text-foreground">{t.tText(meta.label)}</span>
-                    <span className="text-xs text-muted-foreground font-medium bg-muted/60 px-2 py-0.5 rounded-full border border-border">
+                    <span className="text-xs text-muted-foreground font-medium fn-glass px-2 py-0.5 rounded-full">
                       {tools.length}
                     </span>
-                    <div className="flex-1 h-px bg-border/50" />
+                    <div className="flex-1 h-px bg-gradient-to-r from-border/50 via-border/20 to-transparent" />
                   </div>
                   {/* Tool cards */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
@@ -539,20 +539,18 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, suggested, favorite, onFavori
       }}
       role="button"
       tabIndex={0}
-      className={`group relative w-full text-left rounded-xl border transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary/40 overflow-hidden animated-lines-bg
+      className={`group relative w-full text-left rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/40 overflow-hidden
         ${suggested
-          ? 'bg-primary/5 border-primary/35 shadow-glow hover:bg-primary/8'
-          : 'bg-card border-border hover:border-primary/30 hover:bg-muted/40'
+          ? 'bg-gradient-to-br from-primary/[0.08] to-transparent border border-primary/30 shadow-glow-sm hover:shadow-glow'
+          : 'fn-glass hover:shadow-elevated hover:border-primary/30'
         }
       `}
     >
       <div className="flex items-start gap-3 p-3.5">
-        {/* Icon */}
-        <div className={`h-9 w-9 rounded-lg ${iconBg} border flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-150`}>
-          <ToolIcon className={`h-4 w-4 ${iconColor}`} />
+        <div className={`h-10 w-10 rounded-xl ${iconBg} border flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-[-3deg] transition-all duration-200`}>
+          <ToolIcon className={`h-[18px] w-[18px] ${iconColor}`} />
         </div>
 
-        {/* Text */}
         <div className="min-w-0 flex-1 space-y-0.5">
           <div className="flex items-start justify-between gap-1">
             <h3 className="text-sm font-semibold text-foreground leading-tight truncate">{t.tText(tool.title)}</h3>
@@ -571,20 +569,20 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, suggested, favorite, onFavori
                     onFavorite();
                   }
                 }}
-                className={`h-7 w-7 inline-flex items-center justify-center rounded-lg border transition-colors cursor-pointer ${
+                className={`h-7 w-7 inline-flex items-center justify-center rounded-lg border transition-all duration-200 cursor-pointer backdrop-blur-sm ${
                   favorite
-                    ? 'bg-amber-400/15 border-amber-400/30 text-amber-400'
-                    : 'bg-background/70 border-border text-muted-foreground hover:text-amber-400 hover:border-amber-400/40'
+                    ? 'bg-amber-400/20 border-amber-400/40 text-amber-400 shadow-glow-amber'
+                    : 'bg-background/50 border-border/60 text-muted-foreground hover:text-amber-400 hover:border-amber-400/40 hover:bg-amber-400/10'
                 }`}
                 aria-label={favorite ? `Remove ${tool.title} from favorites` : `Add ${tool.title} to favorites`}
               >
                 <Star className={`h-3.5 w-3.5 ${favorite ? 'fill-current' : ''}`} />
               </span>
               {suggested && (
-                <span className="text-[9px] bg-primary/10 text-primary border border-primary/25 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wide whitespace-nowrap">{t.tText("Suggested")}</span>
+                <span className="text-[9px] bg-primary/15 text-primary border border-primary/30 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wide whitespace-nowrap backdrop-blur-sm">{t.tText("Suggested")}</span>
               )}
               {tool.badge && !suggested && (
-                <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wide border whitespace-nowrap ${
+                <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wide border whitespace-nowrap backdrop-blur-sm ${
                   (BADGE_COLORS as any)[tool.badgeColor || 'emerald']
                 }`}>
                   {t.tText(tool.badge)}
@@ -592,9 +590,9 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, suggested, favorite, onFavori
               )}
             </div>
           </div>
-          <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2">{t.tText(tool.description)}</p>
+          <p className="text-[11px] text-muted-foreground/80 leading-relaxed line-clamp-2">{t.tText(tool.description)}</p>
           {showSubcategory && subcatMeta && (
-            <span className={`inline-flex items-center gap-1 text-[10px] font-semibold mt-1 ${subcatMeta.iconColor}`}>
+            <span className={`inline-flex items-center gap-1 text-[10px] font-semibold mt-1 ${subcatMeta.iconColor} opacity-80`}>
               {tool.category.toUpperCase()} · {t.tText(subcatMeta.label)}
             </span>
           )}
