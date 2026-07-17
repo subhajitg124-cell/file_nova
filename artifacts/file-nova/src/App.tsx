@@ -13,26 +13,27 @@ import { Toaster } from "@/components/ui/sonner";
 import { UpgradeLimitModal } from "@/components/UpgradeLimitModal";
 import { GlobalNotice } from "@/components/GlobalNotice";
 import { ConnectionStatusIndicator } from "@/components/ConnectionStatusIndicator";
-import { FileNovaAssistant } from "@/components/FileNovaAssistant";
-import { FloatingShortcuts } from "@/components/FloatingShortcuts";
-import { FloatingSidePanel } from "@/components/FloatingSidePanel";
-import { CookieConsent } from "@/components/CookieConsent";
 import { FloatingParticles, CursorGlow } from "@/components/AnimatedEffects";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useFileStore } from "@/store/useFileStore";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { BACKEND_URL, HAS_BACKEND } from "@/lib/api";
-import { EditingWindow } from "@/components/EditingWindow";
 import { apiClient, apiMock } from "@/lib/api";
 import { setupFetchInterceptor } from "@/lib/fetchInterceptor";
-import { SupportNudge } from "@/components/SupportNudge";
-import { SupportDevModal } from "@/components/SupportDevModal";
-import { DevSupportBanner } from "@/components/DevSupportBanner";
-import { DevSupportNotification } from "@/components/DevSupportNotification";
 import { FEATURE_PAYMENT_GATEWAY } from "@/config/featureFlags";
 import { useSupportDevStore } from "@/store/useSupportDevStore";
-import { GlobalCommandPalette, MobileSearchFab } from "@/components/GlobalCommandPalette";
 import { loadGoogleAnalytics, clearGoogleAnalyticsCookies } from "@/lib/analytics";
+
+const FileNovaAssistant = React.lazy(() => import("@/components/FileNovaAssistant").then(m => ({ default: m.FileNovaAssistant })));
+const FloatingShortcuts = React.lazy(() => import("@/components/FloatingShortcuts").then(m => ({ default: m.FloatingShortcuts })));
+const FloatingSidePanel = React.lazy(() => import("@/components/FloatingSidePanel").then(m => ({ default: m.FloatingSidePanel })));
+const CookieConsent = React.lazy(() => import("@/components/CookieConsent").then(m => ({ default: m.CookieConsent })));
+const EditingWindow = React.lazy(() => import("@/components/EditingWindow").then(m => ({ default: m.EditingWindow })));
+const SupportNudge = React.lazy(() => import("@/components/SupportNudge").then(m => ({ default: m.SupportNudge })));
+const SupportDevModal = React.lazy(() => import("@/components/SupportDevModal").then(m => ({ default: m.SupportDevModal })));
+const DevSupportNotification = React.lazy(() => import("@/components/DevSupportNotification").then(m => ({ default: m.DevSupportNotification })));
+const GlobalCommandPalette = React.lazy(() => import("@/components/GlobalCommandPalette").then(m => ({ default: m.GlobalCommandPalette })));
+const MobileSearchFab = React.lazy(() => import("@/components/GlobalCommandPalette").then(m => ({ default: m.MobileSearchFab })));
 
 const queryClient = new QueryClient();
 
@@ -324,14 +325,18 @@ function App({ ssrPath }: { ssrPath?: string } = {}) {
                   <OfflineBanner />
                   <FloatingParticles />
                   <CursorGlow />
-                  <FloatingShortcuts />
-                  <FloatingSidePanel />
-                  <CookieConsent />
-                  <FileNovaAssistant isOpen={assistantOpen} onClose={() => setAssistantOpen(false)} />
+                  <React.Suspense fallback={null}>
+                    <FloatingShortcuts />
+                    <FloatingSidePanel />
+                    <CookieConsent />
+                    <FileNovaAssistant isOpen={assistantOpen} onClose={() => setAssistantOpen(false)} />
+                  </React.Suspense>
                   <AdminProvider>
                     <EventProvider>
                       <GlobalNotice />
-                      <DevSupportNotification />
+                      <React.Suspense fallback={null}>
+                        <DevSupportNotification />
+                      </React.Suspense>
                       <div id="main-content"><Router /></div>
                     </EventProvider>
                     <FileExpiryBar />
@@ -342,39 +347,43 @@ function App({ ssrPath }: { ssrPath?: string } = {}) {
                       limit={modalLimit}
                       usage={modalUsage}
                     />
-                    <SupportDevModal
-                      isOpen={supportModalOpen}
-                      onClose={closeSupportModal}
-                    />
-                    <SupportNudge />
-                    <MobileSearchFab />
-                    <GlobalCommandPalette />
-                    {editorOpen && editorFile && (
-                      <EditingWindow
-                        file={editorFile}
-                        fileType={editorFileType}
-                        toolType={selectedOperation === 'pancard' ? 'pan-resize' : (selectedOperation || 'default') as any}
-                        onClose={closeEditor}
-                        onDone={async (resultBlob) => {
-                          const editedFile = new File([resultBlob], editorFile.name, { type: resultBlob.type });
-                          closeEditor();
-
-                          setProcessing(true);
-                          try {
-                            const activeJobId = jobId || Math.random().toString(36).substring(2, 15);
-                            setJobId(activeJobId);
-                            addRawFiles([editedFile]);
-                            const uploaded = isMockMode
-                              ? await apiMock.uploadFiles([editedFile], activeJobId)
-                              : await apiClient.uploadFiles([editedFile], activeJobId);
-                            addFiles(uploaded);
-                          } catch (err: any) {
-                            setError(err.message || 'Upload failed.');
-                          } finally {
-                            setProcessing(false);
-                          }
-                        }}
+                    <React.Suspense fallback={null}>
+                      <SupportDevModal
+                        isOpen={supportModalOpen}
+                        onClose={closeSupportModal}
                       />
+                      <SupportNudge />
+                      <MobileSearchFab />
+                      <GlobalCommandPalette />
+                    </React.Suspense>
+                    {editorOpen && editorFile && (
+                      <React.Suspense fallback={<LoadingScreen />}>
+                        <EditingWindow
+                          file={editorFile}
+                          fileType={editorFileType}
+                          toolType={selectedOperation === 'pancard' ? 'pan-resize' : (selectedOperation || 'default') as any}
+                          onClose={closeEditor}
+                          onDone={async (resultBlob) => {
+                            const editedFile = new File([resultBlob], editorFile.name, { type: resultBlob.type });
+                            closeEditor();
+
+                            setProcessing(true);
+                            try {
+                              const activeJobId = jobId || Math.random().toString(36).substring(2, 15);
+                              setJobId(activeJobId);
+                              addRawFiles([editedFile]);
+                              const uploaded = isMockMode
+                                ? await apiMock.uploadFiles([editedFile], activeJobId)
+                                : await apiClient.uploadFiles([editedFile], activeJobId);
+                              addFiles(uploaded);
+                            } catch (err: any) {
+                              setError(err.message || 'Upload failed.');
+                            } finally {
+                              setProcessing(false);
+                            }
+                          }}
+                        />
+                      </React.Suspense>
                     )}
                   </AdminProvider>
                 </LanguageProvider>

@@ -101,6 +101,7 @@
   <!-- Preconnect: Critical third-party origins -->
   <link rel="preconnect" href="https://accounts.google.com" crossorigin />
   <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin />
+  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
 
   <!-- Fonts: Non-render-blocking async load (eliminates FCP delay) -->
   <link rel="preload"
@@ -333,15 +334,6 @@
   </style>
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
-  <script>
-    window.addEventListener('load', function () {
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js')
-          .then(function () { console.log('SW registered'); })
-          .catch(function (err) { console.error('SW registration failed', err); });
-      }
-    });
-  </script>
 </body>
 
 </html>

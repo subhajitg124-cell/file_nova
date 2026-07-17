@@ -2,10 +2,10 @@ import React, { useEffect, useState, lazy, Suspense } from "react";
 import { useLocation } from "wouter";
 import { useFileStore } from "@/store/useFileStore";
 import { TOOLS } from "@/components/workspace/ToolGrid";
-import ScholarshipZIPMaker from "@/pages/ScholarshipZIPMaker";
 import { Loader2 } from "lucide-react";
 import { apiClient, apiMock } from "@/lib/api";
 
+const ScholarshipZIPMaker = lazy(() => import("@/pages/ScholarshipZIPMaker"));
 const Workspace = lazy(() => import("@/pages/Home"));
 
 interface ToolPageProps {
@@ -139,7 +139,7 @@ export default function ToolPage({ params }: ToolPageProps) {
   }
 
   if (toolId === "scholarship-zip" || toolId === "scholarship-zip-maker" || toolId === "scholarship") {
-    return <ScholarshipZIPMaker />;
+    return <Suspense fallback={<Loader2 className="h-5 w-5 animate-spin" />}><ScholarshipZIPMaker /></Suspense>;
   }
 
   return (

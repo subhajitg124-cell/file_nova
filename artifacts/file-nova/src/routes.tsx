@@ -1,10 +1,6 @@
 import { Switch, Route, Redirect, useLocation } from "wouter";
 import React, { useEffect, useRef } from "react";
 import { BACKEND_URL, HAS_BACKEND } from "@/lib/api";
-import Home from "@/pages/SimpleHome";
-const Workspace = React.lazy(() => import("@/pages/Home"));
-import ToolsPage from "@/pages/ToolsPage";
-import ToolPage from "@/pages/ToolPage";
 import { ToolSEO } from "@/seo/ToolSEO";
 import { ToolStructuredData } from "@/seo/ToolStructuredData";
 import { EventTheme } from "@/components/events/EventTheme";
@@ -16,6 +12,11 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { useAdmin } from "@/lib/admin";
 import { useAuthStore } from "@/store/useAuthStore";
+
+const Home = React.lazy(() => import("@/pages/SimpleHome"));
+const Workspace = React.lazy(() => import("@/pages/Home"));
+const ToolsPage = React.lazy(() => import("@/pages/ToolsPage"));
+const ToolPage = React.lazy(() => import("@/pages/ToolPage"));
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, initialized, fetchMe } = useAuthStore();
