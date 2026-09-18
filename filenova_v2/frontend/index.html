@@ -3,70 +3,330 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>FileNova v2 — Share files without login</title>
-  <meta name="description" content="FileNova v2: no-login room-based file, image, audio and text sharing. Create a code, share it, done. Files auto-delete." />
-  <meta name="theme-color" content="#0A0F1E" />
+  <title>FileNova — Instant, Encrypted P2P-Style File & Text Sharing</title>
+  <meta name="description" content="No-login, end-to-end encrypted file, photo, audio, and code sharing with 6-digit room codes. Faster, cleaner, and more secure than ShareBy.io." />
+  <meta name="theme-color" content="#060913" />
+  
   <link rel="manifest" href="/manifest.webmanifest" />
   <link rel="icon" href="/favicon.ico" sizes="any" />
   <link rel="icon" href="/favicons/favicon-32x32.png" sizes="32x32" type="image/png" />
   <link rel="apple-touch-icon" href="/favicons/apple-touch-icon.png" />
+  
   <link rel="stylesheet" href="/css/main.css" />
   <link rel="stylesheet" href="/css/animations.css" />
 </head>
 <body>
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+
   <main class="shell">
-    <div class="topbar">
-      <span class="brand">FileNova <span class="badge">v2</span></span>
-      <button class="btn secondary" id="themeBtn" aria-label="Toggle dark or light mode">☀️ Light</button>
-    </div>
-
-    <h1>Share anything.<br />No login needed.</h1>
-    <p class="muted">Create a room, share the 6-letter code, and send files, photos, audio or text. Everything is encrypted in your browser and auto-deletes when the room expires.</p>
-
-    <section class="card glass" id="createCard" aria-label="Create room">
-      <h2>Create room</h2>
-      <form id="createForm">
-        <label id="expiryLabel">Room expires in</label>
-        <div class="expiry-grid" id="expiryGrid" role="group" aria-labelledby="expiryLabel">
-          <button type="button" data-value="10m" aria-pressed="false">10 min</button>
-          <button type="button" data-value="30m" aria-pressed="true">30 min</button>
-          <button type="button" data-value="1h" aria-pressed="false">1 hour</button>
-          <button type="button" data-value="24h" aria-pressed="false">24 hrs</button>
+    <!-- Topbar -->
+    <header class="topbar">
+      <a class="brand" href="/">
+        <div class="brand-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+            <polyline points="13 2 13 9 20 9"></polyline>
+          </svg>
         </div>
-        <label for="pinToggle"><input type="checkbox" id="pinToggle" /> Add a 4-digit PIN (extra lock)</label>
-        <input type="password" id="pinInput" class="hidden" inputmode="numeric" maxlength="4" pattern="\d{4}" placeholder="e.g. 4821" aria-label="Room PIN, 4 digits" />
-        <p class="field-error" id="pinError" role="alert"></p>
-        <button class="btn block" id="createBtn" type="submit" style="margin-top:12px">Create room</button>
-      </form>
-      <p class="small" style="margin-top:12px"><a href="/join.html">Have a code? Join a room →</a></p>
+        <span>FileNova</span>
+        <span class="badge-v2">v2</span>
+      </a>
+
+      <div class="topbar-actions">
+        <button class="theme-toggle" id="themeBtn" aria-label="Toggle dark or light theme" title="Toggle theme">
+          <svg id="themeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Hero Header -->
+    <section class="hero">
+      <div class="hero-pill">
+        <span class="dot"></span>
+        <span>Zero Accounts · AES-256 Encrypted · Auto-Delete</span>
+      </div>
+      <h1>Instant, Secure Sharing.<br>No Login Needed.</h1>
+      <p>Send files, photos, audio or code snippets via temporary 6-digit room codes. Encrypted directly in your browser.</p>
     </section>
 
-    <section class="card glass hidden" id="resultCard" aria-label="Room created">
-      <h2>Room is live ✓</h2>
-      <div class="room-code" id="roomCode" aria-label="Room code">······</div>
-      <p class="muted small" id="expiryNote"></p>
-      <div class="row">
-        <button class="btn secondary" id="copyCodeBtn">Copy code</button>
-        <button class="btn secondary" id="copyLinkBtn">Copy link</button>
-      </div>
-      <div class="share-grid" style="margin-top:12px">
-        <div>
-          <p class="muted small">Receiver scans to join</p>
-          <div class="qr-box" id="qrBox"><div class="skeleton"></div></div>
+    <!-- Send / Receive Dual Mode Switcher -->
+    <nav class="tab-container" role="tablist">
+      <button class="tab-btn active" id="tabSend" role="tab" aria-selected="true" aria-controls="sendSection">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="19" x2="12" y2="5"></line>
+          <polyline points="5 12 12 5 19 12"></polyline>
+        </svg>
+        <span>Send Anything</span>
+      </button>
+      <button class="tab-btn" id="tabReceive" role="tab" aria-selected="false" aria-controls="receiveSection">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <polyline points="19 12 12 19 5 12"></polyline>
+        </svg>
+        <span>Enter Room Code</span>
+      </button>
+    </nav>
+
+    <!-- ================================================================= -->
+    <!-- SEND VIEW (File Dropzone & Room Creation)                         -->
+    <!-- ================================================================= -->
+    <section id="sendSection" class="fade-in" role="tabpanel" aria-labelledby="tabSend">
+      <!-- Create / Prepare Card -->
+      <div class="glass-card" id="prepareRoomCard">
+        <!-- Drag & Drop Zone -->
+        <div class="dropzone" id="mainDropzone" role="button" tabindex="0" aria-label="Drop files here or click to browse">
+          <div class="dropzone-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+          </div>
+          <h2 class="dropzone-title">Drag &amp; drop files here</h2>
+          <p class="dropzone-subtitle">or tap to browse · any format up to 2 GB each</p>
+          <div class="dropzone-badges">
+            <span class="badge-feature">📁 Batch Files</span>
+            <span class="badge-feature">🖼️ Photos &amp; Video</span>
+            <span class="badge-feature">🎵 Audio Player</span>
+            <span class="badge-feature">💻 Code Snippets</span>
+          </div>
+          <input type="file" id="multiFileInput" multiple />
         </div>
-        <div>
-          <p class="muted small">Or share instantly</p>
-          <p><a class="btn secondary block" id="waBtn" href="#" target="_blank" rel="noopener">Share via WhatsApp</a></p>
-          <p><a class="btn block" id="openRoomBtn" href="#">Open sender room →</a></p>
+
+        <div class="alt-action">
+          <button type="button" class="link-btn" id="openSnippetModalBtn">✨ Or write / paste a text or code snippet</button>
+        </div>
+
+        <!-- Selected Files Queue -->
+        <div class="file-queue hidden" id="fileQueueBox"></div>
+
+        <!-- Room Expiry & Protection Options -->
+        <div class="room-options">
+          <label class="option-label" id="expiryLabel">Room Expiry Duration</label>
+          <div class="expiry-selector" role="group" aria-labelledby="expiryLabel">
+            <button type="button" class="expiry-btn" data-ttl="10m">10 min</button>
+            <button type="button" class="expiry-btn active" data-ttl="30m">30 min</button>
+            <button type="button" class="expiry-btn" data-ttl="1h">1 hour</button>
+            <button type="button" class="expiry-btn" data-ttl="24h">24 hours</button>
+          </div>
+
+          <div class="pin-toggle-row">
+            <label class="pin-toggle-label" for="pinCheckbox">
+              <input type="checkbox" id="pinCheckbox" />
+              <span>Protect room with a 4-digit PIN</span>
+            </label>
+          </div>
+
+          <input type="password" id="roomPinInput" class="pin-input hidden" inputmode="numeric" maxlength="4" placeholder="Enter 4-digit PIN" />
+
+          <button class="btn-primary" id="startRoomBtn" type="button">
+            <span>Create Secure Room &amp; Share</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Active Sender Room Hub (Shown after room is created) -->
+      <div class="glass-card hidden pop-in" id="activeSenderCard">
+        <div class="room-header">
+          <div class="radar-status waiting" id="radarStatus">
+            <span class="radar-pulse"></span>
+            <span id="radarStatusText">Waiting for receiver to join…</span>
+          </div>
+
+          <p class="dropzone-subtitle">Share this 6-digit code with the receiver:</p>
+          
+          <div class="room-code-display" id="roomCodeDisplay">
+            <!-- Code letters populated dynamically -->
+          </div>
+
+          <p class="dropzone-subtitle" id="activeExpiryNotice" style="margin-top: 6px;"></p>
+        </div>
+
+        <div class="share-actions-grid">
+          <button class="btn-secondary" id="copyCodeBtn" type="button">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <span>Copy Code</span>
+          </button>
+
+          <button class="btn-secondary" id="copyLinkBtn" type="button">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+            </svg>
+            <span>Copy Link</span>
+          </button>
+
+          <a class="btn-secondary btn-whatsapp" id="waShareBtn" href="#" target="_blank" rel="noopener">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17.472 14.382c-.301-.15-1.78-.878-2.056-.978-.276-.1-.477-.15-.678.15-.201.3-.778.978-.954 1.179-.176.201-.351.226-.652.075-.301-.15-1.272-.469-2.424-1.496-.895-.798-1.5-1.784-1.676-2.085-.176-.301-.019-.464.132-.614.136-.135.301-.351.452-.527.15-.176.201-.301.301-.502.101-.201.05-.377-.025-.527-.075-.15-.678-1.634-.929-2.237-.244-.588-.492-.509-.678-.518-.176-.009-.377-.01-.578-.01-.201 0-.527.075-.803.377-.276.301-1.054 1.03-1.054 2.511 0 1.482 1.079 2.912 1.23 3.113.15.201 2.122 3.24 5.14 4.544.718.31 1.279.496 1.716.635.722.23 1.378.197 1.898.12.58-.087 1.78-.728 2.031-1.431.251-.703.251-1.305.176-1.431-.076-.126-.277-.201-.578-.352z"/>
+            </svg>
+            <span>Share via WhatsApp</span>
+          </a>
+
+          <button class="btn-secondary" id="toggleQrBtn" type="button">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            <span>Show QR Code</span>
+          </button>
+        </div>
+
+        <!-- Expandable QR Code Box -->
+        <div class="qr-section hidden" id="qrContainer">
+          <p class="dropzone-subtitle" style="margin-bottom: 12px;">Scan with phone camera to instantly join:</p>
+          <div class="qr-frame" id="qrCanvasBox"></div>
+        </div>
+
+        <!-- Transfer Status & Live Progress -->
+        <div style="margin-top: 24px;">
+          <h3 style="font-size: 16px; margin-bottom: 10px;">Sending Status</h3>
+          <div id="senderUploadProgressList"></div>
+        </div>
+
+        <button class="btn-secondary" id="createNewRoomBtn" style="margin-top: 20px; width: 100%;" type="button">
+          + Start a Fresh Room
+        </button>
+      </div>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- RECEIVE VIEW (Enter Code, Decrypt & Download)                     -->
+    <!-- ================================================================= -->
+    <section id="receiveSection" class="hidden fade-in" role="tabpanel" aria-labelledby="tabReceive">
+      <!-- Enter Code Card -->
+      <div class="glass-card join-section" id="joinCard">
+        <h2>Enter Room Code</h2>
+        <p class="dropzone-subtitle">Enter the 6-character code from the sender or paste the link</p>
+
+        <!-- 6-Box OTP Input -->
+        <div class="otp-box-grid" id="otpGrid">
+          <input type="text" class="otp-input" maxlength="1" data-index="0" autocomplete="off" />
+          <input type="text" class="otp-input" maxlength="1" data-index="1" autocomplete="off" />
+          <input type="text" class="otp-input" maxlength="1" data-index="2" autocomplete="off" />
+          <input type="text" class="otp-input" maxlength="1" data-index="3" autocomplete="off" />
+          <input type="text" class="otp-input" maxlength="1" data-index="4" autocomplete="off" />
+          <input type="text" class="otp-input" maxlength="1" data-index="5" autocomplete="off" />
+        </div>
+
+        <div id="receiverPinWrap" class="hidden" style="margin-bottom: 16px;">
+          <label class="option-label" for="receiverPinInput">Room is locked with a PIN</label>
+          <input type="password" id="receiverPinInput" class="pin-input" inputmode="numeric" maxlength="4" placeholder="Enter 4-digit PIN" />
+        </div>
+
+        <button class="btn-primary" id="joinSubmitBtn" type="button">
+          <span>Connect &amp; Decrypt Files</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Received Content Area -->
+      <div class="glass-card hidden pop-in" id="receivedContentCard">
+        <div class="room-header">
+          <div class="radar-status connected">
+            <span class="radar-pulse"></span>
+            <span>Room Connected ✓</span>
+          </div>
+          <h2 style="font-size: 22px;">Files Shared With You</h2>
+          <p class="dropzone-subtitle" id="receiveExpiryNotice">Auto-decrypting in browser…</p>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+          <button class="btn-secondary hidden" id="zipDownloadBtn" type="button" style="width: 100%;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Download All as ZIP</span>
+          </button>
+        </div>
+
+        <!-- Decrypted Items List -->
+        <div class="receiver-content-grid" id="receivedItemsList">
+          <div class="skeleton-box" style="height: 80px;"></div>
+        </div>
+
+        <!-- Decrypted Text Snippets List -->
+        <div id="receivedTextsWrap" class="hidden" style="margin-top: 24px;">
+          <h3 style="font-size: 16px; margin-bottom: 10px;">Text &amp; Code Snippets</h3>
+          <div class="receiver-content-grid" id="receivedTextsList"></div>
         </div>
       </div>
     </section>
 
-    <footer class="muted small">English (IN) · Works on low bandwidth · Encrypted in your browser · Auto-delete</footer>
+    <!-- Footer -->
+    <footer>
+      <p>FileNova v2 · High-Speed E2E Encrypted Rooms · No Data Saved After Expiry</p>
+    </footer>
   </main>
+
+  <!-- ================================================================= -->
+  <!-- MODAL: Code / Text Snippet Composer                              -->
+  <!-- ================================================================= -->
+  <div class="modal-overlay hidden" id="snippetModal">
+    <div class="modal-card pop-in">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h2 style="font-size: 18px;">Share Code or Text Snippet</h2>
+        <button type="button" class="file-remove" id="closeSnippetModalBtn">✕</button>
+      </div>
+
+      <div style="margin-bottom: 12px;">
+        <label class="option-label" for="snippetLang">Language Syntax</label>
+        <select id="snippetLang" style="width: 100%; padding: 10px 12px; border-radius: var(--radius-sm); background: rgba(0,0,0,0.3); color: var(--text-main); border: 1px solid var(--border-glass);">
+          <option value="plain">Plain Text / Note</option>
+          <option value="javascript">JavaScript / TypeScript</option>
+          <option value="python">Python</option>
+          <option value="html">HTML</option>
+          <option value="css">CSS</option>
+          <option value="json">JSON</option>
+          <option value="sql">SQL</option>
+          <option value="bash">Bash / Shell</option>
+          <option value="markdown">Markdown</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <label class="option-label" for="snippetTextarea">Content</label>
+        <textarea id="snippetTextarea" rows="7" placeholder="Paste your confidential code or note here…" style="width: 100%; padding: 12px; border-radius: var(--radius-md); background: rgba(0,0,0,0.3); color: var(--text-main); font-family: var(--font-mono); font-size: 13px; border: 1px solid var(--border-glass);"></textarea>
+      </div>
+
+      <button class="btn-primary" id="confirmSnippetBtn" type="button">Add Snippet to Queue</button>
+    </div>
+  </div>
+
+  <!-- Toast Hub -->
+  <div id="toasts-hub"></div>
+
+  <!-- Scripts -->
   <script src="/socket.io/socket.io.js" defer></script>
   <script src="/js/ui.js" defer></script>
+  <script src="/js/crypto.js" defer></script>
+  <script src="/js/socket.js" defer></script>
   <script src="/js/qr.js" defer></script>
+  <script src="/js/audio.js" defer></script>
   <script src="/js/app.js" defer></script>
 </body>
 </html>
