@@ -1,0 +1,8 @@
+node_modules/
+.env
+data/rooms.json
+uploads/*/
+uploads/**/*.bin
+uploads/**/*.enc
+*.log
+.DS_Store

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Receiving — FileNova v2</title>
+  <meta name="description" content="Preview and download encrypted files, images, audio and text shared with you." />
+  <meta name="theme-color" content="#0A0F1E" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" href="/favicons/favicon-32x32.png" sizes="32x32" type="image/png" />
+  <link rel="apple-touch-icon" href="/favicons/apple-touch-icon.png" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/animations.css" />
+</head>
+<body>
+  <main class="shell">
+    <div class="topbar">
+      <a class="brand" href="/">FileNova <span class="badge">v2</span></a>
+      <span class="muted small" id="expiryNote"></span>
+    </div>
+
+    <section class="card glass hidden" id="needCode" aria-label="Re-enter room code">
+      <h2>Session expired on this device</h2>
+      <p class="muted">Enter the room code again to keep receiving.</p>
+      <form id="codeForm">
+        <label for="codeInput">Room code</label>
+        <input type="text" id="codeInput" maxlength="6" autocomplete="off" placeholder="AB12X9" />
+        <label for="pinInput">PIN (if set)</label>
+        <input type="password" id="pinInput" maxlength="4" inputmode="numeric" placeholder="4 digits, if any" />
+        <button class="btn block" type="submit" style="margin-top:12px">Continue receiving</button>
+      </form>
+    </section>
+
+    <div id="recvMain" class="hidden">
+      <h1>Shared with you</h1>
+      <p class="muted">File names, sizes and types appear before you download. Previews decrypt in your browser.</p>
+      <p><button class="btn secondary hidden" id="zipBtn">Download all as ZIP</button></p>
+      <section aria-label="Files">
+        <div id="fileList" aria-live="polite"></div>
+      </section>
+      <section aria-label="Text snippets" style="margin-top:16px">
+        <h2>Text / code</h2>
+        <div id="textList" aria-live="polite"></div>
+      </section>
+    </div>
+  </main>
+  <script src="/socket.io/socket.io.js" defer></script>
+  <script src="/js/ui.js" defer></script>
+  <script src="/js/crypto.js" defer></script>
+  <script src="/js/socket.js" defer></script>
+  <script src="/js/audio.js" defer></script>
+  <script src="/js/receive.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sender room — FileNova v2</title>
+  <meta name="description" content="Send encrypted files, images, audio and text from your FileNova room." />
+  <meta name="theme-color" content="#0A0F1E" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" href="/favicons/favicon-32x32.png" sizes="32x32" type="image/png" />
+  <link rel="apple-touch-icon" href="/favicons/apple-touch-icon.png" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/animations.css" />
+</head>
+<body>
+  <main class="shell">
+    <div class="topbar">
+      <a class="brand" href="/">FileNova <span class="badge">v2</span></a>
+      <span class="muted small" id="expiryNote"></span>
+    </div>
+
+    <section class="card glass hidden" id="needCode" aria-label="Re-enter room code">
+      <h2>Session expired on this device</h2>
+      <p class="muted">Enter your room code again to continue sending.</p>
+      <form id="codeForm">
+        <label for="codeInput">Room code</label>
+        <input type="text" id="codeInput" maxlength="6" autocomplete="off" placeholder="AB12X9" />
+        <label for="pinInput">PIN (if set)</label>
+        <input type="password" id="pinInput" maxlength="4" inputmode="numeric" placeholder="4 digits, if any" />
+        <button class="btn block" type="submit" style="margin-top:12px">Continue sending</button>
+      </form>
+    </section>
+
+    <div id="senderMain" class="hidden">
+      <h1 id="stageLabel">Waiting for receiver…</h1>
+      <ol class="timeline" id="timeline" aria-label="Transfer progress">
+        <li data-i="0" class="active">🕐 Waiting for receiver…</li>
+        <li data-i="1">👋 Receiver joined!</li>
+        <li data-i="2">📤 Sending…</li>
+        <li data-i="3">✓ Done</li>
+      </ol>
+
+      <section class="card glass" aria-label="Share room code">
+        <h2>Share this code</h2>
+        <div class="room-code" id="roomCodeBig">······</div>
+        <div class="row">
+          <button class="btn secondary" id="copyCodeBtn">Copy code</button>
+          <a class="btn secondary" id="waBtn" href="#" target="_blank" rel="noopener">WhatsApp</a>
+        </div>
+        <div class="qr-box" id="qrBox" style="margin-top:12px"><div class="skeleton"></div></div>
+      </section>
+
+      <section class="card glass" aria-label="Send files">
+        <h2>Send files <span class="muted small">(any format, up to 2 GB each)</span></h2>
+        <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Drop files here or press Enter to browse">
+          <p><strong>Drag &amp; drop files here</strong></p>
+          <p class="muted small">or tap to browse · encrypted in your browser before upload</p>
+          <input type="file" id="fileInput" multiple />
+        </div>
+        <div id="fileList" aria-live="polite"></div>
+      </section>
+
+      <section class="card glass" aria-label="Send text">
+        <h2>Send text / code</h2>
+        <form id="textForm">
+          <label for="langSelect">Language</label>
+          <select id="langSelect">
+            <option value="plain">Plain text</option>
+            <option value="javascript">JavaScript</option>
+            <option value="python">Python</option>
+            <option value="java">Java</option>
+            <option value="html">HTML</option>
+            <option value="css">CSS</option>
+            <option value="json">JSON</option>
+            <option value="bash">Bash</option>
+            <option value="sql">SQL</option>
+            <option value="markdown">Markdown</option>
+          </select>
+          <label for="textInput">Snippet</label>
+          <textarea id="textInput" rows="5" placeholder="Paste text or code…"></textarea>
+          <button class="btn block" id="textBtn" type="submit" style="margin-top:12px">Send snippet</button>
+        </form>
+      </section>
+    </div>
+  </main>
+  <script src="/socket.io/socket.io.js" defer></script>
+  <script src="/js/ui.js" defer></script>
+  <script src="/js/crypto.js" defer></script>
+  <script src="/js/socket.js" defer></script>
+  <script src="/js/qr.js" defer></script>
+  <script src="/js/room.js" defer></script>
+</body>
+</html>

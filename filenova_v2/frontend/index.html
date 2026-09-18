@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FileNova v2 — Share files without login</title>
+  <meta name="description" content="FileNova v2: no-login room-based file, image, audio and text sharing. Create a code, share it, done. Files auto-delete." />
+  <meta name="theme-color" content="#0A0F1E" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" href="/favicons/favicon-32x32.png" sizes="32x32" type="image/png" />
+  <link rel="apple-touch-icon" href="/favicons/apple-touch-icon.png" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/animations.css" />
+</head>
+<body>
+  <main class="shell">
+    <div class="topbar">
+      <span class="brand">FileNova <span class="badge">v2</span></span>
+      <button class="btn secondary" id="themeBtn" aria-label="Toggle dark or light mode">☀️ Light</button>
+    </div>
+
+    <h1>Share anything.<br />No login needed.</h1>
+    <p class="muted">Create a room, share the 6-letter code, and send files, photos, audio or text. Everything is encrypted in your browser and auto-deletes when the room expires.</p>
+
+    <section class="card glass" id="createCard" aria-label="Create room">
+      <h2>Create room</h2>
+      <form id="createForm">
+        <label id="expiryLabel">Room expires in</label>
+        <div class="expiry-grid" id="expiryGrid" role="group" aria-labelledby="expiryLabel">
+          <button type="button" data-value="10m" aria-pressed="false">10 min</button>
+          <button type="button" data-value="30m" aria-pressed="true">30 min</button>
+          <button type="button" data-value="1h" aria-pressed="false">1 hour</button>
+          <button type="button" data-value="24h" aria-pressed="false">24 hrs</button>
+        </div>
+        <label for="pinToggle"><input type="checkbox" id="pinToggle" /> Add a 4-digit PIN (extra lock)</label>
+        <input type="password" id="pinInput" class="hidden" inputmode="numeric" maxlength="4" pattern="\d{4}" placeholder="e.g. 4821" aria-label="Room PIN, 4 digits" />
+        <p class="field-error" id="pinError" role="alert"></p>
+        <button class="btn block" id="createBtn" type="submit" style="margin-top:12px">Create room</button>
+      </form>
+      <p class="small" style="margin-top:12px"><a href="/join.html">Have a code? Join a room →</a></p>
+    </section>
+
+    <section class="card glass hidden" id="resultCard" aria-label="Room created">
+      <h2>Room is live ✓</h2>
+      <div class="room-code" id="roomCode" aria-label="Room code">······</div>
+      <p class="muted small" id="expiryNote"></p>
+      <div class="row">
+        <button class="btn secondary" id="copyCodeBtn">Copy code</button>
+        <button class="btn secondary" id="copyLinkBtn">Copy link</button>
+      </div>
+      <div class="share-grid" style="margin-top:12px">
+        <div>
+          <p class="muted small">Receiver scans to join</p>
+          <div class="qr-box" id="qrBox"><div class="skeleton"></div></div>
+        </div>
+        <div>
+          <p class="muted small">Or share instantly</p>
+          <p><a class="btn secondary block" id="waBtn" href="#" target="_blank" rel="noopener">Share via WhatsApp</a></p>
+          <p><a class="btn block" id="openRoomBtn" href="#">Open sender room →</a></p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="muted small">English (IN) · Works on low bandwidth · Encrypted in your browser · Auto-delete</footer>
+  </main>
+  <script src="/socket.io/socket.io.js" defer></script>
+  <script src="/js/ui.js" defer></script>
+  <script src="/js/qr.js" defer></script>
+  <script src="/js/app.js" defer></script>
+</body>
+</html>
